@@ -2,7 +2,17 @@
 
 namespace App\Models;
 
+use App\Services\Db;
+
 class BaseModel {
+
+    public $db;
+
+    public function __construct(){
+
+        $this->db = new Db();
+
+    }
 
     public function root(){
 

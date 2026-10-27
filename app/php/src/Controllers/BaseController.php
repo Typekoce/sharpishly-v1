@@ -2,7 +2,23 @@
 
 namespace App\Controllers;
 
+use App\Services\Session;
+use App\Services\Logger;
+use App\Services\Db;
+
 class BaseController {
+
+    public $session;
+    public $logger;
+
+
+    public function __construct(){
+        $this->session     = Session::getInstance();
+        $this->logger      = new Logger();
+        if (!$this->db) {
+            $this->db = new Db(get_env(), $this->logger);
+        } 
+    }
     
     /**
      * Standardized JSON Response Handler
