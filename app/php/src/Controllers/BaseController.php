@@ -11,7 +11,7 @@ class BaseController {
     public $session;
     public $logger;
 
-
+    
     public function __construct(){
         $this->session     = Session::getInstance();
         $this->logger      = new Logger();
