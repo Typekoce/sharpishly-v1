@@ -30,7 +30,7 @@ class BaseModel {
 
     }
 
-    public function read($folder='jobs',$file='todo'){
+    public function readJob($folder='jobs',$file='todo'){
 
         $storagePath = $this->storage($folder);
 
