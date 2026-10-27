@@ -1,0 +1,443 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+class ScaffoldModel extends BaseModel
+{
+    public function syncSchema(): array
+    {
+        $applied = [];
+        $definitions = $this->getTableDefinitions();
+
+        foreach ($definitions as $tableName => $schema) {
+            $success = $this->db->createTable($tableName, $schema);
+            $applied[] = $success 
+                ? "✓ Table verified/created: $tableName" 
+                : "✗ Failed to create table: $tableName";
+        }
+
+        return $applied;
+    }
+
+    public function getTableDefinitions(): array
+    {
+        return [
+            'migrations' => [
+                'id'             => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'migration_name' => 'VARCHAR(255) UNIQUE NOT NULL',
+                'executed_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'batch'          => 'INT DEFAULT 1',
+                'pref'           => 'VARCHAR(255) DEFAULT NULL',
+                'content'        => 'LONGTEXT NULL DEFAULT NULL',
+                'status'         => 'VARCHAR(255)',
+            ],
+
+            'users' => [
+                'id'         => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'username'   => 'VARCHAR(100) NOT NULL UNIQUE',
+                'password'   => 'VARCHAR(255) NOT NULL',
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'       => 'VARCHAR(255) DEFAULT NULL',
+                'content'    => 'LONGTEXT NULL DEFAULT NULL',
+                'status'     => 'VARCHAR(255)',
+            ],
+
+            'documents' => [
+                'id'         => 'VARCHAR(36) PRIMARY KEY',
+                'filename'   => 'VARCHAR(255) NOT NULL',
+                'status'     => "ENUM('pending', 'processing', 'active', 'archived') DEFAULT 'pending'",
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'       => 'VARCHAR(255) DEFAULT NULL',
+                'content'    => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+
+            'jobs' => [
+                'id'                => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'payload'           => 'LONGTEXT NULL DEFAULT NULL',
+                'status'            => "ENUM('pending', 'processing', 'completed', 'failed') DEFAULT 'pending'",
+                'current_step'      => 'VARCHAR(255) DEFAULT NULL',
+                'progress'          => 'INT DEFAULT 0',
+                'created_at'        => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'finished_at'       => 'TIMESTAMP NULL DEFAULT NULL',
+                'embedding_version' => 'VARCHAR(50) DEFAULT NULL',
+                'processed_at'      => 'TIMESTAMP NULL DEFAULT NULL',
+                'error_message'     => 'TEXT NULL',
+                'pref'              => 'VARCHAR(255) DEFAULT NULL',
+                'content'           => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+
+            'vectors' => [
+                'id'         => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'job_id'     => 'INT NOT NULL',
+                'embedding'  => 'JSON NOT NULL',
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'       => 'VARCHAR(255) DEFAULT NULL',
+                'content'    => 'LONGTEXT NULL DEFAULT NULL',
+                'status'     => 'VARCHAR(255)',
+            ],
+
+            'knowledge_chunks' => [
+                'id'              => 'VARCHAR(36) PRIMARY KEY',
+                'document_id'     => 'VARCHAR(36) NOT NULL',
+                'chunk_index'     => 'INT NOT NULL',
+                'content_preview' => 'TEXT',
+                'valid_from'      => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'valid_until'     => 'TIMESTAMP NULL DEFAULT NULL',
+                'version_id'      => 'VARCHAR(50)',
+                'pref'            => 'VARCHAR(255) DEFAULT NULL',
+                'content'         => 'LONGTEXT NULL DEFAULT NULL',
+                'status'          => 'VARCHAR(255)',
+            ],
+
+            'logs' => [
+                'id'         => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'level'      => 'VARCHAR(20)',
+                'message'    => 'TEXT',
+                'context'    => 'JSON',
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'       => 'VARCHAR(255) DEFAULT NULL',
+                'content'    => 'LONGTEXT NULL DEFAULT NULL',
+                'status'     => 'VARCHAR(255)',
+            ],
+
+            'queries' => [
+                'id'         => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'title'      => 'VARCHAR(225)',
+                'message'    => 'VARCHAR(225)',
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'       => 'VARCHAR(255) DEFAULT NULL',
+                'content'    => 'LONGTEXT NULL DEFAULT NULL',
+                'status'     => 'VARCHAR(255)',
+            ],
+
+            'agent' => [
+                'id'         => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'title'      => 'VARCHAR(225)',
+                'message'    => 'VARCHAR(225)',
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'       => 'VARCHAR(255) DEFAULT NULL',
+                'content'    => 'LONGTEXT NULL DEFAULT NULL',
+                'status'     => 'VARCHAR(255)'
+            ],
+
+            'emails' => [
+                'id'         => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'title'      => 'VARCHAR(225)',
+                'message'    => 'VARCHAR(225)',
+                'email'      => 'VARCHAR(225)',
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'       => 'VARCHAR(255) DEFAULT NULL',
+                'content'    => 'LONGTEXT NULL DEFAULT NULL',
+                'status'     => 'VARCHAR(255)'
+            ],
+
+            'agents' => [
+                'id'          => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'title'       => 'VARCHAR(225)',
+                'agent_name'  => 'VARCHAR(225)',
+                'category'    => 'VARCHAR(100) DEFAULT "career"',
+                'summary'     => 'VARCHAR(255) NULL',
+                'description' => 'VARCHAR(225)',
+                'role'        => 'VARCHAR(225)',
+                'message'     => 'VARCHAR(225)',
+                'created_at'  => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'        => 'VARCHAR(255) DEFAULT NULL',
+                'content'     => 'LONGTEXT NULL DEFAULT NULL',
+                'status'      => 'VARCHAR(225)',
+            ],
+
+            'snapshots' => [
+                'id'          => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'title'       => 'VARCHAR(225)',
+                'agent_name'  => 'VARCHAR(225)',
+                'description' => 'VARCHAR(225)',
+                'role'        => 'VARCHAR(225)',
+                'message'     => 'VARCHAR(225)',
+                'created_at'  => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'        => 'VARCHAR(255) DEFAULT NULL',
+                'content'     => 'LONGTEXT NULL DEFAULT NULL',
+                'status'      => 'VARCHAR(225)'
+            ],
+
+            'snapshot' => [
+                'id'           => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'snapshots_id' => 'VARCHAR(225)',
+                'title'        => 'VARCHAR(225)',
+                'description'  => 'VARCHAR(225)',
+                'page'         => 'VARCHAR(225)',
+                'message'      => 'VARCHAR(225)',
+                'created_at'   => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'         => 'VARCHAR(255) DEFAULT NULL',
+                'content'      => 'LONGTEXT NULL DEFAULT NULL',
+                'status'       => 'VARCHAR(255)'
+            ],
+
+            'google_tokens' => [
+                'id'            => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'user_id'       => 'INT NOT NULL',
+                'provider'      => 'VARCHAR(50) NOT NULL',
+                'access_token'  => 'TEXT NOT NULL',
+                'refresh_token' => 'TEXT',
+                'scopes'        => 'TEXT',
+                'expires_at'    => 'TIMESTAMP NULL',
+                'revoked_at'    => 'TIMESTAMP NULL',
+                'created_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'updated_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+            ],
+
+            'oauth_tokens' => [
+                'id'            => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'user_id'       => 'INT NOT NULL',
+                'provider'      => 'VARCHAR(50) NOT NULL',
+                'access_token'  => 'TEXT NOT NULL',
+                'refresh_token' => 'TEXT NULL',
+                'scopes'        => 'TEXT NULL',
+                'expires_at'    => 'TIMESTAMP NULL DEFAULT NULL',
+                'created_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'updated_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+            ],
+
+            'hotmail_tokens' => [
+                'id'            => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'user_id'       => 'INT NOT NULL',
+                'access_token'  => 'TEXT NOT NULL',
+                'refresh_token' => 'TEXT NULL',
+                'expires_at'    => 'TIMESTAMP NULL DEFAULT NULL',
+                'created_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+            ],
+
+            'aws_tokens' => [
+                'id'            => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'user_id'       => 'INT NOT NULL',
+                'access_key'    => 'VARCHAR(255) NOT NULL',
+                'secret_key'    => 'TEXT NOT NULL',
+                'region'        => 'VARCHAR(50) DEFAULT "eu-west-1"',
+                'created_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+            ],
+
+            'indeed_tokens' => [
+                'id'            => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'user_id'       => 'INT NOT NULL',
+                'access_token'  => 'TEXT NOT NULL',
+                'expires_at'    => 'TIMESTAMP NULL DEFAULT NULL',
+                'created_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+            ],
+
+            'pentest_scans' => [
+                'id'            => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'target'        => 'VARCHAR(255) NOT NULL',
+                'scan_type'     => 'VARCHAR(100) DEFAULT "diagnostics"',
+                'results'       => 'LONGTEXT NULL DEFAULT NULL',
+                'status'        => 'VARCHAR(50) DEFAULT "pending"',
+                'created_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+            ],
+
+            'terminal' => [
+                'id'         => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'filename'   => 'VARCHAR(225)',
+                'command'    => 'VARCHAR(225)',
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'       => 'VARCHAR(255) DEFAULT NULL',
+                'content'    => 'LONGTEXT NULL DEFAULT NULL',
+                'status'     => 'VARCHAR(255)'
+            ],
+
+            // PhD start
+            'phd_projects' => [
+                'id'                    => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'user_id'               => 'INT NOT NULL',
+                'title'                 => 'VARCHAR(255) NOT NULL',
+                'research_theme'        => 'VARCHAR(100) NOT NULL',
+                'methodology'           => 'VARCHAR(100) DEFAULT NULL',
+                'ethical_review_status' => "ENUM('not_required', 'pending', 'approved') DEFAULT 'not_required'",
+                'created_at'            => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'updated_at'            => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+                'pref'                  => 'VARCHAR(255) DEFAULT NULL',
+                'content'               => 'LONGTEXT NULL DEFAULT NULL',
+                'status'                => 'VARCHAR(255)',
+            ],
+
+            'phd_research_sources' => [
+                'id'              => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'project_id'      => 'INT NOT NULL',
+                'title'           => 'VARCHAR(255) NOT NULL',
+                'authors'         => 'TEXT DEFAULT NULL',
+                'doi_url'         => 'VARCHAR(255) DEFAULT NULL',
+                'file_hash'       => 'VARCHAR(64) NOT NULL',
+                'access_status'   => 'VARCHAR(50) DEFAULT "open"',
+                'ingestion_state' => "ENUM('pending', 'queued', 'extracting', 'chunked', 'indexed', 'failed') DEFAULT 'pending'",
+                'created_at'      => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'updated_at'      => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+                'pref'            => 'VARCHAR(255) DEFAULT NULL',
+                'content'         => 'LONGTEXT NULL DEFAULT NULL',
+                'status'          => 'VARCHAR(255)',
+            ],
+
+            'phd_literature_chunks' => [
+                'id'              => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'source_id'       => 'INT NOT NULL',
+                'chunk_index'     => 'INT NOT NULL',
+                'chunk_text'      => 'TEXT NOT NULL',
+                'page_number'     => 'INT DEFAULT NULL',
+                'vector_id'       => 'VARCHAR(128) NOT NULL',
+                'embedding_model' => 'VARCHAR(64) NOT NULL',
+                'checksum'        => 'VARCHAR(32) NOT NULL',
+                'created_at'      => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'            => 'VARCHAR(255) DEFAULT NULL',
+                'content'         => 'LONGTEXT NULL DEFAULT NULL',
+                'status'          => 'VARCHAR(255)',
+            ],
+
+            'phd_research_notes' => [
+                'id'                => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'project_id'        => 'INT NOT NULL',
+                'source_id'         => 'INT NOT NULL',
+                'chunk_id'          => 'INT DEFAULT NULL',
+                'note_type'         => "ENUM('claim', 'methodology_critique', 'data_point', 'supervisor_feedback') DEFAULT 'claim'",
+                'claim'             => 'TEXT NOT NULL',
+                'evidence_location' => 'VARCHAR(100) DEFAULT NULL',
+                'tags'              => 'VARCHAR(255) DEFAULT NULL',
+                'confidence_score'  => 'DECIMAL(3,2) DEFAULT 1.00',
+                'status'            => "ENUM('draft', 'verified', 'archived') DEFAULT 'draft'",
+                'created_at'        => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'              => 'VARCHAR(255) DEFAULT NULL',
+                'content'           => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+            // PhD end
+
+            // todo
+            'todo' => [
+                'id'          => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'source_id'   => 'INT NULL DEFAULT 0',
+                'title'       => 'VARCHAR(255) DEFAULT NULL',
+                'description' => 'VARCHAR(255) DEFAULT NULL',
+                'status'      => 'VARCHAR(255) DEFAULT "pending"',
+                'created_at'  => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'        => 'VARCHAR(255) DEFAULT NULL',
+                'content'     => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+            // todo end
+
+            // sample start
+            'sample' => [
+                'id'          => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'title'       => 'VARCHAR(255) DEFAULT NULL',
+                'description' => 'VARCHAR(255) DEFAULT NULL',
+                'status'      => 'VARCHAR(255) DEFAULT "pending"',
+                'created_at'  => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'        => 'VARCHAR(255) DEFAULT NULL',
+                'content'     => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+            // sample end
+
+
+            // timetable start
+            'timetable' => [
+                'id'          => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'title'       => 'VARCHAR(255) DEFAULT NULL',
+                'description' => 'VARCHAR(255) DEFAULT NULL',
+                'status'      => 'VARCHAR(255) DEFAULT "pending"',
+                'created_at'  => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'        => 'VARCHAR(255) DEFAULT NULL',
+                'content'     => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+            // timetable end
+
+
+            // Integrations Workflows
+            'integration_workflows' => [
+                    'id'            => 'INT AUTO_INCREMENT PRIMARY KEY',
+                    'title'         => 'VARCHAR(255) NOT NULL',
+                    'source_system' => 'VARCHAR(100) NOT NULL',
+                    'target_system' => 'VARCHAR(100) NOT NULL',
+                    'payload'       => 'LONGTEXT NULL',
+                    'status'        => 'VARCHAR(50) DEFAULT "pending"',
+                    'created_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                    'updated_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+                ],
+            // Integrations Workflows
+            
+            // notes start
+            'notes' => [
+                'id'          => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'todo_id'     => 'INT NOT NULL',
+                'title'       => 'VARCHAR(255) DEFAULT NULL',
+                'note'        => 'LONGTEXT NULL DEFAULT NULL',
+                'status'      => 'VARCHAR(255) DEFAULT "active"',
+                'created_at'  => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'updated_at'  => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+                'pref'        => 'VARCHAR(255) DEFAULT NULL',
+                'content'     => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+            // notes end
+
+            // notifications start
+            'notifications' => [
+                'id'          => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'source'      => 'VARCHAR(100) DEFAULT NULL',
+                'title'       => 'VARCHAR(255) DEFAULT NULL',
+                'description' => 'LONGTEXT NULL DEFAULT NULL',
+                'status'      => 'VARCHAR(255) DEFAULT "unread"',
+                'created_at'  => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'updated_at'  => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+                'pref'        => 'VARCHAR(255) DEFAULT NULL',
+                'content'     => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+            // notifications end
+            
+            // auth start
+            'auth' => [
+                'id'            => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'user_id'       => 'INT DEFAULT NULL',
+                'provider'      => 'VARCHAR(32) NOT NULL DEFAULT "email"',
+                'provider_uid'  => 'VARCHAR(255) DEFAULT NULL',
+                'email'         => 'VARCHAR(255) DEFAULT NULL',
+                'password_hash' => 'VARCHAR(255) DEFAULT NULL',
+                'access_token'  => 'TEXT DEFAULT NULL',
+                'refresh_token' => 'TEXT DEFAULT NULL',
+                'expires_at'    => 'DATETIME DEFAULT NULL',
+                'title'         => 'VARCHAR(255) DEFAULT NULL',
+                'description'   => 'LONGTEXT NULL DEFAULT NULL',
+                'status'        => 'VARCHAR(255) DEFAULT "active"',
+                'pref'          => 'VARCHAR(255) DEFAULT NULL',
+                'content'       => 'LONGTEXT NULL DEFAULT NULL',
+                'created_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'updated_at'    => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+            ],
+            // auth end
+
+
+            // projects start
+            'projects' => [
+                'id'          => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'todo_id'     => 'INT NULL DEFAULT NULL', // Foreign key linking to todo.id
+                'source'      => 'VARCHAR(100) DEFAULT NULL',
+                'title'       => 'VARCHAR(255) DEFAULT NULL',
+                'description' => 'LONGTEXT NULL DEFAULT NULL',
+                'status'      => 'VARCHAR(255) DEFAULT "unread"',
+                'created_at'  => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'updated_at'  => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+                'pref'        => 'VARCHAR(255) DEFAULT NULL',
+                'content'     => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+            // projects end
+
+            // job_application_events start
+            'job_application_events' => [
+                'id'              => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'job_id'          => 'VARCHAR(100) NOT NULL',
+                'event_type'      => 'VARCHAR(50) NOT NULL',
+                'generation_mode' => 'VARCHAR(20) DEFAULT "live"',
+                'rag_mocked'      => 'TINYINT DEFAULT 0',
+                'status'          => 'VARCHAR(50) DEFAULT "pending"',
+                'created_at'      => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'            => 'VARCHAR(255) DEFAULT NULL',
+                'content'         => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+            // job_application_events end
+
+        ];
+    }
+}
