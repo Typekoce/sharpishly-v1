@@ -1,0 +1,109 @@
+/* --- Scoped Home Module --- */
+        #home {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+            padding: 2rem 0;
+        }
+
+        #home .home-card {
+            background-color: var(--surface-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        #home h2 {
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.03em;
+        }
+
+        #home h3 {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.03em;
+        }
+
+        #home .home-subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #home .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #home .metric-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.75rem 1rem;
+        }
+
+        #home .metric-label {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        #home .metric-value {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+        }
+
+        #home .quick-links {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 1.25rem;
+        }
+
+        #home .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 0.75rem;
+        }
+
+        #home .quick-link-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.85rem 1rem;
+            text-decoration: none;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        #home .quick-link-card:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        #home .link-title {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        #home .link-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }

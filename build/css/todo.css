@@ -1,0 +1,123 @@
+/* --- Scoped Todo Module --- */
+#todo {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    padding: 2rem 0;
+}
+
+#todo .todo-card {
+    background-color: var(--surface-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+#todo h2 {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    color: var(--accent-cyan);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.03em;
+}
+
+#todo .todo-subtitle {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+}
+
+#todo .todo-form {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+#todo input[type="text"] {
+    flex-grow: 1;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.75rem;
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#todo input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.15);
+}
+
+#todo .btn-add {
+    background-color: rgba(0, 240, 255, 0.1);
+    border: 1px solid var(--accent-cyan);
+    color: var(--accent-cyan);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    padding: 0 1.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#todo .btn-add:hover {
+    background-color: var(--accent-cyan);
+    color: var(--bg-dark);
+}
+
+#todo .todo-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+#todo .todo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    transition: border-color 0.2s ease;
+}
+
+#todo .todo-item:hover {
+    border-color: var(--accent-cyan);
+}
+
+#todo .todo-text {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    word-break: break-word;
+    cursor: pointer;
+}
+
+#todo .todo-item.completed .todo-text {
+    color: var(--text-muted);
+    text-decoration: line-through;
+}
+
+#todo .btn-delete {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    transition: color 0.2s ease;
+}
+
+#todo .btn-delete:hover {
+    color: #ff5555;
+}

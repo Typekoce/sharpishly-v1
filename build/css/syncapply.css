@@ -1,0 +1,145 @@
+/* --- Scoped SyncApply Module --- */
+        #syncapply {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+            padding: 2rem 0;
+        }
+
+        #syncapply .syncapply-card {
+            background-color: var(--surface-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        #syncapply h2 {
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.03em;
+        }
+
+        #syncapply h3 {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.03em;
+        }
+
+        #syncapply .syncapply-subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #syncapply .syncapply-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #syncapply .btn-primary,
+        #syncapply .btn-secondary {
+            flex: 1;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            padding: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        #syncapply .btn-primary {
+            background-color: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        #syncapply .btn-primary:hover {
+            background-color: var(--accent-cyan);
+            color: var(--bg-dark);
+        }
+
+        #syncapply .btn-secondary {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        #syncapply .btn-secondary:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        #syncapply .applications-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 1.25rem;
+        }
+
+        #syncapply .application-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        #syncapply .application-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.75rem 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        #syncapply .application-item:hover {
+            border-color: var(--accent-cyan);
+        }
+
+        #syncapply .app-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        #syncapply .app-role {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        #syncapply .app-company {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        #syncapply .app-badge {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+        }
+
+        #syncapply .app-badge.pending {
+            color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        #syncapply .app-badge.success {
+            color: var(--accent-green);
+            background: rgba(0, 255, 128, 0.1);
+        }
