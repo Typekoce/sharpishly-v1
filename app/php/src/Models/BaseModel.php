@@ -3,15 +3,19 @@
 namespace App\Models;
 
 use App\Services\Db;
+use App\Services\Logger;
 
 class BaseModel {
 
     public $db;
+    public $logger;
+
 
     public function __construct(){
 
-        $this->db = new Db();
-
+        if (!$this->db) {
+            $this->db = new Db(get_env(), $this->logger);
+        } 
     }
 
     public function root(){
