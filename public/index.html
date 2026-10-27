@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Thomasons v2 | Neural Pipeline</title>
+    <link rel="stylesheet" href="global.css">
+</head>
+<body>
+
+    <!-- Accessible Navigation Header -->
+    <header class="navbar">
+        <a href="#" class="navbar-brand" data-page="home">SHARPISHLY v2</a>
+
+        <button
+            type="button"
+            class="navbar-toggler"
+            id="menu-toggle"
+            aria-label="Toggle navigation"
+            aria-controls="nav-menu"
+            aria-expanded="false"
+        >
+            &#9776;
+        </button>
+
+        <nav class="nav-menu" id="nav-menu" aria-label="Main navigation">
+            <ul class="nav-list">
+                <li><a href="#" class="nav-link active" data-page="home">Home</a></li>
+                <li><a href="#" class="nav-link" data-page="syncapply">Sync</a></li>
+                <li><a href="#" class="nav-link" data-page="health">Health</a></li>
+                <li><a href="#" class="nav-link" data-page="todo">Todo</a></li>
+                <li><a href="#" class="nav-link" data-page="projects">Projects</a></li>
+                <li><a href="#" class="nav-link" data-page="startup">Start Up</a></li>
+                <li><a href="#" class="nav-link" data-page="login">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Global Application Mount Points -->
+    <div id="flash" class="container"></div>
+
+    <main id="app" class="container">
+
+        <!-- SPA Pages Rendered Here -->
+
+    </main>
+
+    <div id="neural-pipeline" class="container"></div>
+    <div id="spinner"></div>
+
+    <!-- Toggler & ARIA Synchronization Script -->
+    <script src="script.js"></script>
+</body>
+</html>

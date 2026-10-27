@@ -1,0 +1,43 @@
+<!-- health -->
+        <div id="health">
+            <div class="health-card">
+                <h2>System Diagnostics</h2>
+                <p class="health-subtitle">Neural pipeline & infrastructure telemetry</p>
+                
+                <div class="telemetry-grid">
+                    <div class="telemetry-item">
+                        <span class="telemetry-label">Database</span>
+                        <span class="telemetry-status online" id="status-db">Operational</span>
+                    </div>
+                    <div class="telemetry-item">
+                        <span class="telemetry-label">RAG Daemon</span>
+                        <span class="telemetry-status online" id="status-rag">Online</span>
+                    </div>
+                    <div class="telemetry-item">
+                        <span class="telemetry-label">Google Service</span>
+                        <span class="telemetry-status offline" id="status-google">Disconnected</span>
+                    </div>
+                    <div class="telemetry-item">
+                        <span class="telemetry-label">Ollama Neural Engine</span>
+                        <span class="telemetry-status online" id="status-ollama">Synced</span>
+                    </div>
+                </div>
+
+                <div class="models-section">
+                    <h3>Active Brain Matter</h3>
+                    <ul class="model-list" id="model-list">
+                        <li class="model-item">
+                            <span class="model-name">llama3:latest</span>
+                            <span class="model-meta">4.7 GB • Ready</span>
+                        </li>
+                        <li class="model-item">
+                            <span class="model-name">nomic-embed-text:latest</span>
+                            <span class="model-meta">0.5 GB • Ready</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <button type="button" class="btn-refresh" id="refresh-health">Run Diagnostics Check</button>
+            </div>
+        </div>
+        <!-- health -->
