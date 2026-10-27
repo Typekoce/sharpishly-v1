@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\TodoModel;
+
 class TodoController extends BaseController{
 
     public function index(){
@@ -24,10 +26,15 @@ class TodoController extends BaseController{
 
     public function read(){
 
+        $m = new TodoModel;
+
+        $r = $m->readTodo();
+
         $this->json([
             'class'  => __CLASS__,
             'method' => __FUNCTION__,
-            'file'   => __FILE__
+            'file'   => __FILE__,
+            'records' => $r
         ]);
     }
 

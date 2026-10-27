@@ -28,7 +28,7 @@ class JobController extends BaseController {
 
         $model = new JobModel();
 
-        $job = $model->read();
+        $job = $model->readJob();
 
         $this->json([
             'job'    => $job,
