@@ -1,11 +1,10 @@
 const Pages = {
-    'home': 'HomeController',
-    'syncapply': 'Controller',
+    'home': () => HomeController.index(),
+    //'syncapply': 'Controller',
 };const app = {
+    // TODO: Create routes
     setPage(page){
-
         this.currentPage = page;
-
         console.log({currentPage:page});
     },
     init() {
@@ -18,6 +17,14 @@ const Pages = {
         this.request(url);
 
         this.gotoPage();
+
+        this.navigation();
+    },
+    navigation(){
+        console.log({navigation:this.currentPage});
+        if(this.currentPage=='home'){
+            HomeController.index();
+        }
     },
     async getPage(page) {
 
@@ -62,6 +69,11 @@ async request(url) {
         } catch (error) {
             console.error(`Failed to load URL: ${url}`, error);
         }
+    }
+};const HomeController = {
+    async index(){
+        const url = 'http://sharpishly2.test/php/home/index';
+        app.request(url);
     }
 };document.addEventListener('DOMContentLoaded', () => {
 
