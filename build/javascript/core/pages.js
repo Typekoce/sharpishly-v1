@@ -1,4 +1,4 @@
 const Pages = {
-    'home': 'HomeController',
-    'syncapply': 'Controller',
+    'home': () => HomeController.index(),
+    //'syncapply': 'Controller',
 };

@@ -14,6 +14,14 @@ const app = {
         this.request(url);
 
         this.gotoPage();
+
+        this.navigation();
+    },
+    navigation(){
+        console.log({navigation:this.currentPage});
+        if(this.currentPage=='home'){
+            HomeController.index();
+        }
     },
     async getPage(page) {
 
