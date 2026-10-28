@@ -1,0 +1,15 @@
+# .grok/instructions.mdc - System & Agent Directives
+
+## Workspace Context
+- **Mode:** Strategic Planning & Direct Implementation
+- **Target Architecture:** Systemic, low-overhead codebases with minimal third-party package dependency footprint.
+
+## Agent Behavior & Workflow
+1. **Investigation Phase:** Map code dependencies, check existing file structure, and evaluate potential error boundaries before executing structural edits.
+2. **Execution Phase:** Perform atomic, transaction-style operations when modifying codebase files.
+3. **Validation:** Verify file syntax and shell output after making code adjustments.
+
+## Code Conventions
+- Use explicit variable names and explicit error parameters.
+- Keep function signatures tight and predictable.
+- Avoid introducing unnecessary heavy external frameworks when native or custom light solutions are sufficient.
