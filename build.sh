@@ -20,6 +20,7 @@ DIR="build/javascript"
 
 cat "$DIR/core/pages.js" \
     "$DIR/core/app.js" \
+    "$DIR/controllers/home_controller.js" \
     "$DIR/core/global.js" > "$OUTPUT"
 
 echo "Successfully built $OUTPUT"
