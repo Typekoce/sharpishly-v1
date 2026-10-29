@@ -1,27 +1,37 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
 
-clear
+echo "[BUILD] Compiling CSS..."
+CSS_FILES=(
+    build/css/global.css
+    build/css/home.css
+    build/css/syncapply.css
+    build/css/health.css
+    build/css/todo.css
+    build/css/login.css
+)
+: > public/global.css
+for css in "${CSS_FILES[@]}"; do
+    if [ -f "$css" ]; then
+        cat "$css" >> public/global.css
+        printf '\n' >> public/global.css
+    fi
+done
 
-OUTPUT="public/global.css"
-DIR="build/css"
-
-cat "$DIR/global.css" \
-    "$DIR/home.css" \
-    "$DIR/syncapply.css" \
-    "$DIR/health.css" \
-    "$DIR/todo.css" \
-    "$DIR/login.css" > "$OUTPUT"
-
-echo "Successfully built $OUTPUT"
-
-
-OUTPUT="public/script.js"
-DIR="build/javascript"
-
-cat "$DIR/core/pages.js" \
-    "$DIR/core/app.js" \
-    "$DIR/controllers/home_controller.js" \
-    "$DIR/core/global.js" > "$OUTPUT"
-
-echo "Successfully built $OUTPUT"
-
+echo "[BUILD] Compiling JavaScript..."
+JS_FILES=(
+    build/javascript/core/pages.js
+    build/javascript/core/app.js
+    build/javascript/core/app_routes.js
+    build/javascript/controllers/home_controller.js
+    build/javascript/core/global.js
+)
+: > public/script.js
+for js in "${JS_FILES[@]}"; do
+    if [ -f "$js" ]; then
+        cat "$js" >> public/script.js
+        printf '\n' >> public/script.js
+    fi
+done
+echo "[SUCCESS] Frontend assets built."
