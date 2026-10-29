@@ -10,13 +10,57 @@ OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434/api/chat")
 MODEL = os.environ.get("QWEN_MODEL", "qwen2.5:0.5b")
 MAX_FILE_BYTES = int(os.environ.get("QWEN_MAX_FILE_BYTES", 40 * 1024))
 MAX_TOTAL_CHARS = int(os.environ.get("QWEN_MAX_TOTAL_CHARS", 60 * 1024))
+CONTEXT_FILE = os.environ.get(
+    "QWEN_CONTEXT_FILE",
+    os.path.join(os.getcwd(), "CONTEXT.md"),
+)
+
 FILE_PATTERN = re.compile(r'@((?:[\w.-]+/)*[\w.-]+)')
+TARGET_PATTERN = re.compile(r'(?:->|@>)\s*([\w./-]+\.(?:php|js|html|css|md|json))')
+CODE_BLOCK_PATTERN = re.compile(r'```(?:php|javascript|js|html|css|json)?\s*\n([\s\S]*?)\n```')
+
+ALLOWED_ROOTS = ("app/", "public/", "build/")
+PHP_NAMESPACE_RULES = {
+    "app/php/src/Controllers/": "App\\Controllers",
+    "app/php/src/Models/": "App\\Models",
+    "app/php/src/Services/": "App\\Services",
+}
 
 SYSTEM_PROMPT = (
-    "You are a concise local coding assistant. "
-    "Use only the supplied file contents when answering. "
-    "If information is missing, say so."
+    "You are a concise local coding assistant for the Sharpishly project.\n"
+    "Use only supplied project context and file contents.\n"
+    "Never use Laravel, Symfony, or Illuminate namespaces.\n"
+    "Use only App\\Controllers, App\\Models, and App\\Services namespaces.\n"
+    "When creating a file, return exactly one complete fenced code block."
 )
+
+def handle_import_context():
+    if "--import-context" not in sys.argv:
+        return False
+
+    index = sys.argv.index("--import-context")
+    try:
+        source = sys.argv[index + 1]
+    except IndexError:
+        print("[qwen-cli] Usage: qwen-cli --import-context <filepath>", file=sys.stderr)
+        sys.exit(1)
+
+    if not os.path.isfile(source):
+        print(f"[qwen-cli] Source file not found: {source}", file=sys.stderr)
+        sys.exit(1)
+
+    if os.path.abspath(source) != os.path.abspath(CONTEXT_FILE):
+        with open(source, "r", encoding="utf-8", errors="replace") as src:
+            content = src.read()
+
+        with open(CONTEXT_FILE, "w", encoding="utf-8") as dst:
+            dst.write(content)
+
+        print(f"[qwen-cli] Imported project context deterministically from {source}", file=sys.stderr)
+    else:
+        print("[qwen-cli] Source and destination are identical.", file=sys.stderr)
+
+    sys.exit(0)
 
 def read_referenced_files(prompt):
     contexts = []
@@ -29,13 +73,8 @@ def read_referenced_files(prompt):
             print(f"[qwen-cli] Not a file: {raw_path}", file=sys.stderr)
             continue
 
-        size = os.path.getsize(path)
-        if size > MAX_FILE_BYTES:
-            print(
-                f"[qwen-cli] Skipping {raw_path}: {size} bytes exceeds "
-                f"{MAX_FILE_BYTES}-byte limit",
-                file=sys.stderr,
-            )
+        if os.path.getsize(path) > MAX_FILE_BYTES:
+            print(f"[qwen-cli] Skipping oversized file: {raw_path}", file=sys.stderr)
             continue
 
         try:
@@ -47,13 +86,12 @@ def read_referenced_files(prompt):
 
         block = f"\n\n--- FILE: {raw_path} ---\n{content}\n--- END FILE ---"
         if total_chars + len(block) > MAX_TOTAL_CHARS:
-            print("[qwen-cli] Context budget reached; ignoring remaining files.",
-                  file=sys.stderr)
+            print("[qwen-cli] Context budget reached.", file=sys.stderr)
             break
 
         total_chars += len(block)
         contexts.append(block)
-        print(f"[qwen-cli] Loaded {raw_path} ({size} bytes)", file=sys.stderr)
+        print(f"[qwen-cli] Loaded {raw_path}", file=sys.stderr)
 
     return "".join(contexts)
 
@@ -65,10 +103,7 @@ def stream_chat(user_prompt):
             {"role": "user", "content": user_prompt},
         ],
         "stream": True,
-        "options": {
-            "num_ctx": 2048,
-            "temperature": 0.2,
-        },
+        "options": {"num_ctx": 2048, "temperature": 0.2},
     }
 
     request = urllib.request.Request(
@@ -77,35 +112,135 @@ def stream_chat(user_prompt):
         headers={"Content-Type": "application/json"},
     )
 
+    chunks = []
     try:
         with urllib.request.urlopen(request) as response:
             for raw_line in response:
                 if not raw_line.strip():
                     continue
-
                 chunk = json.loads(raw_line.decode("utf-8"))
                 text = chunk.get("message", {}).get("content", "")
                 print(text, end="", flush=True)
-
-                if chunk.get("done"):
-                    print()
+                chunks.append(text)
+        print()
     except urllib.error.URLError as exc:
-        print(f"\n[qwen-cli] Cannot reach Ollama at {OLLAMA_URL}: {exc}",
-              file=sys.stderr)
-        print("Start it with: ollama serve", file=sys.stderr)
+        print(f"\n[qwen-cli] Cannot reach Ollama: {exc}", file=sys.stderr)
         sys.exit(1)
+
+    return "".join(chunks)
+
+def validate_target(target):
+    normalized = target.replace("\\", "/")
+
+    if normalized.startswith("/") or ".." in normalized.split("/"):
+        raise ValueError("Target must be a relative project path.")
+
+    if not normalized.startswith(ALLOWED_ROOTS):
+        raise ValueError("Target must be under app/, public/, or build/.")
+
+    return normalized
+
+def validate_php_target(target, code):
+    if not target.endswith(".php"):
+        return
+
+    expected_namespace = None
+    for prefix, namespace in PHP_NAMESPACE_RULES.items():
+        if target.startswith(prefix):
+            expected_namespace = namespace
+            break
+
+    if expected_namespace is None:
+        return
+
+    found = re.search(r'^\s*namespace\s+([A-Za-z0-9_\\]+)\s*;', code, re.MULTILINE)
+    if not found or found.group(1) != expected_namespace:
+        raise ValueError(
+            f"PHP namespace mismatch. Expected {expected_namespace}; "
+            f"found {found.group(1) if found else 'none'}."
+        )
+
+    if re.search(r'^\s*use\s+Illuminate\\', code, re.MULTILINE):
+        raise ValueError("Generated PHP contains a prohibited Illuminate import.")
+
+def maybe_write(args, prompt, response):
+    write = "--write" in args
+    force = "--force" in args
+
+    match = TARGET_PATTERN.search(prompt)
+    if not match:
+        return
+
+    target = validate_target(match.group(1))
+    blocks = CODE_BLOCK_PATTERN.findall(response)
+
+    if not blocks:
+        print("[qwen-cli] No fenced code block found; nothing written.", file=sys.stderr)
+        return
+
+    if len(blocks) > 1:
+        print("[qwen-cli] Multiple code blocks found; refusing ambiguous write.", file=sys.stderr)
+        return
+
+    code = blocks[0].strip() + "\n"
+
+    try:
+        validate_php_target(target, code)
+    except ValueError as exc:
+        print(f"[qwen-cli] Refusing to write: {exc}", file=sys.stderr)
+        return
+
+    if os.path.exists(target) and not force:
+        print(f"[qwen-cli] Refusing to overwrite existing file: {target}", file=sys.stderr)
+        print("Use --write --force to overwrite deliberately.", file=sys.stderr)
+        return
+
+    if not write:
+        print(f"\n[qwen-cli] Dry run: would write {len(code)} bytes to {target}", file=sys.stderr)
+        return
+
+    os.makedirs(os.path.dirname(os.path.abspath(target)), exist_ok=True)
+
+    if os.path.exists(target):
+        backup = target + ".bak"
+        with open(target, "r", encoding="utf-8") as src, \
+             open(backup, "w", encoding="utf-8") as dst:
+            dst.write(src.read())
+        print(f"[qwen-cli] Backup created: {backup}", file=sys.stderr)
+
+    with open(target, "w", encoding="utf-8") as f:
+        f.write(code)
+
+    print(f"[qwen-cli] Wrote {target}", file=sys.stderr)
 
 def main():
-    if len(sys.argv) < 2:
-        print('Usage: qwen-cli "Explain @src/app.js and list likely bugs"')
+    handle_import_context()
+
+    args = [arg for arg in sys.argv[1:] if arg in {"--write", "--force"}]
+    prompt_args = [arg for arg in sys.argv[1:] if arg not in {"--write", "--force"}]
+
+    if not prompt_args:
+        print('Usage: qwen-cli [--write] [--force] [--import-context file] "Create ... -> app/php/src/..."')
         sys.exit(1)
 
-    prompt = " ".join(sys.argv[1:])
+    prompt = " ".join(prompt_args)
+
+    project_context = ""
+    if os.path.isfile(CONTEXT_FILE):
+        with open(CONTEXT_FILE, "r", encoding="utf-8", errors="replace") as f:
+            project_context = f.read()
+        print(f"[qwen-cli] Loaded {CONTEXT_FILE}", file=sys.stderr)
+
     file_context = read_referenced_files(prompt)
-    final_prompt = f"{file_context}\n\n--- REQUEST ---\n{prompt}"
+    final_prompt = (
+        f"--- PROJECT CONTEXT ---\n{project_context}\n\n"
+        f"{file_context}\n\n"
+        f"--- REQUEST ---\n{prompt}"
+    )
 
     print(f"[qwen-cli] Model: {MODEL}", file=sys.stderr)
-    stream_chat(final_prompt)
+    response = stream_chat(final_prompt)
+    maybe_write(args, prompt, response)
 
 if __name__ == "__main__":
     main()
