@@ -1,8 +1,7 @@
 const HomeController = {
     async index() {
-        const container = app.el('home');
-        app.dBug('container',container);
-        if (!container) return;
+        
+        const container = app.getDom('home');
 
         const wrapper = app.item('div', 'records_container');
         container.appendChild(wrapper);
