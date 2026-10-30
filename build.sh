@@ -6,6 +6,7 @@ echo "[BUILD] Compiling CSS..."
 CSS_FILES=(
     build/css/global.css
     build/css/home.css
+    build/css/home_records.css
     build/css/syncapply.css
     build/css/health.css
     build/css/todo.css
