@@ -4,10 +4,16 @@ const Pages = {
 };
 const app = {
     currentPage: 'home',
-    data: {},
-    setData(key,val){
-        this.data[key] = val;
+    dom: {},
+    data:{},
+    setDom(key, val) {
+        this.dom[key] = val;
     },
+
+    getDom(page) {
+        return this.dom[page];
+    },
+
     setPage(page) {
         this.currentPage = page;
         console.log({ currentPage: page });
@@ -16,7 +22,7 @@ const app = {
     init() {
         void this.getPage('home');
         this.gotoPage();
-        this.navigation();
+        // Removed synchronous navigation() here to prevent running before fetch completes
     },
 
     navigation() {
@@ -33,9 +39,9 @@ const app = {
         try {
             const res = await fetch(`/views/pages/${encodeURIComponent(page)}.html`);
             container.innerHTML = await res.text();
-            this.setData(page,this.el(page));
-            this.setData('app-container',container);
-            this.dBug('data',this.data);
+            this.setDom(page, this.el(page));
+            // Trigger navigation / controller execution after DOM elements exist
+            this.navigation();
         } catch (error) {
             console.error(`Failed to load page: ${page}`, error);
         } 
@@ -68,7 +74,8 @@ const app = {
     },
 
     get(endpoint) {
-        return this.request(`http://sharpishly2.test/php/todo/read}`);
+        const cleanEndpoint = endpoint.replace(/^\/+/, '');
+        return this.request(`http://sharpishly2.test/php/${cleanEndpoint}`);
     },
 
     item(tag, className = '', text = '') {
@@ -78,8 +85,8 @@ const app = {
         return el;
     },
 
-    dBug(key,val){
-        console.log({key:key,value:val});
+    dBug(key, val) {
+        console.log({ key: key, value: val });
     }
 };
 app.routes = function() {
@@ -88,9 +95,8 @@ app.routes = function() {
 
 const HomeController = {
     async index() {
-        const container = app.el('home');
-        app.dBug('container',container);
-        if (!container) return;
+        
+        const container = app.getDom('home');
 
         const wrapper = app.item('div', 'records_container');
         container.appendChild(wrapper);
