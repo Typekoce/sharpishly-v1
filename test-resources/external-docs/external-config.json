@@ -1,0 +1,5 @@
+{
+  "externalServiceUrl": "https://api.github.com/zen",
+  "timeout": 30,
+  "retries": 3
+}

@@ -1,22 +1,30 @@
 const HomeController = {
-    async index(){
+    async index() {
+        const container = app.el('home');
+        app.dBug('container',container);
+        if (!container) return;
 
-        const url = 'http://sharpishly2.test/php/home/index';
+        const wrapper = app.item('div', 'records_container');
+        container.appendChild(wrapper);
 
-        const records = app.request(url);
+        const result = await app.get('todo/read');
+        const records = result?.records || result?.data || [];
 
-        const record_container = document.createElement('div');
-
-        records.setAttribute('class','records_container');
-
-        for(record in records){
-
-            const row = document.createElement('div');
-
-            row.innerHTML=record.text();
+        if (records.length === 0) {
+            this.renderEmpty(wrapper);
+        } else {
+            this.renderRecords(wrapper, records);
         }
-
-        // append to #home
-
     },
+
+    renderEmpty(container) {
+        container.appendChild(app.item('p', 'text-muted', 'No records found.'));
+    },
+
+    renderRecords(container, records) {
+        records.forEach(record => {
+            const row = app.item('div', 'record-row', record.title || JSON.stringify(record));
+            container.appendChild(row);
+        });
+    }
 };

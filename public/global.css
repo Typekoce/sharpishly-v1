@@ -157,7 +157,8 @@ body {
     * {
         transition: none !important;
     }
-}/* --- Scoped Home Module --- */
+}
+/* --- Scoped Home Module --- */
         #home {
             display: flex;
             justify-content: center;
@@ -265,7 +266,8 @@ body {
         #home .link-desc {
             font-size: 0.8rem;
             color: var(--text-muted);
-        }/* --- Scoped SyncApply Module --- */
+        }
+/* --- Scoped SyncApply Module --- */
         #syncapply {
             display: flex;
             justify-content: center;
@@ -409,7 +411,8 @@ body {
         #syncapply .app-badge.success {
             color: var(--accent-green);
             background: rgba(0, 255, 128, 0.1);
-        }/* --- Scoped Health Module --- */
+        }
+/* --- Scoped Health Module --- */
         #health {
             display: flex;
             justify-content: center;
@@ -544,7 +547,8 @@ body {
         #health .btn-refresh:hover {
             background-color: var(--accent-cyan);
             color: var(--bg-dark);
-        }/* --- Scoped Todo Module --- */
+        }
+/* --- Scoped Todo Module --- */
 #todo {
     display: flex;
     justify-content: center;
@@ -666,7 +670,8 @@ body {
 
 #todo .btn-delete:hover {
     color: #ff5555;
-}/* --- Scoped Login Module --- */
+}
+/* --- Scoped Login Module --- */
         #login {
             display: flex;
             justify-content: center;
