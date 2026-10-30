@@ -167,7 +167,7 @@ body {
             padding: 2rem 0;
         }
 
-        #home .home-card {
+        #home .home-card, .home-records {
             background-color: var(--surface-dark);
             border: 1px solid var(--border-color);
             border-radius: 6px;
@@ -267,6 +267,7 @@ body {
             font-size: 0.8rem;
             color: var(--text-muted);
         }
+
 /* --- Scoped SyncApply Module --- */
         #syncapply {
             display: flex;

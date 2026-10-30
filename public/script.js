@@ -95,10 +95,11 @@ app.routes = function() {
 
 const HomeController = {
     async index() {
-        
+
         const container = app.getDom('home');
 
-        const wrapper = app.item('div', 'records_container');
+        const wrapper = app.item('div', 'home-records');
+
         container.appendChild(wrapper);
 
         const result = await app.get('todo/read');
