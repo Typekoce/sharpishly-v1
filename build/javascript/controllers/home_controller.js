@@ -23,8 +23,15 @@ const HomeController = {
 
     renderRecords(container, records) {
         records.forEach(record => {
-            const row = app.item('div', 'record-row', record.title || JSON.stringify(record));
-            container.appendChild(row);
+            const metricItem = app.item('div', 'metric-item');
+            
+            const labelSpan = app.item('span', 'metric-label', 'Framework');
+            const valueSpan = app.item('span', 'metric-value', record.title || JSON.stringify(record));
+            
+            metricItem.appendChild(labelSpan);
+            metricItem.appendChild(valueSpan);
+            
+            container.appendChild(metricItem);
         });
     }
 };

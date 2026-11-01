@@ -1,13 +1,33 @@
 /* --- Scoped Home Module --- */
 #home {
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center; /* Centers children horizontally if max-width is constrained */
+    gap: 1.5rem;
     width: 100%;
-    padding: 2rem 0;
+    padding: 2rem 1.5rem;
 }
 
-#home .home-card {
+/* Ensure cards container appears first and wraps properly */
+#home .home-cards {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Ensure records sit cleanly underneath */
+#home .home-records {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+/* Shared Card and Records Box Styling */
+#home .home-card,
+#home .home-records {
     background-color: var(--surface-dark);
     border: 1px solid var(--border-color);
     border-radius: 6px;
