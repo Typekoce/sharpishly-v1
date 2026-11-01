@@ -21,6 +21,7 @@ const HomeController = {
         container.appendChild(app.item('p', 'text-muted', 'No records found.'));
     },
 
+    // TODO: Move to RenderController
     renderRecords(container, records) {
         records.forEach(record => {
             const metricItem = app.item('div', 'metric-item');
