@@ -8,8 +8,8 @@ if [ -z "$DIFF" ]; then
 fi
 
 echo "[OLLAMA] Querying local model ($MODEL) for code review..."
-# Passing diff to qwen-cli or direct API check using a raw string literal (r"...")
-python3 -c r"
+# Passing diff to qwen-cli or direct API check
+python3 -c "
 import urllib.request, json
 url = 'http://localhost:11434/api/chat'
 payload = {
@@ -27,5 +27,5 @@ try:
         res_data = json.loads(res.read().decode('utf-8'))
         print(res_data.get('message', {}).get('content', ''))
 except Exception as e:
-    print('OLLAMA audit skipped:', e)
+    print('Ollama audit skipped:', e)
 "

@@ -1,2 +1,4 @@
 env.php
-
+build/mcp/.venv/
+__pycache__/
+*.py[cod]
