@@ -4,7 +4,7 @@ clear
 
 line='--------------'
 
-echo "Start jobs"
+echo $line"Start jobs"
 
 cd app/php/src/cmd/
 
@@ -13,3 +13,7 @@ cd app/php/src/cmd/
 cd ../../../..
 
 pwd
+
+echo $"start MCP"
+
+./build/shells/start-mcp.sh
