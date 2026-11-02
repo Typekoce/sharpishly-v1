@@ -2,6 +2,7 @@ import json
 import ast
 import operator
 
+
 class CalculatorController:
     """Safe Math AST evaluator and FastMCP Stdio Server."""
 
@@ -37,7 +38,7 @@ class CalculatorController:
                 raise ValueError(f"Unsupported AST node: {type(node).__name__}")
 
         try:
-            parsed = ast.parse(expr, mode='eval')
+            parsed = ast.parse(expr, mode="eval")
             return _eval_node(parsed.body)
         except Exception as e:
             return f"Calculation Error: {str(e)}"

@@ -6,6 +6,7 @@ import re
 import sys
 import urllib.parse
 
+
 class App:
     def __init__(self, request_uri: str | None = None):
         if request_uri is None:
