@@ -25,6 +25,8 @@ const HomeController = {
     renderRecords(container, records) {
         records.forEach(record => {
             const metricItem = app.item('div', 'metric-item');
+
+            metricItem.onclick = function(){alert('foo')};
             
             const labelSpan = app.item('span', 'metric-label', 'Framework');
             const valueSpan = app.item('span', 'metric-value', record.title || JSON.stringify(record));
