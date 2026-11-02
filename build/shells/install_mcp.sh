@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ==============================================================================
+#==============================================================================
 # Sharpishly MCP Provisioner & Architecture Installer
-# ==============================================================================
-
+#==============================================================================
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PYTHON_APP_DIR="${PROJECT_ROOT}/app/python"
 MCP_VENV_DIR="${PROJECT_ROOT}/build/mcp/.venv"
@@ -23,11 +22,13 @@ if [ ! -d "${MCP_VENV_DIR}" ]; then
 fi
 
 "${VENV_PYTHON}" -m pip install --upgrade pip > /dev/null 2>&1
-"${VENV_PYTHON}" -m pip install mcp httpx > /dev/null 2>&1
+
+# Pin mcp<2 so FastMCP (v1 API) continues to work
+"${VENV_PYTHON}" -m pip install "mcp<2" httpx > /dev/null 2>&1
 
 echo "[3/6] Generating MVC Core & Router..."
 
-# Create app/core/app.py
+# ----- app/core/app.py -----
 cat << 'EOF' > "${PYTHON_APP_DIR}/app/core/app.py"
 import asyncio
 import importlib
@@ -36,6 +37,7 @@ import os
 import re
 import sys
 import urllib.parse
+
 
 class App:
     def __init__(self, request_uri: str | None = None):
@@ -79,7 +81,7 @@ class App:
         return result
 EOF
 
-# Create index.py entry point
+# ----- index.py entry point -----
 cat << 'EOF' > "${PYTHON_APP_DIR}/index.py"
 #!/usr/bin/env python3
 import os
@@ -96,13 +98,16 @@ chmod +x "${PYTHON_APP_DIR}/index.py"
 
 echo "[4/6] Generating MVC Controllers..."
 
-# Create calculator_controller.py
+# ----- calculator_controller.py -----
 cat << 'EOF' > "${PYTHON_APP_DIR}/app/controllers/calculator_controller.py"
 import json
 import ast
 import operator
 
+
 class CalculatorController:
+    """Safe Math AST evaluator and FastMCP Stdio Server."""
+
     def evaluate_expression(self, expr: str):
         operators = {
             ast.Add: operator.add,
@@ -135,7 +140,7 @@ class CalculatorController:
                 raise ValueError(f"Unsupported AST node: {type(node).__name__}")
 
         try:
-            parsed = ast.parse(expr, mode='eval')
+            parsed = ast.parse(expr, mode="eval")
             return _eval_node(parsed.body)
         except Exception as e:
             return f"Calculation Error: {str(e)}"
@@ -144,46 +149,25 @@ class CalculatorController:
         print(json.dumps({"status": "ok", "controller": "CalculatorController", "action": "index"}))
 
     async def mcp(self):
-        from mcp.server import Server
-        import mcp.types as types
-        from mcp.server.stdio import stdio_server
+        """Launch FastMCP stdio server."""
+        from mcp.server.fastmcp import FastMCP
 
-        server = Server("calculator-mcp")
+        server = FastMCP("calculator-mcp")
 
-        @server.list_tools()
-        async def handle_list_tools() -> list[types.Tool]:
-            return [
-                types.Tool(
-                    name="calculate",
-                    description="Safely evaluate mathematical expressions using an AST visitor.",
-                    inputSchema={
-                        "type": "object",
-                        "properties": {
-                            "expression": {"type": "string", "description": "Math expression (e.g. '10 * 5 + 4')"}
-                        },
-                        "required": ["expression"]
-                    },
-                )
-            ]
+        @server.tool()
+        def calculate(expression: str) -> str:
+            """Safely evaluate mathematical expressions using an AST visitor."""
+            return str(self.evaluate_expression(expression))
 
-        @server.call_tool()
-        async def handle_call_tool(name: str, arguments: dict | None) -> list[types.TextContent]:
-            arguments = arguments or {}
-            if name == "calculate":
-                expr = arguments.get("expression", "")
-                result = self.evaluate_expression(expr)
-                return [types.TextContent(type="text", text=str(result))]
-            raise ValueError(f"Unknown tool: {name}")
-
-        async with stdio_server() as (read_stream, write_stream):
-            await server.run(read_stream, write_stream, server.create_initialization_options())
+        await server.run_stdio_async()
 EOF
 
-# Create gmail_controller.py
+# ----- gmail_controller.py -----
 cat << 'EOF' > "${PYTHON_APP_DIR}/app/controllers/gmail_controller.py"
 import json
 import subprocess
 import re
+
 
 class GmailController:
     def _run_himalaya(self, args: list[str]) -> str:
@@ -193,7 +177,7 @@ class GmailController:
                 capture_output=True,
                 text=True,
                 timeout=15,
-                check=True
+                check=True,
             )
             return result.stdout
         except subprocess.CalledProcessError as e:
@@ -205,51 +189,23 @@ class GmailController:
         print(json.dumps({"status": "ok", "service": "gmail", "action": "index"}))
 
     async def mcp(self):
-        from mcp.server import Server
-        import mcp.types as types
-        from mcp.server.stdio import stdio_server
+        from mcp.server.fastmcp import FastMCP
 
-        server = Server("gmail-mcp")
+        server = FastMCP("gmail-mcp")
 
-        @server.list_tools()
-        async def handle_list_tools() -> list[types.Tool]:
-            return [
-                types.Tool(
-                    name="list_emails",
-                    description="List recent emails from Gmail inbox using himalaya.",
-                    inputSchema={
-                        "type": "object",
-                        "properties": {"limit": {"type": "integer", "default": 10}}
-                    },
-                ),
-                types.Tool(
-                    name="read_email",
-                    description="Read an email content by ID.",
-                    inputSchema={
-                        "type": "object",
-                        "properties": {"email_id": {"type": "string"}},
-                        "required": ["email_id"]
-                    },
-                )
-            ]
+        @server.tool()
+        def list_emails(limit: int = 10) -> str:
+            """List recent emails from Gmail inbox using himalaya."""
+            return self._run_himalaya(["envelope", "list", "--page-size", str(limit)])
 
-        @server.call_tool()
-        async def handle_call_tool(name: str, arguments: dict | None) -> list[types.TextContent]:
-            arguments = arguments or {}
-            if name == "list_emails":
-                limit = str(arguments.get("limit", 10))
-                output = self._run_himalaya(["envelope", "list", "--page-size", limit])
-                return [types.TextContent(type="text", text=output)]
-            elif name == "read_email":
-                email_id = str(arguments.get("email_id", ""))
-                if not re.fullmatch(r"[A-Za-z0-9._-]+", email_id):
-                    return [types.TextContent(type="text", text="Error: Invalid email ID format.")]
-                output = self._run_himalaya(["message", "read", email_id])
-                return [types.TextContent(type="text", text=output)]
-            raise ValueError(f"Unknown tool: {name}")
+        @server.tool()
+        def read_email(email_id: str) -> str:
+            """Read an email content by ID."""
+            if not re.fullmatch(r"[A-Za-z0-9._-]+", email_id):
+                return "Error: Invalid email ID format."
+            return self._run_himalaya(["message", "read", email_id])
 
-        async with stdio_server() as (read_stream, write_stream):
-            await server.run(read_stream, write_stream, server.create_initialization_options())
+        await server.run_stdio_async()
 EOF
 
 echo "[5/6] Validating Python Syntax and Router Integrity..."
@@ -264,9 +220,10 @@ fi
 "${VENV_PYTHON}" -m py_compile "${PYTHON_APP_DIR}/index.py"
 
 echo "[6/6] Verifying Stdio Server Lifecycle (Timeout Check)..."
+status=0
 timeout 2 "${VENV_PYTHON}" "${PYTHON_APP_DIR}/index.py" /py/calculator/mcp >/dev/null 2>&1 || status=$?
-if [ "${status:-0}" -ne 124 ]; then
-    echo "[ERROR] Calculator MCP server did not remain running smoothly over stdio." >&2
+if [ "${status}" -ne 124 ]; then
+    echo "[ERROR] Calculator MCP server did not remain running smoothly over stdio (exit status ${status})." >&2
     exit 1
 fi
 

@@ -1,2 +1,4 @@
-#!/bin/bash
-npx -y @modelcontextprotocol/inspector   "$HOME/Documents/sharpishly/build/mcp/.venv/bin/python3"   "$HOME/Documents/sharpishly/app/python/index.py"   /py/calculator/mcp
+npx -y @modelcontextprotocol/inspector \
+  "/home/seaview/Documents/sharpishly/build/mcp/.venv/bin/python3" \
+  "/home/seaview/Documents/sharpishly/app/python/index.py" \
+  "/py/calculator/mcp"
