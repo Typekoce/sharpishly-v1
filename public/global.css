@@ -1037,3 +1037,8 @@ body {
     opacity: 0.5;
     cursor: not-allowed;
 }
+#articles {
+    padding: 1rem;
+    font-family: inherit;
+}
+
