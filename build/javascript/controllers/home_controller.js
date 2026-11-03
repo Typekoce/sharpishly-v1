@@ -36,5 +36,9 @@ const HomeController = {
             
             container.appendChild(metricItem);
         });
-    }
+    },
+    async create(){},
+    async read() {},
+    async update(){},
+    async delete(){}
 };
