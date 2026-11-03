@@ -25,6 +25,10 @@ const app = {
         if (this.currentPage === 'home' && typeof HomeController !== 'undefined') {
             HomeController.index();
         }
+
+        if (this.currentPage === 'ai' && typeof AiController !== 'undefined') {
+            AiController.index();
+        }
     },
 
     async getPage(page) {
@@ -85,5 +89,36 @@ const app = {
 
     dBug(key, val) {
         console.log({ key: key, value: val });
-    }
+    },
+    // Add inside app object in app.js
+// Add inside app object in app.js
+    loadingSpinner(label = 'Thinking…') {
+        const wrapper = this.item('div', 'loading-spinner-wrapper');
+        wrapper.style.display = 'inline-flex';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.gap = '0.5rem';
+        wrapper.style.fontFamily = 'var(--font-mono)';
+        wrapper.style.fontSize = '0.85rem';
+        wrapper.style.color = 'var(--accent-cyan)';
+
+        const spinnerSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        spinnerSvg.setAttribute('width', '16');
+        spinnerSvg.setAttribute('height', '16');
+        spinnerSvg.setAttribute('viewBox', '0 0 24 24');
+        spinnerSvg.setAttribute('fill', 'none');
+        spinnerSvg.setAttribute('stroke', 'currentColor');
+        spinnerSvg.setAttribute('stroke-width', '2');
+        spinnerSvg.style.animation = 'spin 1s linear infinite';
+
+        spinnerSvg.innerHTML = `
+            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+            <path d="M12 2 a10 10 0 0 1 10 10" stroke="currentColor"></path>
+        `;
+
+        const textSpan = this.item('span', 'spinner-label', label);
+        wrapper.appendChild(spinnerSvg);
+        wrapper.appendChild(textSpan);
+
+        return wrapper;
+    },
 };
