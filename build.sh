@@ -23,7 +23,6 @@ done
 
 echo "[BUILD] Compiling JavaScript..."
 JS_FILES=(
-    build/javascript/core/pages.js
     build/javascript/core/app.js
     build/javascript/core/app_routes.js
     build/javascript/controllers/home_controller.js
