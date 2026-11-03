@@ -33,7 +33,9 @@ const app = {
         if (!container) return;
 
         try {
-            const res = await fetch(`/views/pages/${encodeURIComponent(page)}.html`);
+            template = `/views/pages/${encodeURIComponent(page)}.html`;
+            this.dBug('Template',template);
+            const res = await fetch(template);
             container.innerHTML = await res.text();
             this.setDom(page, this.el(page));
             // Trigger navigation / controller execution after DOM elements exist
