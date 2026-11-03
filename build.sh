@@ -11,6 +11,7 @@ CSS_FILES=(
     build/css/health.css
     build/css/todo.css
     build/css/login.css
+    build/css/ai.css
 )
 : > public/global.css
 for css in "${CSS_FILES[@]}"; do
@@ -26,6 +27,7 @@ JS_FILES=(
     build/javascript/core/app.js
     build/javascript/core/app_routes.js
     build/javascript/controllers/home_controller.js
+    build/javascript/controllers/ai_controller.js
     build/javascript/core/global.js
 )
 : > public/script.js
