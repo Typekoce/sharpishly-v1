@@ -1,31 +1,9 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from routers.mcp_router import mcp_router
+from routers.web_router import web_router
 
-from controllers.api_chat_controller import ApiChatController
+app = FastAPI(title="Sharpishly Python Backend")
 
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://sharpishly2.test",
-        "http://localhost",
-        "http://127.0.0.1"
-    ],
-    allow_credentials=False,
-    allow_methods=["POST", "OPTIONS"],
-    allow_headers=["Content-Type"],
-)
-
-chat_controller = ApiChatController()
-
-
-class ChatRequest(BaseModel):
-    prompt: str
-    tool: str = "calculator"
-
-
-@app.post("/api/chat")
-async def chat(request: ChatRequest) -> dict:
-    return await chat_controller.handleChatMessage(request.model_dump())
+# Mount modular routers cleanly without global wildcard conflicts
+app.include_router(mcp_router)
+app.include_router(web_router)

@@ -1,0 +1,62 @@
+{
+  "tools": [
+    {
+      "name": "calculator",
+      "handler": "_run_calculator_tool",
+      "description": "Evaluates safe mathematical and arithmetic expressions.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "expression": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Arithmetic expression to evaluate (e.g. '2 + 2 * 5')."
+          }
+        },
+        "required": ["expression"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "stock_quote",
+      "handler": "_run_stock_quote_tool",
+      "description": "Retrieves real-time stock quote and market data for a given ticker symbol.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16,
+            "description": "Stock ticker symbol (e.g., AAPL)."
+          }
+        },
+        "required": ["ticker"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "gmail",
+      "handler": "_run_gmail_tool",
+      "description": "Searches, reads, drafts, and manages emails via Gmail API.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": ["search", "list", "read"],
+            "description": "The Gmail operation to perform."
+          },
+          "query": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "Search query or message ID."
+          }
+        },
+        "required": ["action"],
+        "additionalProperties": false
+      }
+    }
+  ]
+}
