@@ -8,8 +8,9 @@
         <div class="tool-selector-group" id="mcp-tools">
             <label for="tool-select" class="tool-label">Active Tool:</label>
             <select id="tool-select" class="tool-dropdown">
-                <option value="calculator">Calculator MCP (/py/calculator/mcp)</option>
-                <option value="gmail">Gmail MCP (/py/gmail/mcp)</option>
+                <option value="calculator">Calculator MCP</option>
+                <option value="stock_quote">Stock Quote MCP</option>
+                <option value="gmail">Gmail MCP</option>
             </select>
         </div>
     </header>
@@ -30,7 +31,7 @@
             <textarea 
                 id="ai-prompt-input" 
                 class="prompt-input" 
-                placeholder="Ask Qwen a question or request an MCP action..." 
+                placeholder="Enter expression (e.g., 10 + 5*2) or stock ticker (e.g., AAPL)..." 
                 rows="1"
                 required
             ></textarea>
