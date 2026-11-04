@@ -1,4 +1,6 @@
 import asyncio
+import json
+import os
 from core.controller import Controller
 from models.mcp_tool_model import McpToolModel
 
@@ -49,11 +51,6 @@ class McpClientController(Controller):
 
     # --- Tool Handlers ---
 
-    # async def _run_calculator_tool(self, args: dict) -> dict:
-    #     expression = args.get("expression", "0")
-    #     val = eval(expression, {"__builtins__": None}, {})
-    #     return {"result": val}
-
     async def _run_calculator_tool(self, args: dict) -> dict:
         safe_args = args or {}
         expression = safe_args.get("expression", "0")
@@ -61,7 +58,8 @@ class McpClientController(Controller):
         return {"result": val}
 
     async def _run_stock_quote_tool(self, args: dict) -> dict:
-        ticker = args.get("ticker", "AAPL").upper().strip()
+        safe_args = args or {}
+        ticker = safe_args.get("ticker", "AAPL").upper().strip()
         return {
             "ticker": ticker,
             "price": 189.50,
@@ -72,8 +70,54 @@ class McpClientController(Controller):
         }
 
     async def _run_gmail_tool(self, args: dict) -> dict:
-        action = args.get("action", "search")
-        query = args.get("query", "")
+        safe_args = args or {}
+        action = safe_args.get("action", "search")
+        query = safe_args.get("query", "").lower().strip()
+
+        if action in ["contacts_search", "contacts_list"]:
+            return self._handle_contacts_action(action, query)
+
         if action not in ["search", "list", "read"]:
             raise ValueError(f"Unsupported Gmail action: {action}")
+            
         return {"action": action, "query": query, "messages": []}
+
+    def _handle_contacts_action(self, action: str, query: str) -> dict:
+        """Loads local address book and performs read-only searches/listings."""
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        file_path = os.path.join(base_dir, "output", "hotmail_contacts_addressbook.json")
+
+        if not os.path.exists(file_path):
+            return {"query": query, "matches": [], "note": "Address book file not found."}
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        contacts = data.get("addressbook", {}).get("contacts", [])
+
+        if action == "contacts_list" or not query:
+            matches = [
+                {
+                    "id": c.get("id"),
+                    "display_name": c.get("display_name"),
+                    "email": c.get("emails", [{}])[0].get("address", "")
+                }
+                for c in contacts
+            ]
+        else:
+            matches = []
+            for c in contacts:
+                name = c.get("display_name", "").lower()
+                email = c.get("emails", [{}])[0].get("address", "").lower()
+                if query in name or query in email:
+                    matches.append({
+                        "id": c.get("id"),
+                        "display_name": c.get("display_name"),
+                        "email": c.get("emails", [{}])[0].get("address", "")
+                    })
+
+        return {
+            "action": action,
+            "query": query,
+            "matches": matches
+        }
