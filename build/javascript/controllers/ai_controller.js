@@ -1,11 +1,14 @@
 const AiConfig = {
-  apiBaseUrl: "http://127.0.0.1:8000"
+  apiBaseUrl: "http://sharpishly2.test/py"
 };
 
 const AiController = {
-  apiEndpoint: `${AiConfig.apiBaseUrl}/api/chat`,
+  toolsEndpoint: `${AiConfig.apiBaseUrl}/mcp/tools`,
+  executeEndpoint: `${AiConfig.apiBaseUrl}/mcp/execute`,
 
   index() {
+    app.dBug('toolsEndpoint',this.toolsEndpoint);
+    app.dBug('executeEndpoint',this.executeEndpoint);
     const form = app.el('ai-prompt-form');
     const input = app.el('ai-prompt-input');
     if (!form || form.dataset.initialized) return;
@@ -13,6 +16,7 @@ const AiController = {
     form.dataset.initialized = 'true';
     this.bindEvents(form, input);
     this.getModel();
+    this.loadToolsDropdown();
   },
 
   bindEvents(form, input) {
@@ -36,10 +40,50 @@ const AiController = {
     });
   },
 
+  async loadToolsDropdown() {
+    const select = app.el('tool-select');
+    if (!select) return;
+
+    try {
+      const response = await fetch(this.toolsEndpoint);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!Array.isArray(data.tools) || data.tools.length === 0) {
+        throw new Error('No MCP tools available.');
+      }
+
+      select.innerHTML = '';
+
+      data.tools.forEach((tool) => {
+        const option = app.item('option', '', `${tool.name} — ${tool.description}`);
+        option.value = tool.name;
+        select.appendChild(option);
+      });
+    } catch (error) {
+      console.error('Failed to load MCP tools:', error);
+
+      select.innerHTML = '';
+      const fallback = app.item('option', '', 'MCP tools unavailable');
+      fallback.value = '';
+      fallback.disabled = true;
+      fallback.selected = true;
+      select.appendChild(fallback);
+    }
+  },
+
   async handlePromptSubmit(input) {
     const prompt = input.value.trim();
     const toolSelect = app.el('tool-select');
-    const tool = toolSelect?.value || 'calculator';
+    const tool = toolSelect?.value;
+
+    if (!tool) {
+      throw new Error('No MCP tool is available.');
+    }
 
     if (!prompt) return;
 
@@ -56,8 +100,8 @@ const AiController = {
     }
 
     try {
-      const data = await this.fetchChatResponse(prompt, tool);
-      this.renderAssistantResponse(loadingMessage, data);
+      const result = await this.executeTool(tool, prompt);
+      this.renderAssistantResponse(loadingMessage, tool, prompt, result);
     } catch (error) {
       this.renderError(loadingMessage, error.message);
     } finally {
@@ -66,30 +110,40 @@ const AiController = {
     }
   },
 
-  async fetchChatResponse(prompt, tool) {
-    const response = await fetch(this.apiEndpoint, {
+  async executeTool(tool, prompt) {
+    let args = {};
+    if (tool === 'calculator') {
+      args = { expression: prompt };
+    } else if (tool === 'stock_quote') {
+      args = { ticker: prompt.toUpperCase() };
+    } else if (tool === 'gmail') {
+      args = { action: 'search', query: prompt };
+    } else {
+      args = { query: prompt };
+    }
+
+    const response = await fetch(this.executeEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, tool })
+      body: JSON.stringify({ tool, args })
     });
 
     let result;
-
     try {
       result = await response.json();
     } catch {
       throw new Error(
         response.ok
-          ? "Invalid response from AI service."
-          : `AI service returned HTTP ${response.status}.`
+          ? "Invalid response from MCP service."
+          : `MCP service returned HTTP ${response.status}.`
       );
     }
 
-    if (!response.ok || result.status !== 200) {
-      throw new Error(result.error ?? `Request failed (HTTP ${response.status})`);
+    if (!response.ok || result.status !== 'success') {
+      throw new Error(result.message ?? `Tool execution failed.`);
     }
 
-    return result.data ?? {};
+    return result.output;
   },
 
   getModel() {
@@ -104,23 +158,36 @@ const AiController = {
   },
 
   appendLoadingMessage() {
-    const spinner = app.loadingSpinner('Thinking…');
+    const spinner = app.loadingSpinner('Executing MCP tool…');
     return this.appendMessage('assistant', spinner);
   },
 
-  renderAssistantResponse(messageEl, data) {
+  formatToolOutput(tool, output) {
+    if (typeof output !== 'object' || output === null) {
+      return String(output);
+    }
+
+    if (tool === 'calculator' && output.result !== undefined) {
+      return String(output.result);
+    }
+
+    if (tool === 'stock_quote' && output.price !== undefined) {
+      return `${output.ticker}: ${output.price} ${output.currency ?? ''}`.trim();
+    }
+
+    return JSON.stringify(output, null, 2);
+  },
+
+  renderAssistantResponse(messageEl, tool, prompt, output) {
     const content = messageEl.querySelector('.message-content');
     if (!content) return;
     content.innerHTML = '';
 
-    if (data.type === 'tool_call' && Array.isArray(data.tool_calls)) {
-      data.tool_calls.forEach(call => {
-        const badgeText = `⚡ Executed: ${call.tool} ${JSON.stringify(call.args)} → ${call.output}`;
-        content.appendChild(app.item('div', 'tool-call-badge', badgeText));
-      });
-    }
-
-    content.appendChild(app.item('p', '', data.answer || 'No response returned.'));
+    const formattedOutput = this.formatToolOutput(tool, output);
+    const badgeText = `⚡ Executed [${tool}]: ${prompt} → ${formattedOutput}`;
+    
+    content.appendChild(app.item('div', 'tool-call-badge', badgeText));
+    content.appendChild(app.item('p', '', `Result successfully retrieved.`));
   },
 
   renderError(messageEl, errorMessage) {
