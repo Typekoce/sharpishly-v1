@@ -286,14 +286,30 @@ const AiController = {
     }
   },
 
-  async executeTool(tool, prompt) {
+async executeTool(tool, prompt) {
     let args = {};
-    if (tool === 'calculator') {
+
+    if (tool === 'gmail') {
+      let cleanPrompt = prompt.trim();
+      // Parse stringified JSON if submitted directly into the input
+      if (cleanPrompt.startsWith('{') && cleanPrompt.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(cleanPrompt);
+          args = parsed.args || parsed;
+        } catch (e) {
+          args = { action: 'list', query: cleanPrompt };
+        }
+      } else if (cleanPrompt.toLowerCase().startsWith('read ')) {
+        args = { action: 'read', query: cleanPrompt.substring(5).trim() };
+      } else if (cleanPrompt.toLowerCase() === 'list' || cleanPrompt === '') {
+        args = { action: 'list', query: '' };
+      } else {
+        args = { action: 'search', query: cleanPrompt };
+      }
+    } else if (tool === 'calculator') {
       args = { expression: prompt };
     } else if (tool === 'stock_quote') {
       args = { ticker: prompt.toUpperCase() };
-    } else if (tool === 'gmail') {
-      args = { action: 'search', query: prompt };
     } else {
       args = { query: prompt };
     }
@@ -304,23 +320,68 @@ const AiController = {
       body: JSON.stringify({ tool, args })
     });
 
-    let result;
-    try {
-      result = await response.json();
-    } catch {
-      throw new Error(
-        response.ok
-          ? "Invalid response from MCP service."
-          : `MCP service returned HTTP ${response.status}.`
-      );
-    }
-
+    const result = await response.json();
     if (!response.ok || result.status !== 'success') {
-      throw new Error(result.message ?? `Tool execution failed.`);
+      throw new Error(result.message ?? 'Tool execution failed.');
     }
 
     return result.output;
   },
+
+  renderAssistantResponse(messageEl, tool, prompt, output) {
+    const content = messageEl.querySelector('.message-content');
+    if (!content) return;
+    content.innerHTML = '';
+
+    const badgeText = `⚡ Executed [${tool}]`;
+    content.appendChild(app.item('div', 'tool-call-badge', badgeText));
+
+    if (tool === 'gmail' && output.raw_output) {
+      // Display formatted CLI output block cleanly
+      const codeBlock = app.item('pre', 'cli-output', output.raw_output);
+      content.appendChild(codeBlock);
+    } else {
+      // Formatted multi-line JSON output
+      const jsonBlock = app.item('pre', 'json-output', JSON.stringify(output, null, 2));
+      content.appendChild(jsonBlock);
+    }
+  },  
+
+  // async executeTool(tool, prompt) {
+  //   let args = {};
+  //   if (tool === 'calculator') {
+  //     args = { expression: prompt };
+  //   } else if (tool === 'stock_quote') {
+  //     args = { ticker: prompt.toUpperCase() };
+  //   } else if (tool === 'gmail') {
+  //     args = { action: 'search', query: prompt };
+  //   } else {
+  //     args = { query: prompt };
+  //   }
+
+  //   const response = await fetch(this.executeEndpoint, {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify({ tool, args })
+  //   });
+
+  //   let result;
+  //   try {
+  //     result = await response.json();
+  //   } catch {
+  //     throw new Error(
+  //       response.ok
+  //         ? "Invalid response from MCP service."
+  //         : `MCP service returned HTTP ${response.status}.`
+  //     );
+  //   }
+
+  //   if (!response.ok || result.status !== 'success') {
+  //     throw new Error(result.message ?? `Tool execution failed.`);
+  //   }
+
+  //   return result.output;
+  // },
 
   getModel() {
     const badge = app.el('model-badge');
@@ -354,16 +415,32 @@ const AiController = {
     return JSON.stringify(output, null, 2);
   },
 
-  renderAssistantResponse(messageEl, tool, prompt, output) {
+  // renderAssistantResponse(messageEl, tool, prompt, output) {
+  //   const content = messageEl.querySelector('.message-content');
+  //   if (!content) return;
+  //   content.innerHTML = '';
+
+  //   const formattedOutput = this.formatToolOutput(tool, output);
+  //   const badgeText = `⚡ Executed [${tool}]: ${prompt} → ${formattedOutput}`;
+    
+  //   content.appendChild(app.item('div', 'tool-call-badge', badgeText));
+  //   content.appendChild(app.item('p', '', `Result successfully retrieved.`));
+  // },
+
+renderAssistantResponse(messageEl, tool, prompt, output) {
     const content = messageEl.querySelector('.message-content');
     if (!content) return;
     content.innerHTML = '';
 
     const formattedOutput = this.formatToolOutput(tool, output);
-    const badgeText = `⚡ Executed [${tool}]: ${prompt} → ${formattedOutput}`;
     
-    content.appendChild(app.item('div', 'tool-call-badge', badgeText));
-    content.appendChild(app.item('p', '', `Result successfully retrieved.`));
+    // If the output contains Himalaya CLI text, render it cleanly
+    if (tool === 'gmail' && output.output) {
+      content.appendChild(app.item('pre', 'himalaya-output', output.output));
+    } else {
+      content.appendChild(app.item('div', 'tool-call-badge', `⚡ Executed [${tool}]`));
+      content.appendChild(app.item('p', '', formattedOutput));
+    }
   },
 
   renderError(messageEl, errorMessage) {
