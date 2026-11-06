@@ -8,9 +8,10 @@ class ApiController extends BaseController {
 
 	public function index(){
 
-        $model = 
+        $model = New ApiModel();
 
         $this->json([
+            'model'  => $model,
             'class'  => __CLASS__,
             'method' => __FUNCTION__,
             'file'   => __FILE__
