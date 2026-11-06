@@ -249,6 +249,78 @@ class McpToolModel(Model):
                     }
                 },
                 "handler": "_run_password_generator_tool"
+            },
+            {
+                "name": "github",
+                "description": "Interacts with GitHub repositories, issues, search, and metadata via GitHub MCP/CLI.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "action": {
+                            "type": "string",
+                            "enum": ["repo_info", "search_repos", "issues_list", "file_read"]
+                        },
+                        "query": {"type": "string"}
+                    },
+                    "required": ["action", "query"]
+                },
+                "handler": "_run_github_tool"
+            },
+            {
+                "name": "slack",
+                "description": "Sends messages or lists public channels via Slack API/CLI.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "action": {"type": "string", "enum": ["post_message", "list_channels"]},
+                        "query": {"type": "string", "description": "Channel name or message payload."}
+                    },
+                    "required": ["action", "query"],
+                    "additionalProperties": False
+                },
+                "handler": "_run_slack_tool"
+            },
+            {
+                "name": "notion",
+                "description": "Searches or reads pages in Notion workspaces.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "action": {"type": "string", "enum": ["search_pages", "page_content"]},
+                        "query": {"type": "string", "description": "Search term or page ID."}
+                    },
+                    "required": ["action", "query"],
+                    "additionalProperties": False
+                },
+                "handler": "_run_notion_tool"
+            },
+            {
+                "name": "firebase",
+                "description": "Queries Firestore documents or inspects Firebase Auth user records.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "action": {"type": "string", "enum": ["firestore_get", "auth_lookup"]},
+                        "query": {"type": "string", "description": "Collection/document path or user email/UID."}
+                    },
+                    "required": ["action", "query"],
+                    "additionalProperties": False
+                },
+                "handler": "_run_firebase_tool"
+            },
+            {
+                "name": "sentry",
+                "description": "Lists recent error issues or retrieves issue details from Sentry.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "action": {"type": "string", "enum": ["issues_list", "issue_details"]},
+                        "query": {"type": "string", "description": "Project slug or issue ID."}
+                    },
+                    "required": ["action", "query"],
+                    "additionalProperties": False
+                },
+                "handler": "_run_sentry_tool"
             }
         ]
 
@@ -320,7 +392,8 @@ class McpToolModel(Model):
                         "required": True
                     }
                 ]
-            }
+            },
+
         ]
 
     def get_tool(self, name: str) -> dict | None:
