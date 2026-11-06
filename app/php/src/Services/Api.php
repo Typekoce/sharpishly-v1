@@ -13,10 +13,33 @@ class Api {
     private array $conditions = [];
     private array $headers = [];
 
-    private const SERVICES = [
-        'github'  => 'https://api.github.com',
-        'google'  => 'https://www.googleapis.com',
-        'youtube' => 'https://www.googleapis.com/youtube/v3'
+        private const SERVICES = [
+        'github'          => 'https://api.github.com',
+        'google'          => 'https://www.googleapis.com',
+        'youtube'         => 'https://www.googleapis.com/youtube/v3',
+        'aws'             => 'https://ec2.us-east-1.amazonaws.com',
+        'awshelloworld'   => 'https://w4ygtkgcmijy7noprpz4mvxofq0qecmu.lambda-url.eu-north-1.on.aws/',
+        'xero'            => 'https://api.xero.com/api.xro/2.0',
+        'azure'           => 'https://management.azure.com',
+        'azurehelloworld' => 'https://app-sharpishly-azure.azurewebsites.net/api/health',
+        'azurefoundry'    => 'https://{resource}.openai.azure.com/openai/v1',
+        'chatgpt'         => 'https://api.openai.com/v1/chat/completions',
+        'claude'          => 'https://api.anthropic.com/v1/messages',
+        'gemini'          => 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
+        'grok'            => 'https://api.x.ai/v1/chat/completions',
+        'kimi'            => 'https://api.moonshot.cn/v1/chat/completions',
+        'deepseek'        => 'https://api.deepseek.com/v1/chat/completions',
+        'ollama'          => 'http://localhost:11434/api/generate',
+        'mistral'         => 'https://api.mistral.ai/v1/chat/completions',
+        'cohere'          => 'https://api.cohere.com/v2/chat',
+        'square'          => 'https://connect.squareup.com/v2/reports/sales',
+        'opentable'       => 'https://api.opentable.com/v2/bookings',
+        'eventbrite'      => 'https://www.eventbriteapi.com/v3/organizations/me/events/',
+        'clickup'         => 'https://api.clickup.com/api/v2/team',
+        'googlecal'       => 'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+        'eventbritehello' => 'https://www.eventbriteapi.com/v3/users/me/',
+        'greenhouseboard' => 'https://boards-api.greenhouse.io/v1/boards/{board}/jobs',
+        'ashbyboard'      => 'https://api.ashbyhq.com/v1/job-board/{board}'
     ];
 
     private function __construct() {}
