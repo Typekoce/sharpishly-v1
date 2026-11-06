@@ -21,19 +21,7 @@ const app = {
         // Removed synchronous navigation() here to prevent running before fetch completes
     },
 
-    navigation() {
-        if (this.currentPage === 'home' && typeof HomeController !== 'undefined') {
-            HomeController.index();
-        }
 
-        if (this.currentPage === 'ai' && typeof AiController !== 'undefined') {
-            AiController.index();
-        }
-
-        if (this.currentPage === 'articles' && typeof ArticlesController !== 'undefined') {
-            ArticlesController.index();
-        }
-    },
 
     async getPage(page) {
         this.setPage(page);
