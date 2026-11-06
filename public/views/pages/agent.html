@@ -1,4 +1,38 @@
 <div id="agent">
-    <h2>Agent Management</h2>
-    <div id="agent-records">Loading...</div>
+    <!-- Top Card / Menu Bar -->
+    <div class="card agent-top-bar">
+        <div class="agent-brand">
+            <h3>Tweeky Agent Workflow</h3>
+        </div>
+        <div class="agent-actions">
+            <button class="agent-btn" id="agent-clear-btn" type="button">Clear</button>
+            <button class="agent-btn primary" id="agent-run-btn" type="button">Run</button>
+        </div>
+    </div>
+
+    <!-- Center Card / Main Layout (Left menu + Workspace) -->
+    <div class="card agent-main-card">
+        <div class="menu-left" id="menu-left">
+            <h4>Tools</h4>
+            <div class="agent-tool-palette">
+                <button type="button" class="agent-tool-item" draggable="true" data-tool="github">GitHub</button>
+                <button type="button" class="agent-tool-item" draggable="true" data-tool="gmail">Gmail</button>
+                <button type="button" class="agent-tool-item" draggable="true" data-tool="slack">Slack</button>
+                <button type="button" class="agent-tool-item" draggable="true" data-tool="notion">Notion</button>
+            </div>
+        </div>
+        <div class="agent-workspace" id="agent-workspace">
+            <div id="agent-nodes-dropzone" class="agent-dropzone">
+                <div id="agent-empty-msg" class="agent-empty">
+                    <p>Drag tools here or click to build pipeline</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Card / Status Bar -->
+    <div class="card agent-bottom-bar">
+        <span id="agent-status-text">Ready</span>
+        <span>Nodes: <strong id="node-count">0</strong> | Status: <strong id="exec-status">Idle</strong></span>
+    </div>
 </div>
