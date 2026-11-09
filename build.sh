@@ -31,6 +31,7 @@ JS_FILES=(
     build/javascript/controllers/ai_controller.js
     build/javascript/controllers/articles_controller.js
     build/javascript/controllers/agent_controller.js
+    build/javascript/controllers/render_controller.js
     build/javascript/core/global.js
 )
 : > public/script.js
