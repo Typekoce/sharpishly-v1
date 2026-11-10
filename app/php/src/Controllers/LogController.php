@@ -6,17 +6,11 @@ class LogController extends BaseController {
     /**
      * Define readable log sources, system logs, and configuration files.
      */
-
-    public $log = [
-            'nginx_access' => '/var/log/nginx/access.log',
-            'nginx_error'  => '/var/log/nginx/error.log',
-            'php_fpm_error' => '/var/log/php8.2-fpm.log',
-            'php_app_error' => '/var/log/php/error.log',
-            'mysql_error' => '/var/log/mysql/error.log',
-            'python_mcp_server' => '/var/log/sharpishly/python_mcp.log',
-            'python_uvicorn'    => '/var/log/sharpishly/uvicorn.log',
-            'javascript' => '/var/log/sharpishly/js_errors.log',
-            'cmd_jobs'   => '/var/log/sharpishly/cmd_jobs.log',
+    public array $log = [
+        //'app_debug'         => dirname(__DIR__, 2) . '/storage/logs/app.log',
+        //'app_error'         => dirname(__DIR__, 2) . '/storage/logs/error.log',
+        'python_mcp_server' => '/var/log/sharpishly/python_mcp.log',
+        'python_uvicorn'    => '/var/log/sharpishly/uvicorn.log',
     ];
 
     private array $configSources = [
@@ -27,28 +21,32 @@ class LogController extends BaseController {
     ];
 
     /**
-     * Primary HTTP endpoint action returning JSON log payload.
+     * Primary HTTP endpoint action returning JSON log payload or preformatted output.
      * GET /logs
      */
     public function index(): void
     {
-
         echo "<pre>";
 
-        $out = "";
+        foreach ($this->log as $key => $path) {
+            print_r([
+                'title' => $key,
+                'path'  => $path
+            ]);
 
-        foreach ($this->log as $key => $value) {
+            echo "-----------\n";
 
-            print_r(array('title'=>$key,'log'=>$value));
+            // Resolve paths and check readability/existence to prevent null/false returns
+            if (file_exists($path) && is_readable($path)) {
+                $content = file_get_contents($path);
+                echo $content !== false ? $content : "[Error: Failed to read log contents]\n";
+            } else {
+                echo "[Log file not found or not readable by current user permissions]\n";
+            }
 
-            $out .= "-----------\n";
-
-            $out .=  file_get_contents($value);
-            
+            echo "\n\n";
         }
 
-        echo $out;
-
+        echo "</pre>";
     }
-
 }
