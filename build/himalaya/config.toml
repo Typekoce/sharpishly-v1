@@ -1,0 +1,14 @@
+[accounts."Paul McIntosh"]
+default = true
+email = "mysharpishly@gmail.com"
+display-name = "MySharpishly"
+downloads-dir = "/home/seaview/Downloads"
+
+imap.server = "imaps://imap.gmail.com:993"
+imap.sasl.plain.username = "mysharpishly@gmail.com"
+imap.sasl.plain.password.command = "pass show email/mysharpishly"
+
+smtp.server = "smtp://smtp.gmail.com:587"
+smtp.starttls = true
+smtp.sasl.plain.username = "mysharpishly@gmail.com"
+smtp.sasl.plain.password.command = "pass show email/mysharpishly"
