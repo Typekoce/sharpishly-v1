@@ -113,6 +113,28 @@ const app = {
 
         return wrapper;
     },
+get(endpoint) {
+        const cleanEndpoint = endpoint.replace(/^\/+/, '');
+        return this.request(`http://sharpishly2.test/php/${cleanEndpoint}`);
+    },
+
+    async post(endpoint, data) {
+        const cleanEndpoint = endpoint.replace(/^\/+/, '');
+        try {
+            const res = await fetch(`http://sharpishly2.test/php/${cleanEndpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return await res.json();
+        } catch (error) {
+            console.error(`Failed to post to URL: ${cleanEndpoint}`, error);
+            return { success: false, error: error.message };
+        }
+    },
 };
 app.routes = function() {
     console.log({'routes': this.currentPage});
@@ -807,7 +829,13 @@ const RenderController = {
         const wrapper = app.item('div', page + '-records');
         container.appendChild(wrapper);
 
+        // Show loading spinner while fetching records
+        const spinner = app.loadingSpinner('Loading records...');
+        wrapper.appendChild(spinner);
+
         const result = await app.get(url);
+        wrapper.innerHTML = ''; // Clear spinner
+
         const records = result?.records || result?.data || [];
 
         if (records.length === 0) {
@@ -841,6 +869,7 @@ const RenderController = {
             container.appendChild(metricItem);
         });
     },
+
     createForm(container) {
         const form = app.item('div', 'render-form');
 
@@ -890,13 +919,11 @@ const RenderController = {
         container.appendChild(form);
         return container;
     },
-    menu(container) {
 
+    menu(container) {
         const menuBar = app.item('div', 'render-menu-bar');
 
         const menuItems = [
-            { title: 'Create', action: () => this.create() },
-            { title: 'Read', action: () => this.read() },
             { title: 'Update', action: () => this.update() },
             { title: 'Delete', action: () => this.delete() },
             { title: 'Previous', action: () => this.previous() },
@@ -917,14 +944,66 @@ const RenderController = {
     async create() { 
         app.dBug('RenderController', 'create()'); 
 
+        const form = document.querySelector('.render-form');
+        if (!form) {
+            app.dBug('RenderController', 'Form not found');
+            return;
+        }
+
+        const submitBtn = form.querySelector('.render-submit-btn');
+
+        const payload = {
+            title: form.querySelector('[name="title"]')?.value.trim() || '',
+            description: form.querySelector('[name="description"]')?.value.trim() || ''
+        };
+
+        if (!payload.title) {
+            alert('Please enter a title.');
+            return;
+        }
+
+        if (submitBtn) submitBtn.disabled = true;
+
+        // Append loading spinner next to submit button
+        const spinner = app.loadingSpinner('Saving...');
+        form.appendChild(spinner);
+
+        try {
+            const result = await app.post('todo/create', payload);
+
+            app.dBug('create Todo',result?.success);
+            //@TODO add new todo
+            if (result?.success) {
+                form.querySelector('[name="title"]').value = '';
+                form.querySelector('[name="description"]').value = '';
+                await this.read();
+            } else {
+                alert(result?.error || 'Unable to save record.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Unable to save record.');
+        } finally {
+            spinner.remove();
+            if (submitBtn) submitBtn.disabled = false;
+        }
     },
-    async read() { app.dBug('RenderController', 'read()'); },
+
+    async read() {
+        app.dBug('RenderController', 'read()');
+
+        const container = app.getDom('todo');
+        if (container) {
+            container.innerHTML = '';
+            await this.index('todo', 'todo/read');
+        }
+    },
+
     async update() { app.dBug('RenderController', 'update()'); },
     async delete() { app.dBug('RenderController', 'delete()'); },
     async previous() { app.dBug('RenderController', 'previous()'); },
     async next() { app.dBug('RenderController', 'next()'); }
 };
-
 document.addEventListener('DOMContentLoaded', () => {
 
     app.init();
