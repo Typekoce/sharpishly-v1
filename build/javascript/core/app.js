@@ -113,4 +113,26 @@ const app = {
 
         return wrapper;
     },
+get(endpoint) {
+        const cleanEndpoint = endpoint.replace(/^\/+/, '');
+        return this.request(`http://sharpishly2.test/php/${cleanEndpoint}`);
+    },
+
+    async post(endpoint, data) {
+        const cleanEndpoint = endpoint.replace(/^\/+/, '');
+        try {
+            const res = await fetch(`http://sharpishly2.test/php/${cleanEndpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return await res.json();
+        } catch (error) {
+            console.error(`Failed to post to URL: ${cleanEndpoint}`, error);
+            return { success: false, error: error.message };
+        }
+    },
 };
