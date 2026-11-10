@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Models\TodoModel;
 
-class TodoController extends BaseController{
+class TodoController extends BaseController {
 
     public function index(){
 
@@ -15,25 +15,62 @@ class TodoController extends BaseController{
         ]);
     }
 
-    public function create(){
+    public function create(): void
+    {
+        $data = $this->getPost();
 
-        $this->json([
-            'class'  => __CLASS__,
-            'method' => __FUNCTION__,
-            'file'   => __FILE__
-        ]);
+        $title = trim((string) ($data['title'] ?? ''));
+        $description = trim((string) ($data['description'] ?? ''));
+
+        if ($title === '') {
+            $this->json([
+                'success' => false,
+                'error'   => 'Title is required.'
+            ], 422);
+        }
+
+        if (mb_strlen($title) > 255) {
+            $this->json([
+                'success' => false,
+                'error'   => 'Title must be 255 characters or fewer.'
+            ], 422);
+        }
+
+        $model = new TodoModel();
+
+        try {
+            $save = [
+                'title' => $title,
+                'description' => $description,
+                'source_id' =>  1
+            ];
+
+            //$this->json($save);
+            $record = $model->createTodo($save);
+
+            $this->json([
+                'success' => true,
+                'record'  => $record
+            ]);
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage());
+
+            $this->json([
+                'success' => false,
+                'error'   => 'Unable to create record.'
+            ], 500);
+        }
     }
 
-    public function read(){
-
+    public function read(): void
+    {
         $m = new TodoModel;
-
         $r = $m->readTodo();
 
         $this->json([
-            'class'  => __CLASS__,
-            'method' => __FUNCTION__,
-            'file'   => __FILE__,
+            'class'   => __CLASS__,
+            'method'  => __FUNCTION__,
+            'file'    => __FILE__,
             'records' => $r
         ]);
     }
@@ -55,5 +92,4 @@ class TodoController extends BaseController{
             'file'   => __FILE__
         ]);
     }
-
 }

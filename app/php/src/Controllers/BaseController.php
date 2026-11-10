@@ -8,28 +8,40 @@ use App\Services\Db;
 
 class BaseController {
 
-    public $session;
-    public $logger;
+    public Session $session;
+    public Logger $logger;
+    public Db $db;
 
-    
     public function __construct(){
-        $this->session     = Session::getInstance();
-        $this->logger      = new Logger();
-        if (!$this->db) {
-            $this->db = new Db(get_env(), $this->logger);
-        } 
+        $this->session = Session::getInstance();
+        $this->logger  = new Logger();
+        $this->db      = new Db(get_env(), $this->logger);
     }
     
-    /**
-     * Standardized JSON Response Handler
-     */
     protected function json(array $data, int $code = 200): void
     {
         if (!headers_sent()) {
             header('Content-Type: application/json; charset=utf-8');
             http_response_code($code);
         }
-        echo json_encode($data);
+        echo json_encode(
+            $data,
+            JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
         exit;
+    }
+
+    public function getPost(): array
+    {
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+
+        if (str_contains($contentType, 'application/json')) {
+            $raw = file_get_contents('php://input');
+            $data = json_decode($raw ?: '', true);
+
+            return is_array($data) ? $data : [];
+        }
+
+        return $_POST ?? [];
     }
 }
