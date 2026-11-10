@@ -25,4 +25,19 @@ class TodoModel extends BaseModel {
 
     }
 
+    public function createTodo($save){
+
+        try {
+            return $this->db->save('todo',$save);
+            
+        } catch (Throwable $e) {
+
+            return [
+                'error'   => true,
+                'message' => $e->getMessage()
+            ];
+        }
+
+    }
+
 }
