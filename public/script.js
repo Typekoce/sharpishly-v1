@@ -823,6 +823,9 @@ const RenderController = {
     },
 
     renderRecords(container, records) {
+
+        this.createForm(container);
+
         this.menu(container);
 
         records.forEach(record => {
@@ -838,8 +841,57 @@ const RenderController = {
             container.appendChild(metricItem);
         });
     },
+    createForm(container) {
+        const form = app.item('div', 'render-form');
 
+        const fields = [
+            { 
+                label: 'Title', 
+                type: 'input', 
+                inputType: 'text',
+                name: 'title',
+                placeholder: 'Enter todo title...' 
+            },
+            { 
+                label: 'Description', 
+                type: 'textarea', 
+                name: 'description',
+                placeholder: 'Enter todo details...' 
+            }
+        ];
+
+        fields.forEach(field => {
+            const group = app.item('div', 'render-form-group');
+            
+            const label = app.item('label', 'render-form-label', field.label);
+            group.appendChild(label);
+
+            let input;
+            if (field.type === 'textarea') {
+                input = app.item('textarea', 'render-form-input render-textarea');
+                input.rows = 3;
+            } else {
+                input = app.item('input', 'render-form-input');
+                input.type = field.inputType || 'text';
+            }
+
+            input.name = field.name;
+            input.placeholder = field.placeholder;
+            group.appendChild(input);
+
+            form.appendChild(group);
+        });
+
+        const submitBtn = app.item('button', 'render-submit-btn', 'Save Record');
+        submitBtn.type = 'button';
+        submitBtn.onclick = () => this.create();
+        form.appendChild(submitBtn);
+
+        container.appendChild(form);
+        return container;
+    },
     menu(container) {
+
         const menuBar = app.item('div', 'render-menu-bar');
 
         const menuItems = [
@@ -862,7 +914,10 @@ const RenderController = {
         return container;
     },
 
-    async create() { app.dBug('RenderController', 'create()'); },
+    async create() { 
+        app.dBug('RenderController', 'create()'); 
+
+    },
     async read() { app.dBug('RenderController', 'read()'); },
     async update() { app.dBug('RenderController', 'update()'); },
     async delete() { app.dBug('RenderController', 'delete()'); },
