@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 import ast
 import operator
+import email.utils
+from email.message import EmailMessage
 from core.controller import Controller
 from models.mcp_tool_model import McpToolModel
 
@@ -77,7 +79,19 @@ class McpClientController(Controller):
             result = await handler(args) if asyncio.iscoroutinefunction(handler) else handler(args)
             return {"status": "success", "tool": tool_def["name"], "output": result}
         except Exception as e:
-            return self._error_response("EXECUTION_ERROR", str(e))
+            import traceback
+            tb = traceback.format_exc()
+            
+            # Ensure local storage logs directory exists
+            log_dir = Path("storage/logs")
+            log_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Append detailed error to local log file
+            log_path = log_dir / "mcp_error.log"
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(f"--- [ERROR] Tool: {tool_def['name']} | Args: {args} ---\n{tb}\n")
+                
+            return self._error_response("EXECUTION_ERROR", f"{str(e)} (Logged to storage/logs/mcp_error.log)")
 
     def _error_response(self, code: str, message: str) -> dict:
         """Reusable structured error response formatter."""
@@ -137,14 +151,17 @@ class McpClientController(Controller):
             "as_of": "2026-11-04T14:28:00Z"
         }
 
-    async def _run_himalaya(self, cmd: list[str]) -> str:
+    async def _run_himalaya(self, cmd: list[str], input_bytes: bytes | None = None, timeout: int = 15) -> str:
         try:
             proc = await asyncio.create_subprocess_exec(
                 *cmd,
+                stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
-            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=15)
+            stdout, stderr = await asyncio.wait_for(
+                proc.communicate(input=input_bytes), timeout=timeout
+            )
         except FileNotFoundError:
             raise RuntimeError("Himalaya CLI client is not installed or available in PATH.")
         except asyncio.TimeoutError:
@@ -188,6 +205,48 @@ class McpClientController(Controller):
                 "action": action,
                 "message_id": query,
                 "content": output
+            }
+        elif action == "send":
+            recipient = str(safe_args.get("recipient", "")).strip()
+            subject = str(safe_args.get("subject", "")).strip()
+            message_body = str(safe_args.get("message", "")).strip()
+            account = str(safe_args.get("account", "")).strip()
+
+            if not recipient:
+                raise ValueError("Recipient email address required for send action.")
+
+            if not subject:
+                raise ValueError("Subject required for send action.")
+
+            if not message_body:
+                raise ValueError("Message body required for send action.")
+
+            try:
+                parsed_recipient = email.utils.parseaddr(recipient)
+                if not parsed_recipient[1] or "@" not in parsed_recipient[1]:
+                    raise ValueError
+            except (ValueError, IndexError):
+                raise ValueError("A valid recipient email address is required.")
+
+            msg = EmailMessage()
+            msg["To"] = parsed_recipient[1]
+            msg["Subject"] = subject
+            msg.set_content(message_body)
+
+            raw_message = msg.as_bytes()
+
+            cmd = ["himalaya", "message", "send"]
+            if account:
+                cmd.extend(["--account", account])
+
+            output = await self._run_himalaya(cmd, input_bytes=raw_message, timeout=30)
+
+            return {
+                "action": "send",
+                "recipient": parsed_recipient[1],
+                "subject": subject,
+                "status": "success",
+                "output": output or "Email submitted to Himalaya for delivery."
             }
         else:
             raise ValueError(f"Unsupported Gmail action: {action}")
@@ -338,8 +397,8 @@ class McpClientController(Controller):
 
         if action not in {"issues_list", "issue_details"}:
             raise ValueError(f"Unsupported Sentry action: {action!r}")
-        if not query or len(query) > 256:
-            raise ValueError("Query must be between 1 and 256 characters.")
+        if not query or len(query) > 512:
+            raise ValueError("Query must be between 1 and 512 characters.")
 
         cmd = ["sentry-cli", "issues", "list", "--project", query, "--format", "json"]
         output = await self._run_cli_secure(cmd, timeout=15)
