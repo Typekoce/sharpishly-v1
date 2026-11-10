@@ -73,6 +73,18 @@ ssh -N -L 8000:127.0.0.1:8000 seaview@192.168.0.218
 
 ```
 
+### Qwen running on 192.168.0.90
+
+```json
+{
+  "tool": "qwen",
+  "args": {
+    "prompt": "Your custom message or question here"
+  }
+}
+
+```
+
 ---
 
 ## Environment Configuration Notes
