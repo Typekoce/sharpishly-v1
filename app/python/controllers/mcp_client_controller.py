@@ -82,11 +82,9 @@ class McpClientController(Controller):
             import traceback
             tb = traceback.format_exc()
             
-            # Ensure local storage logs directory exists
             log_dir = Path("storage/logs")
             log_dir.mkdir(parents=True, exist_ok=True)
             
-            # Append detailed error to local log file
             log_path = log_dir / "mcp_error.log"
             with open(log_path, "a", encoding="utf-8") as f:
                 f.write(f"--- [ERROR] Tool: {tool_def['name']} | Args: {args} ---\n{tb}\n")
@@ -138,6 +136,13 @@ class McpClientController(Controller):
             raise ValueError("Expression too long.")
         val = safe_eval(expression)
         return {"result": val}
+
+    async def _run_qenl(self, args: dict) -> dict:
+        safe_args = args or {}
+        prompt = str(safe_args.get("prompt", "Say hello and confirm you are running.")).strip()
+        model = str(safe_args.get("model", "qwen2.5:0.5b")).strip()
+
+        return await self.model.call_qwen(prompt, model)
 
     async def _run_stock_quote_tool(self, args: dict) -> dict:
         safe_args = args or {}
@@ -252,7 +257,6 @@ class McpClientController(Controller):
             raise ValueError(f"Unsupported Gmail action: {action}")
 
     def _handle_contacts_action(self, action: str, query: str) -> dict:
-        """Loads local address book using pathlib and performs defensive searches/listings."""
         project_root = Path(__file__).resolve().parents[3]
         file_path = project_root / "output" / "hotmail_contacts_addressbook.json"
 
@@ -333,7 +337,6 @@ class McpClientController(Controller):
                 "note": f"Connected via GitHub MCP client bridge (Fallback: {str(e)})"
             }
 
-# --- Slack Tool Handler ---
     async def _run_slack_tool(self, args: dict) -> dict:
         safe_args = args or {}
         action = str(safe_args.get("action", "")).strip().lower()
@@ -344,7 +347,6 @@ class McpClientController(Controller):
         if not query or len(query) > 512:
             raise ValueError("Query must be between 1 and 512 characters.")
 
-        # Example execution wrapping curl / slack cli or SDK securely
         cmd = ["curl", "-s", "-X", "POST", "https://slack.com/api/chat.postMessage",
                "-H", "Authorization: Bearer $SLACK_BOT_TOKEN",
                "-H", "Content-Type: application/json",
@@ -353,7 +355,6 @@ class McpClientController(Controller):
         output = await self._run_cli_secure(cmd, timeout=10)
         return {"action": action, "query": query, "status": "success", "result": json.loads(output) if output.startswith("{") else output}
 
-    # --- Notion Tool Handler ---
     async def _run_notion_tool(self, args: dict) -> dict:
         safe_args = args or {}
         action = str(safe_args.get("action", "")).strip().lower()
@@ -373,7 +374,6 @@ class McpClientController(Controller):
         output = await self._run_cli_secure(cmd, timeout=10)
         return {"action": action, "query": query, "status": "success", "result": json.loads(output) if output.startswith("{") else output}
 
-    # --- Firebase Tool Handler ---
     async def _run_firebase_tool(self, args: dict) -> dict:
         safe_args = args or {}
         action = str(safe_args.get("action", "")).strip().lower()
@@ -384,12 +384,10 @@ class McpClientController(Controller):
         if not query or len(query) > 256:
             raise ValueError("Query must be between 1 and 256 characters.")
 
-        # Placeholder executing firebase admin / CLI query securely
         cmd = ["firebase", "firestore:get", query, "--json"]
         output = await self._run_cli_secure(cmd, timeout=15)
         return {"action": action, "query": query, "status": "success", "result": json.loads(output) if output.startswith("{") else output}
 
-    # --- Sentry Tool Handler ---
     async def _run_sentry_tool(self, args: dict) -> dict:
         safe_args = args or {}
         action = str(safe_args.get("action", "")).strip().lower()

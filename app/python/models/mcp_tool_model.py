@@ -1,3 +1,5 @@
+import asyncio
+import json
 from core.model import Model
 
 
@@ -321,8 +323,62 @@ class McpToolModel(Model):
                     "additionalProperties": False
                 },
                 "handler": "_run_sentry_tool"
+            },
+            {
+                "name": "qwen",
+                "description": "Interacts with local Qwen models running via Ollama/API on the network.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "prompt": {"type": "string"},
+                        "model": {"type": "string", "default": "qwen2.5:0.5b"}
+                    },
+                    "required": ["prompt"]
+                },
+                "handler": "_run_qenl"
             }
         ]
+
+    async def call_qwen(self, prompt: str, model: str = "qwen2.5:0.5b") -> dict:
+        if len(prompt) > 2048:
+            raise ValueError("Prompt string too long.")
+
+        payload = {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+            "stream": False
+        }
+
+        cmd = [
+            "curl", "-s", "-X", "POST", "http://192.168.0.90:8081/api/chat",
+            "-H", "Content-Type: application/json",
+            "-d", json.dumps(payload)
+        ]
+
+        process = await asyncio.create_subprocess_exec(
+            *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+        try:
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=30)
+        except asyncio.TimeoutError:
+            process.kill()
+            await process.wait()
+            raise ValueError("Qwen service CLI timed out.")
+
+        if process.returncode != 0:
+            raise ValueError(stderr.decode("utf-8", errors="replace").strip() or f"Command exited with {process.returncode}.")
+
+        output = stdout.decode("utf-8", errors="replace").strip()
+        try:
+            parsed_output = json.loads(output)
+        except json.JSONDecodeError:
+            parsed_output = {"raw_output": output}
+
+        return {
+            "status": "success",
+            "model": model,
+            "response": parsed_output
+        }
 
     def load_resources(self) -> list:
         return [
@@ -392,8 +448,7 @@ class McpToolModel(Model):
                         "required": True
                     }
                 ]
-            },
-
+            }
         ]
 
     def get_tool(self, name: str) -> dict | None:
