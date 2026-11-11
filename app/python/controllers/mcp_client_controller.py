@@ -233,7 +233,13 @@ class McpClientController(Controller):
             except (ValueError, IndexError):
                 raise ValueError("A valid recipient email address is required.")
 
+            # msg = EmailMessage()
+            # msg["To"] = parsed_recipient[1]
+            # msg["Subject"] = subject
+            # msg.set_content(message_body)
+
             msg = EmailMessage()
+            msg["From"] = account if account else "mysharpishly@gmail.com" # Or your configured email address
             msg["To"] = parsed_recipient[1]
             msg["Subject"] = subject
             msg.set_content(message_body)
