@@ -4,16 +4,24 @@ set -euo pipefail
 clear
 
 line='--------------'
+GPG_AGENT_CONF="$HOME/.gnupg/gpg-agent.conf"
 
 echo "${line}Check GPG agent configuration"
 
-GPG_AGENT_CONF="$HOME/.gnupg/gpg-agent.conf"
 mkdir -p "$HOME/.gnupg"
 chmod 700 "$HOME/.gnupg"
 
 if [ ! -f "$GPG_AGENT_CONF" ]; then
     touch "$GPG_AGENT_CONF"
     chmod 600 "$GPG_AGENT_CONF"
+fi
+
+# Remove an invalid/deprecated gpg-agent.conf pinentry-mode directive.
+# This option belongs to gpg/gpgme sessions, not gpg-agent.conf.
+if grep -Eq '^[[:space:]]*pinentry-mode([[:space:]]|$)' "$GPG_AGENT_CONF"; then
+    cp -p "$GPG_AGENT_CONF" "${GPG_AGENT_CONF}.bak.$(date +%s)"
+    sed -i '/^[[:space:]]*pinentry-mode\([[:space:]]\|$\)/d' "$GPG_AGENT_CONF"
+    echo "Removed invalid pinentry-mode directive from $GPG_AGENT_CONF"
 fi
 
 if ! /usr/bin/gpg-agent --gpgconf-test; then
@@ -25,13 +33,13 @@ if ! /usr/bin/gpg-agent --gpgconf-test; then
     gpgconf --check-options gpg-agent || true
 
     if command -v pinentry-curses >/dev/null 2>&1; then
-        cp "$GPG_AGENT_CONF" "${GPG_AGENT_CONF}.bak.$(date +%s)"
+        cp -p "$GPG_AGENT_CONF" "${GPG_AGENT_CONF}.bak.$(date +%s)"
 
-        sed -i \
-            -e 's|^[[:space:]]*pinentry-program[[:space:]].*|pinentry-program /usr/bin/pinentry-curses|' \
-            "$GPG_AGENT_CONF"
-
-        if ! grep -q '^pinentry-program' "$GPG_AGENT_CONF"; then
+        if grep -qE '^[[:space:]]*pinentry-program([[:space:]]|$)' "$GPG_AGENT_CONF"; then
+            sed -i \
+                's|^[[:space:]]*pinentry-program[[:space:]].*|pinentry-program /usr/bin/pinentry-curses|' \
+                "$GPG_AGENT_CONF"
+        else
             printf '\npinentry-program /usr/bin/pinentry-curses\n' >> "$GPG_AGENT_CONF"
         fi
 
@@ -51,17 +59,30 @@ echo "${line}Restart GPG agent"
 gpgconf --kill gpg-agent || true
 gpgconf --launch gpg-agent
 
-echo "${line}Start MCP"
-./start-mcp-client.sh
+echo "${line}Check required tools"
 
-echo "${line}Himalaya status"
+for command_name in himalaya pass gpg; do
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        echo "Error: required command not found: $command_name"
+        exit 1
+    fi
+    command -v "$command_name"
+done
 
-which himalaya
-which pass
-which gpg
+echo "${line}Test password store"
 
-echo "Testing password lookup via pass..."
-pass show email/mysharpishly
+if ! pass show email/mysharpishly >/dev/null; then
+    echo "Error: unable to retrieve email/mysharpishly from pass."
+    exit 1
+fi
 
-echo "Testing Himalaya envelope list..."
-himalaya envelope list
+echo "Password lookup succeeded."
+
+echo "${line}Test Himalaya"
+
+if ! himalaya envelope list; then
+    echo "Error: himalaya envelope list failed."
+    exit 1
+fi
+
+echo "${line}Startup checks completed"

@@ -2,6 +2,8 @@
 
 clear
 
+export PS1='\W \$ '
+
 line='--------------'
 
 echo $line"Start jobs"

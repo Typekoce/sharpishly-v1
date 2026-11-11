@@ -65,13 +65,15 @@ ssh -N -L 8000:127.0.0.1:8000 seaview@192.168.0.218
   "tool": "gmail",
   "args": {
     "action": "send",
-    "recipient": "pa_mcintosh@hotmail.com",
-    "subject": "Test from MCP Client",
+    "recipient": "paultypekoce@gmail.com",
+    "subject": "Welcome to Sharpishly",
     "message": "Test message sent from MCP CLIENT"
   }
 }
 
 ```
+
+printf "From: paultypekoce@gmail.com\nTo: paultypekoce@gmail.com\nSubject: Test from Terminal\n\nTest message sent from terminal CLI" | himalaya message send
 
 ### Qwen running on 192.168.0.90
 
