@@ -169,10 +169,10 @@ const RenderController = {
     async read() {
         app.dBug('RenderController', 'read()');
 
-        const container = app.getDom('todo');
+        const container = app.getDom('home');
         if (container) {
             container.innerHTML = '';
-            await this.index('todo', 'todo/read');
+            await this.index('home', 'todo/read');
         }
     },
 
