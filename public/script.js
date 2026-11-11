@@ -972,7 +972,7 @@ const RenderController = {
             const result = await app.post('todo/create', payload);
 
             app.dBug('create Todo',result?.success);
-            //@TODO add new todo
+
             if (result?.success) {
                 form.querySelector('[name="title"]').value = '';
                 form.querySelector('[name="description"]').value = '';
@@ -992,10 +992,10 @@ const RenderController = {
     async read() {
         app.dBug('RenderController', 'read()');
 
-        const container = app.getDom('todo');
+        const container = app.getDom('home');
         if (container) {
             container.innerHTML = '';
-            await this.index('todo', 'todo/read');
+            await this.index('home', 'todo/read');
         }
     },
 
