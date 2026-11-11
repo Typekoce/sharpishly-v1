@@ -149,7 +149,7 @@ const RenderController = {
             const result = await app.post('todo/create', payload);
 
             app.dBug('create Todo',result?.success);
-            //@TODO add new todo
+
             if (result?.success) {
                 form.querySelector('[name="title"]').value = '';
                 form.querySelector('[name="description"]').value = '';
