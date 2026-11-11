@@ -5,17 +5,20 @@ namespace App\Controllers;
 use App\Services\Session;
 use App\Services\Logger;
 use App\Services\Db;
+use App\Services\Location;
 
 class BaseController {
 
     public Session $session;
     public Logger $logger;
     public Db $db;
+    public Location $location;
 
     public function __construct(){
         $this->session = Session::getInstance();
         $this->logger  = new Logger();
         $this->db      = new Db(get_env(), $this->logger);
+        $this->location = new Location();
     }
     
     protected function json(array $data, int $code = 200): void
@@ -44,4 +47,5 @@ class BaseController {
 
         return $_POST ?? [];
     }
+
 }
