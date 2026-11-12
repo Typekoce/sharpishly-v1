@@ -16,6 +16,14 @@ cd ../../../..
 
 pwd
 
-echo $"start MCP"
+echo $line"start MCP"
 
-./build/shells/start-mcp.sh
+./build/shells/start-mcp-client.sh
+
+echo $line"start himalaya"
+
+./start-himalaya.sh
+
+echo $line"start worker email"
+
+./background_worker.sh
