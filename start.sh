@@ -2,6 +2,9 @@
 
 clear
 
+sudo chown -R seaview:www-data storage/email/
+chmod -R 775 storage/email/
+
 export PS1='\W \$ '
 
 line='--------------'
