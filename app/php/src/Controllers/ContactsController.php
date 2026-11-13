@@ -2,16 +2,27 @@
 
 namespace App\Controllers;
 use App\Services\dBug;
+use App\Services\CsvToPhpConverter;
 
 class ContactsController extends BaseController {
 
-    public function index(){
-        // new dBug($this->location);
-        // $this->msg();
+public function index(): void
+    {
         $file = $this->location->storage('contacts/funding.csv');
-         if(file_exists($file)){
-            echo file_get_contents($file);
-         }
+        $contacts = [];
+
+        if (!file_exists($file)) {
+            return;
+        }
+
+        try {
+            $csv = new CsvToPhpConverter();
+            $contacts = $csv->convertFile($file);
+
+            new dBug($contacts);
+        } catch (\InvalidArgumentException | \RuntimeException $e) {
+            error_log($e->getMessage());
+        }
     }
 
     public function create($recipient = ""){
