@@ -21,7 +21,8 @@ pwd
 
 echo $line"start MCP"
 
-./build/shells/start-mcp-client.sh
+# chmod +x start-mcp-client.sh
+# ./start-mcp-client.sh
 
 echo $line"start himalaya"
 
