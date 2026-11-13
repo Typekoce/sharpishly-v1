@@ -137,10 +137,25 @@ class McpClientController(Controller):
         val = safe_eval(expression)
         return {"result": val}
 
-    async def _run_qenl(self, args: dict) -> dict:
-        safe_args = args or {}
-        prompt = str(safe_args.get("prompt", "Say hello and confirm you are running.")).strip()
-        model = str(safe_args.get("model", "qwen2.5:0.5b")).strip()
+    # async def _run_qenl(self, args: dict) -> dict:
+    #     safe_args = args or {}
+    #     prompt = str(safe_args.get("prompt", "Say hello and confirm you are running.")).strip()
+    #     model = str(safe_args.get("model", "qwen2.5:0.5b")).strip()
+
+    #     return await self.model.call_qwen(prompt, model)
+
+    async def _run_qenl(self, arguments: dict) -> dict:
+        safe_arguments = arguments or {}
+
+        prompt = str(
+            safe_arguments.get("prompt")
+            or safe_arguments.get("query")
+            or "Say hello and confirm you are running."
+        ).strip()
+
+        model = str(
+            safe_arguments.get("model", "qwen2.5:0.5b")
+        ).strip()
 
         return await self.model.call_qwen(prompt, model)
 
