@@ -33,22 +33,52 @@ class McpToolModel(Model):
                 },
                 "handler": "_run_stock_quote_tool"
             },
+            # {
+            #     "name": "gmail",
+            #     "description": "Searches, reads, drafts, and manages emails and contacts.",
+            #     "inputSchema": {
+            #         "type": "object",
+            #         "properties": {
+            #             "action": {
+            #                 "type": "string",
+            #                 "enum": ["search", "read", "draft", "manage", "contacts_search", "contacts_list"]
+            #             },
+            #             "query": {"type": "string"}
+            #         },
+            #         "required": ["action"]
+            #     },
+            #     "handler": "_run_gmail_tool"
+            # },
             {
                 "name": "gmail",
-                "description": "Searches, reads, drafts, and manages emails and contacts.",
+                "description": "Searches, reads, sends, drafts, and manages emails and contacts.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["search", "read", "draft", "manage", "contacts_search", "contacts_list"]
+                            "enum": [
+                                "search",
+                                "list",
+                                "read",
+                                "send",
+                                "draft",
+                                "manage",
+                                "contacts_search",
+                                "contacts_list"
+                            ]
                         },
-                        "query": {"type": "string"}
+                        "query": {"type": "string"},
+                        "recipient": {"type": "string", "description": "Email address for send action"},
+                        "subject": {"type": "string", "description": "Subject line for send action"},
+                        "message": {"type": "string", "description": "Message body for send action"},
+                        "account": {"type": "string", "description": "Optional account name for send action"}
                     },
                     "required": ["action"]
                 },
                 "handler": "_run_gmail_tool"
             },
+
             {
                 "name": "filesystem_read",
                 "description": "Reads files and lists directory contents within permitted workspaces.",

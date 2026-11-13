@@ -1,6 +1,18 @@
+# import asyncio
+# import json
+# import os
+# from pathlib import Path
+# import ast
+# import operator
+# import email.utils
+# from email.message import EmailMessage
+# from core.controller import Controller
+# from models.mcp_tool_model import McpToolModel
+
 import asyncio
 import json
 import os
+import re
 from pathlib import Path
 import ast
 import operator
@@ -146,6 +158,8 @@ class McpClientController(Controller):
 
     async def _run_qenl(self, arguments: dict) -> dict:
         safe_arguments = arguments or {}
+
+        # todo: use gmail tool to send emails
 
         prompt = str(
             safe_arguments.get("prompt")
@@ -438,3 +452,80 @@ class McpClientController(Controller):
             raise ValueError(stderr.decode("utf-8", errors="replace").strip() or f"Command exited with {process.returncode}.")
 
         return stdout.decode("utf-8", errors="replace").strip()
+
+    def _try_parse_email_send(self, prompt: str) -> dict | None:
+        """Detect a natural-language 'send email' request and extract fields for the gmail tool."""
+        if not prompt:
+            return None
+
+        prompt_lower = prompt.lower()
+        # Require both a send-like verb and an email address presence
+        send_keywords = ("send", "email", "mail", "compose", "write")
+        if not any(kw in prompt_lower for kw in send_keywords) or "@" not in prompt:
+            return None
+
+        # Extract the first plausible email address
+        email_match = re.search(
+            r"[\w.+-]+@[\w.-]+\.\w+",
+            prompt,
+        )
+        if not email_match:
+            return None
+        recipient = email_match.group(0).strip()
+
+        # Prefer quoted message body: message of "..." / body: "..." / content is '...'
+        message = ""
+        msg_patterns = [
+            r'(?:message|body|content|text)\s+(?:of|is|:)?\s*["\'](.+?)["\']',
+            r'(?:with\s+(?:the\s+)?(?:message|body|content))\s*["\'](.+?)["\']',
+            r'["\']([^"\']{3,})["\']',  # last resort: first reasonably long quoted string
+        ]
+        for pattern in msg_patterns:
+            m = re.search(pattern, prompt, re.IGNORECASE | re.DOTALL)
+            if m:
+                message = m.group(1).strip()
+                break
+
+        # Subject: explicit "subject ..." or fall back to a short default derived from the message
+        subject = "Hello"
+        subj_match = re.search(
+            r'(?:subject|subj)\s*(?:is|:)?\s*["\']?([^"\'\n]+?)["\']?(?:\s|$|,|\.)',
+            prompt,
+            re.IGNORECASE,
+        )
+        if subj_match:
+            subject = subj_match.group(1).strip()
+        elif message:
+            # Use the first few words of the message as a simple subject
+            subject = " ".join(message.split()[:6])[:80] or "Hello"
+
+        if not message:
+            # If we found a recipient but no body, still allow a minimal send
+            message = "Hello"
+
+        return {
+            "action": "send",
+            "recipient": recipient,
+            "subject": subject,
+            "message": message,
+        }
+
+    async def _run_qenl(self, arguments: dict) -> dict:
+        safe_arguments = arguments or {}
+
+        prompt = str(
+            safe_arguments.get("prompt")
+            or safe_arguments.get("query")
+            or "Say hello and confirm you are running."
+        ).strip()
+
+        model = str(
+            safe_arguments.get("model", "qwen2.5:0.5b")
+        ).strip()
+
+        # If the prompt is a request to send an email, route to the gmail tool instead of Qwen
+        email_args = self._try_parse_email_send(prompt)
+        if email_args:
+            return await self._run_gmail_tool(email_args)
+
+        return await self.model.call_qwen(prompt, model)
