@@ -23,6 +23,8 @@ class ContactsController extends BaseController
 
         $file = $this->location->storage('contacts/funding.csv');
 
+        //TODO: Load message from file messages/funding.txt
+
         if (!file_exists($file)) {
             return;
         }
