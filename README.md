@@ -1,6 +1,9 @@
-```python
-# Let's draft a comprehensive, professional README.md based on CONTEXT.md, QWEN.md, and README.md contents.
-readme_content = """# Sharpishly
+### READ ME ###
+
+* Prompt sanitization
+```
+The code looks over engineered, code duplication, too complex, not broken down into reusable methods, critical functionality omitted, it doesn’t use the MVC pattern we established, inheritance, base models & controllers, etc
+```
 
 Sharpishly is a zero-dependency, high-performance web application framework and AI agent platform engineered around strict Model-View-Controller (MVC) separation, Don't Repeat Yourself (DRY) modularity, and lightweight file-based management systems. 
 
