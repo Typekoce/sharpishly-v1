@@ -438,6 +438,57 @@ class ScaffoldModel extends BaseModel
             ],
             // job_application_events end
 
+// Tiered Chat Memory Tables
+            'realities' => [
+                'id'         => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'session_id' => 'VARCHAR(255) NOT NULL',
+                'title'      => 'VARCHAR(255) DEFAULT NULL',
+                'status'     => "ENUM('active','archived') DEFAULT 'active'",
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'       => 'VARCHAR(255) DEFAULT NULL',
+                'content'    => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+
+            'memory_anchors' => [
+                'id'                      => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'reality_id'              => 'INT NOT NULL',
+                'entity_name'             => 'VARCHAR(100) NOT NULL',
+                'observed_state'          => 'TEXT NOT NULL',
+                'confidence'              => 'FLOAT DEFAULT 1.0',
+                'source_message_id'       => 'INT DEFAULT NULL',
+                'observed_at'             => 'DATETIME DEFAULT CURRENT_TIMESTAMP',
+                'superseded_by_anchor_id' => 'INT DEFAULT NULL',
+                'status'                  => "ENUM('active','superseded','disputed') DEFAULT 'active'",
+                'valid_from'              => 'DATETIME DEFAULT CURRENT_TIMESTAMP',
+                'valid_to'                => 'DATETIME DEFAULT NULL',
+                'pref'                    => 'VARCHAR(255) DEFAULT NULL',
+                'content'                 => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+
+            'context_snapshots' => [
+                'id'                      => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'reality_id'              => 'INT NOT NULL',
+                'summary_text'            => 'TEXT NOT NULL',
+                'covered_from_message_id' => 'INT DEFAULT NULL',
+                'covered_to_message_id'   => 'INT DEFAULT NULL',
+                'token_estimate'          => 'INT DEFAULT 0',
+                'version'                 => 'INT DEFAULT 1',
+                'created_at'              => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'                    => 'VARCHAR(255) DEFAULT NULL',
+                'content'                 => 'LONGTEXT NULL DEFAULT NULL',
+            ],
+
+            'messages' => [
+                'id'             => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'reality_id'     => 'INT NOT NULL',
+                'role'           => "ENUM('user','assistant','system') NOT NULL",
+                'content'        => 'TEXT NOT NULL',
+                'token_estimate' => 'INT DEFAULT 0',
+                'created_at'     => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'pref'           => 'VARCHAR(255) DEFAULT NULL',
+                'status'         => 'VARCHAR(255)',
+            ],
+
         ];
     }
 }
