@@ -1,7 +1,18 @@
 const app = {
     currentPage: 'home',
+
     dom: {},
+
     data:{},
+
+    baseUrl: 'http://sharpishly2.test/php/',
+
+    url(url){
+        url = this.baseUrl + url;
+        app.dBug('URL',url);
+        return url;
+    },
+
     setDom(key, val) {
         this.dom[key] = val;
     },
@@ -20,9 +31,6 @@ const app = {
         this.gotoPage();
         // Removed synchronous navigation() here to prevent running before fetch completes
     },
-
-
-
     async getPage(page) {
         this.setPage(page);
         const container = this.el('app');
@@ -51,7 +59,6 @@ const app = {
             }
         });
     },
-
     async request(url) {
         try {
             const res = await fetch(url);

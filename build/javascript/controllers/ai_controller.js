@@ -87,6 +87,11 @@ const AiController = {
 
     if (!prompt) return;
 
+    // Save the user prompt using ContextController
+    if (typeof ContextController !== 'undefined' && ContextController.saveUserPrompt) {
+      ContextController.saveUserPrompt(prompt);
+    }
+
     this.appendUserMessage(prompt);
     input.value = '';
     input.style.height = 'auto';
