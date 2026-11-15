@@ -1,7 +1,18 @@
 const app = {
     currentPage: 'home',
+
     dom: {},
+
     data:{},
+
+    baseUrl: 'http://sharpishly2.test/php/',
+
+    url(url){
+        url = this.baseUrl + url;
+        app.dBug('URL',url);
+        return url;
+    },
+
     setDom(key, val) {
         this.dom[key] = val;
     },
@@ -20,9 +31,6 @@ const app = {
         this.gotoPage();
         // Removed synchronous navigation() here to prevent running before fetch completes
     },
-
-
-
     async getPage(page) {
         this.setPage(page);
         const container = this.el('app');
@@ -51,7 +59,6 @@ const app = {
             }
         });
     },
-
     async request(url) {
         try {
             const res = await fetch(url);
@@ -251,6 +258,11 @@ const AiController = {
     }
 
     if (!prompt) return;
+
+    // Save the user prompt using ContextController
+    if (typeof ContextController !== 'undefined' && ContextController.saveUserPrompt) {
+      ContextController.saveUserPrompt(prompt);
+    }
 
     this.appendUserMessage(prompt);
     input.value = '';
@@ -1003,6 +1015,15 @@ const RenderController = {
     async delete() { app.dBug('RenderController', 'delete()'); },
     async previous() { app.dBug('RenderController', 'previous()'); },
     async next() { app.dBug('RenderController', 'next()'); }
+};
+const ContextController = {
+   async saveUserPrompt(prompt) {
+      app.dBug('ContextController: Saving user prompt', prompt);
+      
+      // Send the user prompt to the backend chat/save endpoint via POST
+      const result = await app.post('chat/save', { prompt: prompt });
+      app.dBug('ChatController save response', result);
+   } 
 };
 document.addEventListener('DOMContentLoaded', () => {
 
