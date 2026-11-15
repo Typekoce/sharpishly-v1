@@ -59,4 +59,21 @@ class ChatController extends BaseController
         echo json_encode($data);
         exit;
     }
+
+public function save(): void
+    {
+        // Read incoming JSON body sent by fetch
+        $input = json_decode(file_get_contents('php://input'), true);
+        $prompt = trim($input['prompt'] ?? '');
+
+        // Dummy response returning confirmation
+        $this->jsonResponse([
+            'status'   => 'success',
+            'message'  => 'Prompt saved successfully',
+            'prompt'   => $prompt,
+            'class'    => __CLASS__,
+            'method'   => __FUNCTION__,
+            'file'     => __FILE__
+        ]);
+    }
 }
