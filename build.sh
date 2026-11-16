@@ -14,6 +14,7 @@ CSS_FILES=(
     build/css/ai.css
     build/css/articles.css
     build/css/agent.css
+    build/css/chat.css
 )
 : > public/global.css
 for css in "${CSS_FILES[@]}"; do
