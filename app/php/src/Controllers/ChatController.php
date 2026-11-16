@@ -21,59 +21,56 @@ class ChatController extends BaseController
 
     public function handle(): void
     {
-        $realityId = (int)($_POST['reality_id'] ?? 1);
-        $message = trim($_POST['message'] ?? '');
-
-        if ($message === '') {
-            $this->jsonResponse(['status' => 'error', 'message' => 'Message cannot be empty.'], 400);
-            return;
+        $payload = $this->extractMessagePayload();
+        
+        if (empty($payload['message'])) {
+            $this->json(['status' => 'error', 'message' => 'Message cannot be empty.'], 400);
         }
 
-        // 1. Log user message via Model abstraction
-        $this->model->logMessage($realityId, 'user', $message);
+        $this->model->logMessage($payload['reality_id'], 'user', $payload['message']);
 
-        // 2. Gather context and call Python AI service
-        $payload = [
-            'reality_id' => $realityId,
-            'anchors'    => $this->model->getActiveAnchors($realityId),
-            'history'    => $this->model->getRecentMessages($realityId, 10),
-            'prompt'     => $message
-        ];
+        $aiResult = $this->service->callPython([
+            'reality_id' => $payload['reality_id'],
+            'anchors'    => $this->model->getActiveAnchors($payload['reality_id']),
+            'history'    => $this->model->getRecentMessages($payload['reality_id'], 10),
+            'prompt'     => $payload['message']
+        ]);
 
-        $aiResult = $this->service->callPython($payload);
         $reply = $aiResult['response'] ?? 'No response generated.';
+        $this->model->logMessage($payload['reality_id'], 'assistant', $reply);
 
-        // 3. Log assistant response via Model abstraction
-        $this->model->logMessage($realityId, 'assistant', $reply);
-
-        $this->jsonResponse([
+        $this->json([
             'status'   => 'success',
             'response' => $reply
         ]);
     }
 
-    protected function jsonResponse(array $data, int $statusCode = 200): void
+    public function save(): void
     {
-        header('Content-Type: application/json; charset=utf-8');
-        http_response_code($statusCode);
-        echo json_encode($data);
-        exit;
+        $input = $this->getPost();
+        $prompt = trim($input['prompt'] ?? '');
+        $realityId = (int)($input['reality_id'] ?? 1);
+
+        if ($prompt === '') {
+            $this->json(['status' => 'error', 'message' => 'Prompt cannot be empty.'], 400);
+        }
+
+        $messageId = $this->model->savePrompt($realityId, $prompt);
+
+        $this->json([
+            'status'     => 'success',
+            'message'    => 'Prompt saved successfully',
+            'prompt'     => $prompt,
+            'message_id' => $messageId
+        ]);
     }
 
-public function save(): void
+    private function extractMessagePayload(): array
     {
-        // Read incoming JSON body sent by fetch
-        $input = json_decode(file_get_contents('php://input'), true);
-        $prompt = trim($input['prompt'] ?? '');
-
-        // Dummy response returning confirmation
-        $this->jsonResponse([
-            'status'   => 'success',
-            'message'  => 'Prompt saved successfully',
-            'prompt'   => $prompt,
-            'class'    => __CLASS__,
-            'method'   => __FUNCTION__,
-            'file'     => __FILE__
-        ]);
+        $input = $this->getPost();
+        return [
+            'reality_id' => (int)($input['reality_id'] ?? 1),
+            'message'    => trim($input['message'] ?? '')
+        ];
     }
 }
