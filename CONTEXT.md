@@ -7,68 +7,364 @@
    - **Strictly Prohibited:** Laravel, Symfony, Illuminate packages, or any composer dependencies in local environments. Composer is restricted strictly to GitHub Actions CI/CD pipelines.
    - **Required Namespace & Structure:** All native controllers must follow the project's custom namespace format:
      ```php
-     <?php
+<?php
 
-     namespace App\Controllers;
+namespace App\Controllers;
 
-     use App\Models\TodoModel;
+use App\Models\TodoModel;
+
+class TodoController extends BaseController {
+
+    public function index(){
+
+        $this->json([
+            'class'  => __CLASS__,
+            'method' => __FUNCTION__,
+            'file'   => __FILE__
+        ]);
+    }
+
+    public function create(): void
+    {
+        $data = $this->getPost();
+
+        $title = trim((string) ($data['title'] ?? ''));
+        $description = trim((string) ($data['description'] ?? ''));
+
+        if ($title === '') {
+            $this->json([
+                'success' => false,
+                'error'   => 'Title is required.'
+            ], 422);
+        }
+
+        if (mb_strlen($title) > 255) {
+            $this->json([
+                'success' => false,
+                'error'   => 'Title must be 255 characters or fewer.'
+            ], 422);
+        }
+
+        $model = new TodoModel();
+
+        try {
+            $save = [
+                'title' => $title,
+                'description' => $description,
+                'source_id' =>  1
+            ];
+
+            //$this->json($save);
+            $record = $model->createTodo($save);
+
+            $this->json([
+                'success' => true,
+                'record'  => $record
+            ]);
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage());
+
+            $this->json([
+                'success' => false,
+                'error'   => 'Unable to create record.'
+            ], 500);
+        }
+    }
+
+    public function read(): void
+    {
+        $m = new TodoModel;
+        $r = $m->readTodo();
+
+        $this->json([
+            'class'   => __CLASS__,
+            'method'  => __FUNCTION__,
+            'file'    => __FILE__,
+            'records' => $r
+        ]);
+    }
+
+    public function update(){
+
+        $this->json([
+            'class'  => __CLASS__,
+            'method' => __FUNCTION__,
+            'file'   => __FILE__
+        ]);
+    }
+
+    public function delete(){
+
+        $this->json([
+            'class'  => __CLASS__,
+            'method' => __FUNCTION__,
+            'file'   => __FILE__
+        ]);
+    }
+}
+
+<?php
+
+namespace App\Models;
+
+class TodoModel extends BaseModel {
+
+    public function readTodo(){
+
+        try {
+            $conditions = [
+                'tbl'   => 'todo',
+                'order' => ['id' => 'DESC'],
+                'limit' => 10
+            ];
+
+            return $this->db->find($conditions);
+            
+        } catch (Throwable $e) {
+
+            return [
+                'error'   => true,
+                'message' => $e->getMessage()
+            ];
+        }
+
+    }
+
+    public function createTodo($save){
+
+        try {
+            return $this->db->save('todo',$save);
+            
+        } catch (Throwable $e) {
+
+            return [
+                'error'   => true,
+                'message' => $e->getMessage()
+            ];
+        }
+
+    }
+
+}
+
+<?php
+
+namespace App\Controllers;
+
+use App\Services\Session;
+use App\Services\Logger;
+use App\Services\Db;
+use App\Services\Location;
+
+class BaseController {
+
+    public Session $session;
+    public Logger $logger;
+    public Db $db;
+    public Location $location;
+
+    public function __construct(){
+        $this->session = Session::getInstance();
+        $this->logger  = new Logger();
+        $this->db      = new Db(get_env(), $this->logger);
+        $this->location = new Location();
+    }
+    
+    protected function json(array $data, int $code = 200): void
+    {
+        if (!headers_sent()) {
+            header('Content-Type: application/json; charset=utf-8');
+            http_response_code($code);
+        }
+        echo json_encode(
+            $data,
+            JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
+        exit;
+    }
+
+    public function getPost(): array
+    {
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+
+        if (str_contains($contentType, 'application/json')) {
+            $raw = file_get_contents('php://input');
+            $data = json_decode($raw ?: '', true);
+
+            return is_array($data) ? $data : [];
+        }
+
+        return $_POST ?? [];
+    }
+
+}
+
+<?php
+
+namespace App\Models;
+
+use App\Services\Db;
+use App\Services\Logger;
+
+class BaseModel {
+
+    public $db;
+    public $logger;
+
+
+    public function __construct(){
+
+        if (!$this->db) {
+            $this->db = new Db(get_env(), $this->logger);
+        } 
+    }
+
+    public function root(){
+
+        return dirname(__DIR__, 3);
+
+    }
+
+    public function storage($dir){
+
+        return $this->root() . '/php/src/cmd/storage/' . $dir;
+
+    }
+
+    public function readJob($folder='jobs',$file='todo'){
+
+        $storagePath = $this->storage($folder);
+
+        $file = $storagePath . "/" . $file .".json";
+
+        if(file_exists($file)){
+
+            $job = file_get_contents($file);
+
+            $job = json_decode($job,TRUE);
+
+            $job['action'] = FALSE;
+
+        } else {
+
+            $job = array('error' => 'File does not exist:' . $file);
+
+        }
+
+        return $job;
+    }
+
+}
+
+
+<?php
+declare(strict_types=1);
+
+namespace App\Services;
+
+use App\Services\Location;
+use RuntimeException;
+
+abstract class BaseService 
+{
+    public string $uploadPath;
+    public Location $location;
+    protected string $aiEndpoint;
+    protected string $logFile;
+
+    public function __construct() 
+    {
+        $this->location = new Location();
+        $this->uploadPath = $this->location->storage('uploads');
+        $this->logFile = $this->location->logs('app.log');
+        $this->aiEndpoint = getenv('AI_ENDPOINT') ?: 'http://ai:8000';
+        
+        $this->ensureDirectoryExists($this->uploadPath);
+        $this->ensureDirectoryExists(dirname($this->logFile));
+    }
+
+    protected function postJson(string $url, array $data): array 
+    {
+        $payload = json_encode($data);
+        $ch = curl_init($url);
+        
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST  => "POST",
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($payload)
+            ]
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error    = curl_error($ch);
+        curl_close($ch);
+
+        if ($error) {
+            $this->log("CURL Error during Handshake: $error", 'ERROR');
+        }
+
+        return [
+            'code' => $httpCode,
+            'body' => $response
+        ];
+    }
+
+    private function ensureDirectoryExists(string $path): void 
+    {
+        if (!is_dir($path)) {
+            if (!mkdir($path, 0775, true) && !is_dir($path)) {
+                throw new RuntimeException("BaseService: Failed to create directory: $path");
+            }
+        }
+    }
+
+    protected function log(string $message, string $level = 'INFO', array $context = []): void 
+    {
+        $date = date('Y-m-d H:i:s');
+        $jsonContext = !empty($context) ? ' ' . json_encode($context) : '';
+        $formatted = "[$date] [$level] $message$jsonContext" . PHP_EOL;
+        file_put_contents($this->logFile, $formatted, FILE_APPEND);
+    }
+
+    /**
+     * Standard cURL execution for service integrations.
+     */
+    protected function curlRequest(string $url, string $method, array $headers = [], array $data = []): ?array
+    {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST  => $method,
+            CURLOPT_TIMEOUT        => 15,
+        ]);
+
+        if (!empty($data) && in_array($method, ['POST', 'PUT', 'PATCH'], true)) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        }
+
+        if (!empty($headers)) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        }
+
+        $raw   = curl_exec($ch);
+        $errno = curl_errno($ch);
+        curl_close($ch);
+
+        if ($errno !== 0 || $raw === false) {
+            return null;
+        }
+
+        $decoded = json_decode($raw, true);
+        return is_array($decoded) ? $decoded : ['raw' => $raw];
+    }
+}
+
+
      ```
 4. **Python / AI Service Layer (`app/python/`):** FastAPI + Uvicorn backend handling local Qwen models (`qwen2.5:0.5b`) and Model Context Protocol (MCP) servers (calculator, gmail). Configured with explicit CORS middleware (`allow_credentials=False`, strict origins).
 
-
-# Sharpishly Project Context & Architectural Rules
-
-## Core Tenets
-1. **MVC Architecture & Model Abstraction Layer:** Strict separation between Views, Controllers, Models, and Services[cite: 10]. **All database interactivity and data operations must be handled exclusively via the associated Model** (acting as an abstraction layer)[cite: 10]. Controllers must never interact directly with the database, database connections, SQL, or `App\Services\Db`; all data access must be delegated to the relevant Model or to a Service that itself uses Models/data mappers[cite: 10].
-2. **DRY & Modular Simplicity:** Reusable methods, thin controllers, and clean service abstractions[cite: 10]. Avoid over-engineering, code duplication, and unnecessary complexity[cite: 10]. Code must be broken down into small, single-responsibility reusable methods adhering strictly to the established MVC pattern[cite: 10].
-3. **Zero Third-Party Dependencies (PHP Backend):** No third-party libraries, application frameworks, or external runtime dependencies allowed locally in PHP[cite: 10]. Native PHP 8.2+ features only[cite: 10].
-   - **Strictly Prohibited:** Laravel, Symfony, Illuminate packages, or any composer dependencies in local environments[cite: 10]. Composer is restricted strictly to GitHub Actions CI/CD pipelines[cite: 10].
-   - **Required Namespace & Structure:** All native controllers must follow the project's custom namespace format[cite: 10]:
-     ```php
-     <?php
-
-     namespace App\Controllers;
-
-     use App\Models\TodoModel;
-     ```
-4. **Python / AI Service Layer (`app/python/`):** FastAPI + Uvicorn backend handling local Qwen models (`qwen2.5:0.5b`) and Model Context Protocol (MCP) servers (calculator, gmail). Configured with explicit CORS middleware (`allow_credentials=False`, strict origins)[cite: 10].
-
-## Directory Structure & Key Paths
-- `app/php/src/index.php`: Front controller dispatching requests[cite: 10].
-- `app/php/src/Controllers/`: Request handlers (`HomeController.php`, `JobController.php`, `TodoController.php`, `ApiController.php`, etc.)[cite: 10].
-- `app/php/src/Models/`: Data handling and business logic layer (`BaseModel.php`, `JobModel.php`, `TodoModel.php`, etc.)[cite: 10].
-- `app/php/src/Services/`: Core platform utilities (`Db.php`, `Logger.php`, `Session.php`, `Api.php`, etc.)[cite: 10].
-- `app/python/`: Python backend (`api.py`, `controllers/`, `services/`, `models/`), and virtual environment (`build/mcp/.venv`)[cite: 10].
-- `public/views/pages/`: Dynamic view pages (`ai.html`, `home.html`, `todo.html`, `projects.html`, `health.html`, `sample.html`, `startup.html`, `syncapply.html`, `login.html`)[cite: 10].
-- `build/`: Source CSS (`build/css/`) and JavaScript modules (`build/javascript/core/`, `build/javascript/controllers/`) compiled via `./bake.sh`[cite: 10].
-- `build/shells/`: Local utility scripts and AI wrappers (`bake.sh`, `qwen-cli`, `watcher.sh`, `start-mcp-client.sh`, etc.)[cite: 10].
-
-## Development Environment & Infrastructure
-- **Host Machine (`@foozie`):** `foozie@foozie-Lenovo-V145-15AST` (`192.168.0.17`) running the web frontend (`http://sharpishly2.test`)[cite: 10].
-- **Remote Development Machine (`@seaview`):** `seaview@seaview-Swift-SF113-31` (`192.168.0.218`) running the Uvicorn FastAPI AI backend (`http://127.0.0.1:8000`)[cite: 10].
-- **SSH Tunnel:** `ssh -N -L 8000:127.0.0.1:8000 seaview@192.168.0.218` bridging `@foozie` to `@seaview`[cite: 10].
-
-## Code Quality & Anti-Patterns to Avoid
-- **No Over-Engineering:** Keep implementations straightforward and lightweight[cite: 10]. Do not introduce complex abstraction layers or dynamic DOM generators where static views (`ai.html`) and clean controller methods suffice[cite: 10].
-- **No Code Duplication:** Consolidate shared logic into reusable helper methods on controllers or core libraries[cite: 10].
-- **Strict MVC Compliance:** Maintain clear separation of concerns[cite: 10]. Views must remain static templates; controllers orchestrate events and render helpers (`app.item()`, `app.el()`), never mixing domain logic or raw SQL[cite: 10].
-
-## Directory Structure & Key Paths
-- `app/php/src/index.php`: Front controller dispatching requests.
-- `app/php/src/Controllers/`: Request handlers (`HomeController.php`, `JobController.php`, `TodoController.php`, `AiController.php`, etc.).
-- `app/php/src/Models/`: Data handling and business logic layer (`BaseModel.php`, `JobModel.php`, `TodoModel.php`, etc.).
-- `app/php/src/Services/`: Core platform utilities (`Db.php`, `Logger.php`, `Session.php`, etc.).
-- `app/python/`: Python backend (`api.py`), MCP servers, and virtual environment (`build/mcp/.venv`).
-- `build/`: Source CSS (`build/css/`) and JavaScript modules (`build/javascript/core/`, `build/javascript/controllers/`) compiled via `./build.sh`.
-- `public/`: Web root containing compiled static assets and dynamic view pages (`public/views/pages/`).
-- `build/shells/`: Local utility scripts and AI wrappers (`bake.sh`, `qwen-cli`, `watcher.sh`, `start-mcp-client.sh`, etc.).
-
-## Development Environment & Infrastructure
-- **Host Machine (`@foozie`):** `foozie@foozie-Lenovo-V145-15AST` (`192.168.0.17`) running the web frontend (`http://sharpishly2.test`).
-- **Remote Development Machine (`@seaview`):** `seaview@seaview-Swift-SF113-31` (`192.168.0.218`) running the Uvicorn FastAPI AI backend (`http://127.0.0.1:8000`).
-- **SSH Tunnel:** `ssh -N -L 8000:127.0.0.1:8000 seaview@192.168.0.218` bridging `@foozie` to `@seaview`.
-
-## Code Quality & Anti-Patterns to Avoid
-- **No Over-Engineering:** Keep implementations straightforward and lightweight. Do not introduce complex abstraction layers or dynamic DOM generators where static views (`ai.html`) and clean controller methods suffice.
-- **No Code Duplication:** Consolidate shared logic into reusable helper methods on controllers or core libraries.
-- **Strict MVC Compliance:** Maintain clear separation of concerns. Views must remain static templates; controllers orchestrate events and render helpers (`app.item()`, `app.el()`), never mixing domain logic or raw SQL.
