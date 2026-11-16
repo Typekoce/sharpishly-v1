@@ -7,8 +7,8 @@ const AiController = {
   executeEndpoint: `${AiConfig.apiBaseUrl}/mcp/execute`,
 
   index() {
-    app.dBug('toolsEndpoint',this.toolsEndpoint);
-    app.dBug('executeEndpoint',this.executeEndpoint);
+    app.dBug('toolsEndpoint', this.toolsEndpoint);
+    app.dBug('executeEndpoint', this.executeEndpoint);
     const form = app.el('ai-prompt-form');
     const input = app.el('ai-prompt-input');
     if (!form || form.dataset.initialized) return;
@@ -17,6 +17,28 @@ const AiController = {
     this.bindEvents(form, input);
     this.getModel();
     this.loadToolsDropdown();
+    
+    // Load historical messages on startup
+    this.loadChatHistory();
+  },
+
+  async loadChatHistory(realityId = 1) {
+    try {
+      const data = await app.get(`chat/history?reality_id=${realityId}`);
+      if (data && data.success && Array.isArray(data.records)) {
+        const stream = app.el('ai-chat-stream');
+        if (stream) stream.innerHTML = ''; // Clear stream before rendering history
+
+        data.records.forEach((record) => {
+          const role = record.role === 'user' ? 'user' : 'assistant';
+          this.appendMessage(role, app.item('p', '', record.content));
+        });
+
+        this.scrollToBottom();
+      }
+    } catch (error) {
+      console.error('Failed to load chat history:', error);
+    }
   },
 
   bindEvents(form, input) {
@@ -115,12 +137,11 @@ const AiController = {
     }
   },
 
-async executeTool(tool, prompt) {
+  async executeTool(tool, prompt) {
     let args = {};
 
     if (tool === 'gmail') {
       let cleanPrompt = prompt.trim();
-      // Parse stringified JSON if submitted directly into the input
       if (cleanPrompt.startsWith('{') && cleanPrompt.endsWith('}')) {
         try {
           const parsed = JSON.parse(cleanPrompt);
@@ -162,62 +183,27 @@ async executeTool(tool, prompt) {
     if (!content) return;
     content.innerHTML = '';
 
-    const badgeText = `⚡ Executed [${tool}]`;
-    content.appendChild(app.item('div', 'tool-call-badge', badgeText));
-
-    if (tool === 'gmail' && output.raw_output) {
-      // Display formatted CLI output block cleanly
-      const codeBlock = app.item('pre', 'cli-output', output.raw_output);
-      content.appendChild(codeBlock);
+    const formattedOutput = this.formatToolOutput(tool, output);
+    
+    if (tool === 'gmail' && output.output) {
+      content.appendChild(app.item('pre', 'himalaya-output', output.output));
     } else {
-      // Formatted multi-line JSON output
-      const jsonBlock = app.item('pre', 'json-output', JSON.stringify(output, null, 2));
-      content.appendChild(jsonBlock);
+      content.appendChild(app.item('div', 'tool-call-badge', `⚡ Executed [${tool}]`));
+      content.appendChild(app.item('p', '', formattedOutput));
     }
-  },  
+  },
 
-  // async executeTool(tool, prompt) {
-  //   let args = {};
-  //   if (tool === 'calculator') {
-  //     args = { expression: prompt };
-  //   } else if (tool === 'stock_quote') {
-  //     args = { ticker: prompt.toUpperCase() };
-  //   } else if (tool === 'gmail') {
-  //     args = { action: 'search', query: prompt };
-  //   } else {
-  //     args = { query: prompt };
-  //   }
-
-  //   const response = await fetch(this.executeEndpoint, {
-  //     method: 'POST',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body: JSON.stringify({ tool, args })
-  //   });
-
-  //   let result;
-  //   try {
-  //     result = await response.json();
-  //   } catch {
-  //     throw new Error(
-  //       response.ok
-  //         ? "Invalid response from MCP service."
-  //         : `MCP service returned HTTP ${response.status}.`
-  //     );
-  //   }
-
-  //   if (!response.ok || result.status !== 'success') {
-  //     throw new Error(result.message ?? `Tool execution failed.`);
-  //   }
-
-  //   return result.output;
-  // },
+  renderError(messageEl, errorMessage) {
+    const content = messageEl.querySelector('.message-content');
+    if (!content) return;
+    content.innerHTML = '';
+    content.appendChild(app.item('p', 'chat-error', `[Error]: ${errorMessage}`));
+  },
 
   getModel() {
     const badge = app.el('model-badge');
     if (badge) badge.textContent = 'qwen2.5:0.5b';
   },
-
-  // --- Modular Render Helpers ---
 
   appendUserMessage(text) {
     return this.appendMessage('user', app.item('p', '', text));
@@ -242,41 +228,6 @@ async executeTool(tool, prompt) {
     }
 
     return JSON.stringify(output, null, 2);
-  },
-
-  // renderAssistantResponse(messageEl, tool, prompt, output) {
-  //   const content = messageEl.querySelector('.message-content');
-  //   if (!content) return;
-  //   content.innerHTML = '';
-
-  //   const formattedOutput = this.formatToolOutput(tool, output);
-  //   const badgeText = `⚡ Executed [${tool}]: ${prompt} → ${formattedOutput}`;
-    
-  //   content.appendChild(app.item('div', 'tool-call-badge', badgeText));
-  //   content.appendChild(app.item('p', '', `Result successfully retrieved.`));
-  // },
-
-renderAssistantResponse(messageEl, tool, prompt, output) {
-    const content = messageEl.querySelector('.message-content');
-    if (!content) return;
-    content.innerHTML = '';
-
-    const formattedOutput = this.formatToolOutput(tool, output);
-    
-    // If the output contains Himalaya CLI text, render it cleanly
-    if (tool === 'gmail' && output.output) {
-      content.appendChild(app.item('pre', 'himalaya-output', output.output));
-    } else {
-      content.appendChild(app.item('div', 'tool-call-badge', `⚡ Executed [${tool}]`));
-      content.appendChild(app.item('p', '', formattedOutput));
-    }
-  },
-
-  renderError(messageEl, errorMessage) {
-    const content = messageEl.querySelector('.message-content');
-    if (!content) return;
-    content.innerHTML = '';
-    content.appendChild(app.item('p', 'chat-error', `[Error]: ${errorMessage}`));
   },
 
   appendMessage(role, childNode) {
