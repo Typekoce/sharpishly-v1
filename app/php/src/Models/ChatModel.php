@@ -36,8 +36,13 @@ class ChatModel extends BaseModel
             'reality_id'     => $realityId,
             'role'           => $role,
             'content'        => $content,
-            'token_estimate' => (int)(strlen($content) / 4), // simple lightweight estimate
+            'token_estimate' => (int)(strlen($content) / 4),
             'created_at'     => date('Y-m-d H:i:s')
         ]);
+    }
+
+    public function savePrompt(int $realityId, string $prompt): int|bool
+    {
+        return $this->logMessage($realityId, 'user', $prompt);
     }
 }
