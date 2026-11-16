@@ -1,76 +1,155 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Controllers;
 
 use App\Models\ChatModel;
 use App\Services\ChatService;
+use Throwable;
 
-class ChatController extends BaseController
-{
-    private ChatModel $model;
-    private ChatService $service;
+class ChatController extends BaseController {
 
-    public function __construct()
+    public function save(): void
     {
-        parent::__construct();
-        $this->model = new ChatModel();
-        $this->service = new ChatService();
+        $data = $this->getPost();
+        $prompt = trim((string) ($data['prompt'] ?? ''));
+        $realityId = (int) ($data['reality_id'] ?? 1);
+
+        if ($prompt === '') {
+            $this->json([
+                'success' => false,
+                'error'   => 'Prompt is required.'
+            ], 422);
+            return;
+        }
+
+        $model = new ChatModel();
+
+        try {
+            $recordId = $model->createMessage([
+                'reality_id' => $realityId,
+                'role'       => 'user',
+                'content'    => $prompt
+            ]);
+
+            if ($recordId === false) {
+                throw new \RuntimeException('Failed to persist user prompt.');
+            }
+
+            $this->json([
+                'success'    => true,
+                'message_id' => $recordId,
+                'prompt'     => $prompt
+            ]);
+        } catch (Throwable $e) {
+            $this->logger->error($e->getMessage());
+
+            $this->json([
+                'success' => false,
+                'error'   => 'Unable to save prompt.'
+            ], 500);
+            return;
+        }
     }
 
     public function handle(): void
     {
-        $payload = $this->extractMessagePayload();
-        
-        if (empty($payload['message'])) {
-            $this->json(['status' => 'error', 'message' => 'Message cannot be empty.'], 400);
+        $data = $this->getPost();
+        $message = trim((string) ($data['message'] ?? ''));
+        $realityId = (int) ($data['reality_id'] ?? 1);
+
+        if ($message === '') {
+            $this->json([
+                'success' => false,
+                'error'   => 'Message cannot be empty.'
+            ], 422);
+            return;
         }
 
-        $this->model->logMessage($payload['reality_id'], 'user', $payload['message']);
+        $model = new ChatModel();
+        $service = new ChatService();
 
-        $aiResult = $this->service->callPython([
-            'reality_id' => $payload['reality_id'],
-            'anchors'    => $this->model->getActiveAnchors($payload['reality_id']),
-            'history'    => $this->model->getRecentMessages($payload['reality_id'], 10),
-            'prompt'     => $payload['message']
-        ]);
+        try {
+            // 1. Log user message via Model first so it is included in history
+            $model->createMessage([
+                'reality_id' => $realityId,
+                'role'       => 'user',
+                'content'    => $message
+            ]);
 
-        $reply = $aiResult['response'] ?? 'No response generated.';
-        $this->model->logMessage($payload['reality_id'], 'assistant', $reply);
+            // 2. Gather recent chronological history and construct payload for Python AI service
+            $history = $model->getRecentMessages($realityId, 10);
+            $payload = [
+                'reality_id' => $realityId,
+                'prompt'     => $message,
+                'history'    => $history
+            ];
 
-        $this->json([
-            'status'   => 'success',
-            'response' => $reply
-        ]);
-    }
+            $aiResult = $service->callPython($payload);
+            $reply = trim((string) ($aiResult['response'] ?? ''));
 
-    public function save(): void
-    {
-        $input = $this->getPost();
-        $prompt = trim($input['prompt'] ?? '');
-        $realityId = (int)($input['reality_id'] ?? 1);
+            // 3. Persist tool output if invoked by Qwen / MCP executor
+            if (!empty($aiResult['tool_output'])) {
+                $toolOut = $aiResult['tool_output'];
+                $model->createMessage([
+                    'reality_id'   => $realityId,
+                    'role'         => 'tool',
+                    'content'      => (string) ($toolOut['content'] ?? ''),
+                    'tool_name'    => $toolOut['tool_name'] ?? null,
+                    'tool_call_id' => $toolOut['tool_call_id'] ?? null,
+                    'status'       => $toolOut['status'] ?? 'completed',
+                    'metadata'     => $toolOut['metadata'] ?? null,
+                ]);
+            }
 
-        if ($prompt === '') {
-            $this->json(['status' => 'error', 'message' => 'Prompt cannot be empty.'], 400);
+            if ($reply === '') {
+                $reply = 'No response generated.';
+            }
+
+            // 4. Log assistant reply via Model
+            $model->createMessage([
+                'reality_id' => $realityId,
+                'role'       => 'assistant',
+                'content'    => $reply
+            ]);
+
+            $this->json([
+                'success'  => true,
+                'response' => $reply
+            ]);
+        } catch (Throwable $e) {
+            $this->logger->error($e->getMessage());
+
+            // Persist a failed assistant turn so the conversation state remains complete
+            try {
+                $model->createMessage([
+                    'reality_id' => $realityId,
+                    'role'       => 'assistant',
+                    'content'    => 'The assistant could not generate a response. Please try again.',
+                    'status'     => 'failed'
+                ]);
+            } catch (Throwable $persistError) {
+                $this->logger->error($persistError->getMessage());
+            }
+
+            $this->json([
+                'success' => false,
+                'error'   => 'Unable to process chat request.'
+            ], 502);
+            return;
         }
-
-        $messageId = $this->model->savePrompt($realityId, $prompt);
-
-        $this->json([
-            'status'     => 'success',
-            'message'    => 'Prompt saved successfully',
-            'prompt'     => $prompt,
-            'message_id' => $messageId
-        ]);
     }
 
-    private function extractMessagePayload(): array
+    public function history(): void
     {
-        $input = $this->getPost();
-        return [
-            'reality_id' => (int)($input['reality_id'] ?? 1),
-            'message'    => trim($input['message'] ?? '')
-        ];
+        $realityId = (int) ($_GET['reality_id'] ?? 1);
+        $model = new ChatModel();
+        $records = $model->getRecentMessages($realityId, 50);
+
+        $this->json([
+            'success'    => true,
+            'reality_id' => $realityId,
+            'records'    => $records
+        ]);
+        return;
     }
 }
