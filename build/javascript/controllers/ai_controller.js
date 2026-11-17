@@ -13,18 +13,21 @@ const AiController = {
     requestToken: 0,
 
     init(gateway) {
+        AiController.gateway = gateway;
         this.gateway = gateway;
 
         const form = this.getActiveForm();
-        const input = form ? form.querySelector('.prompt-input') : app.el('ai-prompt-input');
+        const input = form ? form.querySelector('#ai-prompt-input') : app.el('ai-prompt-input');
 
         if (!form) {
+            app.dBug('AiController', 'init(): #ai-prompt-form not found');
             return;
         }
 
         this.activeContainer = form.closest('.ai-container');
 
         if (form.dataset.initialized) {
+            app.dBug('AiController', 'init(): form already initialized');
             return;
         }
 
@@ -36,12 +39,14 @@ const AiController = {
     },
 
     index() {
+        AiController.gateway = null;
         this.gateway = null;
 
         const form = this.getActiveForm();
-        const input = form ? form.querySelector('.prompt-input') : app.el('ai-prompt-input');
+        const input = form ? form.querySelector('#ai-prompt-input') : app.el('ai-prompt-input');
 
         if (!form) {
+            app.dBug('AiController', 'index(): #ai-prompt-form not found');
             return;
         }
 
@@ -176,7 +181,7 @@ const AiController = {
                 this.renderHistory(data.records);
             }
         } catch (error) {
-            console.error('Failed to load chat history:', error);
+            app.dBug('AiController', 'loadChatHistory() ERROR', error.message);
         }
     },
 
@@ -213,7 +218,7 @@ const AiController = {
                 select.appendChild(option);
             });
         } catch (error) {
-            console.error('Failed to load MCP tools:', error);
+            app.dBug('AiController', 'loadToolsDropdown() ERROR', error.message);
 
             select.replaceChildren();
 
@@ -232,6 +237,12 @@ const AiController = {
     },
 
     async handlePromptSubmit(input, form = null) {
+        app.dBug('AiController', 'handlePromptSubmit()', {
+            isSubmitting: this.isSubmitting,
+            hasGateway: !!this.gateway,
+            hasInput: !!input
+        });
+
         if (this.isSubmitting) {
             return;
         }
@@ -244,6 +255,7 @@ const AiController = {
         const attachedFile = this.selectedFile;
 
         if (!prompt && !attachedFile) {
+            app.dBug('AiController', 'handlePromptSubmit(): empty prompt and no file');
             return;
         }
 
@@ -320,6 +332,8 @@ const AiController = {
                 );
             }
         } catch (error) {
+            app.dBug('AiController', 'handleGatewayPrompt() ERROR', error.message);
+
             if (requestToken !== this.requestToken) {
                 return;
             }
@@ -568,12 +582,18 @@ const AiController = {
     }
 };
 
-// Scope input lookup directly to the submitted form (event.target)
 document.addEventListener('submit', (event) => {
     const form = event.target;
     if (form && form.id === 'ai-prompt-form') {
         event.preventDefault();
+        const activeController = AiController.gateway || AiController;
         const input = form.querySelector('#ai-prompt-input');
-        AiController.handlePromptSubmit(input, form);
+
+        app.dBug('SubmitRouter', 'Intercepted #ai-prompt-form', {
+            controller: AiController.gateway ? 'ChatController' : 'AiController',
+            prompt: input?.value
+        });
+
+        activeController.handlePromptSubmit(input, form);
     }
 });
