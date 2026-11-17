@@ -6,7 +6,7 @@ namespace App\Services;
 
 class ChatService
 {
-    private string $pythonUrl = 'http://127.0.0.1:8000/api/v1/chat';
+    private string $pythonUrl = 'http://sharpishly2.test/py/mcp/chat';
 
     public function callPython(array $payload): array
     {
@@ -25,10 +25,27 @@ class ChatService
         curl_close($ch);
 
         if ($error) {
-            return ['response' => "Python API connection error: {$error}"];
+            return [
+                'status' => 'error',
+                'error'  => [
+                    'code'    => 'PYTHON_CONNECTION_ERROR',
+                    'message' => "Python API connection error: {$error}"
+                ]
+            ];
         }
 
-        $decoded = json_decode($response, true);
-        return is_array($decoded) ? $decoded : ['response' => $response];
+        $decoded = json_decode((string) $response, true);
+
+        if (!is_array($decoded)) {
+            return [
+                'status' => 'error',
+                'error'  => [
+                    'code'    => 'INVALID_PYTHON_RESPONSE',
+                    'message' => 'Invalid JSON returned from Python MCP service.'
+                ]
+            ];
+        }
+
+        return $decoded;
     }
 }
