@@ -1,23 +1,9 @@
-# import asyncio
-# import json
-# import os
-# from pathlib import Path
-# import ast
-# import operator
-# import email.utils
-# from email.message import EmailMessage
-# from core.controller import Controller
-# from models.mcp_tool_model import McpToolModel
-
 import asyncio
 import json
 import os
-import re
 from pathlib import Path
 import ast
 import operator
-import email.utils
-from email.message import EmailMessage
 from core.controller import Controller
 from models.mcp_tool_model import McpToolModel
 
@@ -35,6 +21,7 @@ _ALLOWED_UNARYOPS = {
     ast.UAdd: operator.pos,
     ast.USub: operator.neg,
 }
+
 
 def safe_eval(expression: str):
     def _eval(node):
@@ -54,6 +41,33 @@ def safe_eval(expression: str):
 
 class McpClientController(Controller):
 
+    ROUTER_SYSTEM_PROMPT = (
+        "You are an MCP tool-routing assistant.\n\n"
+        "Choose the single most appropriate tool for the user request.\n\n"
+        "Return ONLY valid JSON in this exact shape:\n"
+        "{\n"
+        '  "tool": "tool_name_or_none",\n'
+        '  "args": {},\n'
+        '  "reason": "short explanation"\n'
+        "}\n\n"
+        "Rules:\n"
+        "- Use \"none\" if no tool is needed.\n"
+        "- Use only tools from the provided catalog.\n"
+        "- Do not invent tool names or arguments.\n"
+        "- For ambiguous requests, choose \"none\".\n"
+    )
+
+    REQUIRED_TOOL_ARGS = {
+        "calculator": ["expression"],
+        "stock_quote": ["ticker"],
+        "gmail": ["action"],
+        "github": ["action"],
+        "slack": ["action", "query"],
+        "notion": ["action", "query"],
+        "firebase": ["action", "query"],
+        "sentry": ["action", "query"],
+    }
+
     def __init__(self):
         super().__init__()
         self.model = McpToolModel()
@@ -62,6 +76,113 @@ class McpClientController(Controller):
     def list_tools(self) -> list:
         """Reusable discovery method for available tools."""
         return [{"name": t["name"], "description": t.get("description", "")} for t in self.tools.values()]
+
+    async def route_request(self, payload: dict) -> dict:
+        """Routes natural-language prompts through Qwen for tool selection and execution."""
+        prompt = str(payload.get("prompt", "")).strip()
+        history = payload.get("history", []) or []
+
+        if not prompt:
+            return self._error_response("EMPTY_PROMPT", "Prompt cannot be empty.")
+
+        catalog = self.list_tools()
+
+        router_prompt = (
+            f"{self.ROUTER_SYSTEM_PROMPT}\n\n"
+            f"Available tools:\n{json.dumps(catalog, indent=2)}\n\n"
+            f"Recent conversation:\n"
+            f"{json.dumps(history[-5:], default=str)}\n\n"
+            f"User request:\n{prompt}\n\n"
+            "Return the routing JSON now."
+        )
+
+        try:
+            raw_decision = await self.model.call_qwen(router_prompt, "qwen2.5:0.5b")
+            decision = self._parse_tool_decision(raw_decision)
+        except (ValueError, json.JSONDecodeError) as error:
+            return self._error_response("INVALID_TOOL_DECISION", f"Unable to determine a tool: {error}")
+
+        tool_name = decision["tool"]
+
+        if tool_name in ("", "none", None):
+            response = await self.model.call_qwen(prompt, "qwen2.5:0.5b")
+            return {
+                "status": "success",
+                "tool": None,
+                "tool_output": None,
+                "response": response,
+            }
+
+        tool_def = self._find_tool(tool_name)
+        if not tool_def:
+            return self._error_response("INVALID_TOOL_SELECTION", f"Model selected an unavailable tool: {tool_name}")
+
+        args = self._normalize_args(decision.get("args", {}))
+
+        try:
+            self._validate_tool_args(tool_name, args)
+        except ValueError as error:
+            return self._error_response("INVALID_TOOL_ARGUMENTS", str(error))
+
+        result = await self._dispatch_handler(tool_def, args)
+        if result.get("status") != "success":
+            return result
+
+        return await self._compose_final_answer(prompt, tool_name, result.get("output"))
+
+    def _parse_tool_decision(self, raw: str) -> dict:
+        text = str(raw or "").strip()
+
+        if text.startswith("```"):
+            text = text.strip("`")
+            if text.lower().startswith("json"):
+                text = text[4:]
+
+        start = text.find("{")
+        end = text.rfind("}")
+
+        if start == -1 or end == -1 or end <= start:
+            raise ValueError("No JSON object found in model response.")
+
+        decision = json.loads(text[start:end + 1])
+        if not isinstance(decision, dict):
+            raise ValueError("Tool decision must be a JSON object.")
+
+        args = decision.get("args", {})
+        if not isinstance(args, dict):
+            args = {}
+
+        return {
+            "tool": str(decision.get("tool", "none")).strip(),
+            "args": args,
+            "reason": str(decision.get("reason", ""))[:500],
+        }
+
+    def _validate_tool_args(self, tool_name: str, args: dict) -> None:
+        required = self.REQUIRED_TOOL_ARGS.get(tool_name, [])
+        missing = [key for key in required if not args.get(key)]
+        if missing:
+            raise ValueError(f"Missing required argument(s) for '{tool_name}': {', '.join(missing)}")
+
+    async def _compose_final_answer(self, prompt: str, tool_name: str, output) -> dict:
+        tool_result = json.dumps(output, indent=2, default=str)
+
+        final_prompt = (
+            f"User request:\n{prompt}\n\n"
+            f"You used the MCP tool '{tool_name}'.\n\n"
+            f"Tool result:\n{tool_result}\n\n"
+            "Write a concise, helpful response for the user. "
+            "Do not expose raw JSON unless the user asks for it."
+        )
+
+        response = await self.model.call_qwen(final_prompt, "qwen2.5:0.5b")
+
+        return {
+            "status": "success",
+            "tool": tool_name,
+            "tool_output": output,
+            "response": response,
+        }
 
     async def handle_request(self, payload: dict) -> dict:
         """Main request orchestrator using atomic helper methods."""
@@ -91,17 +212,7 @@ class McpClientController(Controller):
             result = await handler(args) if asyncio.iscoroutinefunction(handler) else handler(args)
             return {"status": "success", "tool": tool_def["name"], "output": result}
         except Exception as e:
-            import traceback
-            tb = traceback.format_exc()
-            
-            log_dir = Path("storage/logs")
-            log_dir.mkdir(parents=True, exist_ok=True)
-            
-            log_path = log_dir / "mcp_error.log"
-            with open(log_path, "a", encoding="utf-8") as f:
-                f.write(f"--- [ERROR] Tool: {tool_def['name']} | Args: {args} ---\n{tb}\n")
-                
-            return self._error_response("EXECUTION_ERROR", f"{str(e)} (Logged to storage/logs/mcp_error.log)")
+            return self._error_response("EXECUTION_ERROR", str(e))
 
     def _error_response(self, code: str, message: str) -> dict:
         """Reusable structured error response formatter."""
@@ -109,8 +220,8 @@ class McpClientController(Controller):
             "status": "error",
             "error": {
                 "code": code,
-                "message": message
-            }
+                "message": message,
+            },
         }
 
     @staticmethod
@@ -149,30 +260,6 @@ class McpClientController(Controller):
         val = safe_eval(expression)
         return {"result": val}
 
-    # async def _run_qenl(self, args: dict) -> dict:
-    #     safe_args = args or {}
-    #     prompt = str(safe_args.get("prompt", "Say hello and confirm you are running.")).strip()
-    #     model = str(safe_args.get("model", "qwen2.5:0.5b")).strip()
-
-    #     return await self.model.call_qwen(prompt, model)
-
-    async def _run_qenl(self, arguments: dict) -> dict:
-        safe_arguments = arguments or {}
-
-        # todo: use gmail tool to send emails
-
-        prompt = str(
-            safe_arguments.get("prompt")
-            or safe_arguments.get("query")
-            or "Say hello and confirm you are running."
-        ).strip()
-
-        model = str(
-            safe_arguments.get("model", "qwen2.5:0.5b")
-        ).strip()
-
-        return await self.model.call_qwen(prompt, model)
-
     async def _run_stock_quote_tool(self, args: dict) -> dict:
         safe_args = args or {}
         ticker = str(safe_args.get("ticker", "AAPL")).upper().strip()
@@ -182,20 +269,17 @@ class McpClientController(Controller):
             "currency": "USD",
             "change": 2.10,
             "change_percent": 1.12,
-            "as_of": "2026-11-04T14:28:00Z"
+            "as_of": "2026-11-04T14:28:00Z",
         }
 
-    async def _run_himalaya(self, cmd: list[str], input_bytes: bytes | None = None, timeout: int = 15) -> str:
+    async def _run_himalaya(self, cmd: list[str]) -> str:
         try:
             proc = await asyncio.create_subprocess_exec(
                 *cmd,
-                stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
-            stdout, stderr = await asyncio.wait_for(
-                proc.communicate(input=input_bytes), timeout=timeout
-            )
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=15)
         except FileNotFoundError:
             raise RuntimeError("Himalaya CLI client is not installed or available in PATH.")
         except asyncio.TimeoutError:
@@ -228,7 +312,7 @@ class McpClientController(Controller):
             return {
                 "action": action,
                 "query": query,
-                "raw_output": output
+                "raw_output": output,
             }
         elif action == "read":
             if not query:
@@ -238,60 +322,13 @@ class McpClientController(Controller):
             return {
                 "action": action,
                 "message_id": query,
-                "content": output
-            }
-        elif action == "send":
-            recipient = str(safe_args.get("recipient", "")).strip()
-            subject = str(safe_args.get("subject", "")).strip()
-            message_body = str(safe_args.get("message", "")).strip()
-            account = str(safe_args.get("account", "")).strip()
-
-            if not recipient:
-                raise ValueError("Recipient email address required for send action.")
-
-            if not subject:
-                raise ValueError("Subject required for send action.")
-
-            if not message_body:
-                raise ValueError("Message body required for send action.")
-
-            try:
-                parsed_recipient = email.utils.parseaddr(recipient)
-                if not parsed_recipient[1] or "@" not in parsed_recipient[1]:
-                    raise ValueError
-            except (ValueError, IndexError):
-                raise ValueError("A valid recipient email address is required.")
-
-            # msg = EmailMessage()
-            # msg["To"] = parsed_recipient[1]
-            # msg["Subject"] = subject
-            # msg.set_content(message_body)
-
-            msg = EmailMessage()
-            msg["From"] = account if account else "mysharpishly@gmail.com" # Or your configured email address
-            msg["To"] = parsed_recipient[1]
-            msg["Subject"] = subject
-            msg.set_content(message_body)
-
-            raw_message = msg.as_bytes()
-
-            cmd = ["himalaya", "message", "send"]
-            if account:
-                cmd.extend(["--account", account])
-
-            output = await self._run_himalaya(cmd, input_bytes=raw_message, timeout=30)
-
-            return {
-                "action": "send",
-                "recipient": parsed_recipient[1],
-                "subject": subject,
-                "status": "success",
-                "output": output or "Email submitted to Himalaya for delivery."
+                "content": output,
             }
         else:
             raise ValueError(f"Unsupported Gmail action: {action}")
 
     def _handle_contacts_action(self, action: str, query: str) -> dict:
+        """Loads local address book using pathlib and performs defensive searches/listings."""
         project_root = Path(__file__).resolve().parents[3]
         file_path = project_root / "output" / "hotmail_contacts_addressbook.json"
 
@@ -316,7 +353,7 @@ class McpClientController(Controller):
                 matches.append({
                     "id": c.get("id"),
                     "display_name": c.get("display_name"),
-                    "email": email
+                    "email": email,
                 })
         else:
             matches = []
@@ -329,13 +366,13 @@ class McpClientController(Controller):
                     matches.append({
                         "id": c.get("id"),
                         "display_name": c.get("display_name"),
-                        "email": email
+                        "email": email,
                     })
 
         return {
             "action": action,
             "query": query,
-            "matches": matches
+            "matches": matches,
         }
 
     async def _run_github_tool(self, args: dict) -> dict:
@@ -349,15 +386,15 @@ class McpClientController(Controller):
         try:
             if action == "repo_info":
                 cmd = ["gh", "repo", "view", query, "--json", "name,description,stargazerCount,url,owner"]
-                output = await self._run_cli(cmd)
+                output = await self._run_cli_secure(cmd)
                 return {"action": action, "query": query, "result": json.loads(output) if output.startswith("{") else output}
             elif action == "search_repos":
                 cmd = ["gh", "search", "repos", query, "--limit", "5", "--json", "fullName,description,url,stargazersCount"]
-                output = await self._run_cli(cmd)
+                output = await self._run_cli_secure(cmd)
                 return {"action": action, "query": query, "result": json.loads(output) if output.startswith("[") else output}
             elif action == "issues_list":
                 cmd = ["gh", "issue", "list", "-R", query, "--limit", "5", "--json", "number,title,state,url"]
-                output = await self._run_cli(cmd)
+                output = await self._run_cli_secure(cmd)
                 return {"action": action, "query": query, "result": json.loads(output) if output.startswith("[") else output}
             else:
                 return {"action": action, "query": query, "status": "success", "note": f"GitHub action '{action}' executed."}
@@ -368,10 +405,11 @@ class McpClientController(Controller):
                 "status": "simulated",
                 "repository": query or "sharpishly/sharpishly",
                 "description": "Zero-dependency web application framework and AI agent platform.",
-                "url": f"https://github.com/{query or 'sharpishly/sharpishly'}",
-                "note": f"Connected via GitHub MCP client bridge (Fallback: {str(e)})"
+                "url": f"[https://github.com/](https://github.com/){query or 'sharpishly/sharpishly'}",
+                "note": f"Connected via GitHub MCP client bridge (Fallback: {str(e)})",
             }
 
+    # --- Slack Tool Handler ---
     async def _run_slack_tool(self, args: dict) -> dict:
         safe_args = args or {}
         action = str(safe_args.get("action", "")).strip().lower()
@@ -382,14 +420,17 @@ class McpClientController(Controller):
         if not query or len(query) > 512:
             raise ValueError("Query must be between 1 and 512 characters.")
 
-        cmd = ["curl", "-s", "-X", "POST", "https://slack.com/api/chat.postMessage",
-               "-H", "Authorization: Bearer $SLACK_BOT_TOKEN",
-               "-H", "Content-Type: application/json",
-               "-d", json.dumps({"channel": "general", "text": query})]
-        
+        cmd = [
+            "curl", "-s", "-X", "POST", "[https://slack.com/api/chat.postMessage](https://slack.com/api/chat.postMessage)",
+            "-H", f"Authorization: Bearer {os.environ.get('SLACK_BOT_TOKEN', '')}",
+            "-H", "Content-Type: application/json",
+            "-d", json.dumps({"channel": "general", "text": query}),
+        ]
+
         output = await self._run_cli_secure(cmd, timeout=10)
         return {"action": action, "query": query, "status": "success", "result": json.loads(output) if output.startswith("{") else output}
 
+    # --- Notion Tool Handler ---
     async def _run_notion_tool(self, args: dict) -> dict:
         safe_args = args or {}
         action = str(safe_args.get("action", "")).strip().lower()
@@ -400,15 +441,18 @@ class McpClientController(Controller):
         if not query or len(query) > 256:
             raise ValueError("Query must be between 1 and 256 characters.")
 
-        cmd = ["curl", "-s", "-X", "POST", "https://api.notion.com/v1/search",
-               "-H", f"Authorization: Bearer {os.environ.get('NOTION_API_KEY', '')}",
-               "-H", "Notion-Version: 2022-06-28",
-               "-H", "Content-Type: application/json",
-               "-d", json.dumps({"query": query})]
+        cmd = [
+            "curl", "-s", "-X", "POST", "[https://api.notion.com/v1/search](https://api.notion.com/v1/search)",
+            "-H", f"Authorization: Bearer {os.environ.get('NOTION_API_KEY', '')}",
+            "-H", "Notion-Version: 2022-06-28",
+            "-H", "Content-Type: application/json",
+            "-d", json.dumps({"query": query}),
+        ]
 
         output = await self._run_cli_secure(cmd, timeout=10)
         return {"action": action, "query": query, "status": "success", "result": json.loads(output) if output.startswith("{") else output}
 
+    # --- Firebase Tool Handler ---
     async def _run_firebase_tool(self, args: dict) -> dict:
         safe_args = args or {}
         action = str(safe_args.get("action", "")).strip().lower()
@@ -423,6 +467,7 @@ class McpClientController(Controller):
         output = await self._run_cli_secure(cmd, timeout=15)
         return {"action": action, "query": query, "status": "success", "result": json.loads(output) if output.startswith("{") else output}
 
+    # --- Sentry Tool Handler ---
     async def _run_sentry_tool(self, args: dict) -> dict:
         safe_args = args or {}
         action = str(safe_args.get("action", "")).strip().lower()
@@ -430,8 +475,8 @@ class McpClientController(Controller):
 
         if action not in {"issues_list", "issue_details"}:
             raise ValueError(f"Unsupported Sentry action: {action!r}")
-        if not query or len(query) > 512:
-            raise ValueError("Query must be between 1 and 512 characters.")
+        if not query or len(query) > 256:
+            raise ValueError("Query must be between 1 and 256 characters.")
 
         cmd = ["sentry-cli", "issues", "list", "--project", query, "--format", "json"]
         output = await self._run_cli_secure(cmd, timeout=15)
@@ -452,80 +497,3 @@ class McpClientController(Controller):
             raise ValueError(stderr.decode("utf-8", errors="replace").strip() or f"Command exited with {process.returncode}.")
 
         return stdout.decode("utf-8", errors="replace").strip()
-
-    def _try_parse_email_send(self, prompt: str) -> dict | None:
-        """Detect a natural-language 'send email' request and extract fields for the gmail tool."""
-        if not prompt:
-            return None
-
-        prompt_lower = prompt.lower()
-        # Require both a send-like verb and an email address presence
-        send_keywords = ("send", "email", "mail", "compose", "write")
-        if not any(kw in prompt_lower for kw in send_keywords) or "@" not in prompt:
-            return None
-
-        # Extract the first plausible email address
-        email_match = re.search(
-            r"[\w.+-]+@[\w.-]+\.\w+",
-            prompt,
-        )
-        if not email_match:
-            return None
-        recipient = email_match.group(0).strip()
-
-        # Prefer quoted message body: message of "..." / body: "..." / content is '...'
-        message = ""
-        msg_patterns = [
-            r'(?:message|body|content|text)\s+(?:of|is|:)?\s*["\'](.+?)["\']',
-            r'(?:with\s+(?:the\s+)?(?:message|body|content))\s*["\'](.+?)["\']',
-            r'["\']([^"\']{3,})["\']',  # last resort: first reasonably long quoted string
-        ]
-        for pattern in msg_patterns:
-            m = re.search(pattern, prompt, re.IGNORECASE | re.DOTALL)
-            if m:
-                message = m.group(1).strip()
-                break
-
-        # Subject: explicit "subject ..." or fall back to a short default derived from the message
-        subject = "Hello"
-        subj_match = re.search(
-            r'(?:subject|subj)\s*(?:is|:)?\s*["\']?([^"\'\n]+?)["\']?(?:\s|$|,|\.)',
-            prompt,
-            re.IGNORECASE,
-        )
-        if subj_match:
-            subject = subj_match.group(1).strip()
-        elif message:
-            # Use the first few words of the message as a simple subject
-            subject = " ".join(message.split()[:6])[:80] or "Hello"
-
-        if not message:
-            # If we found a recipient but no body, still allow a minimal send
-            message = "Hello"
-
-        return {
-            "action": "send",
-            "recipient": recipient,
-            "subject": subject,
-            "message": message,
-        }
-
-    async def _run_qenl(self, arguments: dict) -> dict:
-        safe_arguments = arguments or {}
-
-        prompt = str(
-            safe_arguments.get("prompt")
-            or safe_arguments.get("query")
-            or "Say hello and confirm you are running."
-        ).strip()
-
-        model = str(
-            safe_arguments.get("model", "qwen2.5:0.5b")
-        ).strip()
-
-        # If the prompt is a request to send an email, route to the gmail tool instead of Qwen
-        email_args = self._try_parse_email_send(prompt)
-        if email_args:
-            return await self._run_gmail_tool(email_args)
-
-        return await self.model.call_qwen(prompt, model)
