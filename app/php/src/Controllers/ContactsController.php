@@ -23,6 +23,7 @@ class ContactsController extends BaseController
             'email' => [
                 'subject'   => 'Hello World',
                 'message'   => 'Funding application',
+                'recipient' => '',
                 'schedule'  => []
             ]
         ];
