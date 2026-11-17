@@ -54,6 +54,7 @@ class ChatController extends BaseController {
     public function handle(): void
     {
         $data = $this->getPost();
+
         $message = trim((string) ($data['message'] ?? ''));
         $realityId = (int) ($data['reality_id'] ?? 1);
 
@@ -62,42 +63,71 @@ class ChatController extends BaseController {
                 'success' => false,
                 'error'   => 'Message cannot be empty.'
             ], 422);
+
             return;
         }
 
         $model = new ChatModel();
-        $service = new ChatService();
 
         try {
-            // 1. Log user message via Model first so it is included in history
             $model->createMessage([
                 'reality_id' => $realityId,
                 'role'       => 'user',
                 'content'    => $message
             ]);
 
-            // 2. Gather recent chronological history and construct payload for Python AI service
             $history = $model->getRecentMessages($realityId, 10);
+
             $payload = [
                 'reality_id' => $realityId,
                 'prompt'     => $message,
                 'history'    => $history
             ];
 
+            $service = new ChatService();
             $aiResult = $service->callPython($payload);
-            $reply = trim((string) ($aiResult['response'] ?? ''));
 
-            // 3. Persist tool output if invoked by Qwen / MCP executor
-            if (!empty($aiResult['tool_output'])) {
-                $toolOut = $aiResult['tool_output'];
+            $this->logger->error(
+                'CHAT_AI_RESULT: ' . json_encode(
+                    $aiResult,
+                    JSON_UNESCAPED_SLASHES
+                )
+            );
+
+            $status = $aiResult['status'] ?? 'error';
+            $reply = trim((string) ($aiResult['response'] ?? ''));
+            $toolName = $aiResult['tool'] ?? null;
+            $toolOutput = $aiResult['tool_output'] ?? null;
+
+            if ($status !== 'success') {
+                $errorMessage = $aiResult['error']['message']
+                    ?? 'The AI service could not process the request.';
+
+                $this->logger->error(
+                    'CHAT_AI_ERROR: ' . $errorMessage
+                );
+
+                $this->json([
+                    'success' => false,
+                    'error'   => $errorMessage
+                ], 502);
+
+                return;
+            }
+
+            if ($toolOutput !== null) {
                 $model->createMessage([
                     'reality_id'   => $realityId,
                     'role'         => 'tool',
-                    'content'      => (string) ($toolOut['content'] ?? ''),
-                    'tool_name'    => $toolOut['tool_name'] ?? null,
-                    'tool_call_id' => $toolOut['tool_call_id'] ?? null,
-                    'status'       => $toolOut['status'] ?? 'completed',
-                    'metadata'     => $toolOut['metadata'] ?? null,
+                    'content'      => (string) (
+                        $toolOutput['content']
+                        ?? $toolOutput['raw_output']
+                        ?? json_encode($toolOutput)
+                    ),
+                    'tool_name'    => $toolName,
+                    'tool_call_id' => $toolOutput['tool_call_id'] ?? null,
+                    'status'       => $toolOutput['status'] ?? 'completed',
+                    'metadata'     => $toolOutput['metadata'] ?? null,
                 ]);
             }
 
@@ -105,7 +135,6 @@ class ChatController extends BaseController {
                 $reply = 'No response generated.';
             }
 
-            // 4. Log assistant reply via Model
             $model->createMessage([
                 'reality_id' => $realityId,
                 'role'       => 'assistant',
@@ -113,18 +142,22 @@ class ChatController extends BaseController {
             ]);
 
             $this->json([
-                'success'  => true,
-                'response' => $reply
+                'success'     => true,
+                'tool'        => $toolName,
+                'tool_output' => $toolOutput,
+                'response'    => $reply
             ]);
-        } catch (Throwable $e) {
-            $this->logger->error($e->getMessage());
+        } catch (Throwable $error) {
+            $this->logger->error($error->getMessage());
 
-            // Persist a failed assistant turn so the conversation state remains complete
             try {
                 $model->createMessage([
                     'reality_id' => $realityId,
                     'role'       => 'assistant',
-                    'content'    => 'The assistant could not generate a response. Please try again.',
+                    'content'    => (
+                        'The assistant could not generate a response. '
+                        . 'Please try again.'
+                    ),
                     'status'     => 'failed'
                 ]);
             } catch (Throwable $persistError) {
@@ -135,7 +168,6 @@ class ChatController extends BaseController {
                 'success' => false,
                 'error'   => 'Unable to process chat request.'
             ], 502);
-            return;
         }
     }
 
