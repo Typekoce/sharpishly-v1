@@ -35,7 +35,10 @@ class ContactsModel extends BaseModel {
         $fields = array(
             'Name'          => 'Bruce Wanye',
             'Your name'     => 'Mr Paul Anthony McIntosh MA BA Hons',
-            'Company Name'  => 'Sharpishly LTD'
+            'Company Name'  => 'Sharpishly LTD',
+            'Phone'         => '07900191233',
+            'Website'       => 'https://www.sharpishly.com',
+            'LinkedIn'      => 'Sharpishly'
         );
 
         foreach($fields as $k => $v){
