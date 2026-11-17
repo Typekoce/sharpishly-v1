@@ -6,6 +6,7 @@ const AiController = {
     toolsEndpoint: `${AiConfig.apiBaseUrl}/mcp/tools`,
     executeEndpoint: `${AiConfig.apiBaseUrl}/mcp/execute`,
     gateway: null,
+    activeContainer: null,
     selectedFile: null,
     activeRequest: null,
     isSubmitting: false,
@@ -14,25 +15,39 @@ const AiController = {
     init(gateway) {
         this.gateway = gateway;
 
-        const form = app.el('ai-prompt-form');
-        const input = app.el('ai-prompt-input');
+        const form = this.getActiveForm();
+        const input = form ? form.querySelector('.prompt-input') : app.el('ai-prompt-input');
 
-        if (!form || form.dataset.initialized) {
+        if (!form) {
+            return;
+        }
+
+        this.activeContainer = form.closest('.ai-container');
+
+        if (form.dataset.initialized) {
             return;
         }
 
         form.dataset.initialized = 'true';
 
         this.bindEvents(form, input);
-        this.bindFileUpload();
+        this.bindFileUpload(form);
         this.getModel();
     },
 
     index() {
-        const form = app.el('ai-prompt-form');
-        const input = app.el('ai-prompt-input');
+        this.gateway = null;
 
-        if (!form || form.dataset.initialized) {
+        const form = this.getActiveForm();
+        const input = form ? form.querySelector('.prompt-input') : app.el('ai-prompt-input');
+
+        if (!form) {
+            return;
+        }
+
+        this.activeContainer = form.closest('.ai-container');
+
+        if (form.dataset.initialized) {
             return;
         }
 
@@ -44,12 +59,20 @@ const AiController = {
         this.loadChatHistory();
     },
 
-    bindEvents(form, input) {
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-            this.handlePromptSubmit(input);
-        });
+    getActiveForm() {
+        const forms = Array.from(document.querySelectorAll('#ai-prompt-form'));
+        return forms.find((f) => f.offsetParent !== null) || forms[forms.length - 1] || null;
+    },
 
+    getStream() {
+        if (this.activeContainer) {
+            const scoped = this.activeContainer.querySelector('#ai-chat-stream');
+            if (scoped) return scoped;
+        }
+        return app.el('ai-chat-stream');
+    },
+
+    bindEvents(form, input) {
         if (!input) {
             return;
         }
@@ -67,10 +90,11 @@ const AiController = {
         });
     },
 
-    bindFileUpload() {
-        const uploadBtn = app.el('ai-upload-btn');
-        const fileInput = app.el('ai-file-input');
-        const clearBtn = app.el('ai-file-clear');
+    bindFileUpload(form) {
+        const wrapper = form.closest('.ai-input-wrapper') || document;
+        const uploadBtn = wrapper.querySelector('#ai-upload-btn');
+        const fileInput = wrapper.querySelector('#ai-file-input');
+        const clearBtn = wrapper.querySelector('#ai-file-clear');
 
         if (!uploadBtn || !fileInput) {
             return;
@@ -87,8 +111,8 @@ const AiController = {
 
             this.selectedFile = file;
 
-            const preview = app.el('ai-file-preview');
-            const fileName = app.el('ai-file-name');
+            const preview = wrapper.querySelector('#ai-file-preview');
+            const fileName = wrapper.querySelector('#ai-file-name');
 
             if (fileName) {
                 fileName.textContent = `📎 ${file.name}`;
@@ -100,15 +124,15 @@ const AiController = {
         });
 
         if (clearBtn) {
-            clearBtn.addEventListener('click', () => this.clearSelectedFile());
+            clearBtn.addEventListener('click', () => this.clearSelectedFile(wrapper));
         }
     },
 
-    clearSelectedFile() {
+    clearSelectedFile(scope = document) {
         this.selectedFile = null;
 
-        const fileInput = app.el('ai-file-input');
-        const preview = app.el('ai-file-preview');
+        const fileInput = scope.querySelector('#ai-file-input');
+        const preview = scope.querySelector('#ai-file-preview');
 
         if (fileInput) {
             fileInput.value = '';
@@ -124,7 +148,7 @@ const AiController = {
             return;
         }
 
-        const stream = app.el('ai-chat-stream');
+        const stream = this.getStream();
 
         if (stream) {
             stream.replaceChildren();
@@ -207,9 +231,13 @@ const AiController = {
         }
     },
 
-    async handlePromptSubmit(input) {
+    async handlePromptSubmit(input, form = null) {
         if (this.isSubmitting) {
             return;
+        }
+
+        if (form) {
+            this.activeContainer = form.closest('.ai-container');
         }
 
         const prompt = input ? input.value.trim() : '';
@@ -220,18 +248,19 @@ const AiController = {
         }
 
         if (this.gateway) {
-            await this.handleGatewayPrompt(input, prompt, attachedFile);
+            await this.handleGatewayPrompt(input, prompt, attachedFile, form);
             return;
         }
 
-        await this.handleStandalonePrompt(input, prompt);
+        await this.handleStandalonePrompt(input, prompt, form);
     },
 
-    async handleGatewayPrompt(input, prompt, attachedFile) {
+    async handleGatewayPrompt(input, prompt, attachedFile, form = null) {
         const requestToken = ++this.requestToken;
+        const wrapper = form?.closest('.ai-input-wrapper') || document;
 
         this.isSubmitting = true;
-        this.setBusyState(true);
+        this.setBusyState(true, form);
 
         const displayLabel = attachedFile
             ? `${prompt ? prompt + '\n' : ''}[Attached: ${attachedFile.name}]`
@@ -265,7 +294,7 @@ const AiController = {
                 input.style.height = 'auto';
             }
 
-            this.clearSelectedFile();
+            this.clearSelectedFile(wrapper);
 
             const content = loadingMessage?.querySelector('.message-content');
 
@@ -309,14 +338,15 @@ const AiController = {
         } finally {
             if (requestToken === this.requestToken) {
                 this.isSubmitting = false;
-                this.setBusyState(false);
+                this.setBusyState(false, form);
                 this.scrollToBottom();
             }
         }
     },
 
-    async handleStandalonePrompt(input, prompt) {
-        const toolSelect = app.el('tool-select');
+    async handleStandalonePrompt(input, prompt, form = null) {
+        const scope = this.activeContainer || document;
+        const toolSelect = scope.querySelector('#tool-select') || app.el('tool-select');
         const tool = toolSelect?.value;
 
         if (!tool || !prompt) {
@@ -330,12 +360,12 @@ const AiController = {
             input.style.height = 'auto';
         }
 
-        this.setBusyState(true);
+        this.setBusyState(true, form);
 
         const loadingMessage = this.appendLoadingMessage();
 
         if (!loadingMessage) {
-            this.setBusyState(false);
+            this.setBusyState(false, form);
             return;
         }
 
@@ -351,7 +381,7 @@ const AiController = {
         } catch (error) {
             this.renderError(loadingMessage, error.message);
         } finally {
-            this.setBusyState(false);
+            this.setBusyState(false, form);
             this.scrollToBottom();
         }
     },
@@ -442,7 +472,8 @@ const AiController = {
     },
 
     getModel() {
-        const badge = app.el('model-badge');
+        const scope = this.activeContainer || document;
+        const badge = scope.querySelector('#model-badge') || app.el('model-badge');
 
         if (badge) {
             badge.textContent = 'qwen2.5:0.5b';
@@ -479,7 +510,7 @@ const AiController = {
     },
 
     appendMessage(role, childNode) {
-        const stream = app.el('ai-chat-stream');
+        const stream = this.getStream();
 
         if (!stream) {
             return null;
@@ -509,10 +540,11 @@ const AiController = {
         return message;
     },
 
-    setBusyState(isBusy) {
-        const sendBtn = app.el('ai-send-btn');
-        const input = app.el('ai-prompt-input');
-        const uploadBtn = app.el('ai-upload-btn');
+    setBusyState(isBusy, form = null) {
+        const scope = form || this.activeContainer || document;
+        const sendBtn = scope.querySelector('#ai-send-btn');
+        const input = scope.querySelector('#ai-prompt-input');
+        const uploadBtn = scope.querySelector('#ai-upload-btn');
 
         if (sendBtn) {
             sendBtn.disabled = isBusy;
@@ -528,10 +560,20 @@ const AiController = {
     },
 
     scrollToBottom() {
-        const stream = app.el('ai-chat-stream');
+        const stream = this.getStream();
 
         if (stream) {
             stream.scrollTop = stream.scrollHeight;
         }
     }
 };
+
+// Scope input lookup directly to the submitted form (event.target)
+document.addEventListener('submit', (event) => {
+    const form = event.target;
+    if (form && form.id === 'ai-prompt-form') {
+        event.preventDefault();
+        const input = form.querySelector('#ai-prompt-input');
+        AiController.handlePromptSubmit(input, form);
+    }
+});
