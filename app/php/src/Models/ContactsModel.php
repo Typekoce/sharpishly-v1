@@ -9,16 +9,66 @@ class ContactsModel extends BaseModel {
 
     public function main($data){
 
+        $data = $this->template($data);
+
+        $data = $this->csv($data);
+
+        new dBug($data);
+        
+        return $data;
+
+    }
+
+    public function template($data){
+        
+        if(file_exists($file = $data['message'])){
+            $data[__FUNCTION__] = file_get_contents($file);
+
+        };
+        return $data;
+    }
+
+    public function smarty($txt){
+
+        echo $txt;
+
+        $fields = array(
+            'Name'          => 'Bruce Wanye',
+            'Your name'     => 'Mr Paul Anthony McIntosh MA BA Hons',
+            'Company Name'  => 'Sharpishly LTD'
+        );
+
+        foreach($fields as $k => $v){
+            $txt = str_replace("[[[" . $k . "]]]",$v,$txt);
+        }
+
+        return $txt;
+    }
+
+    public function mailMerge($data){
+        $data['content'] = $this->smarty($data['template']);
+        return $data;
+    }
+
+    public function csv($data){
+
         try {
             $csv = new CsvToPhpConverter();
+
             $data['contacts'] = $csv->convertFile($data['contacts']);
+
             $data = $this->prepare($data);
 
+            $data = $this->mailMerge($data);
+
             $contacts = $data['prepare'] ?? [];
-            new dBug($contacts);
 
             foreach ($contacts as $contact) {
+
+                new dBug($contact);
+
                 $email = $contact['email'] ?? '';
+
                 if (!empty($email)) {
                     new dBug($email);
                     //$this->create($email);
@@ -35,8 +85,7 @@ class ContactsModel extends BaseModel {
     public function prepare(array $data): array
     {
         $rs = $data['contacts'] ?? [];
-        new dBug($rs);
-        
+
         foreach ($rs as $v) {
             $e = $v['Contact Email / Portal'] ?? '';
             if (!empty($e)) {
@@ -71,8 +120,6 @@ class ContactsModel extends BaseModel {
             ]
         ];
     }
-    public function message($data){
-        new dBug($data);
-    }
+
 
 }
