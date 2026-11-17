@@ -7,11 +7,11 @@ use App\Services\CsvToPhpConverter;
 
 class ContactsModel extends BaseModel {
 
-    public function csv($data,$file){
+    public function main($data){
 
         try {
             $csv = new CsvToPhpConverter();
-            $data['contacts'] = $csv->convertFile($file);
+            $data['contacts'] = $csv->convertFile($data['contacts']);
             $data = $this->prepare($data);
 
             $contacts = $data['prepare'] ?? [];
@@ -71,6 +71,8 @@ class ContactsModel extends BaseModel {
             ]
         ];
     }
-    
+    public function message($data){
+        new dBug($data);
+    }
 
 }
