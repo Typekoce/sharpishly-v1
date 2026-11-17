@@ -28,9 +28,9 @@ class ContactsModel extends BaseModel {
         return $data;
     }
 
-    public function smarty($txt){
 
-        echo $txt;
+
+    public function mailMerge($data){
 
         $fields = array(
             'Name'          => 'Bruce Wanye',
@@ -41,15 +41,11 @@ class ContactsModel extends BaseModel {
             'LinkedIn'      => 'Sharpishly'
         );
 
-        foreach($fields as $k => $v){
-            $txt = str_replace("[[[" . $k . "]]]",$v,$txt);
-        }
+        $txt = $data['template'];
 
-        return $txt;
-    }
+        $data['email']['recipient'] = $data['prepare'][0]['email'];
 
-    public function mailMerge($data){
-        $data['content'] = $this->smarty($data['template']);
+        $data['email']['message'] = $this->smarty->smarty($txt,$fields);
         return $data;
     }
 
@@ -60,15 +56,13 @@ class ContactsModel extends BaseModel {
 
             $data['contacts'] = $csv->convertFile($data['contacts']);
 
-            $data = $this->prepare($data);
-
             $data = $this->mailMerge($data);
+
+            $data = $this->prepare($data);
 
             $contacts = $data['prepare'] ?? [];
 
             foreach ($contacts as $contact) {
-
-                new dBug($contact);
 
                 $email = $contact['email'] ?? '';
 
@@ -91,9 +85,13 @@ class ContactsModel extends BaseModel {
 
         foreach ($rs as $v) {
             $e = $v['Contact Email / Portal'] ?? '';
+            // new dBug($data['email']['message']);die();
             if (!empty($e)) {
-                new dBug($e);
-                $data[__FUNCTION__][]['email'] = $e;
+                $arr = [
+                    'email' => $e,
+                    'msg'   => $data['email']['message']
+                ];
+                $data[__FUNCTION__][] = $arr;
             }
         }
         

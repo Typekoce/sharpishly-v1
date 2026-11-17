@@ -4,18 +4,21 @@ namespace App\Models;
 
 use App\Services\Db;
 use App\Services\Logger;
+use App\Services\Smarty;
 
 class BaseModel {
 
     public $db;
     public $logger;
-
+    public $smarty;
 
     public function __construct(){
 
         if (!$this->db) {
             $this->db = new Db(get_env(), $this->logger);
         } 
+
+        $this->smarty = new Smarty();
     }
 
     public function root(){
