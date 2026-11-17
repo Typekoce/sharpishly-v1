@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import ast
 import operator
+import re
 from core.controller import Controller
 from models.mcp_tool_model import McpToolModel
 
@@ -251,6 +252,91 @@ class McpClientController(Controller):
         return {}
 
     # --- Tool Handlers ---
+
+    async def _run_qenl(self, arguments: dict) -> dict:
+        safe_arguments = arguments or {}
+
+        prompt = str(
+            safe_arguments.get("prompt")
+            or safe_arguments.get("query")
+            or "Say hello and confirm you are running."
+        ).strip()
+
+        model = str(
+            safe_arguments.get("model", "qwen2.5:0.5b")
+        ).strip()
+
+        email_args = self._try_parse_email_send(prompt)
+
+        if email_args:
+            return await self._run_gmail_tool(email_args)
+
+        return await self.model.call_qwen(prompt, model)
+    
+
+    def _try_parse_email_send(self, prompt: str) -> dict | None:
+        """Detect a natural-language email-send request and extract its fields."""
+        if not prompt:
+            return None
+
+        prompt_lower = prompt.lower()
+
+        send_keywords = ("send", "email", "mail", "compose", "write")
+
+        if not any(keyword in prompt_lower for keyword in send_keywords):
+            return None
+
+        if "@" not in prompt:
+            return None
+
+        email_match = re.search(
+            r"[\w.+-]+@[\w.-]+\.\w+",
+            prompt
+        )
+
+        if not email_match:
+            return None
+
+        recipient = email_match.group(0).strip()
+
+        message = ""
+
+        message_patterns = [
+            r'(?:message|body|content|text)\s+(?:of|is|:)?\s*["\'](.+?)["\']',
+            r'(?:with\s+(?:the\s+)?(?:message|body|content))\s*["\'](.+?)["\']',
+            r'["\']([^"\']{3,})["\']',
+        ]
+
+        for pattern in message_patterns:
+            match = re.search(pattern, prompt, re.IGNORECASE | re.DOTALL)
+
+            if match:
+                message = match.group(1).strip()
+                break
+
+        subject = "Hello"
+
+        subject_match = re.search(
+            r'(?:subject|subj)\s*(?:is|:)?\s*["\']?([^"\'\n]+?)["\']?(?:\s|$|,|\.)',
+            prompt,
+            re.IGNORECASE
+        )
+
+        if subject_match:
+            subject = subject_match.group(1).strip()
+        elif message:
+            subject = " ".join(message.split()[:6])[:80] or "Hello"
+
+        if not message:
+            message = "Hello"
+
+        return {
+            "action": "send",
+            "recipient": recipient,
+            "subject": subject,
+            "message": message,
+        }
+
 
     async def _run_calculator_tool(self, args: dict) -> dict:
         safe_args = args or {}
