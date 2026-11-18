@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Models\RagModel;
+use App\Services\dBug;
 
 class RagController extends BaseController 
 {
@@ -26,5 +27,24 @@ class RagController extends BaseController
             'status'  => 'success',
             'records' => $records
         ]);
+    }
+
+    public function clean(){
+
+        $message = $this->location->storage('rag/raw/job_01.html');
+
+        $data = [
+            'id'    => $id,
+            'function'  => __FUNCTION__,
+            'model'     => __CLASS__,
+            'message'   => $message,
+        ];
+
+        $model = new RagModel();
+
+        $data = $model->main($data);
+
+        new dBug($data);
+
     }
 }
