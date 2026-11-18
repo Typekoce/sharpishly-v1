@@ -1,15 +1,13 @@
 import asyncio
 import json
 import os
-import re
 from pathlib import Path
 import ast
 import operator
-import email.utils
-from email.message import EmailMessage
 from core.controller import Controller
 from models.mcp_tool_model import McpToolModel
 from models.mcp_qwen_model import McpQwenModel
+from models.mcp_gmail_model import McpGmailModel
 
 _ALLOWED_BINOPS = {
     ast.Add: operator.add,
@@ -25,6 +23,7 @@ _ALLOWED_UNARYOPS = {
     ast.UAdd: operator.pos,
     ast.USub: operator.neg,
 }
+
 
 def safe_eval(expression: str):
     def _eval(node):
@@ -48,6 +47,7 @@ class McpClientController(Controller):
         super().__init__()
         self.model = McpToolModel()
         self.qwen_model = McpQwenModel()
+        self.gmail_model = McpGmailModel()
         self.tools = {t["name"]: t for t in self.model.load_tools()}
 
     def list_tools(self) -> list:
@@ -84,14 +84,14 @@ class McpClientController(Controller):
         except Exception as e:
             import traceback
             tb = traceback.format_exc()
-            
+
             log_dir = Path("storage/logs")
             log_dir.mkdir(parents=True, exist_ok=True)
-            
+
             log_path = log_dir / "mcp_error.log"
             with open(log_path, "a", encoding="utf-8") as f:
                 f.write(f"--- [ERROR] Tool: {tool_def['name']} | Args: {args} ---\n{tb}\n")
-                
+
             return self._error_response("EXECUTION_ERROR", f"{str(e)} (Logged to storage/logs/mcp_error.log)")
 
     def _error_response(self, code: str, message: str) -> dict:
@@ -148,9 +148,9 @@ class McpClientController(Controller):
             or ""
         ).strip()
 
-        email_args = self._try_parse_email_send(prompt)
+        email_args = self.gmail_model.try_parse_email_send(prompt)
         if email_args:
-            return await self._run_gmail_tool(email_args)
+            return await self.gmail_model._run_gmail_tool(email_args)
 
         return await self.qwen_model._run_qenl(safe_arguments)
 
@@ -166,158 +166,8 @@ class McpClientController(Controller):
             "as_of": "2026-11-04T14:28:00Z"
         }
 
-    async def _run_himalaya(self, cmd: list[str], input_bytes: bytes | None = None, timeout: int = 15) -> str:
-        try:
-            proc = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            stdout, stderr = await asyncio.wait_for(
-                proc.communicate(input=input_bytes), timeout=timeout
-            )
-        except FileNotFoundError:
-            raise RuntimeError("Himalaya CLI client is not installed or available in PATH.")
-        except asyncio.TimeoutError:
-            proc.kill()
-            await proc.wait()
-            raise RuntimeError("Himalaya command timed out.")
-
-        if proc.returncode != 0:
-            detail = stderr.decode(errors="replace").strip() or stdout.decode(errors="replace").strip()
-            raise RuntimeError(f"Himalaya command failed: {detail}")
-
-        return stdout.decode(errors="replace").strip()
-
     async def _run_gmail_tool(self, args: dict) -> dict:
-        safe_args = args or {}
-        action = str(safe_args.get("action", "list")).strip().lower()
-        query = str(safe_args.get("query", "")).strip()
-
-        if len(query) > 500:
-            raise ValueError("Query string too long.")
-
-        if action in ["contacts_search", "contacts_list"]:
-            return self._handle_contacts_action(action, query)
-
-        if action in ["search", "list"]:
-            cmd = ["himalaya", "envelope", "list"]
-            if query:
-                cmd.extend(query.split())
-            output = await self._run_himalaya(cmd)
-            return {
-                "action": action,
-                "query": query,
-                "raw_output": output
-            }
-        elif action == "read":
-            if not query:
-                raise ValueError("Message ID required for read action.")
-            cmd = ["himalaya", "message", "read", query]
-            output = await self._run_himalaya(cmd)
-            return {
-                "action": action,
-                "message_id": query,
-                "content": output
-            }
-        elif action == "send":
-            recipient = str(safe_args.get("recipient", "")).strip()
-            subject = str(safe_args.get("subject", "")).strip()
-            message_body = str(safe_args.get("message", "")).strip()
-            account = str(safe_args.get("account", "")).strip()
-
-            if not recipient:
-                raise ValueError("Recipient email address required for send action.")
-
-            if not subject:
-                raise ValueError("Subject required for send action.")
-
-            if not message_body:
-                raise ValueError("Message body required for send action.")
-
-            try:
-                parsed_recipient = email.utils.parseaddr(recipient)
-                if not parsed_recipient[1] or "@" not in parsed_recipient[1]:
-                    raise ValueError
-            except (ValueError, IndexError):
-                raise ValueError("A valid recipient email address is required.")
-
-            # msg = EmailMessage()
-            # msg["To"] = parsed_recipient[1]
-            # msg["Subject"] = subject
-            # msg.set_content(message_body)
-
-            msg = EmailMessage()
-            msg["From"] = account if account else "mysharpishly@gmail.com" # Or your configured email address
-            msg["To"] = parsed_recipient[1]
-            msg["Subject"] = subject
-            msg.set_content(message_body)
-
-            raw_message = msg.as_bytes()
-
-            cmd = ["himalaya", "message", "send"]
-            if account:
-                cmd.extend(["--account", account])
-
-            output = await self._run_himalaya(cmd, input_bytes=raw_message, timeout=30)
-
-            return {
-                "action": "send",
-                "recipient": parsed_recipient[1],
-                "subject": subject,
-                "status": "success",
-                "output": output or "Email submitted to Himalaya for delivery."
-            }
-        else:
-            raise ValueError(f"Unsupported Gmail action: {action}")
-
-    def _handle_contacts_action(self, action: str, query: str) -> dict:
-        project_root = Path(__file__).resolve().parents[3]
-        file_path = project_root / "output" / "hotmail_contacts_addressbook.json"
-
-        if not file_path.exists():
-            return {"query": query, "matches": [], "note": "Address book file not found."}
-
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-        except json.JSONDecodeError:
-            return {"query": query, "matches": [], "note": "Invalid address book JSON."}
-
-        contacts = data.get("addressbook", {}).get("contacts", [])
-        if not isinstance(contacts, list):
-            contacts = []
-
-        if action == "contacts_list" or not query:
-            matches = []
-            for c in contacts:
-                emails = c.get("emails") or []
-                email = emails[0].get("address", "") if emails else ""
-                matches.append({
-                    "id": c.get("id"),
-                    "display_name": c.get("display_name"),
-                    "email": email
-                })
-        else:
-            matches = []
-            q_lower = query.lower()
-            for c in contacts:
-                name = str(c.get("display_name", "")).lower()
-                emails = c.get("emails") or []
-                email = emails[0].get("address", "") if emails else ""
-                if q_lower in name or q_lower in email.lower():
-                    matches.append({
-                        "id": c.get("id"),
-                        "display_name": c.get("display_name"),
-                        "email": email
-                    })
-
-        return {
-            "action": action,
-            "query": query,
-            "matches": matches
-        }
+        return await self.gmail_model._run_gmail_tool(args)
 
     async def _run_github_tool(self, args: dict) -> dict:
         safe_args = args or {}
@@ -330,15 +180,15 @@ class McpClientController(Controller):
         try:
             if action == "repo_info":
                 cmd = ["gh", "repo", "view", query, "--json", "name,description,stargazerCount,url,owner"]
-                output = await self._run_cli(cmd)
+                output = await self._run_cli_secure(cmd)
                 return {"action": action, "query": query, "result": json.loads(output) if output.startswith("{") else output}
             elif action == "search_repos":
                 cmd = ["gh", "search", "repos", query, "--limit", "5", "--json", "fullName,description,url,stargazersCount"]
-                output = await self._run_cli(cmd)
+                output = await self._run_cli_secure(cmd)
                 return {"action": action, "query": query, "result": json.loads(output) if output.startswith("[") else output}
             elif action == "issues_list":
                 cmd = ["gh", "issue", "list", "-R", query, "--limit", "5", "--json", "number,title,state,url"]
-                output = await self._run_cli(cmd)
+                output = await self._run_cli_secure(cmd)
                 return {"action": action, "query": query, "result": json.loads(output) if output.startswith("[") else output}
             else:
                 return {"action": action, "query": query, "status": "success", "note": f"GitHub action '{action}' executed."}
@@ -367,7 +217,7 @@ class McpClientController(Controller):
                "-H", "Authorization: Bearer $SLACK_BOT_TOKEN",
                "-H", "Content-Type: application/json",
                "-d", json.dumps({"channel": "general", "text": query})]
-        
+
         output = await self._run_cli_secure(cmd, timeout=10)
         return {"action": action, "query": query, "status": "success", "result": json.loads(output) if output.startswith("{") else output}
 
@@ -433,60 +283,3 @@ class McpClientController(Controller):
             raise ValueError(stderr.decode("utf-8", errors="replace").strip() or f"Command exited with {process.returncode}.")
 
         return stdout.decode("utf-8", errors="replace").strip()
-
-    def _try_parse_email_send(self, prompt: str) -> dict | None:
-        """Detect a natural-language 'send email' request and extract fields for the gmail tool."""
-        if not prompt:
-            return None
-
-        prompt_lower = prompt.lower()
-        # Require both a send-like verb and an email address presence
-        send_keywords = ("send", "email", "mail", "compose", "write")
-        if not any(kw in prompt_lower for kw in send_keywords) or "@" not in prompt:
-            return None
-
-        # Extract the first plausible email address
-        email_match = re.search(
-            r"[\w.+-]+@[\w.-]+\.\w+",
-            prompt,
-        )
-        if not email_match:
-            return None
-        recipient = email_match.group(0).strip()
-
-        # Prefer quoted message body: message of "..." / body: "..." / content is '...'
-        message = ""
-        msg_patterns = [
-            r'(?:message|body|content|text)\s+(?:of|is|:)?\s*["\'](.+?)["\']',
-            r'(?:with\s+(?:the\s+)?(?:message|body|content))\s*["\'](.+?)["\']',
-            r'["\']([^"\']{3,})["\']',  # last resort: first reasonably long quoted string
-        ]
-        for pattern in msg_patterns:
-            m = re.search(pattern, prompt, re.IGNORECASE | re.DOTALL)
-            if m:
-                message = m.group(1).strip()
-                break
-
-        # Subject: explicit "subject ..." or fall back to a short default derived from the message
-        subject = "Hello"
-        subj_match = re.search(
-            r'(?:subject|subj)\s*(?:is|:)?\s*["\']?([^"\'\n]+?)["\']?(?:\s|$|,|\.)',
-            prompt,
-            re.IGNORECASE,
-        )
-        if subj_match:
-            subject = subj_match.group(1).strip()
-        elif message:
-            # Use the first few words of the message as a simple subject
-            subject = " ".join(message.split()[:6])[:80] or "Hello"
-
-        if not message:
-            # If we found a recipient but no body, still allow a minimal send
-            message = "Hello"
-
-        return {
-            "action": "send",
-            "recipient": recipient,
-            "subject": subject,
-            "message": message,
-        }
