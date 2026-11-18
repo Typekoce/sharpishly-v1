@@ -10,28 +10,27 @@ class ContactsController extends BaseController
     public function index($id = ''): void
     {
 
+        $message = $this->location->storage('contacts/messages/funding_message.txt');
+
+        $contacts = $this->location->storage('contacts/funding.csv');
+
         $data = [
             'id'    => $id,
             'function'  => __FUNCTION__,
             'model'     => __CLASS__,
+            'message'   => $message,
+            'contacts'  => $contacts,
             'email' => [
                 'subject'   => 'Hello World',
                 'message'   => 'Funding application',
+                'recipient' => '',
                 'schedule'  => []
             ]
         ];
 
-        $file = $this->location->storage('contacts/funding.csv');
-
-        //TODO: Load message from file messages/funding.txt
-
-        if (!file_exists($file)) {
-            return;
-        }
-
         $m = new ContactsModel();
 
-        $data = $m->csv($data,$file);
+        $data = $m->main($data);
 
     }
 

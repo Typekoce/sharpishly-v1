@@ -7,21 +7,70 @@ use App\Services\CsvToPhpConverter;
 
 class ContactsModel extends BaseModel {
 
-    public function csv($data,$file){
+    public function main($data){
+
+        $data = $this->template($data);
+
+        $data = $this->csv($data);
+
+        new dBug($data);
+        
+        return $data;
+
+    }
+
+    public function template($data){
+        
+        if(file_exists($file = $data['message'])){
+            $data[__FUNCTION__] = file_get_contents($file);
+
+        };
+        return $data;
+    }
+
+
+
+    public function mailMerge($data){
+
+        $fields = array(
+            'Name'          => 'Bruce Wanye',
+            'Your name'     => 'Mr Paul Anthony McIntosh MA BA Hons',
+            'Company Name'  => 'Sharpishly LTD',
+            'Phone'         => '07900191233',
+            'Website'       => 'https://www.sharpishly.com',
+            'LinkedIn'      => 'Sharpishly'
+        );
+
+        $txt = $data['template'];
+
+        $data['email']['recipient'] = $data['prepare'][0]['email'];
+
+        $data['email']['message'] = $this->smarty->smarty($txt,$fields);
+        return $data;
+    }
+
+    public function csv($data){
 
         try {
             $csv = new CsvToPhpConverter();
-            $data['contacts'] = $csv->convertFile($file);
+
+            $data['contacts'] = $csv->convertFile($data['contacts']);
+
+            $data = $this->mailMerge($data);
+
             $data = $this->prepare($data);
 
             $contacts = $data['prepare'] ?? [];
-            new dBug($contacts);
 
             foreach ($contacts as $contact) {
-                $email = $contact['email'] ?? '';
+
+                // $email = $contact['email'] ?? '';
+
+                $email = 'paultypekoce@gmail.com';
+
                 if (!empty($email)) {
-                    new dBug($email);
-                    //$this->create($email);
+                    // new dBug($email);
+                    $this->create($email);
                 }
             }
         } catch (\InvalidArgumentException | \RuntimeException $e) {
@@ -35,13 +84,16 @@ class ContactsModel extends BaseModel {
     public function prepare(array $data): array
     {
         $rs = $data['contacts'] ?? [];
-        new dBug($rs);
-        
+
         foreach ($rs as $v) {
             $e = $v['Contact Email / Portal'] ?? '';
+            // new dBug($data['email']['message']);die();
             if (!empty($e)) {
-                new dBug($e);
-                $data[__FUNCTION__][]['email'] = $e;
+                $arr = [
+                    'email' => $e,
+                    'msg'   => $data['email']['message']
+                ];
+                $data[__FUNCTION__][] = $arr;
             }
         }
         
@@ -71,6 +123,6 @@ class ContactsModel extends BaseModel {
             ]
         ];
     }
-    
+
 
 }
