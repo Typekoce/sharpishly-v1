@@ -58,4 +58,13 @@ class BaseModel {
         return $job;
     }
 
+    public function template($data){
+        
+        if(file_exists($file = $data['message'])){
+            $data[__FUNCTION__] = file_get_contents($file);
+
+        };
+        return $data;
+    }
+
 }

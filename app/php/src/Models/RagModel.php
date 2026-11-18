@@ -30,4 +30,11 @@ class RagModel extends BaseModel
             ];
         }
     }
+
+    public function main($data){
+
+        $data = $this->template($data);
+
+        return $data;
+    }
 }
