@@ -1,14 +1,3 @@
-# import asyncio
-# import json
-# import os
-# from pathlib import Path
-# import ast
-# import operator
-# import email.utils
-# from email.message import EmailMessage
-# from core.controller import Controller
-# from models.mcp_tool_model import McpToolModel
-
 import asyncio
 import json
 import os
@@ -20,6 +9,7 @@ import email.utils
 from email.message import EmailMessage
 from core.controller import Controller
 from models.mcp_tool_model import McpToolModel
+from models.mcp_qwen_model import McpQwenModel
 
 _ALLOWED_BINOPS = {
     ast.Add: operator.add,
@@ -57,6 +47,7 @@ class McpClientController(Controller):
     def __init__(self):
         super().__init__()
         self.model = McpToolModel()
+        self.qwen_model = McpQwenModel()
         self.tools = {t["name"]: t for t in self.model.load_tools()}
 
     def list_tools(self) -> list:
@@ -149,29 +140,19 @@ class McpClientController(Controller):
         val = safe_eval(expression)
         return {"result": val}
 
-    # async def _run_qenl(self, args: dict) -> dict:
-    #     safe_args = args or {}
-    #     prompt = str(safe_args.get("prompt", "Say hello and confirm you are running.")).strip()
-    #     model = str(safe_args.get("model", "qwen2.5:0.5b")).strip()
-
-    #     return await self.model.call_qwen(prompt, model)
-
     async def _run_qenl(self, arguments: dict) -> dict:
         safe_arguments = arguments or {}
-
-        # todo: use gmail tool to send emails
-
         prompt = str(
             safe_arguments.get("prompt")
             or safe_arguments.get("query")
-            or "Say hello and confirm you are running."
+            or ""
         ).strip()
 
-        model = str(
-            safe_arguments.get("model", "qwen2.5:0.5b")
-        ).strip()
+        email_args = self._try_parse_email_send(prompt)
+        if email_args:
+            return await self._run_gmail_tool(email_args)
 
-        return await self.model.call_qwen(prompt, model)
+        return await self.qwen_model._run_qenl(safe_arguments)
 
     async def _run_stock_quote_tool(self, args: dict) -> dict:
         safe_args = args or {}
@@ -509,23 +490,3 @@ class McpClientController(Controller):
             "subject": subject,
             "message": message,
         }
-
-    async def _run_qenl(self, arguments: dict) -> dict:
-        safe_arguments = arguments or {}
-
-        prompt = str(
-            safe_arguments.get("prompt")
-            or safe_arguments.get("query")
-            or "Say hello and confirm you are running."
-        ).strip()
-
-        model = str(
-            safe_arguments.get("model", "qwen2.5:0.5b")
-        ).strip()
-
-        # If the prompt is a request to send an email, route to the gmail tool instead of Qwen
-        email_args = self._try_parse_email_send(prompt)
-        if email_args:
-            return await self._run_gmail_tool(email_args)
-
-        return await self.model.call_qwen(prompt, model)
