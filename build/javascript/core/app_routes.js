@@ -9,6 +9,7 @@ const pages = {
         ai: () => AiController.index(),
         articles: () => ArticlesController.index(),
         agent: () => AgentController.index(),
+        chat: () => ChatController.index(),
     };
 
     for (const page in pages) {

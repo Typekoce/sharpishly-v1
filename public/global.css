@@ -1369,3 +1369,104 @@ body {
     font-size: 0.75rem;
     color: var(--text-muted, #94a3b8);
 }
+/* Give the chat stream room at the bottom so messages aren't hidden behind the fixed bar */
+.ai-chat-stream {
+    padding-bottom: 120px;
+}
+
+/* Fixed floating footer container */
+.ai-footer-fixed {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 12px 16px 20px;
+    display: flex;
+    justify-content: center;
+    pointer-events: none; /* Allows clicks outside the pill to pass through */
+}
+
+.ai-input-wrapper {
+    width: 100%;
+    max-width: 780px;
+    padding: 8px 12px;
+    pointer-events: auto;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ai-input-wrapper:focus-within {
+    border-color: #2563eb;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.12);
+}
+
+.prompt-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin: 0;
+}
+
+.upload-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #f3f4f6;
+    color: #374151;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.upload-btn:hover {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.prompt-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    padding: 7px 4px;
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+
+
+/* Attached file badge inside input pill */
+.ai-file-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 4px 10px;
+    margin-bottom: 6px;
+    font-size: 0.82rem;
+    color: #374151;
+}
+
+.file-clear-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    line-height: 1;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0 2px;
+}
+
+.file-clear-btn:hover {
+    color: #ef4444;
+}

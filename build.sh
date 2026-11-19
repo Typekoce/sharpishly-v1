@@ -14,6 +14,7 @@ CSS_FILES=(
     build/css/ai.css
     build/css/articles.css
     build/css/agent.css
+    build/css/chat.css
 )
 : > public/global.css
 for css in "${CSS_FILES[@]}"; do
@@ -33,6 +34,7 @@ JS_FILES=(
     build/javascript/controllers/agent_controller.js
     build/javascript/controllers/render_controller.js
     build/javascript/controllers/context_controller.js
+    build/javascript/controllers/chat_controller.js
     build/javascript/core/global.js
 )
 : > public/script.js
