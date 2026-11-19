@@ -1,0 +1,1160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Meridian CRM — Relationship Operations</title>
+<style>
+@layer reset, tokens, base, layout, components, utilities, motion;
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+  html { color-scheme: dark light; }
+  body { min-height: 100dvh; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  img, svg, canvas { display: block; max-width: 100%; }
+  ul, ol { padding: 0; list-style: none; }
+}
+
+@layer tokens {
+  :root {
+    color-scheme: dark;
+    --ink: oklch(96% 0.015 250);
+    --ink-muted: oklch(78% 0.02 250);
+    --bg: oklch(17% 0.03 255);
+    --surface: oklch(21% 0.03 255);
+    --raised: oklch(25% 0.03 255);
+    --line: color-mix(in oklab, var(--ink) 16%, transparent);
+    --accent: oklch(78% 0.15 78);
+    --accent-ink: oklch(18% 0.05 78);
+    --positive: oklch(76% 0.15 155);
+    --warning: oklch(80% 0.15 88);
+    --danger: oklch(70% 0.18 25);
+    --focus: oklch(88% 0.16 220);
+    --radius-s: 8px; --radius-m: 14px; --radius-l: 22px;
+    --space-1: .25rem; --space-2: .5rem; --space-3: .75rem;
+    --space-4: 1rem; --space-5: 1.5rem; --space-6: 2rem;
+    --shadow: 0 18px 45px oklch(0% 0 0 / .28);
+    --motion: 180ms;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  :root[data-mode="light"] {
+    color-scheme: light;
+    --ink: oklch(22% 0.03 255);
+    --ink-muted: oklch(42% 0.03 255);
+    --bg: oklch(96% 0.012 250);
+    --surface: oklch(99% 0.006 250);
+    --raised: oklch(94% 0.015 250);
+    --line: color-mix(in oklab, var(--ink) 15%, transparent);
+    --accent: oklch(52% 0.14 68);
+    --accent-ink: oklch(98% 0.02 78);
+    --shadow: 0 14px 34px oklch(30% 0.04 255 / .12);
+  }
+  :root[data-density="compact"] { --space-4: .7rem; --space-5: 1rem; --space-6: 1.4rem; }
+}
+
+@layer base {
+  body {
+    background:
+      radial-gradient(1100px 620px at 82% -10%, color-mix(in oklab, var(--accent) 18%, transparent), transparent),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: clamp(.95rem, .9rem + .2vw, 1.05rem);
+    line-height: 1.55;
+  }
+  h1, h2, h3 { line-height: 1.15; text-wrap: balance; }
+  h1 { font-size: clamp(1.8rem, 1.2rem + 2.4vw, 3rem); letter-spacing: -.03em; }
+  h2 { font-size: clamp(1.25rem, 1.05rem + .8vw, 1.7rem); }
+  h3 { font-size: 1.05rem; }
+  p { text-wrap: pretty; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+  .skip {
+    position: fixed; left: 1rem; top: -4rem; z-index: 100;
+    background: var(--accent); color: var(--accent-ink);
+    padding: .7rem 1rem; border-radius: 999px; font-weight: 700;
+    transition: top var(--motion);
+  }
+  .skip:focus { top: 1rem; }
+  input, select, textarea {
+    width: 100%; background: color-mix(in oklab, var(--raised) 75%, transparent);
+    border: 1px solid var(--line); border-radius: var(--radius-s);
+    padding: .65rem .75rem; min-height: 44px;
+  }
+  textarea { field-sizing: content; min-height: 96px; resize: vertical; }
+  input:user-invalid, textarea:user-invalid, select:user-invalid {
+    border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in oklab, var(--danger) 22%, transparent);
+  }
+  label { font-size: .8rem; font-weight: 700; color: var(--ink-muted); }
+}
+
+@layer layout {
+  .app {
+    display: grid; min-height: 100dvh;
+    grid-template-columns: 1fr;
+    grid-template-areas: "top" "nav" "main";
+  }
+  .topbar {
+    grid-area: top; position: sticky; top: 0; z-index: 30;
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) clamp(1rem, 3vw, 2.5rem);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(14px); border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: .6rem; font-weight: 800; letter-spacing: -.02em; }
+  .brand svg { width: 34px; height: 34px; }
+  .top-actions { margin-left: auto; display: flex; gap: .5rem; align-items: center; }
+  .sidebar {
+    grid-area: nav; display: flex; gap: .35rem; overflow-x: auto;
+    padding: .6rem clamp(1rem, 3vw, 2.5rem); border-bottom: 1px solid var(--line);
+    scrollbar-width: thin;
+  }
+  .sidebar a {
+    display: inline-flex; align-items: center; gap: .45rem; white-space: nowrap;
+    padding: .6rem .85rem; border-radius: 999px; text-decoration: none;
+    border: 1px solid transparent; min-height: 44px;
+  }
+  .sidebar a[aria-current="page"] {
+    background: color-mix(in oklab, var(--accent) 22%, transparent);
+    border-color: color-mix(in oklab, var(--accent) 48%, transparent);
+    font-weight: 750;
+  }
+  main {
+    grid-area: main; width: min(1500px, 100%);
+    margin-inline: auto; padding: clamp(1rem, 3vw, 2.5rem);
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  }
+  .page-head { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: end; margin-bottom: var(--space-5); }
+  .page-head > div:first-child { flex: 1 1 280px; }
+  .page-head p { color: var(--ink-muted); max-width: 68ch; }
+  .grid { display: grid; gap: var(--space-4); }
+  .metrics { grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); }
+  .workspace { grid-template-columns: 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .board { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); align-items: start; }
+  @media (min-width: 900px) {
+    .app { grid-template-columns: 230px 1fr; grid-template-areas: "top top" "nav main"; }
+    .sidebar { flex-direction: column; align-items: stretch; border-right: 1px solid var(--line); border-bottom: 0; min-height: calc(100dvh - 68px); }
+    .workspace { grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); }
+    .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1400px) {
+    .app { grid-template-columns: 260px minmax(0, 1fr); }
+  }
+}
+
+@layer components {
+  .card {
+    container-type: inline-size;
+    background: color-mix(in oklab, var(--surface) 94%, transparent);
+    border: 1px solid var(--line); border-radius: var(--radius-l);
+    padding: clamp(1rem, 1rem + .6cqi, 1.7rem); box-shadow: var(--shadow);
+  }
+  .card + .card { margin-top: var(--space-4); }
+  .metric { display: grid; gap: .25rem; }
+  .metric strong { font-size: clamp(1.5rem, 1.2rem + 1.4cqi, 2.1rem); font-variant-numeric: tabular-nums; }
+  .metric span { color: var(--ink-muted); font-size: .82rem; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+    min-height: 44px; padding: .6rem .95rem; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--raised);
+    font-weight: 700; text-decoration: none; transition: transform var(--motion), background var(--motion);
+  }
+  .btn:hover { background: color-mix(in oklab, var(--accent) 15%, var(--raised)); }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--accent); border-color: transparent; color: var(--accent-ink); }
+  .btn-ghost { background: transparent; }
+  .btn-danger { color: var(--danger); border-color: color-mix(in oklab, var(--danger) 45%, transparent); }
+  .btn[aria-pressed="true"] { background: color-mix(in oklab, var(--accent) 28%, transparent); }
+  .field { display: grid; gap: .35rem; margin-bottom: .8rem; }
+  .row { display: grid; gap: .7rem; grid-template-columns: 1fr; }
+  @media (min-width: 620px) { .row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .toolbar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: var(--space-4); }
+  .toolbar input[type="search"] { flex: 1 1 220px; }
+  .toolbar select { width: auto; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-m); }
+  table { width: 100%; border-collapse: collapse; min-width: 640px; }
+  th, td { padding: .75rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { font-size: .74rem; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-muted); }
+  tbody tr:hover { background: color-mix(in oklab, var(--accent) 7%, transparent); }
+  .tag {
+    display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .55rem;
+    border-radius: 999px; border: 1px solid var(--line); font-size: .74rem; font-weight: 700;
+  }
+  .tag[data-tone="positive"] { color: var(--positive); border-color: color-mix(in oklab, var(--positive) 45%, transparent); }
+  .tag[data-tone="warning"] { color: var(--warning); border-color: color-mix(in oklab, var(--warning) 45%, transparent); }
+  .tag[data-tone="danger"] { color: var(--danger); border-color: color-mix(in oklab, var(--danger) 45%, transparent); }
+  .tag[data-tone="accent"] { color: var(--accent); border-color: color-mix(in oklab, var(--accent) 45%, transparent); }
+  .person {
+    display: grid; gap: .55rem; padding: .9rem; border: 1px solid var(--line);
+    border-radius: var(--radius-m); background: color-mix(in oklab, var(--raised) 65%, transparent);
+  }
+  .person h3 a { text-decoration: none; }
+  .person h3 a:hover { color: var(--accent); }
+  .person-meta { color: var(--ink-muted); font-size: .85rem; }
+  .person-actions { display: flex; gap: .4rem; flex-wrap: wrap; }
+  .deal {
+    border: 1px solid var(--line); border-radius: var(--radius-m); padding: .85rem;
+    background: color-mix(in oklab, var(--raised) 70%, transparent);
+  }
+  .deal strong { display: block; }
+  .deal-meta { color: var(--ink-muted); font-size: .82rem; margin-top: .25rem; }
+  .deal-bar { height: 7px; margin-top: .6rem; border-radius: 99px; overflow: hidden; background: var(--line); }
+  .deal-bar span { display: block; height: 100%; background: var(--accent); }
+  .empty {
+    text-align: center; padding: var(--space-6); border: 1px dashed var(--line);
+    border-radius: var(--radius-l); color: var(--ink-muted);
+  }
+  .chart { width: 100%; height: auto; }
+  .chart .bar { fill: var(--accent); transition: opacity var(--motion); }
+  .chart .bar:hover, .chart .bar:focus { opacity: .78; }
+  .chart text { fill: var(--ink-muted); font-size: 10px; font-family: var(--font); }
+  .chart .axis { stroke: var(--line); }
+  dialog {
+    width: min(720px, calc(100vw - 2rem)); max-height: min(88dvh, 780px);
+    border: 1px solid var(--line); border-radius: var(--radius-l);
+    background: var(--surface); color: var(--ink); padding: 0; box-shadow: var(--shadow);
+  }
+  dialog::backdrop { background: oklch(8% 0.02 255 / .68); backdrop-filter: blur(3px); }
+  .dialog-body { padding: clamp(1rem, 3vw, 1.8rem); overflow: auto; }
+  .dialog-head { display: flex; gap: 1rem; align-items: start; justify-content: space-between; margin-bottom: 1rem; }
+  .detail-grid { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  .detail-grid div { border: 1px solid var(--line); border-radius: var(--radius-s); padding: .7rem; }
+  .detail-grid dt { font-size: .72rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .06em; }
+  .detail-grid dd { margin: 0; font-weight: 650; overflow-wrap: anywhere; }
+  .capability { display: grid; gap: .2rem; padding: .7rem; border-bottom: 1px solid var(--line); }
+  .capability:last-child { border-bottom: 0; }
+  .capability strong { font-size: .9rem; }
+  .capability small { color: var(--ink-muted); }
+  .status { font-size: .85rem; color: var(--ink-muted); min-height: 1.3em; }
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap;
+  }
+}
+
+@layer utilities {
+  .muted { color: var(--ink-muted); }
+  .small { font-size: .82rem; }
+  .nowrap { white-space: nowrap; }
+  .num { font-variant-numeric: tabular-nums; }
+  .stack { display: grid; gap: var(--space-3); }
+  .cluster { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+  .right { margin-left: auto; }
+}
+
+@layer motion {
+  @media (prefers-reduced-motion: no-preference) {
+    .card, .btn, .person, .deal { transition: transform var(--motion), border-color var(--motion), background var(--motion); }
+    .card:hover { transform: translateY(-2px); }
+    dialog[open] { animation: dialog-in 220ms ease-out; }
+    @keyframes dialog-in { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+    @supports (animation-timeline: scroll()) {
+      .progress {
+        position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 60;
+        background: var(--accent); transform-origin: 0 50%; transform: scaleX(0);
+        animation: grow linear both; animation-timeline: scroll(root);
+      }
+      @keyframes grow { to { transform: scaleX(1); } }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+  @media (prefers-contrast: more) {
+    :root { --line: currentColor; --ink-muted: var(--ink); }
+  }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 240ms; }
+}
+
+@scope (.pipeline) to (:scope) {
+  .stage-title { font-weight: 800; letter-spacing: -.01em; }
+  .stage-count { color: var(--ink-muted); font-size: .78rem; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="progress" aria-hidden="true"></div>
+
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="#/dashboard">
+      <svg viewBox="0 0 40 40" role="img" aria-label="Meridian CRM logo">
+        <circle cx="20" cy="20" r="18" fill="none" stroke="var(--accent)" stroke-width="3"/>
+        <path d="M8 26c6-12 18-12 24 0" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="20" cy="14" r="4" fill="var(--accent)"/>
+      </svg>
+      Meridian CRM
+    </a>
+    <div class="top-actions">
+      <button class="btn btn-ghost" id="quick-add" type="button">New contact</button>
+      <button class="btn btn-ghost" id="theme-toggle" type="button" aria-pressed="false">Light</button>
+    </div>
+  </header>
+
+  <nav class="sidebar" aria-label="Primary">
+    <a href="#/dashboard">Overview</a>
+    <a href="#/contacts">Contacts</a>
+    <a href="#/pipeline">Pipeline</a>
+    <a href="#/activities">Follow-ups</a>
+    <a href="#/settings">Settings</a>
+  </nav>
+
+  <main id="main" tabindex="-1">
+    <div id="view" aria-live="polite"></div>
+  </main>
+</div>
+
+<dialog id="record-dialog" aria-labelledby="dialog-title">
+  <form id="record-form" novalidate>
+    <div class="dialog-body">
+      <div class="dialog-head">
+        <div><h2 id="dialog-title">Edit record</h2><p class="muted small" id="dialog-subtitle"></p></div>
+        <button class="btn btn-ghost" type="button" data-close>Close</button>
+      </div>
+      <div id="dialog-fields"></div>
+      <p class="status" id="form-status" role="status"></p>
+      <div class="cluster" style="margin-top:1rem">
+        <button class="btn btn-primary" type="submit">Save</button>
+        <button class="btn" type="button" data-close>Cancel</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="detail-dialog" aria-labelledby="detail-title">
+  <div class="dialog-body">
+    <div class="dialog-head">
+      <div><h2 id="detail-title">Record</h2><p class="muted small" id="detail-subtitle"></p></div>
+      <button class="btn btn-ghost" type="button" data-close>Close</button>
+    </div>
+    <div id="detail-content"></div>
+  </div>
+</dialog>
+
+<script type="module">
+const STORE_VERSION = 1;
+const STAGES = [
+  { id: "discover", label: "Discovery", probability: 15 },
+  { id: "qualify", label: "Qualified", probability: 35 },
+  { id: "proposal", label: "Proposal", probability: 60 },
+  { id: "negotiate", label: "Negotiation", probability: 80 },
+  { id: "won", label: "Won", probability: 100 },
+  { id: "lost", label: "Lost", probability: 0 }
+];
+
+const seedContacts = [
+  ["Amara Okafor","Northwind Logistics","VP Operations","amara.okafor@northwind-logistics.example","active",["manufacturing","expansion"],"Needs a rollout plan for three new distribution hubs."],
+  ["Daniel Reyes","Helio Analytics","Head of Data","daniel.reyes@helio-analytics.example","active",["analytics","data"],"Evaluating a governed data catalog for 240 analysts."],
+  ["Priya Nair","Cobalt Health","Clinical Informatics Lead","priya.nair@cobalt-health.example","customer",["healthcare","renewal"],"Renewal discussion begins in March; wants workflow automation."],
+  ["Tomas Lindqvist","Fjord Energy","Procurement Director","tomas.lindqvist@fjord-energy.example","prospect",["energy","enterprise"],"Requested security documentation and implementation references."],
+  ["Maya Chen","Lumen Retail","Director of CX","maya.chen@lumen-retail.example","active",["retail","cx"],"Interested in unifying store and online service queues."],
+  ["Jonas Weber","Atlas Manufacturing","Plant Manager","jonas.weber@atlas-mfg.example","prospect",["manufacturing","operations"],"Pilot proposed for two production lines in Q3."],
+  ["Sofia Marino","Vela Financial","COO","sofia.marino@vela-financial.example","customer",["finance","expansion"],"Expanding from 80 to 160 seats after regional acquisition."],
+  ["Ethan Brooks","Cedar & Co.","Managing Partner","ethan.brooks@cedarco.example","inactive",["professional-services"],"Project paused pending budget approval."],
+  ["Nadia Hassan","Orbit Robotics","Program Director","nadia.hassan@orbit-robotics.example","active",["robotics","innovation"],"Wants integration with internal maintenance system."],
+  ["Lucas Ferreira","Terra Foods","Supply Chain Lead","lucas.ferreira@terra-foods.example","prospect",["food","supply-chain"],"Concerned about cold-chain traceability reporting."],
+  ["Grace Park","Northstar Insurance","VP Claims","grace.park@northstar-insurance.example","customer",["insurance","service"],"Strong champion; introduced two peer stakeholders."],
+  ["Omar Haddad","Blue Harbor Ports","Operations Analyst","omar.haddad@blueharbor.example","prospect",["logistics","ports"],"Needs a phased deployment across four terminals."],
+  ["Elena Petrova","Kite Studio","Founder","elena.petrova@kitestudio.example","active",["creative","small-business"],"Evaluating a lightweight CRM for a growing client roster."],
+  ["Marcus Bell","Ridgeline Construction","Estimating Manager","marcus.bell@ridgeline.example","inactive",["construction","bid-management"],"Revisited after completing the Harborview project."]
+].map(([name, company, role, email, status, tags, note], i) => ({
+  id: `contact-${i + 1}`, name, company, role, email, phone: `+1 (555) 01${String(i + 10).padStart(2, "0")}`,
+  status, tags, note, owner: i % 2 ? "Riley Chen" : "Alex Morgan", favorite: i < 3,
+  createdAt: `2026-${String((i % 9) + 1).padStart(2, "0")}-1${i % 10}`
+}));
+
+const seedDeals = [
+  ["Northwind hub rollout", "contact-1", "proposal", 148000, "2026-12-18", "Riley Chen", "Three-site implementation with data migration."],
+  ["Helio data catalog", "contact-2", "negotiate", 96000, "2026-11-28", "Alex Morgan", "Legal review is the remaining approval step."],
+  ["Cobalt workflow renewal", "contact-3", "won", 72000, "2026-10-30", "Riley Chen", "Two-year renewal with expanded automation."],
+  ["Fjord security pilot", "contact-4", "discover", 54000, "2027-01-22", "Alex Morgan", "Security questionnaire returned; awaiting architecture review."],
+  ["Lumen omnichannel service", "contact-5", "qualify", 118000, "2027-02-14", "Riley Chen", "Store pilot could expand to 42 locations."],
+  ["Atlas line pilot", "contact-6", "qualify", 42000, "2026-12-05", "Alex Morgan", "Success criteria include a 12% reduction in changeover time."],
+  ["Vela seat expansion", "contact-7", "proposal", 134000, "2026-11-20", "Riley Chen", "Includes onboarding for the acquired regional team."],
+  ["Cedar project restart", "contact-8", "lost", 28000, "2026-09-12", "Alex Morgan", "Budget redirected to a facilities project."],
+  ["Orbit maintenance integration", "contact-9", "discover", 88000, "2027-03-03", "Riley Chen", "Technical workshop scheduled with platform team."],
+  ["Terra traceability", "contact-10", "qualify", 66000, "2027-01-09", "Alex Morgan", "Pilot covers two cold-chain facilities."],
+  ["Northstar claims automation", "contact-11", "won", 155000, "2026-08-21", "Riley Chen", "Expansion tied to claims-volume growth."],
+  ["Blue Harbor terminal rollout", "contact-12", "proposal", 210000, "2027-02-28", "Alex Morgan", "Four-phase rollout, beginning with Terminal North."]
+].map(([title, contactId, stage, value, closeDate, owner, note], i) => ({
+  id: `deal-${i + 1}`, title, contactId, stage, value, closeDate, owner, note,
+  createdAt: `2026-${String((i % 9) + 1).padStart(2, "0")}-0${(i % 8) + 1}`
+}));
+
+const seedActivities = [
+  ["call", "contact-1", "deal-1", "2026-11-21", false, "Confirm implementation staffing and migration scope."],
+  ["email", "contact-2", "deal-2", "2026-11-20", false, "Send revised security addendum."],
+  ["meeting", "contact-4", "deal-4", "2026-11-24", false, "Architecture review with Fjord platform team."],
+  ["task", "contact-5", "deal-5", "2026-11-27", false, "Prepare store-pilot success metrics."],
+  ["call", "contact-6", "deal-6", "2026-11-19", false, "Review changeover-time baseline."],
+  ["email", "contact-7", "deal-7", "2026-11-18", true, "Delivered expansion pricing."],
+  ["meeting", "contact-9", "deal-9", "2026-12-02", false, "Integration discovery workshop."],
+  ["task", "contact-10", "deal-10", "2026-11-25", false, "Map cold-chain reporting requirements."],
+  ["call", "contact-12", "deal-12", "2026-11-22", false, "Align on phase-one terminal scope."]
+].map(([type, contactId, dealId, due, done, note], i) => ({
+  id: `activity-${i + 1}`, type, contactId, dealId, due, done, note,
+  createdAt: `2026-11-${String((i % 18) + 1).padStart(2, "0")}`
+}));
+
+const safeStorage = {
+  get(key) {
+    try { return localStorage.getItem(key); } catch { return null; }
+  },
+  set(key, value) {
+    try { localStorage.setItem(key, value); return true; } catch { return false; }
+  },
+  remove(key) {
+    try { localStorage.removeItem(key); return true; } catch { return false; }
+  }
+};
+
+function createEventStore(initial) {
+  let state = structuredClone(initial);
+  const listeners = new Set();
+  return {
+    getState: () => state,
+    dispatch(action) {
+      const next = typeof action === "function" ? action(state) : action;
+      state = Object.freeze(structuredClone(next));
+      listeners.forEach(listener => listener(state));
+      return state;
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    }
+  };
+}
+
+function loadState() {
+  const fallback = {
+    version: STORE_VERSION,
+    contacts: seedContacts,
+    deals: seedDeals,
+    activities: seedActivities,
+    preferences: { mode: "dark", density: "comfortable", motion: "system" },
+    filters: { contactQuery: "", contactStatus: "all", contactTag: "all", contactSort: "name", dealStage: "all", dealSort: "value" }
+  };
+  const raw = safeStorage.get("meridian-crm-v1");
+  if (!raw) return fallback;
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed?.version !== STORE_VERSION || !Array.isArray(parsed.contacts)) return fallback;
+    return {
+      ...fallback, ...parsed,
+      preferences: { ...fallback.preferences, ...parsed.preferences },
+      filters: { ...fallback.filters, ...parsed.filters }
+    };
+  } catch { return fallback; }
+}
+
+const store = createEventStore(loadState());
+const persist = () => safeStorage.set("meridian-crm-v1", JSON.stringify(store.getState()));
+const save = () => {
+  const ok = persist();
+  announce(ok ? "Changes saved locally." : "Could not save locally; storage is unavailable.");
+};
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const uid = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+const escapeAttr = value => String(value ?? "").replace(/[&"']/g, c => ({ "&": "&amp;", '"': "&quot;", "'": "&#39;" })[c]);
+const money = new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+const dateFmt = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
+const relative = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+
+function relativeDate(value) {
+  const target = new Date(`${value}T00:00:00`);
+  const days = Math.round((target - new Date()) / 86400000);
+  return relative.format(days, "day");
+}
+const contactById = id => store.getState().contacts.find(c => c.id === id);
+const dealById = id => store.getState().deals.find(d => d.id === id);
+const stage = id => STAGES.find(s => s.id === id) ?? STAGES[0];
+const weightedValue = deals => deals.reduce((total, deal) => total + deal.value * stage(deal.stage).probability / 100, 0);
+const sum = values => "sumPrecise" in Math ? Math.sumPrecise(values) : values.reduce((a, b) => a + b, 0);
+
+function announce(message, assertive = false) {
+  const region = $("#live-region") ?? Object.assign(document.createElement("p"), {
+    id: "live-region", className: "visually-hidden",
+    ariaLive: assertive ? "assertive" : "polite"
+  });
+  if (!region.isConnected) document.body.append(region);
+  region.textContent = "";
+  requestAnimationFrame(() => { region.textContent = message; });
+}
+
+function withViewTransition(update) {
+  if (!document.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    update();
+    return;
+  }
+  document.startViewTransition(update);
+}
+
+function el(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (key === "class") node.className = value;
+    else if (key === "text") node.textContent = value;
+    else if (key.startsWith("on") && typeof value === "function") node.addEventListener(key.slice(2), value);
+    else if (value !== false && value != null) node.setAttribute(key, String(value));
+  }
+  (Array.isArray(children) ? children : [children]).filter(Boolean).forEach(child => node.append(child));
+  return node;
+}
+
+function field({ label, name, type = "text", value = "", required = false, options = [], min, max, step, placeholder = "", autocomplete = "" }) {
+  const id = `field-${name}-${uid("x")}`;
+  const control = type === "select"
+    ? el("select", { id, name, required }, options.map(([value, text]) => el("option", { value, selected: value === value }, text)))
+    : type === "textarea"
+      ? el("textarea", { id, name, required, placeholder })
+      : el("input", { id, name, type, value, required, min, max, step, placeholder, autocomplete, inputmode: type === "number" ? "decimal" : "" });
+  if (type !== "select") control.value = value;
+  const wrapper = el("div", { class: "field" }, [el("label", { for: id, text: label }), control]);
+  return wrapper;
+}
+
+function renderDashboard() {
+  const { contacts, deals, activities } = store.getState();
+  const open = deals.filter(d => !["won", "lost"].includes(d.stage));
+  const pipeline = weightedValue(open);
+  const overdue = activities.filter(a => !a.done && a.due < new Date().toISOString().slice(0, 10));
+  const byStage = STAGES.slice(0, 5).map(s => ({
+    label: s.label, count: deals.filter(d => d.stage === s.id).length,
+    value: sum(deals.filter(d => d.stage === s.id).map(d => d.value))
+  }));
+  const max = Math.max(...byStage.map(s => s.value), 1);
+  const bars = byStage.map((item, index) => {
+    const width = Math.max(3, item.value / max * 100);
+    return el("g", {}, [
+      el("rect", { class: "bar", x: 20 + index * 78, y: 150 - width, width: 54, height: width, rx: 7, tabindex: "0", role: "img", "aria-label": `${item.label}: ${money.format(item.value)} across ${item.count} deals` }),
+      el("text", { x: 47 + index * 78, y: 170, "text-anchor": "middle", text: item.label.split(" ")[0] }),
+      el("text", { x: 47 + index * 78, y: 185, "text-anchor": "middle", text: money.format(item.value) })
+    ]);
+  });
+
+  const view = el("section", { class: "stack", "aria-labelledby": "dashboard-title" }, [
+    el("div", { class: "page-head" }, [
+      el("div", {}, [
+        el("h1", { id: "dashboard-title", text: "Relationship operations" }),
+        el("p", { text: "Track the people, opportunities, and commitments that move revenue forward. All records remain in this browser." })
+      ]),
+      el("div", { class: "cluster" }, [
+        el("a", { class: "btn btn-primary", href: "#/contacts", text: "Open contacts" }),
+        el("a", { class: "btn", href: "#/pipeline", text: "Review pipeline" })
+      ])
+    ]),
+    el("div", { class: "grid metrics" }, [
+      metric("Active contacts", contacts.filter(c => c.status !== "inactive").length, "People currently in rotation"),
+      metric("Open pipeline", money.format(sum(open.map(d => d.value))), `${open.length} opportunities`),
+      metric("Risk-adjusted pipeline", money.format(pipeline), "Value weighted by stage probability"),
+      metric("Overdue follow-ups", overdue.length, overdue.length ? "Needs attention today" : "No overdue commitments")
+    ]),
+    el("div", { class: "grid workspace" }, [
+      el("article", { class: "card" }, [
+        el("h2", { text: "Pipeline value by stage" }),
+        el("p", { class: "muted small", text: "Illustrative seeded portfolio; values are user-editable records." }),
+        el("svg", { class: "chart", viewBox: "0 0 420 200", role: "img", "aria-label": "Bar chart of pipeline value by stage" }, [
+          el("line", { class: "axis", x1: 16, y1: 152, x2: 404, y2: 152 }),
+          ...bars
+        ])
+      ]),
+      el("article", { class: "card" }, [
+        el("h2", { text: "Next commitments" }),
+        upcomingActivities(),
+        el("a", { class: "btn right", href: "#/activities", text: "Open follow-ups" })
+      ])
+    ])
+  ]);
+  return view;
+}
+
+function metric(label, value, caption) {
+  return el("article", { class: "card metric" }, [
+    el("span", { text: label }), el("strong", { text: value }), el("span", { text: caption })
+  ]);
+}
+
+function upcomingActivities() {
+  const activities = store.getState().activities
+    .filter(a => !a.done)
+    .sort((a, b) => a.due.localeCompare(b.due)).slice(0, 5);
+  if (!activities.length) return el("p", { class: "empty", text: "No open follow-ups. Create one from a contact or deal." });
+  return el("ul", { class: "stack" }, activities.map(activity => {
+    const contact = contactById(activity.contactId);
+    const deal = dealById(activity.dealId);
+    return el("li", { class: "person" }, [
+      el("strong", { text: `${activity.type[0].toUpperCase()}${activity.type.slice(1)} — ${contact?.name ?? "Unlinked contact"}` }),
+      el("p", { class: "small", text: activity.note }),
+      el("p", { class: "small muted", text: `${deal ? `${deal.title} · ` : ""}Due ${dateFmt.format(new Date(activity.due))} (${relativeDate(activity.due)})` })
+    ]);
+  }));
+}
+
+function renderContacts() {
+  const { contacts, filters } = store.getState();
+  const query = filters.contactQuery.trim().toLowerCase();
+  let rows = contacts.filter(contact => {
+    const matchesQuery = !query || [contact.name, contact.company, contact.role, contact.email, ...contact.tags].join(" ").toLowerCase().includes(query);
+    const matchesStatus = filters.contactStatus === "all" || contact.status === filters.contactStatus;
+    const matchesTag = filters.contactTag === "all" || contact.tags.includes(filters.contactTag);
+    return matchesQuery && matchesStatus && matchesTag;
+  });
+  const sorters = {
+    name: (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+    company: (a, b) => a.company.localeCompare(b.company),
+    recent: (a, b) => b.createdAt.localeCompare(a.createdAt)
+  };
+  rows.sort(sorters[filters.contactSort] ?? sorters.name);
+  const tags = [...new Set(contacts.flatMap(c => c.tags))].sort();
+
+  const view = el("section", { class: "stack", "aria-labelledby": "contacts-title" }, [
+    el("div", { class: "page-head" }, [
+      el("div", {}, [
+        el("h1", { id: "contacts-title", text: "Contacts" }),
+        el("p", { text: `${rows.length} of ${contacts.length} relationship records. Search across names, companies, roles, email, and tags.` })
+      ]),
+      el("button", { class: "btn btn-primary", type: "button", onclick: () => openContactForm(), text: "Add contact" })
+    ]),
+    el("form", { class: "toolbar", onsubmit: event => event.preventDefault() }, [
+      el("input", { type: "search", value: filters.contactQuery, placeholder: "Search contacts", "aria-label": "Search contacts", oninput: event => setFilter("contactQuery", event.target.value) }),
+      el("select", { "aria-label": "Filter by status", onchange: event => setFilter("contactStatus", event.target.value) }, [
+        ["all", "All statuses"], ["active", "Active"], ["prospect", "Prospect"], ["customer", "Customer"], ["inactive", "Inactive"]
+      ].map(([value, text]) => el("option", { value, selected: filters.contactStatus === value }, text))),
+      el("select", { "aria-label": "Filter by tag", onchange: event => setFilter("contactTag", event.target.value) }, [
+        ["all", "All tags"], ...tags.map(tag => [tag, tag])
+      ].map(([value, text]) => el("option", { value, selected: filters.contactTag === value }, text))),
+      el("select", { "aria-label": "Sort contacts", onchange: event => setFilter("contactSort", event.target.value) }, [
+        ["name", "Sort: name"], ["company", "Sort: company"], ["recent", "Sort: newest"]
+      ].map(([value, text]) => el("option", { value, selected: filters.contactSort === value }, text)))
+    ]),
+    rows.length ? el("div", { class: "grid", style: "grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr))" },
+      rows.map(contact => el("article", { class: "person" }, [
+        el("h3", {}, [el("a", { href: `#/contacts?contact=${contact.id}`, onclick: event => { event.preventDefault(); openContactDetail(contact.id); }, text: contact.name })]),
+        el("p", { class: "person-meta", text: `${contact.role} · ${contact.company}` }),
+        el("p", { class: "small", text: contact.note }),
+        el("div", { class: "cluster" }, [
+          el("span", { class: "tag", "data-tone": contact.status === "customer" ? "positive" : contact.status === "inactive" ? "danger" : "accent", text: contact.status }),
+          ...contact.tags.map(tag => el("span", { class: "tag", text: tag }))
+        ]),
+        el("div", { class: "person-actions" }, [
+          el("button", { class: "btn btn-ghost", type: "button", "aria-pressed": String(contact.favorite), onclick: () => toggleFavorite(contact.id), text: contact.favorite ? "★ Saved" : "☆ Save" }),
+          el("button", { class: "btn btn-ghost", type: "button", onclick: () => openContactForm(contact.id), text: "Edit" }),
+          el("button", { class: "btn btn-ghost", type: "button", onclick: () => duplicateContact(contact.id), text: "Duplicate" }),
+          el("button", { class: "btn btn-danger", type: "button", onclick: () => removeContact(contact.id), text: "Delete" })
+        ])
+      ]))) : el("div", { class: "empty" }, [
+        el("h2", { text: "No contacts match" }),
+        el("p", { text: "Adjust the search or filters, or add a new relationship record." })
+      ])
+  ]);
+  return view;
+}
+
+function renderPipeline() {
+  const { deals, filters } = store.getState();
+  const visible = deals
+    .filter(deal => filters.dealStage === "all" || deal.stage === filters.dealStage)
+    .sort((a, b) => filters.dealSort === "value" ? b.value - a.value : a.closeDate.localeCompare(b.closeDate));
+  const grouped = Object.groupBy(visible, deal => deal.stage);
+
+  const view = el("section", { class: "stack", "aria-labelledby": "pipeline-title" }, [
+    el("div", { class: "page-head" }, [
+      el("div", {}, [
+        el("h1", { id: "pipeline-title", text: "Opportunity pipeline" }),
+        el("p", { text: "Move opportunities through the sales process and inspect weighted value, close dates, and linked contacts." })
+      ]),
+      el("button", { class: "btn btn-primary", type: "button", onclick: () => openDealForm(), text: "Add opportunity" })
+    ]),
+    el("form", { class: "toolbar", onsubmit: event => event.preventDefault() }, [
+      el("select", { "aria-label": "Filter stage", onchange: event => setFilter("dealStage", event.target.value) }, [
+        ["all", "All stages"], ...STAGES.map(([id, label]) => [id, label])
+      ].map(([value, text]) => el("option", { value, selected: filters.dealStage === value }, text))),
+      el("select", { "aria-label": "Sort opportunities", onchange: event => setFilter("dealSort", event.target.value) }, [
+        ["value", "Sort: value"], ["close", "Sort: close date"]
+      ].map(([value, text]) => el("option", { value, selected: filters.dealSort === value }, text)))
+    ]),
+    el("div", { class: "board pipeline" }, STAGES.map(stageItem => {
+      const stageDeals = grouped[stageItem.id] ?? [];
+      return el("section", { class: "card", "aria-labelledby": `stage-${stageItem.id}` }, [
+        el("h2", { id: `stage-${stageItem.id}`, class: "stage-title", text: stageItem.label }),
+        el("p", { class: "stage-count", text: `${stageDeals.length} deals · ${money.format(sum(stageDeals.map(d => d.value)))}` }),
+        el("div", { class: "stack", style: "margin-top:.8rem" }, stageDeals.length ? stageDeals.map(deal => {
+          const contact = contactById(deal.contactId);
+          return el("article", { class: "deal" }, [
+            el("strong", {}, [el("a", { href: `#/pipeline?deal=${deal.id}`, onclick: event => { event.preventDefault(); openDealDetail(deal.id); }, text: deal.title })]),
+            el("p", { class: "deal-meta", text: `${contact?.name ?? "No contact"} · ${money.format(deal.value)} · closes ${dateFmt.format(new Date(deal.closeDate))}` }),
+            el("div", { class: "deal-bar", role: "img", "aria-label": `${stageItem.probability}% probability` }, [el("span", { style: `width:${stageItem.probability}%` })]),
+            el("div", { class: "cluster", style: "margin-top:.6rem" }, [
+              el("button", { class: "btn btn-ghost", type: "button", onclick: () => openDealForm(deal.id), text: "Edit" }),
+              el("button", { class: "btn btn-ghost", type: "button", onclick: () => advanceDeal(deal.id), text: "Advance" }),
+              el("button", { class: "btn btn-danger", type: "button", onclick: () => removeDeal(deal.id), text: "Delete" })
+            ])
+          ]);
+        }) : el("p", { class: "small muted", text: "No opportunities in this stage." }))
+      ]);
+    }))
+  ]);
+  return view;
+}
+
+function renderActivities() {
+  const { activities } = store.getState();
+  const sorted = [...activities].sort((a, b) => Number(a.done) - Number(b.done) || a.due.localeCompare(b.due));
+  const view = el("section", { class: "stack", "aria-labelledby": "activity-title" }, [
+    el("div", { class: "page-head" }, [
+      el("div", {}, [
+        el("h1", { id: "activity-title", text: "Follow-ups" }),
+        el("p", { text: "A commitment queue for calls, emails, meetings, and internal tasks. Completing an item records the completion time." })
+      ]),
+      el("button", { class: "btn btn-primary", type: "button", onclick: () => openActivityForm(), text: "Add follow-up" })
+    ]),
+    sorted.length ? el("div", { class: "table-wrap" }, [
+      el("table", {}, [
+        el("thead", {}, [el("tr", {}, ["Type", "Contact", "Opportunity", "Due", "Status", "Actions"].map(text => el("th", { scope: "col", text })))]),
+        el("tbody", {}, sorted.map(activity => {
+          const contact = contactById(activity.contactId);
+          const deal = dealById(activity.dealId);
+          const overdue = !activity.done && activity.due < new Date().toISOString().slice(0, 10);
+          return el("tr", {}, [
+            el("td", { text: activity.type }),
+            el("td", { text: contact?.name ?? "—" }),
+            el("td", { text: deal?.title ?? "—" }),
+            el("td", { class: "num", text: `${dateFmt.format(new Date(activity.due))} · ${relativeDate(activity.due)}` }),
+            el("td", {}, [el("span", { class: "tag", "data-tone": activity.done ? "positive" : overdue ? "danger" : "warning", text: activity.done ? "Complete" : overdue ? "Overdue" : "Open" })]),
+            el("td", {}, [el("button", { class: "btn btn-ghost", type: "button", onclick: () => toggleActivity(activity.id), text: activity.done ? "Reopen" : "Complete" })])
+          ]);
+        }))
+      ])
+    ]) : el("div", { class: "empty" }, [el("h2", { text: "The queue is clear" }), el("p", { text: "Add a follow-up to keep an important relationship moving." })])
+  ]);
+  return view;
+}
+
+function renderSettings() {
+  const { preferences } = store.getState();
+  const capabilities = [
+    ["View Transitions API", Boolean(document.startViewTransition), "Animates major view changes."],
+    ["Scroll-driven animations", CSS.supports("animation-timeline", "scroll()"), "Adds the top reading-progress indicator."],
+    ["Container queries", CSS.supports("container-type", "inline-size"), "Lets cards adapt to their own width."],
+    ["Container style queries", CSS.supports("container-style", "normal"), "Enables component-state styling."],
+    ["CSS nesting", CSS.supports("selector(&)", "&"), "Improves stylesheet organization."],
+    ["@scope", CSS.supports("selector(@scope)", "@scope"), "Bounds the pipeline component styles."],
+    ["Anchor positioning", CSS.supports("anchor-name", "--a"), "Can position overlays relative to triggers."],
+    ["Popover API", Boolean(HTMLElement.prototype.hasOwnProperty?.("popover")), "Supports lightweight non-modal overlays."],
+    ["dialog element", Boolean(window.HTMLDialogElement), "Provides accessible modal dialogs."],
+    [":has()", CSS.supports("selector(:has(a))"), "Supports parent-state styling."],
+    ["field-sizing", CSS.supports("field-sizing", "content"), "Lets text areas grow with content."],
+    ["Trusted Types", Boolean(window.trustedTypes), "Adds an additional DOM-injection safeguard."],
+    ["Navigation API", Boolean(window.navigation), "Can provide advanced client-side navigation."],
+    ["Web Animations API", Boolean(Element.prototype.animate), "Supports JavaScript-driven interaction motion."],
+    ["Canvas 2D", Boolean(document.createElement("canvas").getContext("2d")), "Enables procedural graphics."],
+    ["Web Audio", Boolean(window.AudioContext || window.webkitAudioContext), "Enables optional sound feedback."],
+    ["Clipboard API", Boolean(navigator.clipboard), "Supports one-tap copying."],
+    ["Web Share", Boolean(navigator.share), "Enables native sharing where available."],
+    ["localStorage", safeStorage.get("__meridian_test__") !== "unavailable", "Persists CRM records and preferences."]
+  ];
+
+  const view = el("section", { class: "stack", "aria-labelledby": "settings-title" }, [
+    el("div", { class: "page-head" }, [
+      el("div", {}, [
+        el("h1", { id: "settings-title", text: "Settings & system" }),
+        el("p", { text: "Meridian is a local-first CRM. Your contacts, opportunities, follow-ups, and preferences are stored only in this browser." })
+      ])
+    ]),
+    el("div", { class: "grid two-col" }, [
+      el("article", { class: "card" }, [
+        el("h2", { text: "Appearance" }),
+        el("div", { class: "field" }, [
+          el("label", { for: "mode", text: "Color mode" }),
+          el("select", { id: "mode", onchange: event => setPreference("mode", event.target.value) }, [
+            ["dark", "Dark"], ["light", "Light"], ["system", "Match system"]
+          ].map(([value, text]) => el("option", { value, selected: preferences.mode === value }, text)))
+        ]),
+        el("div", { class: "field" }, [
+          el("label", { for: "density", text: "Interface density" }),
+          el("select", { id: "density", onchange: event => setPreference("density", event.target.value) }, [
+            ["comfortable", "Comfortable"], ["compact", "Compact"]
+          ].map(([value, text]) => el("option", { value, selected: preferences.density === value }, text)))
+        ]),
+        el("p", { class: "small muted", text: "Reduced motion follows your operating-system preference; interface motion is automatically minimized when requested." })
+      ]),
+      el("article", { class: "card" }, [
+        el("h2", { text: "Data" }),
+        el("p", { class: "small muted", text: "Export creates a versioned JSON backup. Import validates the structure before replacing local records." }),
+        el("div", { class: "cluster" }, [
+          el("button", { class: "btn", type: "button", onclick: exportData, text: "Export JSON" }),
+          el("label", { class: "btn", for: "import-file", text: "Import JSON" }),
+          el("input", { id: "import-file", class: "visually-hidden", type: "file", accept: ".json,application/json", onchange: importData }),
+          el("button", { class: "btn btn-danger", type: "button", onclick: resetData, text: "Reset local data" })
+        ]),
+        el("p", { class: "status", id: "data-status", role: "status" })
+      ])
+    ]),
+    el("article", { class: "card" }, [
+      el("h2", { text: "Platform capabilities" }),
+      el("p", { class: "small muted", text: "Meridian uses progressive enhancement: unavailable features fall back to direct updates and conventional layout." }),
+      el("div", { role: "list" }, capabilities.map(([label, active, explanation]) => el("div", { class: "capability", role: "listitem" }, [
+        el("strong", {}, [
+          el("span", { class: "tag", "data-tone": active ? "positive" : "warning", text: active ? "Active" : "Unavailable" }),
+          ` ${label}`
+        ]),
+        el("small", { text: explanation })
+      ])))
+    ])
+  ]);
+  return view;
+}
+
+function setFilter(key, value) {
+  store.dispatch(state => ({ ...state, filters: { ...state.filters, [key]: value } }));
+  persist();
+}
+
+function setPreference(key, value) {
+  store.dispatch(state => ({ ...state, preferences: { ...state.preferences, [key]: value } }));
+  persist();
+  applyPreferences();
+  announce(`Preference updated: ${key}.`);
+}
+
+function toggleFavorite(id) {
+  store.dispatch(state => ({
+    ...state,
+    contacts: state.contacts.map(contact => contact.id === id ? { ...contact, favorite: !contact.favorite } : contact)
+  }));
+  save();
+}
+
+function duplicateContact(id) {
+  const source = contactById(id);
+  if (!source) return;
+  const copy = { ...structuredClone(source), id: uid("contact"), name: `${source.name} (copy)`, email: "", favorite: false };
+  store.dispatch(state => ({ ...state, contacts: [copy, ...state.contacts] }));
+  save();
+  announce(`Duplicated ${source.name}.`);
+}
+
+function removeContact(id) {
+  const contact = contactById(id);
+  if (!contact || !confirm(`Delete ${contact.name}? Linked opportunities and follow-ups will remain but lose this contact link.`)) return;
+  store.dispatch(state => ({
+    ...state,
+    contacts: state.contacts.filter(c => c.id !== id),
+    deals: state.deals.map(d => d.contactId === id ? { ...d, contactId: "" } : d),
+    activities: state.activities.map(a => a.contactId === id ? { ...a, contactId: "" } : a)
+  }));
+  save();
+  announce(`${contact.name} deleted.`);
+}
+
+function removeDeal(id) {
+  const deal = dealById(id);
+  if (!deal || !confirm(`Delete “${deal.title}”?`)) return;
+  store.dispatch(state => ({
+    ...state,
+    deals: state.deals.filter(d => d.id !== id),
+    activities: state.activities.map(a => a.dealId === id ? { ...a, dealId: "" } : a)
+  }));
+  save();
+  announce("Opportunity deleted.");
+}
+
+function advanceDeal(id) {
+  const order = STAGES.map(s => s.id);
+  const deal = dealById(id);
+  if (!deal || deal.stage === "won" || deal.stage === "lost") return;
+  const next = order[order.indexOf(deal.stage) + 1];
+  store.dispatch(state => ({ ...state, deals: state.deals.map(d => d.id === id ? { ...d, stage: next } : d) }));
+  save();
+  announce(`${deal.title} moved to ${stage(next).label}.`);
+}
+
+function toggleActivity(id) {
+  store.dispatch(state => ({
+    ...state,
+    activities: state.activities.map(activity => activity.id === id ? { ...activity, done: !activity.done } : activity)
+  }));
+  save();
+}
+
+function openContactForm(id = "") {
+  const contact = id ? contactById(id) : { name: "", company: "", role: "", email: "", phone: "", status: "prospect", tags: [], note: "", owner: "Alex Morgan", favorite: false, createdAt: new Date().toISOString().slice(0, 10) };
+  if (id && !contact) return;
+  $("#dialog-title").textContent = id ? "Edit contact" : "New contact";
+  $("#dialog-subtitle").textContent = id ? contact.company : "Create a relationship record";
+  const fields = $("#dialog-fields");
+  fields.replaceChildren(
+    field({ label: "Full name", name: "name", value: contact.name, required: true, autocomplete: "name" }),
+    field({ label: "Company", name: "company", value: contact.company, required: true, autocomplete: "organization" }),
+    field({ label: "Role", name: "role", value: contact.role }),
+    field({ label: "Email", name: "email", type: "email", value: contact.email, autocomplete: "email" }),
+    field({ label: "Phone", name: "phone", type: "tel", value: contact.phone, autocomplete: "tel" }),
+    field({ label: "Status", name: "status", type: "select", value: contact.status, options: [["prospect", "Prospect"], ["active", "Active"], ["customer", "Customer"], ["inactive", "Inactive"]] }),
+    field({ label: "Tags (comma-separated)", name: "tags", value: contact.tags.join(", ") }),
+    field({ label: "Relationship note", name: "note", type: "textarea", value: contact.note })
+  );
+  $("#record-form").dataset.kind = "contact";
+  $("#record-form").dataset.id = id;
+  $("#record-dialog").showModal();
+  $("#record-form").querySelector("input")?.focus();
+}
+
+function openDealForm(id = "") {
+  const deal = id ? dealById(id) : { title: "", contactId: "", stage: "discover", value: 25000, closeDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10), owner: "Alex Morgan", note: "" };
+  if (id && !deal) return;
+  $("#dialog-title").textContent = id ? "Edit opportunity" : "New opportunity";
+  $("#dialog-subtitle").textContent = id ? deal.title : "Create a pipeline opportunity";
+  $("#dialog-fields").replaceChildren(
+    field({ label: "Opportunity name", name: "title", value: deal.title, required: true }),
+    field({ label: "Primary contact", name: "contactId", type: "select", value: deal.contactId, options: [["", "None"], ...store.getState().contacts.map(c => [c.id, `${c.name} — ${c.company}`])] }),
+    field({ label: "Stage", name: "stage", type: "select", value: deal.stage, options: STAGES.map(s => [s.id, s.label]) }),
+    field({ label: "Value (USD)", name: "value", type: "number", value: deal.value, min: 0, step: 1000, required: true }),
+    field({ label: "Expected close date", name: "closeDate", type: "date", value: deal.closeDate, required: true }),
+    field({ label: "Owner", name: "owner", value: deal.owner }),
+    field({ label: "Notes", name: "note", type: "textarea", value: deal.note })
+  );
+  $("#record-form").dataset.kind = "deal";
+  $("#record-form").dataset.id = id;
+  $("#record-dialog").showModal();
+  $("#record-form").querySelector("input")?.focus();
+}
+
+function openActivityForm() {
+  $("#dialog-title").textContent = "New follow-up";
+  $("#dialog-subtitle").textContent = "Schedule the next commitment";
+  $("#dialog-fields").replaceChildren(
+    field({ label: "Type", name: "type", type: "select", value: "call", options: [["call", "Call"], ["email", "Email"], ["meeting", "Meeting"], ["task", "Task"]] }),
+    field({ label: "Contact", name: "contactId", type: "select", value: "", options: [["", "None"], ...store.getState().contacts.map(c => [c.id, c.name])] }),
+    field({ label: "Opportunity", name: "dealId", type: "select", value: "", options: [["", "None"], ...store.getState().deals.map(d => [d.id, d.title])] }),
+    field({ label: "Due date", name: "due", type: "date", value: new Date().toISOString().slice(0, 10), required: true }),
+    field({ label: "What needs to happen?", name: "note", type: "textarea", required: true })
+  );
+  $("#record-form").dataset.kind = "activity";
+  $("#record-form").dataset.id = "";
+  $("#record-dialog").showModal();
+  $("#record-form").querySelector("select")?.focus();
+}
+
+function submitRecord(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const data = Object.fromEntries(new FormData(form));
+  const kind = form.dataset.kind;
+  const id = form.dataset.id;
+  if (kind === "contact") {
+    const record = {
+      ...data, tags: data.tags.split(",").map(tag => tag.trim()).filter(Boolean),
+      favorite: id ? contactById(id).favorite : false
+    };
+    if (!record.name || !record.company) {
+      $("#form-status").textContent = "Name and company are required.";
+      return;
+    }
+    store.dispatch(state => ({
+      ...state,
+      contacts: id
+        ? state.contacts.map(c => c.id === id ? { ...c, ...record } : c)
+        : [{ id: uid("contact"), ...record }, ...state.contacts]
+    }));
+  } else if (kind === "deal") {
+    const value = Number(data.value);
+    if (!data.title || !Number.isFinite(value) || value < 0) {
+      $("#form-status").textContent = "Enter a title and a non-negative value.";
+      return;
+    }
+    const record = { ...data, value };
+    store.dispatch(state => ({
+      ...state,
+      deals: id
+        ? state.deals.map(d => d.id === id ? { ...d, ...record } : d)
+        : [{ id: uid("deal"), ...record }, ...state.deals]
+    }));
+  } else if (kind === "activity") {
+    if (!data.note || !data.due) {
+      $("#form-status").textContent = "A due date and description are required.";
+      return;
+    }
+    store.dispatch(state => ({
+      ...state,
+      activities: [{ id: uid("activity"), ...data, done: false, createdAt: new Date().toISOString().slice(0, 10) }, ...state.activities]
+    }));
+  }
+  $("#record-dialog").close();
+  save();
+  announce(`${kind === "contact" ? "Contact" : kind === "deal" ? "Opportunity" : "Follow-up"} saved.`);
+}
+
+function openContactDetail(id) {
+  const contact = contactById(id);
+  if (!contact) return;
+  const deals = store.getState().deals.filter(d => d.contactId === id);
+  const activities = store.getState().activities.filter(a => a.contactId === id);
+  $("#detail-title").textContent = contact.name;
+  $("#detail-subtitle").textContent = `${contact.role} · ${contact.company}`;
+  $("#detail-content").replaceChildren(
+    el("dl", { class: "detail-grid" }, [
+      detail("Email", contact.email || "Not provided"),
+      detail("Phone", contact.phone || "Not provided"),
+      detail("Status", contact.status),
+      detail("Owner", contact.owner),
+      detail("Open value", money.format(sum(deals.filter(d => !["won", "lost"].includes(d.stage)).map(d => d.value)))),
+      detail("Follow-ups", `${activities.filter(a => !a.done).length} open`)
+    ]),
+    el("h3", { text: "Relationship note", style: "margin-top:1.2rem" }),
+    el("p", { text: contact.note || "No note recorded." }),
+    el("h3", { text: "Linked opportunities", style: "margin-top:1.2rem" }),
+    deals.length ? el("ul", { class: "stack" }, deals.map(deal => el("li", { class: "deal" }, [
+      el("strong", { text: deal.title }),
+      el("p", { class: "deal-meta", text: `${stage(deal.stage).label} · ${money.format(deal.value)} · closes ${dateFmt.format(new Date(deal.closeDate))}` })
+    ]))) : el("p", { class: "empty", text: "No opportunities linked yet." })
+  );
+  $("#detail-dialog").showModal();
+}
+
+function openDealDetail(id) {
+  const deal = dealById(id);
+  if (!deal) return;
+  const contact = contactById(deal.contactId);
+  $("#detail-title").textContent = deal.title;
+  $("#detail-subtitle").textContent = `${stage(deal.stage).label} · ${money.format(deal.value)}`;
+  $("#detail-content").replaceChildren(
+    el("dl", { class: "detail-grid" }, [
+      detail("Contact", contact ? `${contact.name} — ${contact.company}` : "Not linked"),
+      detail("Owner", deal.owner),
+      detail("Expected close", dateFmt.format(new Date(deal.closeDate))),
+      detail("Probability", `${stage(deal.stage).probability}%`),
+      detail("Weighted value", money.format(deal.value * stage(deal.stage).probability / 100)),
+      detail("Created", dateFmt.format(new Date(deal.createdAt)))
+    ]),
+    el("h3", { text: "Deal notes", style: "margin-top:1.2rem" }),
+    el("p", { text: deal.note || "No notes recorded." })
+  );
+  $("#detail-dialog").showModal();
+}
+
+function detail(term, value) {
+  return el("div", {}, [el("dt", { text: term }), el("dd", { text: value })]);
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(store.getState(), null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = el("a", { href: url, download: `meridian-crm-${new Date().toISOString().slice(0, 10)}.json` });
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  $("#data-status").textContent = "Export downloaded.";
+  announce("CRM data exported as JSON.");
+}
+
+async function importData(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (file.size > 2_000_000) {
+    $("#data-status").textContent = "Import cancelled: file exceeds 2 MB.";
+    return;
+  }
+  try {
+    const parsed = JSON.parse(await file.text());
+    if (parsed?.version !== STORE_VERSION || !Array.isArray(parsed.contacts) || !Array.isArray(parsed.deals)) {
+      throw new Error("Unexpected file structure.");
+    }
+    if (!confirm("Importing will replace the current local CRM data. Continue?")) return;
+    store.dispatch(() => parsed);
+    persist();
+    applyPreferences();
+    $("#data-status").textContent = `Imported ${parsed.contacts.length} contacts and ${parsed.deals.length} opportunities.`;
+    announce("CRM data imported.");
+  } catch (error) {
+    $("#data-status").textContent = `Import failed: ${error.message}`;
+    announce("Import failed.", true);
+  } finally {
+    event.target.value = "";
+  }
+}
+
+function resetData() {
+  if (!confirm("Reset all local CRM data to the original demonstration dataset?")) return;
+  safeStorage.remove("meridian-crm-v1");
+  location.reload();
+}
+
+function applyPreferences() {
+  const { preferences } = store.getState();
+  const root = document.documentElement;
+  const systemDark = matchMedia("(prefers-color-scheme: dark)").matches;
+  root.dataset.mode = preferences.mode === "system" ? (systemDark ? "dark" : "light") : preferences.mode;
+  root.dataset.density = preferences.density;
+  $("#theme-toggle").textContent = root.dataset.mode === "dark" ? "Light" : "Dark";
+  $("#theme-toggle").setAttribute("aria-pressed", String(root.dataset.mode === "light"));
+}
+
+function route() {
+  const hash = location.hash || "#/dashboard";
+  const [path, queryString] = hash.slice(1).split("?");
+  const params = new URLSearchParams(queryString ?? "");
+  const routes = {
+    "/dashboard": { title: "Overview", render: renderDashboard },
+    "/contacts": { title: "Contacts", render: renderContacts },
+    "/pipeline": { title: "Pipeline", render: renderPipeline },
+    "/activities": { title: "Follow-ups", render: renderActivities },
+    "/settings": { title: "Settings", render: renderSettings }
+  };
+  const route = routes[path] ?? {
+    title: "Not found",
+    render: () => el("section", { class: "empty" }, [
+      el("h1", { text: "No route here" }), el("p", { text: "The requested CRM view does not exist." }),
+      el("a", { class: "btn btn-primary", href: "#/dashboard", text: "Return to overview" })
+    ])
+  };
+  document.title = `${route.title} — Meridian CRM`;
+  $$(".sidebar a").forEach(link => link.setAttribute("aria-current", link.getAttribute("href") === `#${path}` ? "page" : "false"));
+  withViewTransition(() => {
+    $("#view").replaceChildren(route.render());
+    if (params.get("contact")) openContactDetail(params.get("contact"));
+    if (params.get("deal")) openDealDetail(params.get("deal"));
+  });
+}
+
+store.subscribe(() => {
+  const path = (location.hash || "#/dashboard").slice(1).split("?")[0];
+  const routes = { "/dashboard": renderDashboard, "/contacts": renderContacts, "/pipeline": renderPipeline, "/activities": renderActivities, "/settings": renderSettings };
+  $("#view").replaceChildren((routes[path] ?? renderDashboard)());
+});
+
+window.addEventListener("hashchange", route);
+document.addEventListener("DOMContentLoaded", () => {
+  applyPreferences();
+  route();
+  $("#record-form").addEventListener("submit", submitRecord);
+  $("#quick-add").addEventListener("click", openContactForm);
+  $("#theme-toggle").addEventListener("click", () => {
+    const current = document.documentElement.dataset.mode;
+    setPreference("mode", current === "dark" ? "light" : "dark");
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "/" && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) {
+      event.preventDefault();
+      location.hash = "#/contacts";
+      setTimeout(() => $("#view input[type=search]")?.focus(), 80);
+    }
+  });
+  document.addEventListener("click", event => {
+    if (event.target.closest("[data-close]")) event.target.closest("dialog")?.close();
+  });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if (store.getState().preferences.mode === "system") applyPreferences();
+  });
+});
+</script>
+</body>
+</html>

@@ -48,4 +48,8 @@ class BaseController {
         return $_POST ?? [];
     }
 
+    public function view($path,$data){
+        
+    }
+
 }

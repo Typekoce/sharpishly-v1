@@ -1,0 +1,774 @@
+# MASTER PROMPT — ZERO-DEPENDENCY MODERN BROWSER SPA
+
+## ROLE & OBJECTIVE
+
+You are a principal front-end web platform engineer, interaction designer, accessibility specialist, and visual designer.
+
+Build a complete, production-grade, self-contained Single-Page Application (SPA) that runs directly in modern browsers with:
+
+- No external JavaScript libraries
+- No external CSS frameworks
+- No icon fonts
+- No UI kits
+- No CDN-hosted scripts or styles
+- No npm, pnpm, yarn, Composer, pip, or other package managers
+- No bundlers, compilers, transpilers, or build steps
+- No remote API dependency for core functionality
+
+Use only native HTML, CSS, and vanilla JavaScript ES modules.
+
+The application must be an authentic, polished, responsive, deeply interactive experience themed around:
+
+> **THEME:** `[INSERT THEME HERE]`
+>
+> **OPTIONAL AUDIENCE / VIBE:** `[e.g., editorial, technical, playful, architectural, cinematic, kinetic, museum-like, industrial, botanical]`
+>
+> **OPTIONAL PALETTE / MOOD:** `[e.g., deep nocturnal slate with warm amber accents; sunlit botanical editorial; high-contrast monochrome with electric cyan]`
+>
+> **OPTIONAL PRIMARY INTERACTION:** `[e.g., simulator, builder, explorer, planner, mixer, archive, dashboard, map, timeline]`
+>
+> **OPTIONAL DATA MODE:** `[e.g., curated built-in dataset, procedurally generated dataset, user-created entries, imported local files]`
+
+Do not treat the theme as a surface-level color change. Every layout, label, dataset, visual, interaction, animation, sound option, empty state, and microcopy decision must arise naturally from the theme.
+
+---
+
+# 1. NON-NEGOTIABLE ARCHITECTURE RULES
+
+## 1.1 Zero-dependency discipline
+
+- Do not import, reference, link, or suggest any third-party JavaScript, CSS, fonts, icons, analytics, polyfills, or UI libraries.
+- Do not use `<script src="https://...">`, `<link rel="stylesheet" href="https://...">`, `@import url("https://...")`, CDN URLs, npm package names, or external asset URLs.
+- Do not require Node.js, a package manager, TypeScript compilation, JSX, a framework, or a build pipeline.
+- All JavaScript must be authored as standards-based vanilla ES modules.
+- All CSS must be authored natively.
+- All icons, illustrations, diagrams, textures, and decorative artwork must be inline SVG, CSS-generated visuals, canvas-generated visuals, or procedural graphics.
+- If photographic imagery is appropriate, support local user-supplied images through `<input type="file">`, drag-and-drop, and `URL.createObjectURL()`. Do not invent external image URLs.
+
+## 1.2 File structure
+
+Choose one of the following structures and state which one you selected:
+
+### Option A — Single-file SPA
+
+Use this when the application is compact enough to remain clear and maintainable.
+
+```text
+index.html
+```
+
+The file must contain:
+
+- Semantic HTML
+- Embedded `<style>` organized with CSS cascade layers
+- Embedded `<script type="module">` organized into clearly labeled modules/sections
+- Inline SVG artwork
+- Complete CSS and JavaScript with no truncation
+
+### Option B — Multi-file native ES-module SPA
+
+Use this for a larger, more modular application.
+
+```text
+index.html
+styles/
+  main.css
+  reset.css
+  tokens.css
+  base.css
+  layout.css
+  components.css
+  utilities.css
+  motion.css
+js/
+  main.js
+  app.js
+  state.js
+  router.js
+  render.js
+  data.js
+  theme.js
+  interactions.js
+  media.js
+  accessibility.js
+  utils.js
+```
+
+Requirements:
+
+- `index.html` must use `<script type="module" src="./js/main.js">`.
+- CSS must be loaded through native `<link rel="stylesheet">` elements or a single local CSS entry file that uses `@import` only for local files.
+- Every file must begin with a concise header comment explaining its responsibility.
+- No circular imports.
+- No global mutable variables except an explicitly documented application namespace if unavoidable.
+- Use relative paths so the project works from a local static server.
+
+## 1.3 Modular separation
+
+Separate concerns cleanly:
+
+- **State:** Central application state, persistence, selectors, and update events.
+- **Routing:** URL/path or hash routing, navigation events, deep links, scroll restoration.
+- **Rendering:** DOM construction, view templates, lists, dialogs, drawers, and empty states.
+- **Domain logic:** Theme-specific calculations, simulations, filters, scoring, validation, or transformations.
+- **Media:** Canvas, SVG, audio, image handling, animation loops, and visual effects.
+- **Accessibility:** Focus management, live-region announcements, keyboard shortcuts, and reduced-motion handling.
+- **Utilities:** Formatting, IDs, sanitization, feature detection, storage wrappers, and event helpers.
+
+Avoid monolithic “god files.” Each module should have a clear responsibility and a concise public API.
+
+## 1.4 State management
+
+Implement a centralized state store, for example `AppState`, using one of these patterns:
+
+- A `Proxy`-based reactive store
+- An `EventTarget`-based store
+- A small pub/sub store with explicit `subscribe`, `getState`, and `dispatch` APIs
+
+Requirements:
+
+- State updates must be predictable and traceable.
+- Do not mutate state indirectly from arbitrary DOM handlers.
+- Persist only appropriate user preferences and user-created data in `localStorage`.
+- Wrap all `localStorage` access in `try/catch` and handle quota, privacy-mode, serialization, and unavailable-storage failures gracefully.
+- Synchronize meaningful application state with the URL using either:
+  - Hash routing, or
+  - History API / Navigation API path routing
+- Deep links must restore the intended view, filters, selected item, or simulation parameters where sensible.
+- Do not store secrets, large binary blobs, or unnecessary personal data.
+
+## 1.5 Security and DOM hygiene
+
+- Never place untrusted user input directly into `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, or inline event-handler attributes.
+- Prefer `textContent`, `document.createElement()`, `append()`, `replaceChildren()`, and explicit attribute assignment.
+- If HTML/SVG strings are genuinely necessary, use a narrowly scoped sanitization approach and, where available, integrate with `window.trustedTypes`.
+- Escape or safely encode all user-provided values used in URLs, IDs, labels, `title` attributes, and custom data attributes.
+- Do not execute user-supplied code.
+- Do not use `eval()`, `new Function()`, or unsafe dynamic script injection.
+- Validate file types and sizes before processing user uploads.
+- Revoke object URLs with `URL.revokeObjectURL()` when they are no longer needed.
+
+---
+
+# 2. MODERN WEB PLATFORM SHOWCASE
+
+Demonstrate real, working modern-platform capabilities. Use progressive enhancement: the application must remain usable if a feature is unsupported.
+
+## 2.1 CSS architecture and theming
+
+Use CSS Cascade Layers to organize styles:
+
+```css
+@layer reset, tokens, base, layout, components, utilities, motion;
+```
+
+Requirements:
+
+- Define a semantic design-token system using custom properties.
+- Use `oklch()` and/or `oklab()` for the core palette.
+- Use `color-mix()` to derive hover, active, muted, border, surface, focus, and emphasis colors.
+- Use relative color syntax where supported, with sensible fallbacks.
+- If `contrast-color()` is used, provide a fallback color strategy because support may vary.
+- Use native CSS nesting where it improves readability.
+- Use `@scope` for at least one clearly bounded component or thematic module, with a fallback that does not depend on scoping for core usability.
+- Use custom properties to drive theme variants, density, motion intensity, and light/dark preferences.
+
+### Responsive design
+
+- Design mobile-first from 320 px upward.
+- Ensure zero horizontal overflow at common widths, including 320 px, 375 px, 768 px, 1024 px, 1440 px, and ultra-wide layouts.
+- Use fluid typography and spacing with `clamp()`.
+- Use modern viewport units such as `dvh`, `svh`, `lvh`, and `dvw` where appropriate.
+- Use Container Queries:
+  - `container-type: inline-size`
+  - `cqi`, `cqw`, `cqh`, or related container units
+  - Container size queries for card, panel, sidebar, and widget adaptation
+- Use Container Style Queries where appropriate, for example changing a card’s presentation based on a custom property such as `--density`, `--mode`, or `--emphasis`.
+- Use CSS Grid, including `subgrid` where useful, to align card headers, metadata, actions, and footers across components.
+
+### Modern controls and overlays
+
+Use native HTML controls before custom JavaScript controls:
+
+- `<dialog>` for modal content where appropriate.
+- `[popover]` and `popovertarget` for non-modal menus, tooltips, filters, command panels, or contextual help.
+- `<details>` and `<summary>` where a disclosure is semantically appropriate.
+- Native form controls with labels, descriptions, `required`, `pattern`, `inputmode`, `autocomplete`, and validation where relevant.
+- `field-sizing: content` on suitable inputs or textareas, with a usable fallback.
+- `:user-valid` and `:user-invalid` for progressive form feedback.
+- `:focus-visible` for accessible focus treatment.
+- `:has()` for parent-state styling where it improves the interface.
+- `::backdrop` for dialogs and popovers.
+- `@starting-style` for entry animations.
+- `transition-behavior: allow-discrete` where discrete property transitions are appropriate.
+- `:open` where supported for popover/dialog-related styling.
+
+### CSS Anchor Positioning
+
+Use CSS Anchor Positioning for at least one popover, tooltip, contextual menu, annotation, or callout.
+
+- Use `anchor-name`, `position-anchor`, `position-area` or `inset-area`, and `@position-try` / `position-try-fallbacks` where supported.
+- The Popover API can provide an implicit anchor relationship between a popover and its invoking control; use this where appropriate. [1][2]
+- Provide a robust fallback using conventional absolute positioning, viewport-aware placement, or a non-anchored popover if anchor positioning is unavailable.
+- Ensure the fallback does not clip content, obscure the trigger, or break keyboard access.
+
+## 2.2 Motion, scroll, and visual systems
+
+### View Transitions
+
+Use the View Transitions API for meaningful state changes, such as:
+
+- Route/view changes
+- Opening a detail view
+- Changing filters or sort order
+- Switching theme variants
+- Morphing a card into a detail panel
+
+For same-document SPA transitions, wrap the DOM update in:
+
+```js
+document.startViewTransition(() => {
+  // update DOM/state
+});
+```
+
+Use named `view-transition-name` values for elements that should visually persist or morph between states. The View Transitions API is designed for animated transitions between DOM states in SPAs and supports customizing the transition through CSS pseudo-elements. [3][4][5]
+
+Requirements:
+
+- Feature-detect `document.startViewTransition`.
+- If unsupported, update the DOM directly without breaking functionality.
+- Respect `prefers-reduced-motion: reduce`.
+- Do not use view transitions for every trivial state update.
+
+### Scroll-driven animation
+
+Implement at least one scroll-linked effect, such as:
+
+- Reading-progress bar
+- Sticky header state change
+- Section reveal
+- Parallax depth
+- Animated theme-stage background
+- Timeline scrubbing
+
+Use:
+
+```css
+animation-timeline: scroll();
+```
+
+or:
+
+```css
+animation-timeline: view();
+```
+
+Gate these behind:
+
+```css
+@supports (animation-timeline: scroll()) {
+  /* enhanced effect */
+}
+```
+
+Provide a non-scroll-driven fallback. Never make critical content depend on scroll animation.
+
+### Canvas, SVG, and Web Animations
+
+Include at least two of the following:
+
+- A procedural `<canvas>` scene, simulation, particle system, generative pattern, map, instrument display, or data visualization.
+- A detailed custom inline SVG illustration, diagram, icon system, schematic, or animated motif.
+- SVG filters such as turbulence, displacement, blur, lighting, or color effects where theme-appropriate.
+- Web Animations API usage via `element.animate()` for interactive or state-driven motion.
+- CSS keyframe animations and transitions for micro-interactions.
+
+Requirements:
+
+- Canvas rendering must be resolution-aware using `devicePixelRatio`.
+- Use `ResizeObserver` to resize canvases correctly.
+- Pause animation loops when the relevant canvas is off-screen using `IntersectionObserver`.
+- Stop animation loops when appropriate, such as when the tab is hidden or the feature is inactive.
+- Do not run high-CPU animations indefinitely without need.
+- Respect reduced-motion preferences in both CSS and JavaScript.
+
+## 2.3 SPA navigation and browser APIs
+
+### Routing
+
+Implement client-side routing with:
+
+1. `window.navigation` / Navigation API when available.
+2. A fallback using `history.pushState()`, `history.replaceState()`, and `popstate`.
+3. Hash routing only if needed for maximum portability or static-file compatibility.
+
+Requirements:
+
+- Support back and forward navigation.
+- Support direct deep links.
+- Preserve scroll position where sensible.
+- Update the document title for each major view.
+- Handle unknown routes with a useful themed 404/not-found state.
+- Avoid full-page reloads for internal navigation.
+- Ensure links remain real `<a href="...">` elements where appropriate, so middle-click, new-tab, and search-engine semantics remain intact.
+
+### Native APIs
+
+Use several of the following where they genuinely improve the experience:
+
+- `IntersectionObserver` for lazy rendering, active-section tracking, reveal effects, or canvas visibility.
+- `ResizeObserver` for responsive canvas, layout, and component behavior.
+- `AbortController` for cancellable asynchronous operations, simulated fetches, file processing, or debounceable work.
+- `structuredClone()` for safe deep copies where appropriate.
+- `Object.groupBy()` where grouping data improves the interface.
+- `Map`, `Set`, `WeakMap`, and modern collection patterns where appropriate.
+- `Intl.DateTimeFormat`, `Intl.NumberFormat`, `Intl.ListFormat`, `Intl.RelativeTimeFormat`, or `Intl.Collator` for locale-aware formatting and sorting.
+- `Math.sumPrecise()` where available for precise numeric aggregation; provide a fallback reduction.
+- Clipboard API for copy actions, with graceful fallback and user feedback.
+- Web Share API for sharing, only when supported and contextually useful.
+- BroadcastChannel for cross-tab synchronization, only if it adds real value.
+- Web Audio API for optional, user-initiated, muted-by-default sound.
+- File System Access API only as an optional enhancement, never as a requirement.
+- `picture-in-picture`, fullscreen, vibration, geolocation, notifications, or other permission-based APIs only if essential to the theme and always with explicit user consent.
+
+Do not add APIs merely to name-drop them. Each selected API must solve a real UX or engineering problem.
+
+---
+
+# 3. RESPONSIVENESS, PERFORMANCE, AND ACCESSIBILITY
+
+## 3.1 Responsive experience
+
+- Begin with a 320 px mobile layout.
+- Scale gracefully through phone, tablet, laptop, desktop, and ultra-wide sizes.
+- Use touch targets of at least 44 × 44 CSS pixels where practical.
+- Ensure horizontal scrolling is not required except inside explicitly scrollable data tables, code panels, timelines, or media galleries.
+- Provide visible scroll affordances when content overflows.
+- Test keyboard-only use on every primary flow.
+- Ensure the layout works in both portrait and landscape orientations.
+
+## 3.2 Accessibility
+
+Meet WCAG 2.2 AA or better for the primary experience.
+
+Required practices:
+
+- Use semantic landmarks: `<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<aside>`, and `<footer>`.
+- Maintain a logical heading hierarchy.
+- Include a skip-to-content link.
+- Ensure all interactive controls are reachable and operable by keyboard.
+- Provide clear, visible focus indicators.
+- Use native elements first; add ARIA only when native semantics are insufficient.
+- Use `aria-live="polite"` for non-urgent status updates, such as filter results, save confirmations, simulation readouts, or copy success.
+- Use `aria-live="assertive"` sparingly, only for urgent errors.
+- Ensure dialogs trap or manage focus appropriately and close with `Escape`.
+- Ensure popovers support light dismiss and keyboard dismissal where native behavior provides it.
+- Maintain sufficient color contrast for text, icons, controls, and meaningful graphical elements.
+- Do not rely on color alone to convey status.
+- Provide text alternatives for informative SVGs and canvas visuals.
+- Mark purely decorative SVGs and canvas elements appropriately with `aria-hidden="true"` and/or `role="presentation"` where suitable.
+- Honor `prefers-reduced-motion: reduce` and `prefers-contrast: more` where relevant.
+- Ensure form errors are associated with inputs through `aria-describedby`, `aria-invalid`, and visible error text.
+
+## 3.3 Performance
+
+- Avoid layout thrashing and unnecessary reflows.
+- Batch DOM updates where practical.
+- Use event delegation for large lists.
+- Debounce or throttle high-frequency events such as resize, scroll, input, pointer movement, and canvas interaction.
+- Use `requestAnimationFrame()` for visual loops.
+- Cancel stale async work with `AbortController`.
+- Lazy-render long lists using windowing, pagination, progressive reveal, or virtualization only if needed.
+- Keep the initial payload small.
+- Avoid memory leaks by removing listeners, canceling animations, revoking object URLs, and disconnecting observers when appropriate.
+
+---
+
+# 4. THEME-DRIVEN PRODUCT DESIGN
+
+## 4.1 Theme interpretation
+
+Before writing code, internally define:
+
+1. **Core premise:** What is this application about?
+2. **Primary user goal:** What does a user accomplish?
+3. **Signature interaction:** What makes the app memorable?
+4. **Domain vocabulary:** What nouns, verbs, units, categories, and states belong to the theme?
+5. **Visual language:** What shapes, materials, lighting, textures, grid systems, and motifs express it?
+6. **Motion language:** What should move, when, and why?
+7. **Data model:** What entities, fields, relationships, and metrics matter?
+8. **Empty states:** What should users see before creating, selecting, or discovering anything?
+9. **Error states:** What can go wrong, and how should the interface respond?
+10. **Success states:** What does completion, saving, discovery, or achievement feel like?
+
+Do not reveal this planning section as filler. Use it to produce a coherent product.
+
+## 4.2 Required application structure
+
+Build at least the following views or major sections:
+
+1. **Overview / Stage**
+   - A distinctive hero with custom SVG or canvas artwork.
+   - A concise explanation of the application’s purpose.
+   - Key metrics, highlights, or theme-specific status indicators.
+   - Primary calls to action that navigate to the core interactive features.
+
+2. **Interactive Lab / Explorer**
+   - At least two substantial, theme-specific interactive features.
+   - Real-time visual and numeric feedback.
+   - Controls that affect the visualization, data, simulation, or output.
+   - Reset, undo, or restore-default behavior where appropriate.
+
+3. **Collection / Archive / Catalog**
+   - A searchable, filterable, sortable collection of theme-relevant items.
+   - Rich, non-generic item details.
+   - A detail dialog, drawer, or popover.
+   - Favorites, bookmarks, tags, or saved selections persisted in `localStorage`.
+   - Ability to create, edit, duplicate, or remove user-created items where appropriate.
+
+4. **Settings / About / System**
+   - Theme variant controls.
+   - Light/dark/system color-mode preference where appropriate.
+   - Motion preference or reduced-motion override.
+   - Data export/import using local JSON download/upload where useful.
+   - Reset/clear local data with confirmation.
+   - A concise explanation of the app, its data assumptions, and browser-feature support.
+
+## 4.3 Required interactive features
+
+Include at least two genuinely useful interactive features. Choose features that fit the theme; do not force unrelated generic widgets.
+
+Strong patterns include:
+
+- A parameter tuner that updates a live simulation, visualization, score, forecast, or generated artifact.
+- A builder or composer that lets users assemble, arrange, or customize items.
+- A filterable and sortable explorer with faceted search, saved views, and detail views.
+- A timeline or map explorer with temporal/spatial filtering.
+- A comparison tool that lets users select and compare two or more items.
+- A generator that creates deterministic or randomized theme-relevant outputs.
+- A planner or scheduler with constraints, validation, and persisted plans.
+- A diagnostic or analyzer that interprets user inputs and provides actionable feedback.
+- A creative tool that produces exportable SVG, canvas image, JSON, or text output.
+
+Every interactive feature must have:
+
+- A clear purpose.
+- A visible primary control.
+- Immediate feedback.
+- A meaningful empty, loading, error, and result state.
+- Keyboard support.
+- A way to reset or undo destructive changes where appropriate.
+- Persistence only when persistence improves the experience.
+
+## 4.4 Content quality
+
+- Use specific, believable, theme-authentic content.
+- Do not use “Lorem ipsum,” “Item 1,” “Card 2,” “Example,” or generic placeholder labels.
+- Do not use contradictory or nonsensical domain data.
+- Include realistic units, categories, dates, names, terminology, and constraints where appropriate.
+- If the theme involves real-world facts, label uncertain or illustrative data clearly; do not present invented facts as authoritative.
+- If the theme involves specialized domains, use accurate terminology and avoid unsafe, medical, legal, financial, or safety-critical advice unless clearly framed as educational and non-personalized.
+
+---
+
+# 5. CAPABILITY INSPECTOR
+
+Include a subtle, useful “Platform Capabilities” panel, drawer, popover, or status area.
+
+It must detect and display, at minimum:
+
+- View Transitions API support
+- Scroll-driven animations support
+- Container queries support
+- Container style queries support
+- CSS nesting support
+- `@scope` support
+- Anchor positioning support
+- Popover API support
+- `dialog` support
+- `:has()` support
+- `field-sizing` support
+- Trusted Types support
+- Navigation API support
+- Web Animations API support
+- Canvas 2D support
+- Web Audio support
+- Clipboard API support
+- Web Share API support
+- `localStorage` availability
+
+Use `CSS.supports()`, feature detection, and `try/catch` where appropriate.
+
+For each capability:
+
+- Show a concise human-readable label.
+- Indicate whether it is active, unavailable, or degraded.
+- Explain in one short sentence what it enables in this app.
+- Do not overwhelm the interface; keep the inspector secondary.
+
+---
+
+# 6. VISUAL DESIGN REQUIREMENTS
+
+## 6.1 Art direction
+
+Create a cohesive visual identity that feels native to `[INSERT THEME HERE]`.
+
+Define and apply:
+
+- A primary palette derived from `oklch()` or `oklab()`
+- Surface, elevated-surface, border, text, muted-text, accent, success, warning, and danger colors
+- A type scale using fluid `clamp()` values
+- A spacing scale
+- A radius, border, shadow, elevation, and focus-ring system
+- A consistent iconographic style
+- A distinctive background treatment
+- A clear visual hierarchy
+- Generous but intentional whitespace
+- Theme-specific texture, pattern, or generative detail without harming readability
+
+## 6.2 Typography
+
+- Use system font stacks; do not load external fonts.
+- Establish a clear hierarchy: display, heading, subheading, body, metadata, label, code, and caption styles.
+- Ensure readable line length and line height.
+- Use `font-variant-numeric: tabular-nums` for aligned numeric data where appropriate.
+- Use `text-wrap: balance` for headings where supported.
+- Use `text-wrap: pretty` for body copy where supported.
+- Avoid all-caps for long passages.
+- Ensure text remains legible over canvas, SVG, gradients, and imagery.
+
+## 6.3 Interaction polish
+
+Include purposeful micro-interactions such as:
+
+- Hover and focus states
+- Pressed/active states
+- Selection feedback
+- Filter and sort transitions
+- Card-to-detail transitions
+- Dialog and popover entry/exit animations
+- Save, copy, share, and error feedback
+- Theme-change transitions
+- Canvas or SVG responses to user input
+
+Motion must support comprehension, not distract from it.
+
+---
+
+# 7. DATA AND PERSISTENCE
+
+## 7.1 Built-in data
+
+Create a meaningful built-in dataset tailored to `[INSERT THEME HERE]`.
+
+Requirements:
+
+- Include at least 12–30 rich records, entries, scenarios, objects, or examples.
+- Each record must have useful fields, not merely a name and description.
+- Include categories, tags, numeric values, dates, relationships, status, or other domain-relevant metadata.
+- Ensure the dataset supports search, filtering, sorting, grouping, comparison, and detail views.
+- Do not fabricate real-world facts as verified truth; clearly distinguish illustrative data from factual claims when necessary.
+
+## 7.2 User data
+
+Where appropriate, allow users to:
+
+- Create entries
+- Edit entries
+- Duplicate entries
+- Delete entries with confirmation or undo
+- Favorite or bookmark entries
+- Save filters, presets, themes, or simulation settings
+- Export data as downloadable JSON
+- Import JSON with validation and clear error messages
+
+All persisted data must be versioned or defensively parsed so corrupt or outdated localStorage data does not break the app.
+
+---
+
+# 8. OUTPUT REQUIREMENTS
+
+## 8.1 Completeness
+
+Provide complete, runnable code.
+
+Do NOT output:
+
+- `// TODO`
+- `/* Add styles here */`
+- `<!-- Remaining sections omitted -->`
+- Pseudocode in place of implementation
+- Truncated functions
+- Placeholder asset URLs
+- References to packages, CDNs, or frameworks
+- Generic filler content
+
+If the response length is constrained, prioritize a fully working core experience over adding incomplete extras. Clearly state which optional enhancements were deferred, but never leave a promised feature half-implemented.
+
+## 8.2 Code quality
+
+- Use consistent formatting and naming.
+- Write concise, meaningful comments explaining non-obvious decisions.
+- Avoid dead code.
+- Avoid duplicated logic.
+- Prefer small pure functions for calculations and transformations.
+- Use descriptive names.
+- Handle errors gracefully.
+- Avoid magic numbers by using named constants or CSS custom properties.
+- Make the code readable by another engineer.
+
+## 8.3 Required deliverables
+
+Provide, in this order:
+
+1. A one-paragraph product concept.
+2. The complete runnable code.
+3. A concise engineering summary.
+4. Local run and test instructions.
+5. A feature-support and fallback table.
+6. A short list of targeted follow-up upgrade prompts.
+
+## 8.4 Engineering summary
+
+After the code, explain:
+
+1. **Theme expression**
+   - How the theme appears in visual design, content, motion, interaction, and data.
+
+2. **Modern platform usage**
+   - Which CSS and JavaScript features were used.
+   - What each feature contributes.
+   - How fallbacks preserve usability.
+
+3. **Architecture**
+   - State, routing, rendering, domain logic, media, accessibility, and persistence.
+
+4. **Accessibility**
+   - Keyboard flows, landmarks, live regions, focus behavior, and reduced-motion support.
+
+5. **Performance**
+   - Rendering, observer, animation, event, and cleanup strategies.
+
+## 8.5 Run instructions
+
+Include exact instructions, for example:
+
+```bash
+# From the project folder
+python3 -m http.server 5173
+```
+
+Then open:
+
+```text
+http://localhost:5173
+```
+
+If the app is a single HTML file that can open directly from the filesystem, say so explicitly. If ES modules, History API routing, fetch-like behavior, or module imports require a local server, state that requirement clearly.
+
+## 8.6 Testing checklist
+
+Include a concise manual QA checklist covering:
+
+- Mobile layout at 320 px
+- Desktop layout at 1440 px+
+- Keyboard-only navigation
+- Screen-reader landmark and live-region behavior
+- Reduced-motion behavior
+- Light/dark/system theme switching
+- Deep-link restoration
+- Browser back/forward behavior
+- Search, filter, sort, and detail views
+- Persistence after reload
+- Export/import where implemented
+- Canvas/SVG rendering and resize behavior
+- Error, empty, and loading states
+- No console errors
+- No horizontal overflow
+- No external network requests
+
+---
+
+# 9. QUALITY BAR / ACCEPTANCE CRITERIA
+
+The result is successful only if all of the following are true:
+
+- [ ] It runs with zero dependencies and zero build steps.
+- [ ] It contains no external scripts, styles, fonts, icons, or assets.
+- [ ] It works from a local static server, and from `file://` if feasible.
+- [ ] It has a coherent, specific theme rather than generic placeholder content.
+- [ ] It includes at least two substantial interactive features.
+- [ ] It includes custom SVG and/or canvas visuals.
+- [ ] It uses semantic HTML and accessible interaction patterns.
+- [ ] It is responsive from 320 px through ultra-wide viewports.
+- [ ] It supports keyboard navigation and visible focus.
+- [ ] It respects reduced-motion preferences.
+- [ ] It uses modern CSS and JavaScript features with graceful fallbacks.
+- [ ] It has a centralized state store and URL-synced navigation.
+- [ ] It persists appropriate user preferences/data safely.
+- [ ] It avoids unsafe HTML injection.
+- [ ] It has no TODOs, truncation, dead code, or generic filler.
+- [ ] It includes a capability inspector or equivalent feature-detection feedback.
+- [ ] It includes a complete engineering summary and testing checklist.
+
+---
+
+# 10. INPUT TEMPLATE
+
+Copy this block, replace the bracketed values, and paste the entire master prompt into your coding model:
+
+```text
+THEME: [INSERT THEME HERE]
+
+AUDIENCE / VIBE: [e.g., editorial, technical, playful, architectural, cinematic, kinetic]
+
+PALETTE / MOOD: [e.g., deep nocturnal slate with warm amber accents]
+
+PRIMARY INTERACTION: [e.g., orbital mission planner, sound-texture mixer, botanical growth simulator]
+
+DATA MODE: [e.g., curated built-in dataset, procedurally generated dataset, user-created entries]
+
+OUTPUT FORMAT: [single-file index.html OR multi-file native ES-module project]
+
+OPTIONAL CONSTRAINTS:
+- [e.g., prioritize offline usability]
+- [e.g., emphasize data visualization]
+- [e.g., include exportable SVG output]
+- [e.g., optimize for tablet touch interaction]
+- [e.g., make the interface feel like a physical instrument]
+```
+
+---
+
+# 11. EXAMPLE THEME INPUTS
+
+Use specific themes to obtain better results.
+
+| Weak input | Strong input |
+|---|---|
+| “Space game” | “A retro-futuristic orbital telemetry and mission-planning workbench for deep-space relay probes.” |
+| “Music app” | “A tactile granular-synthesis sketchpad for shaping field-recording textures into evolving ambient loops.” |
+| “Nature app” | “A living herbarium explorer for identifying, comparing, and sketching alpine plants by season, elevation, and habitat.” |
+| “City app” | “A civic-energy planning console for exploring neighborhood solar potential, transit access, and heat-island mitigation scenarios.” |
+| “History app” | “An interactive archive of early radio broadcasts, with signal visualizations, chronological filtering, and listening notes.” |
+
+Richer domain nouns give the model better material for data models, controls, SVG/canvas visuals, microcopy, and interactions.
+
+---
+
+# 12. TARGETED FOLLOW-UP PROMPTS
+
+After the initial SPA runs, use focused upgrade prompts such as:
+
+- “Add keyboard shortcuts, command palette, and undo/redo history to the interactive simulator.”
+- “Refine the mobile navigation into an accessible bottom bar with safe-area support.”
+- “Add deterministic seeded generation so shared presets reproduce the same output.”
+- “Improve the data explorer with faceted filters, saved views, and comparison mode.”
+- “Add an exportable SVG report and JSON import/export workflow.”
+- “Add a canvas performance mode that reduces particle count on low-power devices.”
+- “Add a guided first-run tour using native popover and dialog patterns.”
+- “Audit and improve color contrast, focus order, ARIA labeling, and reduced-motion behavior.”
+- “Refactor the state store to support time-travel debugging and undo/redo.”
+- “Add offline-friendly local file import for images and JSON datasets.”

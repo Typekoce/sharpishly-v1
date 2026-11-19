@@ -1,0 +1,3069 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-roast-accent="kiln">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="description" content="Alder & Kiln Roastery — Small-batch specialty coffee roaster, interactive brew dial-in workbench, and seasonal single-origin catalog." />
+  <title>Alder &amp; Kiln Roastery — Brew Bar &amp; Dial-In Workbench</title>
+  <style>
+    /* ==========================================================================
+       ALDER & KILN ROASTERY — MODERN NATIVE CSS ARCHITECTURE
+       Organized with @layer, oklch() color spaces, color-mix(), container queries,
+       subgrid, scroll-driven animations, view transitions, and anchor positioning.
+       ========================================================================== */
+    @layer reset, tokens, base, layout, components, utilities, motion;
+
+    /* --------------------------------------------------------------------------
+       1. RESET LAYER
+       -------------------------------------------------------------------------- */
+    @layer reset {
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        -webkit-text-size-adjust: 100%;
+        scroll-behavior: smooth;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        line-height: 1.55;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      img, svg, canvas, picture {
+        display: block;
+        max-width: 100%;
+      }
+
+      button, input, select, textarea {
+        font: inherit;
+        color: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      h1, h2, h3, h4, p, figure, blockquote, ul, ol, dl, dd {
+        margin: 0;
+      }
+
+      ul[class], ol[class] {
+        list-style: none;
+        padding: 0;
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       2. DESIGN TOKENS LAYER (oklch + color-mix + fluid clamp scales)
+       -------------------------------------------------------------------------- */
+    @layer tokens {
+      :root {
+        /* Typography stacks */
+        --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+        --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+        /* Fluid Type Scale */
+        --text-xs: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
+        --text-sm: clamp(0.875rem, 0.84rem + 0.2vw, 0.9375rem);
+        --text-base: clamp(1rem, 0.96rem + 0.25vw, 1.0625rem);
+        --text-lg: clamp(1.125rem, 1.05rem + 0.4vw, 1.3rem);
+        --text-xl: clamp(1.375rem, 1.2rem + 0.85vw, 1.75rem);
+        --text-2xl: clamp(1.85rem, 1.45rem + 1.8vw, 2.75rem);
+        --text-display: clamp(2.25rem, 1.7rem + 2.8vw, 3.6rem);
+
+        /* Fluid Spacing Scale */
+        --space-2xs: clamp(0.25rem, 0.2rem + 0.15vw, 0.375rem);
+        --space-xs: clamp(0.5rem, 0.45rem + 0.25vw, 0.625rem);
+        --space-sm: clamp(0.75rem, 0.68rem + 0.35vw, 1rem);
+        --space-md: clamp(1rem, 0.9rem + 0.5vw, 1.35rem);
+        --space-lg: clamp(1.5rem, 1.3rem + 1vw, 2.25rem);
+        --space-xl: clamp(2.25rem, 1.8rem + 2vw, 3.5rem);
+
+        /* Geometry & Elevation */
+        --radius-sm: 0.45rem;
+        --radius-md: 0.85rem;
+        --radius-lg: 1.35rem;
+        --radius-pill: 999px;
+
+        /* Core Light Palette (Sunlit Parchment, Espresso Crema & Kiln Terracotta) */
+        --bg-canvas: oklch(97.2% 0.012 78);
+        --bg-surface: oklch(99.1% 0.007 80);
+        --bg-elevated: oklch(95.2% 0.018 75);
+        --bg-sunken: oklch(92.8% 0.021 74);
+
+        --ink-primary: oklch(23.5% 0.032 52);
+        --ink-secondary: oklch(41.5% 0.028 55);
+        --ink-muted: oklch(52.5% 0.022 58);
+
+        /* Accent Variants */
+        --accent-kiln: oklch(54.5% 0.145 43);
+        --accent-forest: oklch(46.5% 0.105 152);
+        --accent-plum: oklch(45.5% 0.125 18);
+
+        --accent: var(--accent-kiln);
+        --accent-ink: oklch(98.5% 0.006 80);
+
+        /* Semantic Status Colors */
+        --status-ok: oklch(51% 0.125 152);
+        --status-warn: oklch(62% 0.145 72);
+        --status-danger: oklch(52% 0.175 27);
+
+        /* Derived Tokens via color-mix() */
+        --border-subtle: color-mix(in oklch, var(--ink-primary) 13%, transparent);
+        --border-strong: color-mix(in oklch, var(--ink-primary) 26%, transparent);
+        --accent-soft: color-mix(in oklch, var(--accent) 13%, var(--bg-surface));
+        --accent-hover: color-mix(in oklch, var(--accent) 86%, black);
+        --focus-ring: color-mix(in oklch, var(--accent) 70%, white);
+
+        --shadow-sm: 0 1px 2px color-mix(in oklch, var(--ink-primary) 8%, transparent);
+        --shadow-md: 0 10px 26px -8px color-mix(in oklch, var(--ink-primary) 14%, transparent);
+        --shadow-lg: 0 22px 48px -12px color-mix(in oklch, var(--ink-primary) 22%, transparent);
+
+        --header-height: 4.25rem;
+        --container-max: 82rem;
+      }
+
+      /* Roast Accent Switcher */
+      :root[data-roast-accent="kiln"] { --accent: var(--accent-kiln); }
+      :root[data-roast-accent="forest"] { --accent: var(--accent-forest); }
+      :root[data-roast-accent="plum"] { --accent: var(--accent-plum); }
+
+      /* Dark Mode Palette (Nocturnal Espresso Bar & Warm Copper) */
+      :root[data-theme="dark"] {
+        --bg-canvas: oklch(17.5% 0.018 52);
+        --bg-surface: oklch(21.5% 0.022 52);
+        --bg-elevated: oklch(25.5% 0.026 52);
+        --bg-sunken: oklch(14.5% 0.015 52);
+
+        --ink-primary: oklch(94.2% 0.014 78);
+        --ink-secondary: oklch(79.5% 0.018 74);
+        --ink-muted: oklch(66.5% 0.018 70);
+
+        --accent-kiln: oklch(68.5% 0.145 48);
+        --accent-forest: oklch(66.5% 0.115 154);
+        --accent-plum: oklch(67.5% 0.135 16);
+
+        --accent-ink: oklch(16% 0.02 52);
+        --status-ok: oklch(68% 0.13 154);
+        --status-warn: oklch(74% 0.14 76);
+        --status-danger: oklch(66% 0.17 26);
+
+        --shadow-sm: 0 1px 3px oklch(5% 0.01 50 / 0.45);
+        --shadow-md: 0 12px 28px -8px oklch(5% 0.01 50 / 0.6);
+        --shadow-lg: 0 24px 52px -12px oklch(4% 0.01 50 / 0.75);
+      }
+
+      @media (prefers-contrast: more) {
+        :root {
+          --border-subtle: color-mix(in oklch, var(--ink-primary) 42%, transparent);
+          --border-strong: var(--ink-primary);
+        }
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       3. BASE LAYER
+       -------------------------------------------------------------------------- */
+    @layer base {
+      body {
+        background-color: var(--bg-canvas);
+        color: var(--ink-primary);
+        font-size: var(--text-base);
+        background-image:
+          radial-gradient(circle at 12% 8%, color-mix(in oklch, var(--accent) 7%, transparent) 0%, transparent 42%),
+          radial-gradient(circle at 88% 24%, color-mix(in oklch, var(--status-warn) 6%, transparent) 0%, transparent 38%);
+      }
+
+      h1, h2, h3, .display-serif {
+        font-family: var(--font-serif);
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+        text-wrap: balance;
+      }
+
+      p {
+        text-wrap: pretty;
+        max-width: 68ch;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration-thickness: 1.5px;
+        text-underline-offset: 0.2em;
+      }
+
+      a:hover {
+        color: var(--accent-hover);
+      }
+
+      :focus-visible {
+        outline: 2.5px solid var(--accent);
+        outline-offset: 3px;
+        border-radius: 3px;
+      }
+
+      ::selection {
+        background: var(--accent);
+        color: var(--accent-ink);
+      }
+
+      /* Skip link */
+      .skip-link {
+        position: fixed;
+        top: -100%;
+        left: var(--space-sm);
+        z-index: 1000;
+        padding: var(--space-xs) var(--space-md);
+        background: var(--accent);
+        color: var(--accent-ink);
+        font-weight: 600;
+        border-radius: var(--radius-pill);
+        text-decoration: none;
+        box-shadow: var(--shadow-md);
+      }
+
+      .skip-link:focus {
+        top: var(--space-sm);
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       4. LAYOUT LAYER (Responsive Shell, Header, Scroll Progress, Grid)
+       -------------------------------------------------------------------------- */
+    @layer layout {
+      .app-shell {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        min-height: 100dvh;
+      }
+
+      .container {
+        width: min(100% - 2 * var(--space-md), var(--container-max));
+        margin-inline: auto;
+      }
+
+      /* Scroll-driven reading/exploration progress bar */
+      .scroll-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--accent);
+        transform-origin: 0 50%;
+        transform: scaleX(0);
+        z-index: 90;
+        pointer-events: none;
+      }
+
+      @supports (animation-timeline: scroll()) {
+        .scroll-progress {
+          animation: grow-progress linear both;
+          animation-timeline: scroll(root block);
+        }
+      }
+
+      @keyframes grow-progress {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+      }
+
+      /* Sticky Glass Header */
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 60;
+        background: color-mix(in oklch, var(--bg-canvas) 86%, transparent);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .header-inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-sm);
+        min-height: var(--header-height);
+        padding-block: var(--space-xs);
+      }
+
+      .brand-lockup {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+        text-decoration: none;
+        color: var(--ink-primary);
+      }
+
+      .brand-title {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+      }
+
+      .brand-title strong {
+        font-family: var(--font-serif);
+        font-size: var(--text-lg);
+        font-weight: 700;
+      }
+
+      .brand-title span {
+        font-size: var(--text-xs);
+        color: var(--ink-muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .primary-nav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.25rem;
+        background: var(--bg-elevated);
+        padding: 0.25rem;
+        border-radius: var(--radius-pill);
+        border: 1px solid var(--border-subtle);
+      }
+
+      .nav-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        min-height: 2.5rem;
+        padding-inline: 0.9rem;
+        border-radius: var(--radius-pill);
+        text-decoration: none;
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--ink-secondary);
+        transition: background-color 160ms ease, color 160ms ease;
+      }
+
+      .nav-link:hover {
+        color: var(--ink-primary);
+        background: color-mix(in oklch, var(--ink-primary) 6%, transparent);
+      }
+
+      .nav-link[aria-current="page"] {
+        background: var(--accent);
+        color: var(--accent-ink);
+        view-transition-name: active-nav-pill;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+      }
+
+      main {
+        padding-block: var(--space-lg) var(--space-xl);
+      }
+
+      .view-section {
+        display: grid;
+        gap: var(--space-lg);
+      }
+
+      .site-footer {
+        border-top: 1px solid var(--border-subtle);
+        background: var(--bg-elevated);
+        padding-block: var(--space-lg);
+        font-size: var(--text-sm);
+        color: var(--ink-secondary);
+      }
+
+      .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+        gap: var(--space-lg);
+        align-items: start;
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       5. COMPONENTS LAYER (Scoped modules, Container Queries, Subgrid, Popovers)
+       -------------------------------------------------------------------------- */
+    @layer components {
+      /* Buttons & Pills */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        min-height: 2.75rem;
+        padding: 0.55rem 1.1rem;
+        border-radius: var(--radius-pill);
+        border: 1px solid var(--border-strong);
+        background: var(--bg-surface);
+        color: var(--ink-primary);
+        font-size: var(--text-sm);
+        font-weight: 600;
+        text-decoration: none;
+        transition: transform 140ms ease, background-color 160ms ease, border-color 160ms ease;
+      }
+
+      .btn:hover {
+        background: var(--bg-elevated);
+        border-color: var(--accent);
+      }
+
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: var(--accent-ink);
+        border-color: var(--accent);
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-hover);
+        color: var(--accent-ink);
+      }
+
+      .btn-ghost {
+        border-color: transparent;
+        background: transparent;
+      }
+
+      .btn-ghost:hover {
+        background: color-mix(in oklch, var(--ink-primary) 7%, transparent);
+        border-color: transparent;
+      }
+
+      .btn-sm {
+        min-height: 2.25rem;
+        padding: 0.35rem 0.8rem;
+        font-size: var(--text-xs);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.2rem 0.65rem;
+        border-radius: var(--radius-pill);
+        font-size: var(--text-xs);
+        font-weight: 600;
+        background: var(--accent-soft);
+        color: var(--accent);
+        border: 1px solid color-mix(in oklch, var(--accent) 25%, transparent);
+      }
+
+      .badge-neutral {
+        background: var(--bg-elevated);
+        color: var(--ink-secondary);
+        border-color: var(--border-subtle);
+      }
+
+      .badge-ok {
+        background: color-mix(in oklch, var(--status-ok) 14%, var(--bg-surface));
+        color: var(--status-ok);
+        border-color: color-mix(in oklch, var(--status-ok) 30%, transparent);
+      }
+
+      .badge-warn {
+        background: color-mix(in oklch, var(--status-warn) 16%, var(--bg-surface));
+        color: var(--status-warn);
+        border-color: color-mix(in oklch, var(--status-warn) 32%, transparent);
+      }
+
+      /* Hero Stage */
+      .hero-stage {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+        padding: var(--space-lg);
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        position: relative;
+        overflow: hidden;
+      }
+
+      @media (min-width: 56rem) {
+        .hero-stage {
+          grid-template-columns: 1.2fr 0.9fr;
+          align-items: center;
+          padding: var(--space-xl);
+        }
+      }
+
+      .hero-copy {
+        display: grid;
+        gap: var(--space-md);
+      }
+
+      .hero-copy h1 {
+        font-size: var(--text-display);
+      }
+
+      .hero-lead {
+        font-size: var(--text-lg);
+        color: var(--ink-secondary);
+      }
+
+      .hero-cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+        padding-top: var(--space-2xs);
+      }
+
+      .hero-telemetry-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+        gap: var(--space-sm);
+        padding-top: var(--space-sm);
+        border-top: 1px solid var(--border-subtle);
+      }
+
+      .metric-tile {
+        display: grid;
+        gap: 0.15rem;
+      }
+
+      .metric-tile dt {
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--ink-muted);
+      }
+
+      .metric-tile dd {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: var(--text-lg);
+        font-weight: 700;
+        color: var(--ink-primary);
+      }
+
+      .hero-visual-frame {
+        background: var(--bg-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        padding: var(--space-md);
+        display: grid;
+        gap: var(--space-xs);
+        justify-items: center;
+      }
+
+      /* @scope bounded Catalog & Coffee Card System with Container Queries & Subgrid */
+      @scope (.catalog-scope) {
+        :scope {
+          display: grid;
+          gap: var(--space-md);
+        }
+
+        .filter-toolbar {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));
+          gap: var(--space-sm);
+          padding: var(--space-md);
+          background: var(--bg-surface);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-md);
+          align-items: end;
+        }
+
+        .field-group {
+          display: grid;
+          gap: 0.35rem;
+        }
+
+        .field-group label {
+          font-size: var(--text-xs);
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: var(--ink-secondary);
+        }
+
+        .control-input {
+          width: 100%;
+          min-height: 2.65rem;
+          padding: 0.45rem 0.75rem;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-strong);
+          background: var(--bg-canvas);
+          color: var(--ink-primary);
+        }
+
+        .control-input:user-invalid {
+          border-color: var(--status-danger);
+        }
+
+        .control-input:user-valid {
+          border-color: var(--status-ok);
+        }
+
+        .coffee-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 18.5rem), 1fr));
+          gap: var(--space-md);
+        }
+
+        .card-container {
+          container-type: inline-size;
+          container-name: coffee-card;
+          display: grid;
+          grid-row: span 4;
+        }
+
+        @supports (grid-template-rows: subgrid) {
+          .coffee-grid {
+            grid-auto-rows: auto;
+          }
+          .card-container {
+            grid-template-rows: subgrid;
+          }
+        }
+
+        .coffee-card {
+          display: grid;
+          grid-template-rows: auto 1fr auto auto;
+          gap: var(--space-sm);
+          padding: var(--space-md);
+          background: var(--bg-surface);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-md);
+          box-shadow: var(--shadow-sm);
+          transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+        }
+
+        .coffee-card:hover {
+          border-color: var(--accent);
+          box-shadow: var(--shadow-md);
+        }
+
+        /* :has() parent highlight when item is favorited */
+        .coffee-card:has([data-fav="true"]) {
+          border-color: color-mix(in oklch, var(--accent) 55%, var(--border-subtle));
+          background: color-mix(in oklch, var(--accent) 4%, var(--bg-surface));
+        }
+
+        @container coffee-card (min-width: 24rem) {
+          .coffee-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: var(--space-sm);
+          }
+        }
+
+        /* Container Style Query for compact vs editorial card density */
+        @container style(--card-density: compact) {
+          .coffee-card {
+            padding: var(--space-sm);
+            gap: var(--space-xs);
+          }
+          .tasting-notes-row {
+            display: none;
+          }
+        }
+
+        .tasting-notes-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.35rem;
+        }
+
+        .card-meta-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: var(--space-xs);
+          padding-top: var(--space-xs);
+          border-top: 1px solid var(--border-subtle);
+          font-size: var(--text-xs);
+          color: var(--ink-secondary);
+          font-variant-numeric: tabular-nums;
+        }
+
+        .card-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.45rem;
+        }
+      }
+
+      /* Brew Dial-In Workbench */
+      .workbench-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+      }
+
+      @media (min-width: 62rem) {
+        .workbench-grid {
+          grid-template-columns: 1.05fr 0.95fr;
+          align-items: start;
+        }
+      }
+
+      .panel-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: var(--space-lg);
+        box-shadow: var(--shadow-sm);
+        display: grid;
+        gap: var(--space-md);
+      }
+
+      .slider-control {
+        display: grid;
+        gap: 0.35rem;
+      }
+
+      .slider-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: var(--space-xs);
+      }
+
+      .slider-header label {
+        font-weight: 600;
+        font-size: var(--text-sm);
+      }
+
+      .slider-value {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: var(--text-sm);
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--accent);
+        min-height: 2.25rem;
+      }
+
+      .canvas-stage {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        background: var(--bg-sunken);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-subtle);
+        overflow: hidden;
+      }
+
+      .canvas-stage canvas {
+        width: 100%;
+        height: 100%;
+      }
+
+      .readout-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+        gap: var(--space-sm);
+      }
+
+      .readout-box {
+        background: var(--bg-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-sm);
+        padding: var(--space-sm);
+        display: grid;
+        gap: 0.2rem;
+      }
+
+      .readout-box span {
+        font-size: var(--text-xs);
+        color: var(--ink-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .readout-box strong {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: var(--text-lg);
+      }
+
+      /* Native <dialog> & [popover] with @starting-style and CSS Anchor Positioning */
+      dialog.roastery-dialog {
+        margin: auto;
+        width: min(100% - 2rem, 38rem);
+        max-height: 88dvh;
+        overflow-y: auto;
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-lg);
+        background: var(--bg-surface);
+        color: var(--ink-primary);
+        padding: var(--space-lg);
+        box-shadow: var(--shadow-lg);
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        transition:
+          opacity 220ms ease,
+          transform 220ms ease,
+          overlay 220ms ease allow-discrete,
+          display 220ms ease allow-discrete;
+      }
+
+      dialog.roastery-dialog::backdrop {
+        background: oklch(12% 0.02 50 / 0.58);
+        backdrop-filter: blur(4px);
+      }
+
+      @starting-style {
+        dialog.roastery-dialog[open] {
+          opacity: 0;
+          transform: translateY(10px) scale(0.98);
+        }
+      }
+
+      /* CSS Anchor Positioning for Brew Glossary / Extraction Popover */
+      .anchor-trigger {
+        anchor-name: --extraction-help-btn;
+      }
+
+      .anchored-popover {
+        margin: 0;
+        inset: auto;
+        position: fixed;
+        top: calc(var(--header-height) + 0.5rem);
+        right: var(--space-md);
+        width: min(100vw - 2rem, 23rem);
+        padding: var(--space-md);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-strong);
+        background: var(--bg-surface);
+        color: var(--ink-primary);
+        box-shadow: var(--shadow-lg);
+        z-index: 80;
+      }
+
+      @supports (position-anchor: --extraction-help-btn) and (position-area: bottom span-left) {
+        .anchored-popover {
+          position: absolute;
+          top: auto;
+          right: auto;
+          position-anchor: --extraction-help-btn;
+          position-area: bottom span-left;
+          margin-top: 0.45rem;
+          position-try-fallbacks: flip-block, flip-inline;
+        }
+      }
+
+      textarea.auto-grow {
+        field-sizing: content;
+        min-height: 4.5rem;
+        max-height: 14rem;
+      }
+
+      .drop-zone {
+        border: 2px dashed var(--border-strong);
+        border-radius: var(--radius-md);
+        padding: var(--space-md);
+        text-align: center;
+        background: var(--bg-elevated);
+        transition: border-color 160ms ease, background-color 160ms ease;
+      }
+
+      .drop-zone.is-dragover {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .toast-banner {
+        position: fixed;
+        bottom: var(--space-md);
+        right: var(--space-md);
+        z-index: 95;
+        max-width: min(100vw - 2rem, 24rem);
+        padding: var(--space-sm) var(--space-md);
+        border-radius: var(--radius-md);
+        background: var(--ink-primary);
+        color: var(--bg-surface);
+        font-size: var(--text-sm);
+        font-weight: 500;
+        box-shadow: var(--shadow-lg);
+        display: none;
+      }
+
+      .toast-banner.is-visible {
+        display: block;
+      }
+
+      .cap-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--text-sm);
+      }
+
+      .cap-table th, .cap-table td {
+        text-align: left;
+        padding: 0.6rem 0.75rem;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .cap-table th {
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--ink-muted);
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       6. UTILITIES LAYER
+       -------------------------------------------------------------------------- */
+    @layer utilities {
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .cluster {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-xs);
+      }
+
+      .between {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-sm);
+      }
+
+      .stack-sm { display: grid; gap: var(--space-xs); }
+      .stack-md { display: grid; gap: var(--space-md); }
+      .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+      .muted { color: var(--ink-secondary); }
+      .small { font-size: var(--text-sm); }
+    }
+
+    /* --------------------------------------------------------------------------
+       7. MOTION & VIEW TRANSITIONS LAYER
+       -------------------------------------------------------------------------- */
+    @layer motion {
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 210ms;
+        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="scroll-progress" aria-hidden="true"></div>
+
+  <!-- Polite live region for screen reader announcements -->
+  <div id="live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  <div id="toast-banner" class="toast-banner" role="status" aria-live="polite"></div>
+
+  <div class="app-shell">
+    <!-- Persistent Header -->
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="#/overview" class="brand-lockup" data-route="/overview" aria-label="Alder & Kiln Roastery Home">
+          <svg width="38" height="38" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <rect x="3" y="3" width="42" height="42" rx="12" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2.2"/>
+            <path d="M24 11C17.5 11 13 16.8 13 24C13 31.2 17.5 37 24 37C30.5 37 35 31.2 35 24C35 16.8 30.5 11 24 11Z" stroke="var(--accent)" stroke-width="2.4"/>
+            <path d="M24 11.5C21.2 16.2 26.8 21.5 24 26.2C21.5 30.4 25.5 34.2 24 36.5" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+          <span class="brand-title">
+            <strong>Alder &amp; Kiln</strong>
+            <span>Roastery &amp; Brew Bar</span>
+          </span>
+        </a>
+
+        <nav class="primary-nav" aria-label="Primary sections">
+          <a href="#/overview" class="nav-link" data-route="/overview">Roastery</a>
+          <a href="#/catalog" class="nav-link" data-route="/catalog">Beans &amp; Menu</a>
+          <a href="#/brew-lab" class="nav-link" data-route="/brew-lab">Brew Lab</a>
+          <a href="#/tray" class="nav-link" data-route="/tray">
+            Tasting Tray <span id="tray-count-badge" class="badge badge-neutral">0</span>
+          </a>
+          <a href="#/studio" class="nav-link" data-route="/studio">Studio &amp; System</a>
+        </nav>
+
+        <div class="header-actions">
+          <button
+            type="button"
+            class="btn btn-sm anchor-trigger"
+            popovertarget="extraction-guide-popover"
+            aria-label="Extraction quick guide">
+            ? Extraction Guide
+          </button>
+          <button
+            type="button"
+            id="theme-toggle-btn"
+            class="btn btn-sm"
+            aria-label="Toggle light or dark appearance">
+            <span id="theme-toggle-label">Dark Bar</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- CSS Anchor-Positioned Popover -->
+    <div id="extraction-guide-popover" popover="auto" class="anchored-popover">
+      <div class="stack-sm">
+        <div class="between">
+          <strong>Specialty Extraction Targets</strong>
+          <button type="button" class="btn btn-ghost btn-sm" popovertarget="extraction-guide-popover" popovertargetaction="hide" aria-label="Close guide">✕</button>
+        </div>
+        <p class="small muted">
+          <strong>Ideal Filter Window:</strong> 18%–22% Extraction Yield at 1.25%–1.45% TDS.
+        </p>
+        <p class="small muted">
+          <strong>Under-extracted (&lt;18%):</strong> Sharp, sour, hollow finish. Try finer grind or hotter water.
+        </p>
+        <p class="small muted">
+          <strong>Over-extracted (&gt;22%):</strong> Dry, astringent, bitter. Coarsen grind or shorten contact time.
+        </p>
+      </div>
+    </div>
+
+    <!-- Main Dynamic SPA Stage -->
+    <main id="main-content" class="container" tabindex="-1"></main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div class="stack-sm">
+          <strong class="display-serif">Alder &amp; Kiln Roastery</strong>
+          <p class="small muted">
+            Small-batch drum roasting in Manchester’s Northern Quarter. Open daily 07:30–17:00 for filter flights, espresso service, and whole-bean refills.
+          </p>
+        </div>
+        <div class="stack-sm">
+          <strong>Today’s Bar Dial-In</strong>
+          <p class="small mono">House Espresso: 18.5g in → 39g out · 29s · 93.5°C</p>
+          <p class="small mono">Batch Filter: 60g/L · Burundi Kayanza Washed</p>
+        </div>
+        <div class="stack-sm">
+          <strong>Zero-Dependency Architecture</strong>
+          <p class="small muted">
+            Built purely with native HTML5, modern CSS (<span class="mono">@layer</span>, <span class="mono">oklch()</span>, <span class="mono">@scope</span>, subgrid), and vanilla ES modules.
+          </p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Native Modal <dialog> for Bean Details & Custom Lot Creation -->
+  <dialog id="detail-dialog" class="roastery-dialog" aria-labelledby="dialog-title">
+    <div id="dialog-body" class="stack-md"></div>
+  </dialog>
+
+  <!-- ========================================================================
+       VANILLA ES MODULE APPLICATION
+       Modular sections: Utils -> Data -> State -> Router -> Media/Canvas -> Render
+       ======================================================================== -->
+  <script type="module">
+    /* ========================================================================
+       MODULE 1: UTILITIES & CAPABILITY DETECTION
+       ======================================================================== */
+    const STORAGE_KEY = 'alder_kiln_spa_v1';
+
+    const Utils = {
+      escapeAttr(value) {
+        return String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[ch]));
+      },
+
+      formatCurrency(amount) {
+        try {
+          return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount);
+        } catch {
+          return `£${Number(amount).toFixed(2)}`;
+        }
+      },
+
+      sumPrecise(numbers) {
+        if (typeof Math.sumPrecise === 'function') {
+          return Math.sumPrecise(numbers);
+        }
+        return numbers.reduce((acc, n) => acc + n, 0);
+      },
+
+      el(tag, attrs = {}, children = []) {
+        const node = document.createElement(tag);
+        for (const [key, val] of Object.entries(attrs)) {
+          if (val === null || val === undefined || val === false) continue;
+          if (key === 'className') {
+            node.className = val;
+          } else if (key === 'textContent') {
+            node.textContent = val;
+          } else if (key === 'dataset') {
+            for (const [dKey, dVal] of Object.entries(val)) {
+              node.dataset[dKey] = String(dVal);
+            }
+          } else if (key.startsWith('on') && typeof val === 'function') {
+            node.addEventListener(key.slice(2).toLowerCase(), val);
+          } else {
+            node.setAttribute(key, val === true ? '' : String(val));
+          }
+        }
+        const childList = Array.isArray(children) ? children : [children];
+        for (const child of childList) {
+          if (child === null || child === undefined || child === false) continue;
+          node.append(child instanceof Node ? child : document.createTextNode(String(child)));
+        }
+        return node;
+      },
+
+      prefersReducedMotion() {
+        return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+      },
+
+      detectCapabilities() {
+        const cssSupports = (prop, val) => {
+          try {
+            return typeof CSS !== 'undefined' && typeof CSS.supports === 'function' && CSS.supports(prop, val);
+          } catch {
+            return false;
+          }
+        };
+
+        let storageOk = false;
+        try {
+          const probe = '__ak_probe__';
+          localStorage.setItem(probe, '1');
+          localStorage.removeItem(probe);
+          storageOk = true;
+        } catch {
+          storageOk = false;
+        }
+
+        return [
+          {
+            name: 'View Transitions API',
+            supported: typeof document.startViewTransition === 'function',
+            role: 'Smoothly cross-fades and morphs route switches and catalog filter transitions.'
+          },
+          {
+            name: 'Scroll-Driven Animations',
+            supported: cssSupports('animation-timeline', 'scroll()'),
+            role: 'Drives the top reading progress bar purely on the compositor thread.'
+          },
+          {
+            name: 'CSS Container Size Queries',
+            supported: cssSupports('container-type', 'inline-size'),
+            role: 'Adapts coffee lot cards dynamically based on column width rather than viewport.'
+          },
+          {
+            name: 'CSS Container Style Queries',
+            supported: cssSupports('container-type', 'inline-size') && typeof CSSContainerRule !== 'undefined',
+            role: 'Switches card layout between editorial and compact density via --card-density.'
+          },
+          {
+            name: 'CSS Subgrid',
+            supported: cssSupports('grid-template-rows', 'subgrid'),
+            role: 'Aligns tasting notes, elevation metadata, and action bars across grid rows.'
+          },
+          {
+            name: 'CSS @scope',
+            supported: typeof CSSScopeRule !== 'undefined',
+            role: 'Isolates catalog card and filter toolbar styling without leaking selectors.'
+          },
+          {
+            name: 'CSS Anchor Positioning',
+            supported: cssSupports('position-anchor', '--a'),
+            role: 'Tethers the Extraction Guide popover directly beneath its trigger button.'
+          },
+          {
+            name: 'Popover API & <dialog>',
+            supported: HTMLElement.prototype.hasOwnProperty('popover') && typeof HTMLDialogElement !== 'undefined',
+            role: 'Renders accessible top-layer tasting modals and light-dismiss guides natively.'
+          },
+          {
+            name: 'CSS :has() & field-sizing',
+            supported: cssSupports('selector(:has(*))') && cssSupports('field-sizing', 'content'),
+            role: 'Highlights favorited bean cards and auto-expands tasting note textareas.'
+          },
+          {
+            name: 'oklch() & color-mix()',
+            supported: cssSupports('color', 'oklch(60% 0.15 50)') && cssSupports('color', 'color-mix(in oklch, red, blue)'),
+            role: 'Generates perceptually uniform roast palettes and derived hover/border tints.'
+          },
+          {
+            name: 'Navigation API',
+            supported: 'navigation' in window && typeof window.navigation?.addEventListener === 'function',
+            role: 'Intercepts SPA route transitions alongside hash/History API fallbacks.'
+          },
+          {
+            name: 'Canvas 2D & ResizeObserver',
+            supported: !!document.createElement('canvas').getContext && typeof ResizeObserver !== 'undefined',
+            role: 'Powers the real-time pour-over extraction & thermal bed simulation.'
+          },
+          {
+            name: 'Web Audio API (Opt-In)',
+            supported: typeof (window.AudioContext || window.webkitAudioContext) !== 'undefined',
+            role: 'Synthesizes gentle optional brew timer chimes when enabled by the user.'
+          },
+          {
+            name: 'localStorage Persistence',
+            supported: storageOk,
+            role: 'Persists saved brew dial-in recipes, favorite lots, and tasting tray items.'
+          }
+        ];
+      }
+    };
+
+    /* ========================================================================
+       MODULE 2: CURATED ROASTERY DATASET (14 Specialty Coffee Lots & Menu Items)
+       ======================================================================== */
+    const INITIAL_COFFEES = [
+      {
+        id: 'eth-gedeb-worka',
+        name: 'Worka Sakaro Halo',
+        origin: 'Ethiopia',
+        region: 'Gedeb, Yirgacheffe',
+        process: 'Washed',
+        roastLevel: 'Light',
+        elevationMasl: 2150,
+        varietal: '74110 & 74112',
+        priceBag: 15.50,
+        priceCup: 4.40,
+        bagWeightG: 250,
+        notes: ['Bergamot', 'White Peach', 'Jasmine'],
+        recommendedBrew: 'V60 Pour-Over',
+        doseG: 15,
+        waterG: 250,
+        tempC: 95,
+        grindMicrons: 620,
+        brewSeconds: 165,
+        roastDate: '2026-11-16',
+        score: 89.5,
+        story: 'Grown on high-altitude red volcanic clay in Worka Kebele and fermented for 48 hours in clear mountain spring water.'
+      },
+      {
+        id: 'col-huila-pink-bourbon',
+        name: 'Finca El Mirador',
+        origin: 'Colombia',
+        region: 'Palestina, Huila',
+        process: 'Honey',
+        roastLevel: 'Light-Medium',
+        elevationMasl: 1850,
+        varietal: 'Pink Bourbon',
+        priceBag: 17.00,
+        priceCup: 4.80,
+        bagWeightG: 250,
+        notes: ['Blood Orange', 'Panela', 'Hibiscus'],
+        recommendedBrew: 'Kalita Wave',
+        doseG: 16,
+        waterG: 256,
+        tempC: 94,
+        grindMicrons: 660,
+        brewSeconds: 175,
+        roastDate: '2026-11-17',
+        score: 90.0,
+        story: 'Depulped with 60% mucilage intact and dried slowly over 18 days on shaded parabolic raised beds.'
+      },
+      {
+        id: 'ken-nyeri-gatomboya',
+        name: 'Gatomboya AA',
+        origin: 'Kenya',
+        region: 'Karatina, Nyeri',
+        process: 'Washed',
+        roastLevel: 'Light',
+        elevationMasl: 1920,
+        varietal: 'SL28 & SL34',
+        priceBag: 16.50,
+        priceCup: 4.60,
+        bagWeightG: 250,
+        notes: ['Blackcurrant', 'Rhubarb', 'Cane Sugar'],
+        recommendedBrew: 'V60 Pour-Over',
+        doseG: 15,
+        waterG: 245,
+        tempC: 96,
+        grindMicrons: 600,
+        brewSeconds: 160,
+        roastDate: '2026-11-15',
+        score: 89.25,
+        story: 'Double-washed using snowmelt from Mount Kenya, delivering sparkling phosphoric acidity and syrupy structure.'
+      },
+      {
+        id: 'bra-mogiana-house',
+        name: 'Kiln Hearth Espresso',
+        origin: 'Brazil',
+        region: 'Alta Mogiana',
+        process: 'Natural',
+        roastLevel: 'Medium',
+        elevationMasl: 1220,
+        varietal: 'Yellow Catuai',
+        priceBag: 12.50,
+        priceCup: 3.60,
+        bagWeightG: 250,
+        notes: ['Roasted Hazelnut', 'Dark Cocoa', 'Toffee'],
+        recommendedBrew: 'Espresso',
+        doseG: 18.5,
+        waterG: 39,
+        tempC: 93,
+        grindMicrons: 290,
+        brewSeconds: 29,
+        roastDate: '2026-11-18',
+        score: 86.5,
+        story: 'Our flagship house espresso roast engineered for velvety crema, zero bitterness, and effortless sweetness in milk.'
+      },
+      {
+        id: 'bdi-kayanza-heza',
+        name: 'Heza Washing Station',
+        origin: 'Burundi',
+        region: 'Kabarore, Kayanza',
+        process: 'Washed',
+        roastLevel: 'Light-Medium',
+        elevationMasl: 1880,
+        varietal: 'Red Bourbon',
+        priceBag: 14.50,
+        priceCup: 4.10,
+        bagWeightG: 250,
+        notes: ['Red Plum', 'Oolong Tea', 'Honeycomb'],
+        recommendedBrew: 'Batch Filter',
+        doseG: 18,
+        waterG: 300,
+        tempC: 94,
+        grindMicrons: 710,
+        brewSeconds: 190,
+        roastDate: '2026-11-17',
+        score: 88.25,
+        story: 'Produced by 420 smallholder farmers surrounding Heza station, celebrated for clarity and lingering floral sweetness.'
+      },
+      {
+        id: 'gtm-huehuetenango',
+        name: 'La Esperanza',
+        origin: 'Guatemala',
+        region: 'La Libertad, Huehuetenango',
+        process: 'Washed',
+        roastLevel: 'Medium',
+        elevationMasl: 1780,
+        varietal: 'Caturra & Pacamara',
+        priceBag: 14.00,
+        priceCup: 4.00,
+        bagWeightG: 250,
+        notes: ['Baked Apple', 'Almond Praline', 'Caramel'],
+        recommendedBrew: 'AeroPress',
+        doseG: 16,
+        waterG: 240,
+        tempC: 92,
+        grindMicrons: 580,
+        brewSeconds: 135,
+        roastDate: '2026-11-16',
+        score: 87.75,
+        story: 'Limestone soils and warm winds from the Tehuantepec plain give this lot balanced malic sweetness and plush body.'
+      },
+      {
+        id: 'cri-tarrazu-anaerobic',
+        name: 'Las Lajas Perla Negra',
+        origin: 'Costa Rica',
+        region: 'Sabanilla, Alajuela',
+        process: 'Natural',
+        roastLevel: 'Light-Medium',
+        elevationMasl: 1650,
+        varietal: 'Caturra',
+        priceBag: 18.00,
+        priceCup: 5.00,
+        bagWeightG: 250,
+        notes: ['Blackberry Jam', 'Cacao Nib', 'Cinnamon'],
+        recommendedBrew: 'Origami Dripper',
+        doseG: 15,
+        waterG: 240,
+        tempC: 92,
+        grindMicrons: 670,
+        brewSeconds: 165,
+        roastDate: '2026-11-14',
+        score: 89.75,
+        story: 'Whole cherries dried undisturbed until dark raisin-like hues develop, creating winey berry aromatics.'
+      },
+      {
+        id: 'rwa-nyamasheke',
+        name: 'Kanzu Lot 14',
+        origin: 'Rwanda',
+        region: 'Nyamasheke, Lake Kivu',
+        process: 'Honey',
+        roastLevel: 'Light',
+        elevationMasl: 1950,
+        varietal: 'Red Bourbon',
+        priceBag: 15.00,
+        priceCup: 4.30,
+        bagWeightG: 250,
+        notes: ['Mandarin', 'Apricot', 'Sweet Nougat'],
+        recommendedBrew: 'V60 Pour-Over',
+        doseG: 15.5,
+        waterG: 250,
+        tempC: 94,
+        grindMicrons: 640,
+        brewSeconds: 170,
+        roastDate: '2026-11-16',
+        score: 88.5,
+        story: 'Lake Kivu microclimates cool night temperatures rapidly, concentrating sucrose in the cherry.'
+      },
+      {
+        id: 'col-decaf-ea',
+        name: 'Popayán Sugarcane Decaf',
+        origin: 'Colombia',
+        region: 'Cauca',
+        process: 'Natural EA Decaf',
+        roastLevel: 'Medium',
+        elevationMasl: 1750,
+        varietal: 'Castillo & Caturra',
+        priceBag: 13.50,
+        priceCup: 3.80,
+        bagWeightG: 250,
+        notes: ['Milk Chocolate', 'Stewed Pear', 'Brown Butter'],
+        recommendedBrew: 'Espresso',
+        doseG: 18.5,
+        waterG: 38,
+        tempC: 92,
+        grindMicrons: 300,
+        brewSeconds: 27,
+        roastDate: '2026-11-18',
+        score: 86.75,
+        story: 'Gently decaffeinated using naturally fermented ethyl acetate from local Colombian sugarcane.'
+      },
+      {
+        id: 'pan-boquete-geisha',
+        name: 'Volcán Barú Geisha',
+        origin: 'Panama',
+        region: 'Boquete, Chiriquí',
+        process: 'Washed',
+        roastLevel: 'Light',
+        elevationMasl: 2050,
+        varietal: 'Green-Tip Geisha',
+        priceBag: 24.00,
+        priceCup: 6.50,
+        bagWeightG: 150,
+        notes: ['Orange Blossom', 'Papaya', 'Lemongrass'],
+        recommendedBrew: 'V60 Pour-Over',
+        doseG: 14,
+        waterG: 235,
+        tempC: 95,
+        grindMicrons: 630,
+        brewSeconds: 155,
+        roastDate: '2026-11-15',
+        score: 91.5,
+        story: 'Micro-lot harvested from misty volcanic slopes; extraordinarily aromatic with silky tea-like poise.'
+      },
+      {
+        id: 'ind-monsoon-malabar',
+        name: 'Alder Nocturne Blend',
+        origin: 'India & Brazil',
+        region: 'Chikmagalur / Cerrado',
+        process: 'Natural',
+        roastLevel: 'Medium-Dark',
+        elevationMasl: 1300,
+        varietal: 'Kent & Bourbon',
+        priceBag: 12.00,
+        priceCup: 3.50,
+        bagWeightG: 250,
+        notes: ['Molasses', 'Walnut', 'Smoked Vanilla'],
+        recommendedBrew: 'Moka Pot / Cafetière',
+        doseG: 20,
+        waterG: 300,
+        tempC: 91,
+        grindMicrons: 780,
+        brewSeconds: 240,
+        roastDate: '2026-11-18',
+        score: 85.5,
+        story: 'Developed slightly past first crack for low-acid richness, heavy crema, and comforting dark-roast depth.'
+      },
+      {
+        id: 'eth-guji-natural',
+        name: 'Hambela Wamena',
+        origin: 'Ethiopia',
+        region: 'Guji Zone, Oromia',
+        process: 'Natural',
+        roastLevel: 'Light',
+        elevationMasl: 2220,
+        varietal: 'Heirloom',
+        priceBag: 16.00,
+        priceCup: 4.50,
+        bagWeightG: 250,
+        notes: ['Wild Strawberry', 'Cacao', 'Lavender'],
+        recommendedBrew: 'Origami Dripper',
+        doseG: 15,
+        waterG: 250,
+        tempC: 93,
+        grindMicrons: 650,
+        brewSeconds: 168,
+        roastDate: '2026-11-17',
+        score: 89.0,
+        story: 'Shade-grown under indigenous acacia canopy and turned every 30 minutes on drying tables.'
+      }
+    ];
+
+    /* ========================================================================
+       MODULE 3: CENTRALIZED REACTIVE STATE STORE (EventTarget + Persistence)
+       ======================================================================== */
+    class RoasteryStore extends EventTarget {
+      constructor() {
+        super();
+        const saved = this.#loadPersisted();
+        this.state = {
+          route: '/overview',
+          theme: saved.theme ?? (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
+          roastAccent: saved.roastAccent ?? 'kiln',
+          cardDensity: saved.cardDensity ?? 'editorial',
+          audioChimes: saved.audioChimes ?? false,
+          coffees: saved.customCoffees?.length
+            ? [...INITIAL_COFFEES, ...saved.customCoffees]
+            : structuredClone(INITIAL_COFFEES),
+          favorites: new Set(saved.favorites ?? ['eth-gedeb-worka', 'bra-mogiana-house']),
+          tray: saved.tray ?? [
+            { coffeeId: 'eth-gedeb-worka', format: 'cup', qty: 1 },
+            { coffeeId: 'bra-mogiana-house', format: 'bag', qty: 1 }
+          ],
+          filters: {
+            search: '',
+            process: 'all',
+            roastLevel: 'all',
+            sortBy: 'score-desc',
+            onlyFavorites: false
+          },
+          brewLab: saved.brewLab ?? {
+            coffeeId: 'eth-gedeb-worka',
+            method: 'V60 Pour-Over',
+            doseG: 15,
+            waterG: 250,
+            tempC: 94,
+            grindMicrons: 620,
+            brewSeconds: 165,
+            isPouring: true
+          },
+          savedRecipes: saved.savedRecipes ?? [
+            {
+              id: 'rec-morning-v60',
+              title: 'Crisp Morning V60 (1:16.7)',
+              coffeeName: 'Worka Sakaro Halo',
+              method: 'V60 Pour-Over',
+              doseG: 15,
+              waterG: 250,
+              tempC: 95,
+              grindMicrons: 620,
+              brewSeconds: 165,
+              ey: 20.1,
+              tds: 1.35
+            }
+          ]
+        };
+        this.#applyDocumentAppearance();
+      }
+
+      #loadPersisted() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return {};
+          const parsed = JSON.parse(raw);
+          return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch {
+          return {};
+        }
+      }
+
+      #persist() {
+        try {
+          const customCoffees = this.state.coffees.filter(
+            (c) => !INITIAL_COFFEES.some((base) => base.id === c.id)
+          );
+          const payload = {
+            version: 1,
+            theme: this.state.theme,
+            roastAccent: this.state.roastAccent,
+            cardDensity: this.state.cardDensity,
+            audioChimes: this.state.audioChimes,
+            customCoffees,
+            favorites: Array.from(this.state.favorites),
+            tray: this.state.tray,
+            brewLab: this.state.brewLab,
+            savedRecipes: this.state.savedRecipes
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        } catch {
+          // Graceful degradation in private browsing or quota-full environments
+        }
+      }
+
+      #applyDocumentAppearance() {
+        document.documentElement.dataset.theme = this.state.theme;
+        document.documentElement.dataset.roastAccent = this.state.roastAccent;
+      }
+
+      emit(type = 'change', detail = {}) {
+        this.#applyDocumentAppearance();
+        this.#persist();
+        this.dispatchEvent(new CustomEvent(type, { detail }));
+      }
+
+      announce(message, showToast = false) {
+        const announcer = document.getElementById('live-announcer');
+        if (announcer) {
+          announcer.textContent = '';
+          requestAnimationFrame(() => {
+            announcer.textContent = message;
+          });
+        }
+        if (showToast) {
+          const toast = document.getElementById('toast-banner');
+          if (toast) {
+            toast.textContent = message;
+            toast.classList.add('is-visible');
+            clearTimeout(this._toastTimer);
+            this._toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3200);
+          }
+        }
+      }
+
+      setRoute(route) {
+        this.state.route = route;
+        this.emit('route', { route });
+      }
+
+      toggleTheme() {
+        this.state.theme = this.state.theme === 'light' ? 'dark' : 'light';
+        this.emit('appearance');
+        this.announce(`Switched to ${this.state.theme} bar appearance`, true);
+      }
+
+      setRoastAccent(accent) {
+        this.state.roastAccent = accent;
+        this.emit('appearance');
+      }
+
+      setCardDensity(density) {
+        this.state.cardDensity = density;
+        this.emit('catalog');
+      }
+
+      updateFilters(patch) {
+        Object.assign(this.state.filters, patch);
+        this.emit('catalog');
+      }
+
+      toggleFavorite(coffeeId) {
+        if (this.state.favorites.has(coffeeId)) {
+          this.state.favorites.delete(coffeeId);
+          this.announce('Removed from saved favorites', true);
+        } else {
+          this.state.favorites.add(coffeeId);
+          this.announce('Saved to favorite beans', true);
+        }
+        this.emit('catalog');
+      }
+
+      addToTray(coffeeId, format = 'bag') {
+        const existing = this.state.tray.find(
+          (item) => item.coffeeId === coffeeId && item.format === format
+        );
+        if (existing) {
+          existing.qty += 1;
+        } else {
+          this.state.tray.push({ coffeeId, format, qty: 1 });
+        }
+        const coffee = this.state.coffees.find((c) => c.id === coffeeId);
+        this.emit('tray');
+        this.announce(`Added ${coffee?.name ?? 'coffee'} (${format}) to tasting tray`, true);
+      }
+
+      updateTrayQty(index, delta) {
+        const item = this.state.tray[index];
+        if (!item) return;
+        item.qty += delta;
+        if (item.qty <= 0) {
+          this.state.tray.splice(index, 1);
+        }
+        this.emit('tray');
+      }
+
+      clearTray() {
+        this.state.tray = [];
+        this.emit('tray');
+        this.announce('Tasting tray cleared', true);
+      }
+
+      updateBrewLab(patch) {
+        Object.assign(this.state.brewLab, patch);
+        this.emit('brewlab');
+      }
+
+      loadCoffeeIntoLab(coffeeId) {
+        const coffee = this.state.coffees.find((c) => c.id === coffeeId);
+        if (!coffee) return;
+        this.state.brewLab = {
+          ...this.state.brewLab,
+          coffeeId: coffee.id,
+          method: coffee.recommendedBrew,
+          doseG: coffee.doseG,
+          waterG: coffee.waterG,
+          tempC: coffee.tempC,
+          grindMicrons: coffee.grindMicrons,
+          brewSeconds: coffee.brewSeconds
+        };
+        this.emit('brewlab');
+      }
+
+      saveCurrentRecipe(title, metrics) {
+        const coffee = this.state.coffees.find((c) => c.id === this.state.brewLab.coffeeId);
+        this.state.savedRecipes.unshift({
+          id: `rec-${Date.now()}`,
+          title: title.trim() || `${coffee?.name ?? 'Custom'} Dial-In`,
+          coffeeName: coffee?.name ?? 'House Lot',
+          method: this.state.brewLab.method,
+          doseG: this.state.brewLab.doseG,
+          waterG: this.state.brewLab.waterG,
+          tempC: this.state.brewLab.tempC,
+          grindMicrons: this.state.brewLab.grindMicrons,
+          brewSeconds: this.state.brewLab.brewSeconds,
+          ey: metrics.extractionYield,
+          tds: metrics.tds
+        });
+        this.emit('brewlab');
+        this.announce('Brew dial-in recipe saved to logbook', true);
+      }
+
+      addCustomCoffee(coffeeData) {
+        this.state.coffees.unshift(coffeeData);
+        this.emit('catalog');
+        this.announce(`Added ${coffeeData.name} to seasonal catalog`, true);
+      }
+
+      resetAllData() {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {
+          // ignore
+        }
+        location.reload();
+      }
+    }
+
+    const store = new RoasteryStore();
+
+    /* ========================================================================
+       MODULE 4: BREW EXTRACTION PHYSICS & OPTIONAL WEB AUDIO CHIME
+       ======================================================================== */
+    function calculateExtractionMetrics(lab) {
+      const ratio = lab.waterG / Math.max(1, lab.doseG);
+      // Empirical specialty coffee extraction yield model (14% - 25%)
+      const tempFactor = (lab.tempC - 90) * 0.48;
+      const grindFactor = (680 - lab.grindMicrons) * 0.014;
+      const timeFactor = (lab.brewSeconds - 150) * 0.022;
+      const ratioFactor = (ratio - 16) * 0.35;
+
+      const rawEy = 19.6 + tempFactor + grindFactor + timeFactor + ratioFactor;
+      const extractionYield = Math.max(12.5, Math.min(26.5, Number(rawEy.toFixed(1))));
+
+      // Liquid retained in coffee bed (~2.0g water per 1g dry coffee for filter, ~1.1g for espresso)
+      const isEspresso = ratio < 4;
+      const retentionFactor = isEspresso ? 1.1 : 2.05;
+      const beverageWeight = Math.max(lab.doseG * 0.8, lab.waterG - lab.doseG * retentionFactor);
+      const dissolvedSolidsG = lab.doseG * (extractionYield / 100);
+      const tds = Number(((dissolvedSolidsG / beverageWeight) * 100).toFixed(2));
+
+      let diagnosis = 'Sweet Spot — Balanced & Aromatic';
+      let statusTone = 'ok';
+      if (extractionYield < 18.0) {
+        diagnosis = 'Under-Extracted — Bright, Sharp, Thin';
+        statusTone = 'warn';
+      } else if (extractionYield > 22.2) {
+        diagnosis = 'Over-Extracted — Dry, Astringent Finish';
+        statusTone = 'warn';
+      }
+
+      return {
+        ratio: ratio.toFixed(1),
+        extractionYield,
+        tds,
+        beverageWeight: Math.round(beverageWeight),
+        diagnosis,
+        statusTone
+      };
+    }
+
+    function playGentleChime() {
+      if (!store.state.audioChimes) return;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      try {
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(528, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(792, ctx.currentTime + 0.18);
+        gain.gain.setValueAtTime(0.06, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.45);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.46);
+      } catch {
+        // Ignore audio context autoplay restrictions
+      }
+    }
+
+    /* ========================================================================
+       MODULE 5: RESOLUTION-AWARE CANVAS BREW EXTRACTION VISUALIZER
+       ======================================================================== */
+    class BrewCanvasController {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.rafId = null;
+        this.isVisible = true;
+        this.phase = 0;
+
+        this.resizeObserver = new ResizeObserver(() => this.resize());
+        this.resizeObserver.observe(canvas);
+
+        this.intersectionObserver = new IntersectionObserver((entries) => {
+          this.isVisible = entries[0]?.isIntersecting ?? true;
+          if (this.isVisible && !this.rafId) this.start();
+        });
+        this.intersectionObserver.observe(canvas);
+
+        this.resize();
+        this.start();
+      }
+
+      resize() {
+        const rect = this.canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+        this.canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+        this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        this.width = rect.width;
+        this.height = rect.height;
+        this.draw();
+      }
+
+      start() {
+        if (Utils.prefersReducedMotion()) {
+          this.draw();
+          return;
+        }
+        const loop = () => {
+          if (!document.body.contains(this.canvas)) {
+            this.destroy();
+            return;
+          }
+          if (this.isVisible && !document.hidden) {
+            if (store.state.brewLab.isPouring) {
+              this.phase += 0.035;
+            }
+            this.draw();
+          }
+          this.rafId = requestAnimationFrame(loop);
+        };
+        this.rafId = requestAnimationFrame(loop);
+      }
+
+      draw() {
+        const { ctx, width: w, height: h } = this;
+        if (!ctx || !w || !h) return;
+
+        const lab = store.state.brewLab;
+        const metrics = calculateExtractionMetrics(lab);
+        const isDark = store.state.theme === 'dark';
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Background gradient
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+        bgGrad.addColorStop(0, isDark ? '#241c17' : '#f4ece1');
+        bgGrad.addColorStop(1, isDark ? '#18120f' : '#e8dccb');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Subtle Extraction Sweet-Spot Zone Chart on Left Half
+        const chartX = 24;
+        const chartY = 26;
+        const chartW = Math.min(w * 0.44, 240);
+        const chartH = h - 52;
+
+        ctx.strokeStyle = isDark ? 'rgba(255,245,235,0.16)' : 'rgba(60,40,25,0.16)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(chartX, chartY, chartW, chartH);
+
+        // Ideal Sweet Spot Box (EY 18-22%, TDS 1.25-1.45%)
+        const sweetX = chartX + chartW * 0.38;
+        const sweetW = chartW * 0.30;
+        const sweetY = chartY + chartH * 0.28;
+        const sweetH = chartH * 0.34;
+        ctx.fillStyle = isDark ? 'rgba(95, 185, 130, 0.22)' : 'rgba(55, 145, 92, 0.18)';
+        ctx.fillRect(sweetX, sweetY, sweetW, sweetH);
+        ctx.strokeStyle = isDark ? '#68c48d' : '#2f8554';
+        ctx.strokeRect(sweetX, sweetY, sweetW, sweetH);
+
+        ctx.fillStyle = isDark ? '#d9cfc3' : '#4a382b';
+        ctx.font = '600 10px ui-monospace, monospace';
+        ctx.fillText('IDEAL ZONE', sweetX + 6, sweetY + 14);
+        ctx.fillText('EY % →', chartX + chartW - 44, chartY + chartH - 6);
+        ctx.fillText('TDS ↑', chartX + 6, chartY + 13);
+
+        // Plot live brew coordinate dot
+        const normEy = Math.max(0.05, Math.min(0.95, (metrics.extractionYield - 13) / 13));
+        const normTds = Math.max(0.08, Math.min(0.92, (metrics.tds - 0.9) / 1.1));
+        const dotX = chartX + normEy * chartW;
+        const dotY = chartY + chartH - normTds * chartH;
+
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, 7, 0, Math.PI * 2);
+        ctx.fillStyle = '#c85a28';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#fff8f0';
+        ctx.stroke();
+
+        // Right Half: Animated Pour-Over Dripper & Carafe Simulation
+        const cx = w * 0.74;
+        const dripperTop = h * 0.18;
+        const dripperBottom = h * 0.54;
+
+        // Animated gooseneck water stream
+        if (lab.isPouring) {
+          const sway = Math.sin(this.phase) * 14;
+          ctx.beginPath();
+          ctx.moveTo(cx + sway * 0.6, 12);
+          ctx.quadraticCurveTo(cx + sway, dripperTop * 0.7, cx + sway * 0.8, dripperTop + 14);
+          ctx.strokeStyle = isDark ? 'rgba(165, 215, 245, 0.75)' : 'rgba(70, 145, 195, 0.72)';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        }
+
+        // V60 Dripper Cone
+        ctx.beginPath();
+        ctx.moveTo(cx - 56, dripperTop);
+        ctx.lineTo(cx + 56, dripperTop);
+        ctx.lineTo(cx + 14, dripperBottom);
+        ctx.lineTo(cx - 14, dripperBottom);
+        ctx.closePath();
+        ctx.fillStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.72)';
+        ctx.fill();
+        ctx.strokeStyle = isDark ? '#cbbba9' : '#5e493a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Coffee Grounds Bed (height scales with dose)
+        const bedRatio = Math.min(0.75, Math.max(0.25, lab.doseG / 30));
+        const bedTopY = dripperBottom - (dripperBottom - dripperTop) * bedRatio;
+        const bedHalfW = 14 + 42 * bedRatio;
+        ctx.beginPath();
+        ctx.moveTo(cx - bedHalfW, bedTopY);
+        ctx.lineTo(cx + bedHalfW, bedTopY);
+        ctx.lineTo(cx + 14, dripperBottom);
+        ctx.lineTo(cx - 14, dripperBottom);
+        ctx.closePath();
+        ctx.fillStyle = '#5a3821';
+        ctx.fill();
+
+        // Glass Carafe & Brewed Coffee Level
+        const carafeTop = dripperBottom + 10;
+        const carafeBottom = h - 22;
+        ctx.beginPath();
+        ctx.roundRect(cx - 44, carafeTop, 88, carafeBottom - carafeTop, [6, 6, 16, 16]);
+        ctx.strokeStyle = isDark ? '#cbbba9' : '#5e493a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        const fillLevel = Math.min(0.85, Math.max(0.2, lab.waterG / 400));
+        const liquidH = (carafeBottom - carafeTop - 6) * fillLevel;
+        ctx.fillStyle = isDark ? 'rgba(175, 92, 42, 0.78)' : 'rgba(130, 62, 24, 0.75)';
+        ctx.beginPath();
+        ctx.roundRect(cx - 41, carafeBottom - liquidH - 2, 82, liquidH, [2, 2, 13, 13]);
+        ctx.fill();
+
+        // Thermal badge
+        ctx.fillStyle = isDark ? '#f2e8dc' : '#2d2016';
+        ctx.font = '700 11px ui-monospace, monospace';
+        ctx.fillText(`${lab.tempC}°C · 1:${metrics.ratio}`, cx - 38, carafeBottom - 10);
+      }
+
+      destroy() {
+        if (this.rafId) cancelAnimationFrame(this.rafId);
+        this.resizeObserver.disconnect();
+        this.intersectionObserver.disconnect();
+      }
+    }
+
+    /* ========================================================================
+       MODULE 6: SPA ROUTER (Navigation API + Hash/History Fallback + View Transitions)
+       ======================================================================== */
+    const VALID_ROUTES = new Set(['/overview', '/catalog', '/brew-lab', '/tray', '/studio']);
+
+    function parseRouteFromLocation() {
+      const rawHash = location.hash.replace(/^#/, '');
+      if (!rawHash || rawHash === '/') return '/overview';
+      const pathOnly = rawHash.split('?')[0];
+      return VALID_ROUTES.has(pathOnly) ? pathOnly : '/404';
+    }
+
+    function navigateTo(route, { push = true } = {}) {
+      const target = VALID_ROUTES.has(route) ? route : '/404';
+      const commitUpdate = () => {
+        if (push && location.hash !== `#${target}`) {
+          history.pushState({ route: target }, '', `#${target}`);
+        }
+        store.setRoute(target);
+        updateDocumentTitle(target);
+        renderCurrentView();
+      };
+
+      if (typeof document.startViewTransition === 'function' && !Utils.prefersReducedMotion()) {
+        document.startViewTransition(commitUpdate);
+      } else {
+        commitUpdate();
+      }
+    }
+
+    function updateDocumentTitle(route) {
+      const titles = {
+        '/overview': 'Alder & Kiln Roastery — Specialty Coffee & Brew Bar',
+        '/catalog': 'Beans & Menu — Alder & Kiln Roastery',
+        '/brew-lab': 'Interactive Brew Dial-In Lab — Alder & Kiln',
+        '/tray': 'Tasting Flight & Order Tray — Alder & Kiln',
+        '/studio': 'Roastery Studio & Browser Capabilities — Alder & Kiln',
+        '/404': 'Table Not Found — Alder & Kiln Roastery'
+      };
+      document.title = titles[route] ?? titles['/overview'];
+    }
+
+    /* ========================================================================
+       MODULE 7: VIEW RENDERERS & NATIVE DIALOG CONTROLLERS
+       ======================================================================== */
+    let activeCanvasController = null;
+
+    function openCoffeeDetailDialog(coffee) {
+      const dialog = document.getElementById('detail-dialog');
+      const body = document.getElementById('dialog-body');
+      if (!dialog || !body) return;
+
+      const isFav = store.state.favorites.has(coffee.id);
+
+      body.replaceChildren(
+        Utils.el('div', { className: 'between' }, [
+          Utils.el('div', { className: 'stack-sm' }, [
+            Utils.el('span', { className: 'badge', textContent: `${coffee.origin} · ${coffee.process}` }),
+            Utils.el('h2', { id: 'dialog-title', textContent: coffee.name })
+          ]),
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn btn-ghost btn-sm',
+            'aria-label': 'Close lot details',
+            textContent: '✕ Close',
+            onClick: () => dialog.close()
+          })
+        ]),
+        Utils.el('p', { className: 'muted', textContent: coffee.story }),
+        Utils.el('div', { className: 'cluster' }, coffee.notes.map((n) =>
+          Utils.el('span', { className: 'badge badge-neutral', textContent: n })
+        )),
+        Utils.el('dl', { className: 'readout-grid' }, [
+          Utils.el('div', { className: 'readout-box' }, [
+            Utils.el('span', { textContent: 'Region & Elevation' }),
+            Utils.el('strong', { textContent: `${coffee.region} (${coffee.elevationMasl}m)` })
+          ]),
+          Utils.el('div', { className: 'readout-box' }, [
+            Utils.el('span', { textContent: 'Varietal & Roast' }),
+            Utils.el('strong', { textContent: `${coffee.varietal} · ${coffee.roastLevel}` })
+          ]),
+          Utils.el('div', { className: 'readout-box' }, [
+            Utils.el('span', { textContent: 'Cupping Score' }),
+            Utils.el('strong', { textContent: `${coffee.score} pts` })
+          ]),
+          Utils.el('div', { className: 'readout-box' }, [
+            Utils.el('span', { textContent: 'Bar Recipe' }),
+            Utils.el('strong', { textContent: `${coffee.doseG}g → ${coffee.waterG}g @ ${coffee.tempC}°C` })
+          ])
+        ]),
+        Utils.el('div', { className: 'cluster' }, [
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn btn-primary',
+            textContent: `Dial In in Brew Lab`,
+            onClick: () => {
+              store.loadCoffeeIntoLab(coffee.id);
+              dialog.close();
+              navigateTo('/brew-lab');
+            }
+          }),
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn',
+            textContent: `Add ${coffee.bagWeightG}g Bag (${Utils.formatCurrency(coffee.priceBag)})`,
+            onClick: () => {
+              store.addToTray(coffee.id, 'bag');
+              dialog.close();
+            }
+          }),
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn',
+            textContent: isFav ? '★ Saved in Favorites' : '☆ Save Favorite',
+            onClick: () => {
+              store.toggleFavorite(coffee.id);
+              openCoffeeDetailDialog(coffee);
+            }
+          })
+        ])
+      );
+
+      if (typeof dialog.showModal === 'function') {
+        if (!dialog.open) dialog.showModal();
+      } else {
+        dialog.setAttribute('open', '');
+      }
+    }
+
+    function openAddLotDialog() {
+      const dialog = document.getElementById('detail-dialog');
+      const body = document.getElementById('dialog-body');
+      if (!dialog || !body) return;
+
+      const form = Utils.el('form', {
+        className: 'stack-md',
+        onSubmit: (e) => {
+          e.preventDefault();
+          const fd = new FormData(form);
+          const name = String(fd.get('name') || '').trim();
+          const origin = String(fd.get('origin') || '').trim();
+          if (!name || !origin) return;
+
+          const notesRaw = String(fd.get('notes') || 'Caramel, Citrus, Cocoa');
+          const notes = notesRaw.split(',').map((s) => s.trim()).filter(Boolean).slice(0, 4);
+
+          store.addCustomCoffee({
+            id: `custom-${Date.now()}`,
+            name,
+            origin,
+            region: String(fd.get('region') || 'Micro-Lot').trim(),
+            process: String(fd.get('process') || 'Washed'),
+            roastLevel: String(fd.get('roastLevel') || 'Light-Medium'),
+            elevationMasl: Number(fd.get('elevation')) || 1800,
+            varietal: 'Single Varietal',
+            priceBag: Number(fd.get('priceBag')) || 15.0,
+            priceCup: 4.5,
+            bagWeightG: 250,
+            notes: notes.length ? notes : ['Sweet', 'Balanced'],
+            recommendedBrew: 'V60 Pour-Over',
+            doseG: 15,
+            waterG: 250,
+            tempC: 94,
+            grindMicrons: 630,
+            brewSeconds: 165,
+            roastDate: new Date().toISOString().slice(0, 10),
+            score: 88.5,
+            story: String(fd.get('story') || 'Custom roastery sample lot logged in the studio workbench.').trim()
+          });
+          dialog.close();
+        }
+      }, [
+        Utils.el('div', { className: 'between' }, [
+          Utils.el('h2', { id: 'dialog-title', textContent: 'Log New Roastery Micro-Lot' }),
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn btn-ghost btn-sm',
+            textContent: '✕',
+            onClick: () => dialog.close()
+          })
+        ]),
+        Utils.el('div', { className: 'stack-sm' }, [
+          Utils.el('label', { for: 'lot-name', textContent: 'Lot / Farm Name *' }),
+          Utils.el('input', { id: 'lot-name', name: 'name', required: true, minlength: 2, className: 'control-input', placeholder: 'e.g., Finca La Palma Sidra' })
+        ]),
+        Utils.el('div', { className: 'stack-sm' }, [
+          Utils.el('label', { for: 'lot-origin', textContent: 'Origin Country *' }),
+          Utils.el('input', { id: 'lot-origin', name: 'origin', required: true, className: 'control-input', placeholder: 'e.g., Ecuador' })
+        ]),
+        Utils.el('div', { className: 'stack-sm' }, [
+          Utils.el('label', { for: 'lot-process', textContent: 'Processing Method' }),
+          Utils.el('select', { id: 'lot-process', name: 'process', className: 'control-input' }, [
+            Utils.el('option', { value: 'Washed', textContent: 'Washed' }),
+            Utils.el('option', { value: 'Natural', textContent: 'Natural' }),
+            Utils.el('option', { value: 'Honey', textContent: 'Honey' })
+          ])
+        ]),
+        Utils.el('div', { className: 'stack-sm' }, [
+          Utils.el('label', { for: 'lot-notes', textContent: 'Tasting Notes (comma-separated)' }),
+          Utils.el('input', { id: 'lot-notes', name: 'notes', className: 'control-input', placeholder: 'Nectarine, Bergamot, Honey' })
+        ]),
+        Utils.el('div', { className: 'stack-sm' }, [
+          Utils.el('label', { for: 'lot-story', textContent: 'Roaster Cupping Notes (auto-expanding field)' }),
+          Utils.el('textarea', { id: 'lot-story', name: 'story', className: 'control-input auto-grow', placeholder: 'Describe aroma, acidity structure, and finish...' })
+        ]),
+        Utils.el('div', { className: 'cluster' }, [
+          Utils.el('button', { type: 'submit', className: 'btn btn-primary', textContent: 'Save Micro-Lot' }),
+          Utils.el('button', { type: 'button', className: 'btn', textContent: 'Cancel', onClick: () => dialog.close() })
+        ])
+      ]);
+
+      body.replaceChildren(form);
+      if (typeof dialog.showModal === 'function' && !dialog.open) {
+        dialog.showModal();
+      }
+    }
+
+    /* ------------------------------------------------------------------------
+       VIEW 1: ROASTERY OVERVIEW / HERO STAGE
+       ------------------------------------------------------------------------ */
+    function renderOverviewView() {
+      const totalLots = store.state.coffees.length;
+      const favCount = store.state.favorites.size;
+      const avgScore = (
+        Utils.sumPrecise(store.state.coffees.map((c) => c.score)) / totalLots
+      ).toFixed(1);
+
+      const heroSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      heroSvg.setAttribute('viewBox', '0 0 360 250');
+      heroSvg.setAttribute('role', 'img');
+      heroSvg.setAttribute('aria-label', 'Illustration of a brass pour-over kettle, fluted glass dripper, and steaming server');
+      heroSvg.innerHTML = `
+        <defs>
+          <linearGradient id="amberBrew" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.85"/>
+            <stop offset="100%" stop-color="var(--ink-primary)" stop-opacity="0.92"/>
+          </linearGradient>
+        </defs>
+        <rect x="14" y="14" width="332" height="222" rx="18" fill="var(--bg-surface)" stroke="var(--border-subtle)" stroke-width="1.5"/>
+        <!-- Steam ribbons -->
+        <path d="M168 62 C162 48, 176 42, 170 28" stroke="var(--accent)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M192 66 C198 50, 184 44, 190 30" stroke="var(--accent)" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.7"/>
+        <!-- Fluted Dripper -->
+        <polygon points="132,76 228,76 196,136 164,136" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2.4"/>
+        <line x1="154" y1="76" x2="172" y2="136" stroke="var(--accent)" stroke-width="1.4" opacity="0.6"/>
+        <line x1="180" y1="76" x2="180" y2="136" stroke="var(--accent)" stroke-width="1.4" opacity="0.6"/>
+        <line x1="206" y1="76" x2="188" y2="136" stroke="var(--accent)" stroke-width="1.4" opacity="0.6"/>
+        <!-- Dripper Base Collar -->
+        <rect x="148" y="136" width="64" height="8" rx="4" fill="var(--ink-primary)"/>
+        <!-- Glass Server Carafe -->
+        <path d="M144 144 H216 L228 202 C230 210 223 216 215 216 H145 C137 216 130 210 132 202 Z" fill="none" stroke="var(--ink-primary)" stroke-width="2.4"/>
+        <!-- Handle -->
+        <path d="M219 156 H238 C245 156 248 162 246 170 L238 194 C236 199 231 202 226 202" fill="none" stroke="var(--ink-primary)" stroke-width="2.4" stroke-linecap="round"/>
+        <!-- Brewed Liquid -->
+        <path d="M137 182 H223 L227 202 C228 209 222 214 215 214 H145 C138 214 132 209 133 202 Z" fill="url(#amberBrew)"/>
+        <!-- Dial-in Scale Marks -->
+        <text x="34" y="44" fill="var(--ink-muted)" font-family="ui-monospace, monospace" font-size="11" font-weight="700">ROAST BATCH #418</text>
+        <text x="34" y="214" fill="var(--ink-muted)" font-family="ui-monospace, monospace" font-size="11">RATIO 1:16.6 · 94°C</text>
+      `;
+
+      const featured = store.state.coffees.slice(0, 3);
+
+      return Utils.el('div', { className: 'view-section' }, [
+        Utils.el('section', { className: 'hero-stage', 'aria-labelledby': 'hero-heading' }, [
+          Utils.el('div', { className: 'hero-copy' }, [
+            Utils.el('div', { className: 'cluster' }, [
+              Utils.el('span', { className: 'badge', textContent: 'Freshly Roasted Every Tuesday & Friday' }),
+              Utils.el('span', { className: 'badge badge-neutral', textContent: 'Manchester · Northern Quarter' })
+            ]),
+            Utils.el('h1', {
+              id: 'hero-heading',
+              textContent: 'Precision small-batch roasting meets transparent brew craft.'
+            }),
+            Utils.el('p', {
+              className: 'hero-lead',
+              textContent: 'Explore single-origin harvests, dial in extraction yield and TDS in our interactive brew workbench, and build a custom tasting flight for the bar.'
+            }),
+            Utils.el('div', { className: 'hero-cta-row' }, [
+              Utils.el('a', {
+                href: '#/brew-lab',
+                className: 'btn btn-primary',
+                'data-route': '/brew-lab',
+                textContent: 'Open Brew Dial-In Lab'
+              }),
+              Utils.el('a', {
+                href: '#/catalog',
+                className: 'btn',
+                'data-route': '/catalog',
+                textContent: 'Browse Seasonal Beans'
+              })
+            ]),
+            Utils.el('dl', { className: 'hero-telemetry-strip' }, [
+              Utils.el('div', { className: 'metric-tile' }, [
+                Utils.el('dt', { textContent: 'Active Harvest Lots' }),
+                Utils.el('dd', { textContent: `${totalLots} Origins` })
+              ]),
+              Utils.el('div', { className: 'metric-tile' }, [
+                Utils.el('dt', { textContent: 'Mean Cupping Score' }),
+                Utils.el('dd', { textContent: `${avgScore} pts` })
+              ]),
+              Utils.el('div', { className: 'metric-tile' }, [
+                Utils.el('dt', { textContent: 'Saved Favorites' }),
+                Utils.el('dd', { textContent: `${favCount} Lots` })
+              ])
+            ])
+          ]),
+          Utils.el('figure', { className: 'hero-visual-frame' }, [
+            heroSvg,
+            Utils.el('figcaption', {
+              className: 'small muted',
+              textContent: 'Every bag includes origin traceability and calibrated pour-over parameters.'
+            })
+          ])
+        ]),
+
+        Utils.el('section', { className: 'stack-md', 'aria-labelledby': 'featured-heading' }, [
+          Utils.el('div', { className: 'between' }, [
+            Utils.el('div', { className: 'stack-sm' }, [
+              Utils.el('h2', { id: 'featured-heading', textContent: 'This Week on the Pour-Over Bar' }),
+              Utils.el('p', { className: 'small muted', textContent: 'Select any lot to inspect full cupping notes or load its recipe directly into the Brew Lab.' })
+            ]),
+            Utils.el('a', { href: '#/catalog', className: 'btn btn-sm', 'data-route': '/catalog', textContent: 'View Full Catalog →' })
+          ]),
+          Utils.el('div', { className: 'catalog-scope' }, [
+            Utils.el('div', { className: 'coffee-grid' }, featured.map((c) => renderCoffeeCard(c)))
+          ])
+        ])
+      ]);
+    }
+
+    /* ------------------------------------------------------------------------
+       VIEW 2: BEANS & MENU CATALOG (Search, Filter, Sort, Subgrid, @scope)
+       ------------------------------------------------------------------------ */
+    function renderCoffeeCard(coffee) {
+      const isFav = store.state.favorites.has(coffee.id);
+
+      return Utils.el('div', { className: 'card-container' }, [
+        Utils.el('article', { className: 'coffee-card' }, [
+          Utils.el('div', { className: 'coffee-card-header' }, [
+            Utils.el('div', { className: 'stack-sm' }, [
+              Utils.el('div', { className: 'cluster' }, [
+                Utils.el('span', { className: 'badge', textContent: coffee.origin }),
+                Utils.el('span', { className: 'badge badge-neutral', textContent: coffee.process }),
+                Utils.el('span', { className: 'badge badge-neutral', textContent: coffee.roastLevel })
+              ]),
+              Utils.el('h3', { textContent: coffee.name })
+            ]),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-ghost btn-sm',
+              'data-fav': String(isFav),
+              'aria-pressed': String(isFav),
+              'aria-label': isFav ? `Remove ${coffee.name} from favorites` : `Save ${coffee.name} to favorites`,
+              textContent: isFav ? '★ Saved' : '☆ Save',
+              onClick: () => store.toggleFavorite(coffee.id)
+            })
+          ]),
+          Utils.el('div', { className: 'stack-sm' }, [
+            Utils.el('p', { className: 'small muted', textContent: coffee.story }),
+            Utils.el('div', { className: 'tasting-notes-row' }, coffee.notes.map((note) =>
+              Utils.el('span', { className: 'badge badge-neutral', textContent: note })
+            ))
+          ]),
+          Utils.el('div', { className: 'card-meta-bar' }, [
+            Utils.el('span', { textContent: `${coffee.elevationMasl}m · ${coffee.score} pts` }),
+            Utils.el('strong', { textContent: `${Utils.formatCurrency(coffee.priceBag)} / ${coffee.bagWeightG}g` })
+          ]),
+          Utils.el('div', { className: 'card-actions' }, [
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-primary btn-sm',
+              textContent: 'Dial In',
+              onClick: () => {
+                store.loadCoffeeIntoLab(coffee.id);
+                navigateTo('/brew-lab');
+              }
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-sm',
+              textContent: `+ Bag (${Utils.formatCurrency(coffee.priceBag)})`,
+              onClick: () => store.addToTray(coffee.id, 'bag')
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-sm',
+              textContent: `+ Cup (${Utils.formatCurrency(coffee.priceCup)})`,
+              onClick: () => store.addToTray(coffee.id, 'cup')
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-ghost btn-sm',
+              textContent: 'Details',
+              onClick: () => openCoffeeDetailDialog(coffee)
+            })
+          ])
+        ])
+      ]);
+    }
+
+    function getFilteredCoffees() {
+      const { search, process, roastLevel, sortBy, onlyFavorites } = store.state.filters;
+      const q = search.trim().toLowerCase();
+
+      const filtered = store.state.coffees.filter((c) => {
+        if (onlyFavorites && !store.state.favorites.has(c.id)) return false;
+        if (process !== 'all' && c.process !== process) return false;
+        if (roastLevel !== 'all' && c.roastLevel !== roastLevel) return false;
+        if (q) {
+          const haystack = `${c.name} ${c.origin} ${c.region} ${c.process} ${c.notes.join(' ')}`.toLowerCase();
+          if (!haystack.includes(q)) return false;
+        }
+        return true;
+      });
+
+      const sorters = {
+        'score-desc': (a, b) => b.score - a.score,
+        'price-asc': (a, b) => a.priceBag - b.priceBag,
+        'price-desc': (a, b) => b.priceBag - a.priceBag,
+        'elevation-desc': (a, b) => b.elevationMasl - a.elevationMasl
+      };
+
+      return filtered.sort(sorters[sortBy] ?? sorters['score-desc']);
+    }
+
+    function renderCatalogView() {
+      const { search, process, roastLevel, sortBy, onlyFavorites } = store.state.filters;
+      const results = getFilteredCoffees();
+
+      const searchInput = Utils.el('input', {
+        id: 'catalog-search',
+        type: 'search',
+        className: 'control-input',
+        placeholder: 'Search origin, bergamot, berry...',
+        value: search,
+        onInput: (e) => store.updateFilters({ search: e.target.value })
+      });
+
+      const processSelect = Utils.el('select', {
+        id: 'catalog-process',
+        className: 'control-input',
+        onChange: (e) => store.updateFilters({ process: e.target.value })
+      }, [
+        Utils.el('option', { value: 'all', selected: process === 'all', textContent: 'All Processes' }),
+        Utils.el('option', { value: 'Washed', selected: process === 'Washed', textContent: 'Washed' }),
+        Utils.el('option', { value: 'Natural', selected: process === 'Natural', textContent: 'Natural' }),
+        Utils.el('option', { value: 'Honey', selected: process === 'Honey', textContent: 'Honey' }),
+        Utils.el('option', { value: 'Natural EA Decaf', selected: process === 'Natural EA Decaf', textContent: 'Sugarcane Decaf' })
+      ]);
+
+      const roastSelect = Utils.el('select', {
+        id: 'catalog-roast',
+        className: 'control-input',
+        onChange: (e) => store.updateFilters({ roastLevel: e.target.value })
+      }, [
+        Utils.el('option', { value: 'all', selected: roastLevel === 'all', textContent: 'All Roast Profiles' }),
+        Utils.el('option', { value: 'Light', selected: roastLevel === 'Light', textContent: 'Light' }),
+        Utils.el('option', { value: 'Light-Medium', selected: roastLevel === 'Light-Medium', textContent: 'Light-Medium' }),
+        Utils.el('option', { value: 'Medium', selected: roastLevel === 'Medium', textContent: 'Medium' }),
+        Utils.el('option', { value: 'Medium-Dark', selected: roastLevel === 'Medium-Dark', textContent: 'Medium-Dark' })
+      ]);
+
+      const sortSelect = Utils.el('select', {
+        id: 'catalog-sort',
+        className: 'control-input',
+        onChange: (e) => store.updateFilters({ sortBy: e.target.value })
+      }, [
+        Utils.el('option', { value: 'score-desc', selected: sortBy === 'score-desc', textContent: 'Cupping Score (High → Low)' }),
+        Utils.el('option', { value: 'elevation-desc', selected: sortBy === 'elevation-desc', textContent: 'Elevation (MASL)' }),
+        Utils.el('option', { value: 'price-asc', selected: sortBy === 'price-asc', textContent: 'Price (Low → High)' }),
+        Utils.el('option', { value: 'price-desc', selected: sortBy === 'price-desc', textContent: 'Price (High → Low)' })
+      ]);
+
+      const scopeWrapper = Utils.el('div', {
+        className: 'catalog-scope',
+        style: `--card-density: ${store.state.cardDensity};`
+      }, [
+        Utils.el('div', { className: 'filter-toolbar', role: 'search', 'aria-label': 'Filter coffee catalog' }, [
+          Utils.el('div', { className: 'field-group' }, [
+            Utils.el('label', { for: 'catalog-search', textContent: 'Search Notes & Origin' }),
+            searchInput
+          ]),
+          Utils.el('div', { className: 'field-group' }, [
+            Utils.el('label', { for: 'catalog-process', textContent: 'Process' }),
+            processSelect
+          ]),
+          Utils.el('div', { className: 'field-group' }, [
+            Utils.el('label', { for: 'catalog-roast', textContent: 'Roast Profile' }),
+            roastSelect
+          ]),
+          Utils.el('div', { className: 'field-group' }, [
+            Utils.el('label', { for: 'catalog-sort', textContent: 'Sort By' }),
+            sortSelect
+          ])
+        ]),
+        Utils.el('div', { className: 'between' }, [
+          Utils.el('div', { className: 'cluster' }, [
+            Utils.el('span', { className: 'small muted', textContent: `Showing ${results.length} of ${store.state.coffees.length} seasonal lots` }),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-sm',
+              'aria-pressed': String(onlyFavorites),
+              textContent: onlyFavorites ? '★ Showing Favorites Only' : '☆ Filter Favorites Only',
+              onClick: () => store.updateFilters({ onlyFavorites: !onlyFavorites })
+            })
+          ]),
+          Utils.el('div', { className: 'cluster' }, [
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-sm',
+              textContent: store.state.cardDensity === 'editorial' ? 'Compact Cards' : 'Editorial Cards',
+              onClick: () => store.setCardDensity(store.state.cardDensity === 'editorial' ? 'compact' : 'editorial')
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-primary btn-sm',
+              textContent: '+ Log Micro-Lot',
+              onClick: () => openAddLotDialog()
+            })
+          ])
+        ]),
+        results.length
+          ? Utils.el('div', { className: 'coffee-grid' }, results.map((c) => renderCoffeeCard(c)))
+          : Utils.el('div', { className: 'panel-card' }, [
+              Utils.el('h3', { textContent: 'No coffees match those exact filter parameters' }),
+              Utils.el('p', { className: 'muted', textContent: 'Try clearing the search term or resetting process and roast filters.' }),
+              Utils.el('button', {
+                type: 'button',
+                className: 'btn btn-primary',
+                textContent: 'Reset All Filters',
+                onClick: () => store.updateFilters({ search: '', process: 'all', roastLevel: 'all', onlyFavorites: false })
+              })
+            ])
+      ]);
+
+      return Utils.el('div', { className: 'view-section' }, [
+        Utils.el('div', { className: 'stack-sm' }, [
+          Utils.el('h1', { textContent: 'Seasonal Harvests & Brew Bar Menu' }),
+          Utils.el('p', { className: 'muted', textContent: 'Order freshly roasted whole-bean bags or cups brewed to order at our Northern Quarter bar.' })
+        ]),
+        scopeWrapper
+      ]);
+    }
+
+    /* ------------------------------------------------------------------------
+       VIEW 3: INTERACTIVE BREW DIAL-IN LAB & EXTRACTION SIMULATOR
+       ------------------------------------------------------------------------ */
+    function renderBrewLabView() {
+      const lab = store.state.brewLab;
+      const metrics = calculateExtractionMetrics(lab);
+      const selectedCoffee = store.state.coffees.find((c) => c.id === lab.coffeeId) ?? store.state.coffees[0];
+
+      const canvas = Utils.el('canvas', {
+        'aria-label': `Live extraction plot showing ${metrics.extractionYield}% extraction yield and ${metrics.tds}% TDS`
+      });
+
+      const recipeTitleInput = Utils.el('input', {
+        type: 'text',
+        className: 'control-input',
+        placeholder: `${selectedCoffee.name} Custom Dial-In`,
+        'aria-label': 'Recipe title'
+      });
+
+      const coffeeSelect = Utils.el('select', {
+        id: 'lab-coffee-select',
+        className: 'control-input',
+        onChange: (e) => store.loadCoffeeIntoLab(e.target.value)
+      }, store.state.coffees.map((c) =>
+        Utils.el('option', {
+          value: c.id,
+          selected: c.id === lab.coffeeId,
+          textContent: `${c.name} (${c.origin} · ${c.roastLevel})`
+        })
+      ));
+
+      const makeSlider = (id, label, unit, min, max, step, value, key) =>
+        Utils.el('div', { className: 'slider-control' }, [
+          Utils.el('div', { className: 'slider-header' }, [
+            Utils.el('label', { for: id, textContent: label }),
+            Utils.el('span', { className: 'slider-value', textContent: `${value}${unit}` })
+          ]),
+          Utils.el('input', {
+            id,
+            type: 'range',
+            min,
+            max,
+            step,
+            value,
+            onInput: (e) => store.updateBrewLab({ [key]: Number(e.target.value) })
+          })
+        ]);
+
+      const view = Utils.el('div', { className: 'view-section' }, [
+        Utils.el('div', { className: 'between' }, [
+          Utils.el('div', { className: 'stack-sm' }, [
+            Utils.el('h1', { textContent: 'Pour-Over & Espresso Dial-In Lab' }),
+            Utils.el('p', { className: 'muted', textContent: 'Adjust dose, water mass, brew temperature, grind size, and contact time to target the 18%–22% specialty extraction sweet spot.' })
+          ]),
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn btn-sm',
+            textContent: lab.isPouring ? '⏸ Pause Pour Stream' : '▶ Resume Pour Stream',
+            onClick: () => store.updateBrewLab({ isPouring: !lab.isPouring })
+          })
+        ]),
+
+        Utils.el('div', { className: 'workbench-grid' }, [
+          // Controls Column
+          Utils.el('section', { className: 'panel-card', 'aria-label': 'Brew parameters' }, [
+            Utils.el('div', { className: 'field-group' }, [
+              Utils.el('label', { for: 'lab-coffee-select', textContent: 'Selected Coffee Lot' }),
+              coffeeSelect
+            ]),
+            makeSlider('slider-dose', 'Dry Coffee Dose', 'g', 12, 30, 0.5, lab.doseG, 'doseG'),
+            makeSlider('slider-water', 'Brew Water Weight', 'g', 30, 500, 5, lab.waterG, 'waterG'),
+            makeSlider('slider-temp', 'Kettle Temperature', '°C', 86, 99, 0.5, lab.tempC, 'tempC'),
+            makeSlider('slider-grind', 'Burr Grind Size (Finer ← → Coarser)', ' µm', 250, 950, 10, lab.grindMicrons, 'grindMicrons'),
+            makeSlider('slider-time', 'Total Contact Time', 's', 20, 270, 5, lab.brewSeconds, 'brewSeconds'),
+            Utils.el('div', { className: 'cluster' }, [
+              Utils.el('button', {
+                type: 'button',
+                className: 'btn btn-sm',
+                textContent: 'Restore Lot Defaults',
+                onClick: () => store.loadCoffeeIntoLab(selectedCoffee.id)
+              })
+            ])
+          ]),
+
+          // Live Simulation & Readouts Column
+          Utils.el('section', { className: 'panel-card', 'aria-label': 'Extraction telemetry' }, [
+            Utils.el('div', { className: 'canvas-stage' }, [canvas]),
+            Utils.el('div', { className: 'between' }, [
+              Utils.el('span', {
+                className: `badge ${metrics.statusTone === 'ok' ? 'badge-ok' : 'badge-warn'}`,
+                textContent: metrics.diagnosis
+              }),
+              Utils.el('span', { className: 'small mono', textContent: `Ratio 1:${metrics.ratio}` })
+            ]),
+            Utils.el('div', { className: 'readout-grid' }, [
+              Utils.el('div', { className: 'readout-box' }, [
+                Utils.el('span', { textContent: 'Extraction Yield' }),
+                Utils.el('strong', { textContent: `${metrics.extractionYield}%` })
+              ]),
+              Utils.el('div', { className: 'readout-box' }, [
+                Utils.el('span', { textContent: 'Strength (TDS)' }),
+                Utils.el('strong', { textContent: `${metrics.tds}%` })
+              ]),
+              Utils.el('div', { className: 'readout-box' }, [
+                Utils.el('span', { textContent: 'Net Cup Yield' }),
+                Utils.el('strong', { textContent: `${metrics.beverageWeight}g` })
+              ])
+            ]),
+            Utils.el('div', { className: 'stack-sm' }, [
+              Utils.el('strong', { className: 'small', textContent: 'Save Dial-In to Bar Logbook' }),
+              Utils.el('div', { className: 'cluster' }, [
+                recipeTitleInput,
+                Utils.el('button', {
+                  type: 'button',
+                  className: 'btn btn-primary',
+                  textContent: 'Save Recipe',
+                  onClick: () => {
+                    store.saveCurrentRecipe(recipeTitleInput.value, metrics);
+                    playGentleChime();
+                  }
+                })
+              ])
+            ])
+          ])
+        ]),
+
+        // Saved Recipes Logbook
+        Utils.el('section', { className: 'panel-card', 'aria-labelledby': 'logbook-heading' }, [
+          Utils.el('h2', { id: 'logbook-heading', textContent: `Saved Bar Dial-In Logbook (${store.state.savedRecipes.length})` }),
+          Utils.el('div', { className: 'coffee-grid' }, store.state.savedRecipes.map((rec) =>
+            Utils.el('article', { className: 'readout-box' }, [
+              Utils.el('strong', { textContent: rec.title }),
+              Utils.el('span', { textContent: `${rec.coffeeName} · ${rec.method}` }),
+              Utils.el('p', {
+                className: 'small mono',
+                textContent: `${rec.doseG}g → ${rec.waterG}g · ${rec.tempC}°C · ${rec.grindMicrons}µm · ${rec.brewSeconds}s`
+              }),
+              Utils.el('p', {
+                className: 'small mono',
+                textContent: `Result: ${rec.ey}% EY @ ${rec.tds}% TDS`
+              })
+            ])
+          ))
+        ])
+      ]);
+
+      requestAnimationFrame(() => {
+        if (activeCanvasController) activeCanvasController.destroy();
+        activeCanvasController = new BrewCanvasController(canvas);
+      });
+
+      return view;
+    }
+
+    /* ------------------------------------------------------------------------
+       VIEW 4: TASTING FLIGHT & ORDER TRAY
+       ------------------------------------------------------------------------ */
+    function renderTrayView() {
+      const lineItems = store.state.tray.map((entry, idx) => {
+        const coffee = store.state.coffees.find((c) => c.id === entry.coffeeId);
+        if (!coffee) return null;
+        const unitPrice = entry.format === 'bag' ? coffee.priceBag : coffee.priceCup;
+        const subtotal = unitPrice * entry.qty;
+        return { entry, idx, coffee, unitPrice, subtotal };
+      }).filter(Boolean);
+
+      const grandTotal = Utils.sumPrecise(lineItems.map((i) => i.subtotal));
+
+      return Utils.el('div', { className: 'view-section' }, [
+        Utils.el('div', { className: 'between' }, [
+          Utils.el('div', { className: 'stack-sm' }, [
+            Utils.el('h1', { textContent: 'Tasting Flight & Roastery Tray' }),
+            Utils.el('p', { className: 'muted', textContent: 'Prepare a counter brew bar flight or whole-bean collection order.' })
+          ]),
+          lineItems.length > 0 && Utils.el('button', {
+            type: 'button',
+            className: 'btn btn-sm',
+            textContent: 'Clear Tray',
+            onClick: () => store.clearTray()
+          })
+        ]),
+
+        lineItems.length === 0
+          ? Utils.el('div', { className: 'panel-card' }, [
+              Utils.el('h2', { textContent: 'Your tasting tray is currently empty' }),
+              Utils.el('p', { className: 'muted', textContent: 'Add single-origin pour-over cups or 250g whole-bean bags from the seasonal catalog.' }),
+              Utils.el('a', { href: '#/catalog', className: 'btn btn-primary', 'data-route': '/catalog', textContent: 'Explore Seasonal Beans' })
+            ])
+          : Utils.el('div', { className: 'panel-card' }, [
+              ...lineItems.map(({ entry, idx, coffee, unitPrice, subtotal }) =>
+                Utils.el('div', { className: 'between', style: 'padding-block: 0.65rem; border-bottom: 1px solid var(--border-subtle);' }, [
+                  Utils.el('div', { className: 'stack-sm' }, [
+                    Utils.el('strong', { textContent: `${coffee.name} (${entry.format === 'bag' ? `${coffee.bagWeightG}g Whole Bean` : 'Fresh Brewed Cup'})` }),
+                    Utils.el('span', { className: 'small muted', textContent: `${coffee.origin} · ${Utils.formatCurrency(unitPrice)} each` })
+                  ]),
+                  Utils.el('div', { className: 'cluster' }, [
+                    Utils.el('button', {
+                      type: 'button',
+                      className: 'btn btn-sm',
+                      'aria-label': `Decrease quantity of ${coffee.name}`,
+                      textContent: '−',
+                      onClick: () => store.updateTrayQty(idx, -1)
+                    }),
+                    Utils.el('span', { className: 'mono', textContent: String(entry.qty) }),
+                    Utils.el('button', {
+                      type: 'button',
+                      className: 'btn btn-sm',
+                      'aria-label': `Increase quantity of ${coffee.name}`,
+                      textContent: '+',
+                      onClick: () => store.updateTrayQty(idx, 1)
+                    }),
+                    Utils.el('strong', { className: 'mono', style: 'min-width: 4.5rem; text-align: right;', textContent: Utils.formatCurrency(subtotal) })
+                  ])
+                ])
+              ),
+              Utils.el('div', { className: 'between', style: 'padding-top: 0.5rem;' }, [
+                Utils.el('strong', { textContent: 'Estimated Bar & Retail Total' }),
+                Utils.el('strong', { className: 'mono', style: 'font-size: var(--text-xl);', textContent: Utils.formatCurrency(grandTotal) })
+              ]),
+              Utils.el('div', { className: 'cluster' }, [
+                Utils.el('button', {
+                  type: 'button',
+                  className: 'btn btn-primary',
+                  textContent: 'Copy Bar Order Slip',
+                  onClick: async () => {
+                    const summary = lineItems
+                      .map((i) => `${i.entry.qty}x ${i.coffee.name} [${i.entry.format}] — ${Utils.formatCurrency(i.subtotal)}`)
+                      .join('\n') + `\nTotal: ${Utils.formatCurrency(grandTotal)}`;
+                    try {
+                      await navigator.clipboard.writeText(summary);
+                      store.announce('Order slip copied to clipboard', true);
+                    } catch {
+                      store.announce('Clipboard unavailable; review summary on screen', true);
+                    }
+                  }
+                })
+              ])
+            ])
+      ]);
+    }
+
+    /* ------------------------------------------------------------------------
+       VIEW 5: STUDIO, LOCAL TASTING PHOTO DROP & CAPABILITY INSPECTOR
+       ------------------------------------------------------------------------ */
+    function renderStudioView() {
+      const capabilities = Utils.detectCapabilities();
+      const previewImg = Utils.el('img', {
+        alt: 'Uploaded local coffee bag or latte art snapshot preview',
+        style: 'max-height: 14rem; border-radius: var(--radius-sm); display: none; margin-inline: auto;'
+      });
+
+      const handleLocalImage = (file) => {
+        if (!file || !file.type.startsWith('image/')) {
+          store.announce('Please select a valid local image file', true);
+          return;
+        }
+        if (previewImg.dataset.objectUrl) {
+          URL.revokeObjectURL(previewImg.dataset.objectUrl);
+        }
+        const url = URL.createObjectURL(file);
+        previewImg.dataset.objectUrl = url;
+        previewImg.src = url;
+        previewImg.style.display = 'block';
+        store.announce(`Loaded local tasting photo: ${file.name}`, true);
+      };
+
+      const fileInput = Utils.el('input', {
+        type: 'file',
+        accept: 'image/*',
+        className: 'sr-only',
+        id: 'local-photo-input',
+        onChange: (e) => handleLocalImage(e.target.files?.[0])
+      });
+
+      const dropZone = Utils.el('div', {
+        className: 'drop-zone stack-sm',
+        onDragover: (e) => {
+          e.preventDefault();
+          dropZone.classList.add('is-dragover');
+        },
+        onDragleave: () => dropZone.classList.remove('is-dragover'),
+        onDrop: (e) => {
+          e.preventDefault();
+          dropZone.classList.remove('is-dragover');
+          handleLocalImage(e.dataTransfer?.files?.[0]);
+        }
+      }, [
+        Utils.el('strong', { textContent: 'Local Tasting Journal Photo Preview (Zero-Upload, Local Object URL)' }),
+        Utils.el('p', { className: 'small muted', textContent: 'Drag and drop a photo of your pour-over bed or roast bag here, or choose a local file. Nothing leaves your browser.' }),
+        Utils.el('div', {}, [
+          Utils.el('label', { for: 'local-photo-input', className: 'btn btn-sm', textContent: 'Choose Local Photo' }),
+          fileInput
+        ]),
+        previewImg
+      ]);
+
+      return Utils.el('div', { className: 'view-section' }, [
+        Utils.el('div', { className: 'stack-sm' }, [
+          Utils.el('h1', { textContent: 'Roastery Studio & Browser Platform Inspector' }),
+          Utils.el('p', { className: 'muted', textContent: 'Customize roastery accent palettes, export/reset local data, and inspect live native web platform support.' })
+        ]),
+
+        Utils.el('section', { className: 'panel-card', 'aria-labelledby': 'appearance-heading' }, [
+          Utils.el('h2', { id: 'appearance-heading', textContent: 'Appearance & Sensory Preferences' }),
+          Utils.el('div', { className: 'cluster' }, [
+            Utils.el('button', {
+              type: 'button',
+              className: `btn btn-sm ${store.state.roastAccent === 'kiln' ? 'btn-primary' : ''}`,
+              textContent: 'Kiln Terracotta',
+              onClick: () => store.setRoastAccent('kiln')
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: `btn btn-sm ${store.state.roastAccent === 'forest' ? 'btn-primary' : ''}`,
+              textContent: 'Cascara Botanical',
+              onClick: () => store.setRoastAccent('forest')
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: `btn btn-sm ${store.state.roastAccent === 'plum' ? 'btn-primary' : ''}`,
+              textContent: 'Cherry Pulp Plum',
+              onClick: () => store.setRoastAccent('plum')
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-sm',
+              'aria-pressed': String(store.state.audioChimes),
+              textContent: store.state.audioChimes ? '🔔 Brew Chimes: On' : '🔕 Brew Chimes: Muted',
+              onClick: () => {
+                store.state.audioChimes = !store.state.audioChimes;
+                store.emit('appearance');
+                if (store.state.audioChimes) playGentleChime();
+              }
+            })
+          ]),
+          dropZone,
+          Utils.el('div', { className: 'cluster' }, [
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-sm',
+              textContent: 'Export Roastery JSON Backup',
+              onClick: () => {
+                const blob = new Blob([JSON.stringify(store.state.savedRecipes, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = Utils.el('a', { href: url, download: 'alder-kiln-recipes.json' });
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+              }
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-sm',
+              textContent: 'Reset Local Roastery Data',
+              onClick: () => store.resetAllData()
+            })
+          ])
+        ]),
+
+        Utils.el('section', { className: 'panel-card', 'aria-labelledby': 'cap-heading' }, [
+          Utils.el('div', { className: 'between' }, [
+            Utils.el('h2', { id: 'cap-heading', textContent: 'Native Web Platform Capability Inspector' }),
+            Utils.el('span', {
+              className: 'badge badge-ok',
+              textContent: `${capabilities.filter((c) => c.supported).length} / ${capabilities.length} Active`
+            })
+          ]),
+          Utils.el('div', { style: 'overflow-x: auto;' }, [
+            Utils.el('table', { className: 'cap-table' }, [
+              Utils.el('thead', {}, [
+                Utils.el('tr', {}, [
+                  Utils.el('th', { textContent: 'Platform Capability' }),
+                  Utils.el('th', { textContent: 'Status' }),
+                  Utils.el('th', { textContent: 'Role in Alder & Kiln SPA' })
+                ])
+              ]),
+              Utils.el('tbody', {}, capabilities.map((cap) =>
+                Utils.el('tr', {}, [
+                  Utils.el('td', {}, [Utils.el('strong', { textContent: cap.name })]),
+                  Utils.el('td', {}, [
+                    Utils.el('span', {
+                      className: `badge ${cap.supported ? 'badge-ok' : 'badge-warn'}`,
+                      textContent: cap.supported ? 'Active' : 'Fallback Active'
+                    })
+                  ]),
+                  Utils.el('td', { className: 'muted', textContent: cap.role })
+                ])
+              ))
+            ])
+          ])
+        ])
+      ]);
+    }
+
+    function renderNotFoundView() {
+      return Utils.el('section', { className: 'panel-card' }, [
+        Utils.el('span', { className: 'badge badge-warn', textContent: '404 · Roast Batch Not Found' }),
+        Utils.el('h1', { textContent: 'That table isn’t on today’s floor plan.' }),
+        Utils.el('p', { className: 'muted', textContent: 'Head back to the main brew bar or explore our current single-origin lineup.' }),
+        Utils.el('div', { className: 'cluster' }, [
+          Utils.el('a', { href: '#/overview', className: 'btn btn-primary', 'data-route': '/overview', textContent: 'Return to Roastery' })
+        ])
+      ]);
+    }
+
+    /* ========================================================================
+       MODULE 8: ROOT RENDER ORCHESTRATION & EVENT WIRING
+       ======================================================================== */
+    function syncHeaderChrome() {
+      const currentRoute = store.state.route;
+      document.querySelectorAll('.nav-link').forEach((link) => {
+        if (link.dataset.route === currentRoute) {
+          link.setAttribute('aria-current', 'page');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
+
+      const themeLabel = document.getElementById('theme-toggle-label');
+      if (themeLabel) {
+        themeLabel.textContent = store.state.theme === 'light' ? 'Dark Bar' : 'Daylight Bar';
+      }
+
+      const trayBadge = document.getElementById('tray-count-badge');
+      if (trayBadge) {
+        const count = Utils.sumPrecise(store.state.tray.map((item) => item.qty));
+        trayBadge.textContent = String(count);
+      }
+    }
+
+    function renderCurrentView() {
+      const main = document.getElementById('main-content');
+      if (!main) return;
+
+      if (activeCanvasController && store.state.route !== '/brew-lab') {
+        activeCanvasController.destroy();
+        activeCanvasController = null;
+      }
+
+      syncHeaderChrome();
+
+      const viewMap = {
+        '/overview': renderOverviewView,
+        '/catalog': renderCatalogView,
+        '/brew-lab': renderBrewLabView,
+        '/tray': renderTrayView,
+        '/studio': renderStudioView,
+        '/404': renderNotFoundView
+      };
+
+      const renderFn = viewMap[store.state.route] ?? renderNotFoundView;
+      main.replaceChildren(renderFn());
+    }
+
+    // Delegated SPA link clicks
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest('a[data-route]');
+      if (!link) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      navigateTo(link.dataset.route);
+    });
+
+    // Theme toggle button
+    document.getElementById('theme-toggle-btn')?.addEventListener('click', () => {
+      store.toggleTheme();
+    });
+
+    // Store listeners
+    store.addEventListener('appearance', () => {
+      syncHeaderChrome();
+      if (store.state.route === '/brew-lab' || store.state.route === '/studio') {
+        renderCurrentView();
+      }
+    });
+    store.addEventListener('catalog', () => {
+      if (store.state.route === '/catalog' || store.state.route === '/overview') {
+        renderCurrentView();
+      }
+    });
+    store.addEventListener('tray', () => {
+      syncHeaderChrome();
+      if (store.state.route === '/tray') renderCurrentView();
+    });
+    store.addEventListener('brewlab', () => {
+      if (store.state.route === '/brew-lab') renderCurrentView();
+    });
+
+    // Browser Back/Forward & Navigation API
+    window.addEventListener('popstate', () => {
+      navigateTo(parseRouteFromLocation(), { push: false });
+    });
+
+    // Initial Boot
+    navigateTo(parseRouteFromLocation(), { push: false });
+  </script>
+</body>
+</html>
