@@ -982,7 +982,7 @@ const ContextController = {
    } 
 };
 const ChatController = Object.assign(Object.create(AiController), {
-    defaultTool: 'gmail',
+    defaultTool: 'qwen',
 
     _withToolFallback(fn) {
         const existing = app.el('tool-select');
@@ -1010,6 +1010,20 @@ const ChatController = Object.assign(Object.create(AiController), {
         }
     },
 
+    async saveResponsePref(responseText, prompt = '') {
+        app.dBug('ChatController saveResponsePref', { pref: responseText, prompt });
+
+        try {
+            return await app.post('chat/save', {
+                prompt,
+                pref: responseText
+            });
+        } catch (error) {
+            app.dBug('ChatController saveResponsePref ERROR', error.message);
+            return null;
+        }
+    },
+
     renderSuccess(messageEl, text) {
         app.dBug('ChatController renderSuccess', text);
         const content = messageEl?.querySelector('.message-content');
@@ -1025,16 +1039,21 @@ const ChatController = Object.assign(Object.create(AiController), {
         app.dBug('ChatController executeTool', { tool, prompt });
 
         try {
-            return await AiController.executeTool.call(this, tool, prompt);
+            const output = await AiController.executeTool.call(this, tool, prompt);
+            const text = this.formatToolOutput(tool, output);
+            await this.saveResponsePref(text, prompt);
+            return output;
         } catch (error) {
             app.dBug('ChatController executeTool fallback', error.message);
 
-            const stream = app.el('ai-chat-stream');
-            const lastMessage = stream?.lastElementChild;
             const label = prompt
                 ? `Message saved: "${prompt}"`
                 : 'Message saved successfully.';
 
+            await this.saveResponsePref(label, prompt);
+
+            const stream = app.el('ai-chat-stream');
+            const lastMessage = stream?.lastElementChild;
             if (lastMessage) {
                 this.renderSuccess(lastMessage, label);
                 return null;
@@ -1054,6 +1073,26 @@ const ChatController = Object.assign(Object.create(AiController), {
         }
 
         AiController.renderAssistantResponse.call(this, messageEl, tool, prompt, output);
+    },
+
+    renderHistory(records) {
+        if (!Array.isArray(records) || !records.length) return;
+
+        const stream = app.el('ai-chat-stream');
+        if (stream) {
+            stream.replaceChildren();
+        }
+
+        records.forEach((record) => {
+            const role = record.role === 'user' ? 'user' : 'assistant';
+            const text = role === 'assistant'
+                ? (record.pref ?? record.content ?? '')
+                : (record.content ?? record.pref ?? '');
+
+            this.appendMessage(role, app.item('p', '', text));
+        });
+
+        this.scrollToBottom();
     },
 
     index() {
