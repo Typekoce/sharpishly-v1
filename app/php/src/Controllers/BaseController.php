@@ -50,6 +50,7 @@ class BaseController {
     }
 
     public function view($path,$data){
+        
         $file = $this->location->baseDir() . 'app/php/src/views/' . $path . '.html';
 
         if(file_exists($file)){
