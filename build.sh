@@ -34,6 +34,7 @@ JS_FILES=(
     build/javascript/controllers/agent_controller.js
     build/javascript/controllers/render_controller.js
     build/javascript/controllers/context_controller.js
+    build/javascript/controllers/multiple_prompts_controller.js
     build/javascript/controllers/chat_controller.js
     build/javascript/core/global.js
 )
