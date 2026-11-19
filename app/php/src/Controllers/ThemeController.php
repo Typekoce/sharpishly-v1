@@ -4,11 +4,11 @@ namespace App\Controllers;
 
 class ThemeController extends BaseController {
 
-    public function index($id = ''){
+    public function index($path = 'cms'){
 
         $data = [];
 
-        $this->view('cms/index',$data);
+        $this->view($path . '/index',$data);
 
     }
 }

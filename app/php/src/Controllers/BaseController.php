@@ -50,7 +50,13 @@ class BaseController {
     }
 
     public function view($path,$data){
-        new dBug($file = $this->location->baseDir() . 'app/php/src/views/');
+        $file = $this->location->baseDir() . 'app/php/src/views/' . $path . '.html';
+
+        if(file_exists($file)){
+            echo file_get_contents($file);
+        } else {
+            echo "Opps... page does not exist";
+        }
     }
 
 }
