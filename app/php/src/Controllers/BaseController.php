@@ -6,6 +6,7 @@ use App\Services\Session;
 use App\Services\Logger;
 use App\Services\Db;
 use App\Services\Location;
+use App\Services\dBug;
 
 class BaseController {
 
@@ -49,7 +50,7 @@ class BaseController {
     }
 
     public function view($path,$data){
-        
+        new dBug($file = $this->location->baseDir() . 'app/php/src/views/');
     }
 
 }
