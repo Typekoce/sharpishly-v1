@@ -131,13 +131,19 @@ const ChatController = Object.assign(Object.create(AiController), {
         if (form) {
             form.addEventListener('submit', (event) => {
                 event.preventDefault();
-                app.dBug('ChatController submit', input.value);
+                const currentPrompt = input.value;
+                app.dBug('ChatController submit', currentPrompt);
+                const mpc = Object.create(MultiplePromptsController);
+                mpc._tools(currentPrompt, this.defaultTool);
                 this._withToolFallback(() => this.handlePromptSubmit(input));
             });
         } else {
             button.addEventListener('click', (event) => {
                 event.preventDefault();
-                app.dBug('ChatController click', input.value);
+                const currentPrompt = input.value;
+                app.dBug('ChatController click', currentPrompt);
+                const mpc = Object.create(MultiplePromptsController);
+                mpc._tools(currentPrompt, this.defaultTool);
                 this._withToolFallback(() => this.handlePromptSubmit(input));
             });
         }
