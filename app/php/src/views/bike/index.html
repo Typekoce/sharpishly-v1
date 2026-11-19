@@ -1,0 +1,3130 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-shop-accent="cobalt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="description" content="Pennine & Chain Cycles — Independent bicycle workshop, custom steel & alloy builds, drivetrain lab, and online component store." />
+  <title>Pennine &amp; Chain Cycles — Independent Bike Shop &amp; Workshop</title>
+  <style>
+    /* ==========================================================================
+       PENNINE & CHAIN CYCLES — MODERN NATIVE CSS ARCHITECTURE
+       @layer cascade, oklch() color system, color-mix(), @scope, container size &
+       style queries, subgrid, scroll-snap carousel, view transitions & anchor UI.
+       ========================================================================== */
+    @layer reset, tokens, base, layout, components, utilities, motion;
+
+    /* --------------------------------------------------------------------------
+       1. RESET LAYER
+       -------------------------------------------------------------------------- */
+    @layer reset {
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        -webkit-text-size-adjust: 100%;
+        scroll-behavior: smooth;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        line-height: 1.55;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      img, svg, canvas, picture {
+        display: block;
+        max-width: 100%;
+      }
+
+      button, input, select, textarea {
+        font: inherit;
+        color: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      h1, h2, h3, h4, p, figure, blockquote, ul, ol, dl, dd {
+        margin: 0;
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       2. DESIGN TOKENS LAYER (oklch + color-mix + fluid clamp scales)
+       -------------------------------------------------------------------------- */
+    @layer tokens {
+      :root {
+        --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --font-display: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+        /* Fluid Typography */
+        --text-xs: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
+        --text-sm: clamp(0.875rem, 0.84rem + 0.2vw, 0.9375rem);
+        --text-base: clamp(1rem, 0.96rem + 0.25vw, 1.0625rem);
+        --text-lg: clamp(1.125rem, 1.05rem + 0.4vw, 1.3rem);
+        --text-xl: clamp(1.375rem, 1.2rem + 0.85vw, 1.75rem);
+        --text-2xl: clamp(1.85rem, 1.45rem + 1.8vw, 2.65rem);
+        --text-display: clamp(2.15rem, 1.65rem + 2.6vw, 3.45rem);
+
+        /* Fluid Spacing */
+        --space-2xs: clamp(0.25rem, 0.2rem + 0.15vw, 0.375rem);
+        --space-xs: clamp(0.5rem, 0.45rem + 0.25vw, 0.625rem);
+        --space-sm: clamp(0.75rem, 0.68rem + 0.35vw, 1rem);
+        --space-md: clamp(1rem, 0.9rem + 0.5vw, 1.35rem);
+        --space-lg: clamp(1.5rem, 1.3rem + 1vw, 2.25rem);
+        --space-xl: clamp(2.25rem, 1.8rem + 2vw, 3.5rem);
+
+        /* Geometry */
+        --radius-sm: 0.45rem;
+        --radius-md: 0.85rem;
+        --radius-lg: 1.25rem;
+        --radius-pill: 999px;
+
+        /* Daylight Workshop Palette (Machined Alloy, Anodized Cobalt & Signal Amber) */
+        --bg-canvas: oklch(96.8% 0.008 245);
+        --bg-surface: oklch(99.2% 0.004 245);
+        --bg-elevated: oklch(94.2% 0.012 245);
+        --bg-sunken: oklch(91.2% 0.015 245);
+
+        --ink-primary: oklch(21.5% 0.025 250);
+        --ink-secondary: oklch(40.5% 0.022 250);
+        --ink-muted: oklch(52.5% 0.018 250);
+
+        /* Anodized Accents */
+        --accent-cobalt: oklch(51.5% 0.165 255);
+        --accent-racing: oklch(47.5% 0.135 152);
+        --accent-copper: oklch(55.5% 0.155 44);
+
+        --accent: var(--accent-cobalt);
+        --accent-ink: oklch(98.5% 0.005 250);
+
+        --status-ok: oklch(51% 0.135 152);
+        --status-warn: oklch(63% 0.155 72);
+        --status-danger: oklch(53% 0.185 26);
+
+        --border-subtle: color-mix(in oklch, var(--ink-primary) 13%, transparent);
+        --border-strong: color-mix(in oklch, var(--ink-primary) 26%, transparent);
+        --accent-soft: color-mix(in oklch, var(--accent) 12%, var(--bg-surface));
+        --accent-hover: color-mix(in oklch, var(--accent) 85%, black);
+
+        --shadow-sm: 0 1px 2px color-mix(in oklch, var(--ink-primary) 8%, transparent);
+        --shadow-md: 0 10px 26px -8px color-mix(in oklch, var(--ink-primary) 14%, transparent);
+        --shadow-lg: 0 22px 48px -12px color-mix(in oklch, var(--ink-primary) 22%, transparent);
+
+        --header-height: 4.35rem;
+        --container-max: 84rem;
+      }
+
+      :root[data-shop-accent="cobalt"] { --accent: var(--accent-cobalt); }
+      :root[data-shop-accent="racing"] { --accent: var(--accent-racing); }
+      :root[data-shop-accent="copper"] { --accent: var(--accent-copper); }
+
+      /* Night Stand / Carbon Pit Mode */
+      :root[data-theme="dark"] {
+        --bg-canvas: oklch(16.5% 0.016 250);
+        --bg-surface: oklch(20.5% 0.02 250);
+        --bg-elevated: oklch(24.5% 0.024 250);
+        --bg-sunken: oklch(13.5% 0.014 250);
+
+        --ink-primary: oklch(94.5% 0.01 245);
+        --ink-secondary: oklch(79.5% 0.015 245);
+        --ink-muted: oklch(66.5% 0.016 245);
+
+        --accent-cobalt: oklch(67.5% 0.155 252);
+        --accent-racing: oklch(67.5% 0.135 154);
+        --accent-copper: oklch(69.5% 0.15 48);
+
+        --accent-ink: oklch(15% 0.02 250);
+        --status-ok: oklch(68% 0.14 154);
+        --status-warn: oklch(75% 0.15 76);
+        --status-danger: oklch(66% 0.18 26);
+
+        --shadow-sm: 0 1px 3px oklch(4% 0.01 250 / 0.5);
+        --shadow-md: 0 12px 28px -8px oklch(4% 0.01 250 / 0.65);
+        --shadow-lg: 0 24px 52px -12px oklch(3% 0.01 250 / 0.8);
+      }
+
+      @media (prefers-contrast: more) {
+        :root {
+          --border-subtle: color-mix(in oklch, var(--ink-primary) 42%, transparent);
+          --border-strong: var(--ink-primary);
+        }
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       3. BASE LAYER
+       -------------------------------------------------------------------------- */
+    @layer base {
+      body {
+        background-color: var(--bg-canvas);
+        color: var(--ink-primary);
+        font-size: var(--text-base);
+        background-image:
+          radial-gradient(circle at 10% 6%, color-mix(in oklch, var(--accent) 8%, transparent) 0%, transparent 40%),
+          radial-gradient(circle at 90% 22%, color-mix(in oklch, var(--status-ok) 6%, transparent) 0%, transparent 36%);
+      }
+
+      h1, h2, h3 {
+        font-family: var(--font-display);
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        line-height: 1.14;
+        text-wrap: balance;
+      }
+
+      p {
+        text-wrap: pretty;
+        max-width: 68ch;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration-thickness: 1.5px;
+        text-underline-offset: 0.2em;
+      }
+
+      :focus-visible {
+        outline: 2.5px solid var(--accent);
+        outline-offset: 3px;
+        border-radius: 3px;
+      }
+
+      ::selection {
+        background: var(--accent);
+        color: var(--accent-ink);
+      }
+
+      .skip-link {
+        position: fixed;
+        top: -100%;
+        left: var(--space-sm);
+        z-index: 1000;
+        padding: var(--space-xs) var(--space-md);
+        background: var(--accent);
+        color: var(--accent-ink);
+        font-weight: 700;
+        border-radius: var(--radius-pill);
+        text-decoration: none;
+      }
+
+      .skip-link:focus {
+        top: var(--space-sm);
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       4. LAYOUT LAYER
+       -------------------------------------------------------------------------- */
+    @layer layout {
+      .app-shell {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        min-height: 100dvh;
+      }
+
+      .container {
+        width: min(100% - 2 * var(--space-md), var(--container-max));
+        margin-inline: auto;
+      }
+
+      .scroll-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--accent);
+        transform-origin: 0 50%;
+        transform: scaleX(0);
+        z-index: 95;
+        pointer-events: none;
+      }
+
+      @supports (animation-timeline: scroll()) {
+        .scroll-progress {
+          animation: grow-progress linear both;
+          animation-timeline: scroll(root block);
+        }
+      }
+
+      @keyframes grow-progress {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+      }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 60;
+        background: color-mix(in oklch, var(--bg-canvas) 86%, transparent);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .header-inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-sm);
+        min-height: var(--header-height);
+        padding-block: var(--space-xs);
+      }
+
+      .brand-lockup {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+        text-decoration: none;
+        color: var(--ink-primary);
+      }
+
+      .brand-title {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+      }
+
+      .brand-title strong {
+        font-size: var(--text-lg);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      .brand-title span {
+        font-size: var(--text-xs);
+        color: var(--ink-muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .primary-nav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.25rem;
+        background: var(--bg-elevated);
+        padding: 0.25rem;
+        border-radius: var(--radius-pill);
+        border: 1px solid var(--border-subtle);
+      }
+
+      .nav-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        min-height: 2.5rem;
+        padding-inline: 0.85rem;
+        border-radius: var(--radius-pill);
+        text-decoration: none;
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--ink-secondary);
+        transition: background-color 160ms ease, color 160ms ease;
+      }
+
+      .nav-link:hover {
+        color: var(--ink-primary);
+        background: color-mix(in oklch, var(--ink-primary) 6%, transparent);
+      }
+
+      .nav-link[aria-current="page"] {
+        background: var(--accent);
+        color: var(--accent-ink);
+        view-transition-name: active-nav-pill;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+      }
+
+      main {
+        padding-block: var(--space-lg) var(--space-xl);
+      }
+
+      .view-section {
+        display: grid;
+        gap: var(--space-lg);
+      }
+
+      .site-footer {
+        border-top: 1px solid var(--border-subtle);
+        background: var(--bg-elevated);
+        padding-block: var(--space-lg);
+        font-size: var(--text-sm);
+        color: var(--ink-secondary);
+      }
+
+      .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+        gap: var(--space-lg);
+        align-items: start;
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       5. COMPONENTS LAYER (Carousel, Scoped Catalog, Subgrid, Checkout, Popovers)
+       -------------------------------------------------------------------------- */
+    @layer components {
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        min-height: 2.75rem;
+        padding: 0.55rem 1.1rem;
+        border-radius: var(--radius-pill);
+        border: 1px solid var(--border-strong);
+        background: var(--bg-surface);
+        color: var(--ink-primary);
+        font-size: var(--text-sm);
+        font-weight: 600;
+        text-decoration: none;
+        transition: transform 140ms ease, background-color 160ms ease, border-color 160ms ease;
+      }
+
+      .btn:hover {
+        background: var(--bg-elevated);
+        border-color: var(--accent);
+      }
+
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: var(--accent-ink);
+        border-color: var(--accent);
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-hover);
+        color: var(--accent-ink);
+      }
+
+      .btn-ghost {
+        border-color: transparent;
+        background: transparent;
+      }
+
+      .btn-ghost:hover {
+        background: color-mix(in oklch, var(--ink-primary) 7%, transparent);
+      }
+
+      .btn-sm {
+        min-height: 2.25rem;
+        padding: 0.35rem 0.8rem;
+        font-size: var(--text-xs);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.2rem 0.65rem;
+        border-radius: var(--radius-pill);
+        font-size: var(--text-xs);
+        font-weight: 700;
+        background: var(--accent-soft);
+        color: var(--accent);
+        border: 1px solid color-mix(in oklch, var(--accent) 26%, transparent);
+      }
+
+      .badge-neutral {
+        background: var(--bg-elevated);
+        color: var(--ink-secondary);
+        border-color: var(--border-subtle);
+      }
+
+      .badge-ok {
+        background: color-mix(in oklch, var(--status-ok) 14%, var(--bg-surface));
+        color: var(--status-ok);
+        border-color: color-mix(in oklch, var(--status-ok) 30%, transparent);
+      }
+
+      .badge-warn {
+        background: color-mix(in oklch, var(--status-warn) 16%, var(--bg-surface));
+        color: var(--status-warn);
+        border-color: color-mix(in oklch, var(--status-warn) 32%, transparent);
+      }
+
+      .badge-danger {
+        background: color-mix(in oklch, var(--status-danger) 15%, var(--bg-surface));
+        color: var(--status-danger);
+        border-color: color-mix(in oklch, var(--status-danger) 30%, transparent);
+      }
+
+      /* Interactive CSS Scroll-Snap Carousel */
+      .carousel-shell {
+        position: relative;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: var(--space-lg);
+        box-shadow: var(--shadow-md);
+        display: grid;
+        gap: var(--space-md);
+      }
+
+      .carousel-track {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 100%;
+        gap: var(--space-md);
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        scrollbar-width: none;
+        border-radius: var(--radius-md);
+      }
+
+      .carousel-track::-webkit-scrollbar {
+        display: none;
+      }
+
+      .carousel-slide {
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+        padding: var(--space-md);
+        background: var(--bg-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        align-items: center;
+      }
+
+      @media (min-width: 54rem) {
+        .carousel-slide {
+          grid-template-columns: 1.15fr 0.85fr;
+          padding: var(--space-lg);
+        }
+      }
+
+      .carousel-controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-sm);
+      }
+
+      .carousel-dots {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      .carousel-dot {
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+        border-radius: var(--radius-pill);
+        border: 1px solid var(--border-strong);
+        background: var(--bg-surface);
+        display: grid;
+        place-items: center;
+      }
+
+      .carousel-dot::after {
+        content: "";
+        width: 0.55rem;
+        height: 0.55rem;
+        border-radius: 50%;
+        background: var(--ink-muted);
+        transition: transform 160ms ease, background-color 160ms ease;
+      }
+
+      .carousel-dot[aria-selected="true"] {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .carousel-dot[aria-selected="true"]::after {
+        background: var(--accent);
+        transform: scale(1.25);
+      }
+
+      /* @scope Bounded Catalog with Container Queries & Subgrid */
+      @scope (.catalog-scope) {
+        :scope {
+          display: grid;
+          gap: var(--space-md);
+        }
+
+        .filter-toolbar {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+          gap: var(--space-sm);
+          padding: var(--space-md);
+          background: var(--bg-surface);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-md);
+          align-items: end;
+        }
+
+        .product-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 18.5rem), 1fr));
+          gap: var(--space-md);
+        }
+
+        .card-container {
+          container-type: inline-size;
+          container-name: bike-card;
+          display: grid;
+          grid-row: span 4;
+        }
+
+        @supports (grid-template-rows: subgrid) {
+          .card-container {
+            grid-template-rows: subgrid;
+          }
+        }
+
+        .product-card {
+          display: grid;
+          grid-template-rows: auto 1fr auto auto;
+          gap: var(--space-sm);
+          padding: var(--space-md);
+          background: var(--bg-surface);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-md);
+          box-shadow: var(--shadow-sm);
+          transition: border-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .product-card:hover {
+          border-color: var(--accent);
+          box-shadow: var(--shadow-md);
+        }
+
+        .product-card:has([data-fav="true"]) {
+          border-color: color-mix(in oklch, var(--accent) 55%, var(--border-subtle));
+          background: color-mix(in oklch, var(--accent) 4%, var(--bg-surface));
+        }
+
+        @container bike-card (min-width: 24rem) {
+          .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: var(--space-sm);
+          }
+        }
+
+        @container style(--card-density: compact) {
+          .product-card {
+            padding: var(--space-sm);
+            gap: var(--space-xs);
+          }
+          .spec-pills {
+            display: none;
+          }
+        }
+
+        .spec-pills {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.35rem;
+        }
+
+        .card-meta-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: var(--space-xs);
+          padding-top: var(--space-xs);
+          border-top: 1px solid var(--border-subtle);
+          font-size: var(--text-xs);
+          color: var(--ink-secondary);
+          font-variant-numeric: tabular-nums;
+        }
+
+        .card-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.45rem;
+        }
+      }
+
+      /* Form Controls & Validation */
+      .field-group {
+        display: grid;
+        gap: 0.35rem;
+      }
+
+      .field-group label {
+        font-size: var(--text-xs);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--ink-secondary);
+      }
+
+      .control-input {
+        width: 100%;
+        min-height: 2.7rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-strong);
+        background: var(--bg-canvas);
+        color: var(--ink-primary);
+      }
+
+      .control-input:user-invalid {
+        border-color: var(--status-danger);
+      }
+
+      .control-input:user-valid {
+        border-color: var(--status-ok);
+      }
+
+      textarea.auto-grow {
+        field-sizing: content;
+        min-height: 4.5rem;
+        max-height: 12rem;
+      }
+
+      /* Panels, Workbench & Checkout Grid */
+      .panel-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: var(--space-lg);
+        box-shadow: var(--shadow-sm);
+        display: grid;
+        gap: var(--space-md);
+      }
+
+      .split-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+      }
+
+      @media (min-width: 60rem) {
+        .split-grid {
+          grid-template-columns: 1.15fr 0.85fr;
+          align-items: start;
+        }
+      }
+
+      .form-row-2 {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+      }
+
+      @media (min-width: 34rem) {
+        .form-row-2 {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .canvas-stage {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: var(--bg-sunken);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-subtle);
+        overflow: hidden;
+      }
+
+      .canvas-stage canvas {
+        width: 100%;
+        height: 100%;
+      }
+
+      .readout-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+        gap: var(--space-sm);
+      }
+
+      .readout-box {
+        background: var(--bg-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-sm);
+        padding: var(--space-sm);
+        display: grid;
+        gap: 0.2rem;
+      }
+
+      .readout-box span {
+        font-size: var(--text-xs);
+        color: var(--ink-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .readout-box strong {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: var(--text-lg);
+      }
+
+      /* Payment Gateway Card Preview */
+      .payment-card-visual {
+        padding: var(--space-md);
+        border-radius: var(--radius-md);
+        background: linear-gradient(135deg, var(--accent), color-mix(in oklch, var(--accent) 55%, black));
+        color: var(--accent-ink);
+        display: grid;
+        gap: var(--space-sm);
+        box-shadow: var(--shadow-md);
+      }
+
+      .payment-methods-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+      }
+
+      /* Native <dialog> & CSS Anchor Positioned [popover] */
+      dialog.shop-dialog {
+        margin: auto;
+        width: min(100% - 2rem, 38rem);
+        max-height: 88dvh;
+        overflow-y: auto;
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-lg);
+        background: var(--bg-surface);
+        color: var(--ink-primary);
+        padding: var(--space-lg);
+        box-shadow: var(--shadow-lg);
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        transition:
+          opacity 220ms ease,
+          transform 220ms ease,
+          overlay 220ms ease allow-discrete,
+          display 220ms ease allow-discrete;
+      }
+
+      dialog.shop-dialog::backdrop {
+        background: oklch(10% 0.02 250 / 0.6);
+        backdrop-filter: blur(4px);
+      }
+
+      @starting-style {
+        dialog.shop-dialog[open] {
+          opacity: 0;
+          transform: translateY(10px) scale(0.98);
+        }
+      }
+
+      .anchor-trigger {
+        anchor-name: --sizing-guide-btn;
+      }
+
+      .anchored-popover {
+        margin: 0;
+        inset: auto;
+        position: fixed;
+        top: calc(var(--header-height) + 0.5rem);
+        right: var(--space-md);
+        width: min(100vw - 2rem, 23rem);
+        padding: var(--space-md);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-strong);
+        background: var(--bg-surface);
+        color: var(--ink-primary);
+        box-shadow: var(--shadow-lg);
+        z-index: 80;
+      }
+
+      @supports (position-anchor: --sizing-guide-btn) and (position-area: bottom span-left) {
+        .anchored-popover {
+          position: absolute;
+          top: auto;
+          right: auto;
+          position-anchor: --sizing-guide-btn;
+          position-area: bottom span-left;
+          margin-top: 0.45rem;
+          position-try-fallbacks: flip-block, flip-inline;
+        }
+      }
+
+      .toast-banner {
+        position: fixed;
+        bottom: var(--space-md);
+        right: var(--space-md);
+        z-index: 95;
+        max-width: min(100vw - 2rem, 24rem);
+        padding: var(--space-sm) var(--space-md);
+        border-radius: var(--radius-md);
+        background: var(--ink-primary);
+        color: var(--bg-surface);
+        font-size: var(--text-sm);
+        font-weight: 600;
+        box-shadow: var(--shadow-lg);
+        display: none;
+      }
+
+      .toast-banner.is-visible {
+        display: block;
+      }
+
+      .cap-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--text-sm);
+      }
+
+      .cap-table th, .cap-table td {
+        text-align: left;
+        padding: 0.6rem 0.75rem;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .cap-table th {
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--ink-muted);
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       6. UTILITIES LAYER
+       -------------------------------------------------------------------------- */
+    @layer utilities {
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .cluster {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-xs);
+      }
+
+      .between {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-sm);
+      }
+
+      .stack-sm { display: grid; gap: var(--space-xs); }
+      .stack-md { display: grid; gap: var(--space-md); }
+      .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+      .muted { color: var(--ink-secondary); }
+      .small { font-size: var(--text-sm); }
+    }
+
+    /* --------------------------------------------------------------------------
+       7. MOTION LAYER
+       -------------------------------------------------------------------------- */
+    @layer motion {
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 210ms;
+        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="scroll-progress" aria-hidden="true"></div>
+
+  <div id="live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  <div id="toast-banner" class="toast-banner" role="status" aria-live="polite"></div>
+
+  <div class="app-shell">
+    <!-- Persistent Header -->
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="#/shop" class="brand-lockup" data-route="/shop" aria-label="Pennine & Chain Cycles Home">
+          <svg width="38" height="38" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <rect x="3" y="3" width="42" height="42" rx="12" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2.2"/>
+            <circle cx="16" cy="30" r="7" stroke="var(--accent)" stroke-width="2.2"/>
+            <circle cx="33" cy="30" r="7" stroke="var(--accent)" stroke-width="2.2"/>
+            <path d="M16 30L22 19H30L33 30M22 19L25 30H16M29 16H32" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="brand-title">
+            <strong>Pennine &amp; Chain</strong>
+            <span>Cycles &amp; Frame Workshop</span>
+          </span>
+        </a>
+
+        <nav class="primary-nav" aria-label="Primary sections">
+          <a href="#/shop" class="nav-link" data-route="/shop">Showroom</a>
+          <a href="#/catalog" class="nav-link" data-route="/catalog">Bikes &amp; Parts</a>
+          <a href="#/gear-lab" class="nav-link" data-route="/gear-lab">Drivetrain Lab</a>
+          <a href="#/basket" class="nav-link" data-route="/basket">
+            Basket <span id="basket-count-badge" class="badge badge-neutral">0</span>
+          </a>
+          <a href="#/checkout" class="nav-link" data-route="/checkout">Checkout</a>
+          <a href="#/workshop" class="nav-link" data-route="/workshop">Workshop &amp; System</a>
+        </nav>
+
+        <div class="header-actions">
+          <button
+            type="button"
+            class="btn btn-sm anchor-trigger"
+            popovertarget="sizing-guide-popover"
+            aria-label="Frame sizing guide">
+            Frame Sizing
+          </button>
+          <button
+            type="button"
+            id="theme-toggle-btn"
+            class="btn btn-sm"
+            aria-label="Toggle daylight or night stand mode">
+            <span id="theme-toggle-label">Night Stand</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- CSS Anchor-Positioned Popover -->
+    <div id="sizing-guide-popover" popover="auto" class="anchored-popover">
+      <div class="stack-sm">
+        <div class="between">
+          <strong>Quick Frame Geometry Guide</strong>
+          <button type="button" class="btn btn-ghost btn-sm" popovertarget="sizing-guide-popover" popovertargetaction="hide" aria-label="Close sizing guide">✕</button>
+        </div>
+        <p class="small mono"><strong>52 cm (S):</strong> Rider 162–170 cm · Inseam 74–78 cm</p>
+        <p class="small mono"><strong>54 cm (M):</strong> Rider 170–178 cm · Inseam 78–82 cm</p>
+        <p class="small mono"><strong>56 cm (L):</strong> Rider 178–186 cm · Inseam 82–86 cm</p>
+        <p class="small mono"><strong>58 cm (XL):</strong> Rider 186–194 cm · Inseam 86–91 cm</p>
+        <p class="small muted">Every complete bike includes a 45-minute static jig fit at collection.</p>
+      </div>
+    </div>
+
+    <!-- Main SPA Stage -->
+    <main id="main-content" class="container" tabindex="-1"></main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div class="stack-sm">
+          <strong>Pennine &amp; Chain Cycles</strong>
+          <p class="small muted">
+            Independent steel &amp; alloy frame studio, wheel-building bench, and commuter workshop in Chorlton, Manchester. Open Tue–Sun 09:00–18:00.
+          </p>
+        </div>
+        <div class="stack-sm">
+          <strong>Workshop Stand Availability</strong>
+          <p class="small mono">Full Strip &amp; Rebuild: Next slot Thu 10:30</p>
+          <p class="small mono">Handbuilt Wheel Truing: Same-day drop-in</p>
+        </div>
+        <div class="stack-sm">
+          <strong>Zero-Dependency Architecture</strong>
+          <p class="small muted">
+            Pure native HTML5, modern CSS (<span class="mono">@layer</span>, <span class="mono">oklch()</span>, <span class="mono">@scope</span>, scroll-snap carousel), and vanilla ES modules.
+          </p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Native <dialog> for Product Specs & Order Receipt -->
+  <dialog id="shop-dialog" class="shop-dialog" aria-labelledby="dialog-title">
+    <div id="dialog-body" class="stack-md"></div>
+  </dialog>
+
+  <script type="module">
+    /* ========================================================================
+       MODULE 1: UTILITIES, VALIDATION & PLATFORM CAPABILITY DETECTION
+       ======================================================================== */
+    const STORAGE_KEY = 'pennine_chain_cycles_v1';
+
+    const Utils = {
+      formatCurrency(amount) {
+        try {
+          return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount);
+        } catch {
+          return `£${Number(amount).toFixed(2)}`;
+        }
+      },
+
+      sumPrecise(numbers) {
+        if (typeof Math.sumPrecise === 'function') {
+          return Math.sumPrecise(numbers);
+        }
+        return numbers.reduce((acc, n) => acc + n, 0);
+      },
+
+      el(tag, attrs = {}, children = []) {
+        const node = document.createElement(tag);
+        for (const [key, val] of Object.entries(attrs)) {
+          if (val === null || val === undefined || val === false) continue;
+          if (key === 'className') {
+            node.className = val;
+          } else if (key === 'textContent') {
+            node.textContent = val;
+          } else if (key === 'dataset') {
+            for (const [dKey, dVal] of Object.entries(val)) {
+              node.dataset[dKey] = String(dVal);
+            }
+          } else if (key.startsWith('on') && typeof val === 'function') {
+            node.addEventListener(key.slice(2).toLowerCase(), val);
+          } else {
+            node.setAttribute(key, val === true ? '' : String(val));
+          }
+        }
+        const childList = Array.isArray(children) ? children : [children];
+        for (const child of childList) {
+          if (child === null || child === undefined || child === false) continue;
+          node.append(child instanceof Node ? child : document.createTextNode(String(child)));
+        }
+        return node;
+      },
+
+      prefersReducedMotion() {
+        return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+      },
+
+      luhnCheck(cardDigits) {
+        const clean = cardDigits.replace(/\D/g, '');
+        if (clean.length < 13 || clean.length > 19) return false;
+        let sum = 0;
+        let alt = false;
+        for (let i = clean.length - 1; i >= 0; i--) {
+          let n = parseInt(clean[i], 10);
+          if (alt) {
+            n *= 2;
+            if (n > 9) n -= 9;
+          }
+          sum += n;
+          alt = !alt;
+        }
+        return sum % 10 === 0;
+      },
+
+      detectCardBrand(digits) {
+        const clean = digits.replace(/\D/g, '');
+        if (/^4/.test(clean)) return 'Visa';
+        if (/^(5[1-5]|2[2-7])/.test(clean)) return 'Mastercard';
+        if (/^3[47]/.test(clean)) return 'American Express';
+        return 'Debit / Credit Card';
+      },
+
+      formatCardNumber(raw) {
+        const digits = raw.replace(/\D/g, '').slice(0, 16);
+        return digits.replace(/(.{4})/g, '$1 ').trim();
+      },
+
+      detectCapabilities() {
+        const cssSupports = (prop, val) => {
+          try {
+            return typeof CSS !== 'undefined' && typeof CSS.supports === 'function' && CSS.supports(prop, val);
+          } catch {
+            return false;
+          }
+        };
+
+        let storageOk = false;
+        try {
+          localStorage.setItem('__pc_probe__', '1');
+          localStorage.removeItem('__pc_probe__');
+          storageOk = true;
+        } catch {
+          storageOk = false;
+        }
+
+        return [
+          {
+            name: 'CSS Scroll Snap Carousel',
+            supported: cssSupports('scroll-snap-type', 'x mandatory'),
+            role: 'Powers hardware-accelerated swipe and keyboard-controlled showroom slides.'
+          },
+          {
+            name: 'View Transitions API',
+            supported: typeof document.startViewTransition === 'function',
+            role: 'Animates transitions between showroom, catalog, basket, and checkout.'
+          },
+          {
+            name: 'Scroll-Driven Animations',
+            supported: cssSupports('animation-timeline', 'scroll()'),
+            role: 'Drives the top scroll progress indicator without main-thread scroll listeners.'
+          },
+          {
+            name: 'Container Size & Style Queries',
+            supported: cssSupports('container-type', 'inline-size'),
+            role: 'Adapts product cards to column width and editorial/compact density tokens.'
+          },
+          {
+            name: 'CSS Subgrid & @scope',
+            supported: cssSupports('grid-template-rows', 'subgrid') && typeof CSSScopeRule !== 'undefined',
+            role: 'Aligns component specs and pricing rows across cards with scoped styles.'
+          },
+          {
+            name: 'CSS Anchor Positioning & Popover',
+            supported: cssSupports('position-anchor', '--a') && HTMLElement.prototype.hasOwnProperty('popover'),
+            role: 'Anchors the Frame Sizing Guide popover beneath its header trigger.'
+          },
+          {
+            name: 'Native <dialog> & @starting-style',
+            supported: typeof HTMLDialogElement !== 'undefined',
+            role: 'Renders top-layer build specs and payment confirmation receipts.'
+          },
+          {
+            name: 'oklch() & color-mix()',
+            supported: cssSupports('color', 'oklch(60% 0.15 250)') && cssSupports('color', 'color-mix(in oklch, red, blue)'),
+            role: 'Computes anodized workshop accents and high-contrast surfaces dynamically.'
+          },
+          {
+            name: 'Canvas 2D & ResizeObserver',
+            supported: !!document.createElement('canvas').getContext && typeof ResizeObserver !== 'undefined',
+            role: 'Renders the real-time chainring/cog gear-ratio & wheel velocity simulator.'
+          },
+          {
+            name: 'localStorage Persistence',
+            supported: storageOk,
+            role: 'Saves shopping basket items, promo codes, saved builds, and order receipts.'
+          }
+        ];
+      }
+    };
+
+    /* ========================================================================
+       MODULE 2: CURATED BIKE SHOP CATALOG (12 Complete Bikes, Parts & Workshop)
+       ======================================================================== */
+    const CATALOG_ITEMS = [
+      {
+        id: 'bike-kinder-gravel',
+        sku: 'PC-FRM-01',
+        name: 'Kinder Scout Reynolds 853 Gravel',
+        category: 'Complete Bikes',
+        discipline: 'Gravel & Bikepacking',
+        material: 'Reynolds 853 Steel',
+        weightKg: 9.6,
+        price: 2150.00,
+        stock: 3,
+        badge: 'Workshop Flagship',
+        specs: ['GRX 820 1x12', '700x45c Clearance', 'Handbuilt 32H Wheels', 'Dynamo Routing'],
+        options: ['52 cm (S)', '54 cm (M)', '56 cm (L)', '58 cm (XL)'],
+        description: 'Brazed in small batches for Peak District gritstone bridleways and multi-day audax tours, complete with custom rack mounts and brass headbadge.'
+      },
+      {
+        id: 'bike-mersey-commuter',
+        sku: 'PC-FRM-02',
+        name: 'Mersey Belt-Drive All-Weather',
+        category: 'Complete Bikes',
+        discipline: 'Urban & Commuter',
+        material: '6061-T6 Hydroformed Alloy',
+        weightKg: 11.2,
+        price: 1380.00,
+        stock: 5,
+        badge: 'Zero-Grease Belt',
+        specs: ['Gates Carbon CDX', 'Shimano Alfine 8 Hub', 'Full Alloy Mudguards', 'Hydraulic Discs'],
+        options: ['50 cm (S)', '54 cm (M)', '58 cm (L)'],
+        description: 'Built for year-round Northern rain: silent Gates belt drive, sealed internal hub gearing, and puncture-armoured 38 mm tyres.'
+      },
+      {
+        id: 'bike-cat-fiddle-road',
+        sku: 'PC-FRM-03',
+        name: 'Cat & Fiddle Endurance Road',
+        category: 'Complete Bikes',
+        discipline: 'All-Road & Endurance',
+        material: 'Columbus Zona Steel',
+        weightKg: 8.8,
+        price: 2490.00,
+        stock: 2,
+        badge: 'Custom Paint',
+        specs: ['Shimano 105 Di2 2x12', '35 mm Tyre Clearance', 'Carbon Fork', 'DT Swiss E1800'],
+        options: ['52 cm (S)', '54 cm (M)', '56 cm (L)'],
+        description: 'Supple double-butted steel geometry tuned for 200 km sportive days over high moorland passes without road buzz.'
+      },
+      {
+        id: 'part-handbuilt-wheelset',
+        sku: 'PC-WHL-04',
+        name: 'Pennine 32H Dynamo All-Road Wheelset',
+        category: 'Wheels & Tyres',
+        discipline: 'Gravel & Touring',
+        material: 'Welded Alloy Rim / Brass Nipples',
+        weightKg: 1.74,
+        price: 540.00,
+        stock: 4,
+        badge: 'Hand-Laced In-House',
+        specs: ['SON 28 Dynamo Hub', 'Sapim Race Spokes', '24 mm Internal Width', 'Tubeless Taped'],
+        options: ['700c Centerlock', '650b Centerlock'],
+        description: 'Hand-tensioned to within 3% spoke variance on our workshop truing stand, paired with a German SON 28 dynamo front hub.'
+      },
+      {
+        id: 'part-gravel-tyre-pair',
+        sku: 'PC-TYR-05',
+        name: 'Gritstone TLR 42 mm Tanwall Pair',
+        category: 'Wheels & Tyres',
+        discipline: 'Gravel & Bikepacking',
+        material: '120 TPI Supple Casing',
+        weightKg: 0.92,
+        price: 96.00,
+        stock: 14,
+        badge: 'Tubeless Ready',
+        specs: ['700x42c', 'Aramid Bead Guard', 'Dual-Compound Tread', 'Includes Sealant'],
+        options: ['700x40c', '700x42c', '700x45c'],
+        description: 'Fast-rolling centre file tread with aggressive shoulder knobs for loose slate descents and wet tarmac.'
+      },
+      {
+        id: 'part-leather-saddle',
+        sku: 'PC-CMP-06',
+        name: 'Peak B17 Carved Copper-Rivet Saddle',
+        category: 'Components',
+        discipline: 'Touring & Commuter',
+        material: 'Vegetable-Tanned Hide / Steel Rails',
+        weightKg: 0.52,
+        price: 125.00,
+        stock: 8,
+        badge: 'Heritage Classic',
+        specs: ['Hand-Hammered Copper', 'Pressure Relief Cutout', 'Tension Spanner Included', '10-Yr Warranty'],
+        options: ['Honey Tan', 'Aged Dark Brown', 'Obsidian Black'],
+        description: 'Moulds progressively to your sit-bones over the first 500 km for unmatched long-distance touring comfort.'
+      },
+      {
+        id: 'part-wax-chain-kit',
+        sku: 'PC-CMP-07',
+        name: 'Dry-Film Hot-Melt Chain Wax Kit',
+        category: 'Components',
+        discipline: 'Drivetrain Care',
+        material: 'Refined Paraffin + PTFE-Free Tungsten',
+        weightKg: 0.65,
+        price: 42.00,
+        stock: 19,
+        badge: 'Workshop Pick',
+        specs: ['500g Pellet Tin', 'Swisher Immersion Hook', '400 km Per Dip', 'Zero Black Grease'],
+        options: ['Standard 500g Kit', 'Refill Block Only'],
+        description: 'Extends chain and cassette life up to 3x while keeping drivetrain components spotless to the touch.'
+      },
+      {
+        id: 'part-cnc-pedals',
+        sku: 'PC-CMP-08',
+        name: 'Millstone CNC Flat Platform Pedals',
+        category: 'Components',
+        discipline: 'MTB & Commuter',
+        material: '7075 Machined Aluminium / CrMo Axle',
+        weightKg: 0.36,
+        price: 88.00,
+        stock: 11,
+        badge: 'Serviceable Bearings',
+        specs: ['10 Replaceable Pins/Side', '3 Sealed Cartridge Bearings', '105x100 mm Platform', 'Rebuild Kit Ready'],
+        options: ['Anodized Cobalt', 'Raw Silver', 'Hard Black'],
+        description: 'Concave 14 mm slim profile with fully rebuildable internals and grippy replaceable traction pins.'
+      },
+      {
+        id: 'gear-waterproof-pannier',
+        sku: 'PC-BAG-09',
+        name: 'Canal-Lock 20L Roll-Top Pannier',
+        category: 'Bags & Apparel',
+        discipline: 'Urban & Touring',
+        material: 'RF-Welded Recycled Ripstop',
+        weightKg: 0.84,
+        price: 79.00,
+        stock: 9,
+        badge: 'IPX6 Waterproof',
+        specs: ['20L Capacity', '16" Padded Laptop Sleeve', 'Quick-Lock Rail Hooks', '360° Reflective Trim'],
+        options: ['Slate Grey', 'Signal Rust', 'Deep Navy'],
+        description: 'Seam-welded commuter pannier that snaps securely onto 8–16 mm rear racks and converts to a shoulder bag off the bike.'
+      },
+      {
+        id: 'gear-dynamo-light-set',
+        sku: 'PC-LGT-10',
+        name: 'Beacon 90-Lux StVZO Dynamo Lamp Set',
+        category: 'Bags & Apparel',
+        discipline: 'All-Weather Visibility',
+        material: 'CNC Alloy Housing',
+        weightKg: 0.21,
+        price: 115.00,
+        stock: 6,
+        badge: 'Standlight Capacitor',
+        specs: ['90 Lux Cutoff Beam', '4-Min Standlight', 'Fork Crown Bracket', 'Rear Mudguard LED'],
+        options: ['Fork Crown Mount', 'Handlebar Out-Front'],
+        description: 'Sharp horizontal beam cutoff illuminates unlit towpaths without dazzling oncoming riders or drivers.'
+      },
+      {
+        id: 'srv-winter-overhaul',
+        sku: 'PC-SRV-11',
+        name: 'Full Strip, Ultrasonic Clean & Rebuild',
+        category: 'Workshop Service',
+        discipline: 'Workshop Bench',
+        material: 'Includes New Cables & Bar Tape',
+        weightKg: 0,
+        price: 145.00,
+        stock: 99,
+        badge: 'Bookable Slot',
+        specs: ['Frame & Fork Alignment Check', 'Hub & BB Bearing Grease', 'Wheel Truing on Stand', 'Torque Spec Sign-Off'],
+        options: ['Road / Gravel Bike', 'Commuter / Hybrid', 'E-Bike System'],
+        description: 'Complete bare-frame teardown, ultrasonic drivetrain bath, fresh stainless inner/outer cables, and precision indexing.'
+      },
+      {
+        id: 'srv-wheel-build',
+        sku: 'PC-SRV-12',
+        name: 'Custom Pair Handbuilt Wheel Labour',
+        category: 'Workshop Service',
+        discipline: 'Workshop Bench',
+        material: 'Includes Tension Chart Printout',
+        weightKg: 0,
+        price: 110.00,
+        stock: 99,
+        badge: 'Master Wheelbuilder',
+        specs: ['Spoke Length Calculation', '3x Stress-Relieved Lacing', 'Lateral <0.15 mm', 'Radial <0.20 mm'],
+        options: ['Standard 28H/32H Pair', 'Tandem / Cargo 36H Pair'],
+        description: 'Bring your hubs and rims or pair with our stock components for a lifetime-trued custom wheelset.'
+      }
+    ];
+
+    const CAROUSEL_SLIDES = [
+      {
+        id: 'slide-1',
+        eyebrow: '2026 Handbuilt Frame Series',
+        title: 'Kinder Scout Reynolds 853 Gravel',
+        subtitle: 'Air-hardened British steel tubing brazed for rocky Peak District descents, 45 mm tubeless tyres, and all-day mechanical reliability.',
+        ctaLabel: 'Inspect Build Specs',
+        ctaAction: { type: 'item', itemId: 'bike-kinder-gravel' },
+        secondaryLabel: 'Add Complete Bike (£2,150)',
+        secondaryAction: { type: 'basket', itemId: 'bike-kinder-gravel', option: '54 cm (M)' },
+        stats: [
+          { label: 'Frame Tubing', value: 'Reynolds 853' },
+          { label: 'Complete Weight', value: '9.6 kg' },
+          { label: 'Tyre Clearance', value: '700 × 45c' }
+        ],
+        accentColor: '#2563eb'
+      },
+      {
+        id: 'slide-2',
+        eyebrow: 'Interactive Engineering Tool',
+        title: 'Dial In Your Climb & Cadence Ratios',
+        subtitle: 'Test chainring and cassette combinations live on our canvas drivetrain bench—calculate gear inches, metres of development, and speed at 90 RPM.',
+        ctaLabel: 'Open Drivetrain Lab',
+        ctaAction: { type: 'route', route: '/gear-lab' },
+        secondaryLabel: 'Browse Components',
+        secondaryAction: { type: 'route', route: '/catalog' },
+        stats: [
+          { label: 'Chainring Range', value: '30T – 54T' },
+          { label: 'Cassette Cog', value: '10T – 52T' },
+          { label: 'Live Telemetry', value: '60 FPS Canvas' }
+        ],
+        accentColor: '#16a34a'
+      },
+      {
+        id: 'slide-3',
+        eyebrow: 'Manchester Workshop Bench',
+        title: 'Winter Strip, Ultrasonic Bath & Rebuild',
+        subtitle: 'Book a full mechanical overhaul online, add parts to your basket, and check out seamlessly with instant workshop voucher confirmation.',
+        ctaLabel: 'Add Service to Basket (£145)',
+        ctaAction: { type: 'basket', itemId: 'srv-winter-overhaul', option: 'Road / Gravel Bike' },
+        secondaryLabel: 'Explore All Services',
+        secondaryAction: { type: 'route', route: '/catalog' },
+        stats: [
+          { label: 'Turnaround', value: '48 Hours' },
+          { label: 'Truing Tolerance', value: '< 0.15 mm' },
+          { label: 'Next Bench Slot', value: 'Thursday 10:30' }
+        ],
+        accentColor: '#d97706'
+      }
+    ];
+
+    /* ========================================================================
+       MODULE 3: CENTRALIZED REACTIVE STORE (Basket, Checkout, Orders, Gear Lab)
+       ======================================================================== */
+    class BikeShopStore extends EventTarget {
+      constructor() {
+        super();
+        const saved = this.#load();
+        this.state = {
+          route: '/shop',
+          theme: saved.theme ?? (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
+          shopAccent: saved.shopAccent ?? 'cobalt',
+          cardDensity: saved.cardDensity ?? 'editorial',
+          activeSlide: 0,
+          favorites: new Set(saved.favorites ?? ['bike-kinder-gravel', 'part-handbuilt-wheelset']),
+          basket: saved.basket ?? [
+            { itemId: 'part-gravel-tyre-pair', option: '700x42c', qty: 1 },
+            { itemId: 'part-wax-chain-kit', option: 'Standard 500g Kit', qty: 1 }
+          ],
+          promoCode: saved.promoCode ?? '',
+          shippingMethod: saved.shippingMethod ?? 'collection',
+          filters: {
+            search: '',
+            category: 'all',
+            sortBy: 'featured',
+            onlyFavorites: false
+          },
+          gearLab: saved.gearLab ?? {
+            chainring: 42,
+            cog: 18,
+            wheelDiameterMm: 698,
+            cadenceRpm: 88,
+            crankLengthMm: 172.5,
+            isSpinning: true
+          },
+          orders: saved.orders ?? []
+        };
+        this.#applyAppearance();
+      }
+
+      #load() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : {};
+        } catch {
+          return {};
+        }
+      }
+
+      #persist() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            version: 1,
+            theme: this.state.theme,
+            shopAccent: this.state.shopAccent,
+            cardDensity: this.state.cardDensity,
+            favorites: Array.from(this.state.favorites),
+            basket: this.state.basket,
+            promoCode: this.state.promoCode,
+            shippingMethod: this.state.shippingMethod,
+            gearLab: this.state.gearLab,
+            orders: this.state.orders
+          }));
+        } catch {
+          // Safe fallback if storage is blocked
+        }
+      }
+
+      #applyAppearance() {
+        document.documentElement.dataset.theme = this.state.theme;
+        document.documentElement.dataset.shopAccent = this.state.shopAccent;
+      }
+
+      emit(type = 'change', detail = {}) {
+        this.#applyAppearance();
+        this.#persist();
+        this.dispatchEvent(new CustomEvent(type, { detail }));
+      }
+
+      announce(msg, showToast = false) {
+        const announcer = document.getElementById('live-announcer');
+        if (announcer) {
+          announcer.textContent = '';
+          requestAnimationFrame(() => { announcer.textContent = msg; });
+        }
+        if (showToast) {
+          const toast = document.getElementById('toast-banner');
+          if (toast) {
+            toast.textContent = msg;
+            toast.classList.add('is-visible');
+            clearTimeout(this._toastTimer);
+            this._toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3200);
+          }
+        }
+      }
+
+      setRoute(route) {
+        this.state.route = route;
+        this.emit('route', { route });
+      }
+
+      toggleTheme() {
+        this.state.theme = this.state.theme === 'light' ? 'dark' : 'light';
+        this.emit('appearance');
+        this.announce(`Switched to ${this.state.theme === 'dark' ? 'Night Stand' : 'Daylight Workshop'} mode`, true);
+      }
+
+      setShopAccent(accent) {
+        this.state.shopAccent = accent;
+        this.emit('appearance');
+      }
+
+      setCardDensity(density) {
+        this.state.cardDensity = density;
+        this.emit('catalog');
+      }
+
+      updateFilters(patch) {
+        Object.assign(this.state.filters, patch);
+        this.emit('catalog');
+      }
+
+      toggleFavorite(itemId) {
+        if (this.state.favorites.has(itemId)) {
+          this.state.favorites.delete(itemId);
+          this.announce('Removed from saved builds', true);
+        } else {
+          this.state.favorites.add(itemId);
+          this.announce('Saved to wishlist', true);
+        }
+        this.emit('catalog');
+      }
+
+      addToBasket(itemId, option = null, qty = 1) {
+        const product = CATALOG_ITEMS.find((p) => p.id === itemId);
+        if (!product) return;
+        const resolvedOption = option || product.options[0] || 'Standard';
+        const existing = this.state.basket.find(
+          (line) => line.itemId === itemId && line.option === resolvedOption
+        );
+        if (existing) {
+          existing.qty += qty;
+        } else {
+          this.state.basket.push({ itemId, option: resolvedOption, qty });
+        }
+        this.emit('basket');
+        this.announce(`Added ${product.name} (${resolvedOption}) to basket`, true);
+      }
+
+      updateBasketQty(index, delta) {
+        const line = this.state.basket[index];
+        if (!line) return;
+        line.qty += delta;
+        if (line.qty <= 0) {
+          this.state.basket.splice(index, 1);
+        }
+        this.emit('basket');
+      }
+
+      removeBasketLine(index) {
+        this.state.basket.splice(index, 1);
+        this.emit('basket');
+        this.announce('Item removed from basket', true);
+      }
+
+      setPromoCode(code) {
+        this.state.promoCode = code.trim().toUpperCase();
+        this.emit('basket');
+      }
+
+      setShippingMethod(method) {
+        this.state.shippingMethod = method;
+        this.emit('basket');
+      }
+
+      getBasketTotals() {
+        const lines = this.state.basket.map((entry, idx) => {
+          const product = CATALOG_ITEMS.find((p) => p.id === entry.itemId);
+          if (!product) return null;
+          const lineTotal = product.price * entry.qty;
+          return { entry, idx, product, lineTotal };
+        }).filter(Boolean);
+
+        const subtotal = Utils.sumPrecise(lines.map((l) => l.lineTotal));
+        const validPromos = {
+          'PENNINE10': 0.10,
+          'CLUB15': 0.15
+        };
+        const discountRate = validPromos[this.state.promoCode] ?? 0;
+        const discount = Number((subtotal * discountRate).toFixed(2));
+        const afterDiscount = Math.max(0, subtotal - discount);
+
+        const shippingCost =
+          lines.length === 0 ? 0 :
+          this.state.shippingMethod === 'collection' ? 0 :
+          this.state.shippingMethod === 'courier' ? (afterDiscount >= 100 ? 0 : 6.50) :
+          18.00; // Bike box insured freight
+
+        const total = Number((afterDiscount + shippingCost).toFixed(2));
+        const vatIncluded = Number((total - total / 1.2).toFixed(2));
+
+        return {
+          lines,
+          itemCount: Utils.sumPrecise(lines.map((l) => l.entry.qty)),
+          subtotal,
+          discountRate,
+          discount,
+          shippingCost,
+          total,
+          vatIncluded
+        };
+      }
+
+      completeOrder(orderRecord) {
+        this.state.orders.unshift(orderRecord);
+        this.state.basket = [];
+        this.state.promoCode = '';
+        this.emit('basket');
+        this.announce(`Payment authorized — Order ${orderRecord.orderNumber} confirmed`, true);
+      }
+
+      updateGearLab(patch) {
+        Object.assign(this.state.gearLab, patch);
+        this.emit('gearlab');
+      }
+
+      resetShopData() {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {
+          // ignore
+        }
+        location.reload();
+      }
+    }
+
+    const store = new BikeShopStore();
+
+    /* ========================================================================
+       MODULE 4: DRIVETRAIN & GEAR RATIO PHYSICS + CANVAS SIMULATOR
+       ======================================================================== */
+    function calculateDrivetrainMetrics(lab) {
+      const ratio = lab.chainring / Math.max(1, lab.cog);
+      const wheelDiameterInches = lab.wheelDiameterMm / 25.4;
+      const wheelCircumferenceM = (lab.wheelDiameterMm / 1000) * Math.PI;
+      const gearInches = Number((ratio * wheelDiameterInches).toFixed(1));
+      const developmentM = Number((ratio * wheelCircumferenceM).toFixed(2));
+      const speedKmh = Number(((developmentM * lab.cadenceRpm * 60) / 1000).toFixed(1));
+      const speedMph = Number((speedKmh * 0.621371).toFixed(1));
+      const gainRatio = Number(((lab.wheelDiameterMm / 2 / lab.crankLengthMm) * ratio).toFixed(2));
+
+      let terrainLabel = 'Rolling Valley & Tempo';
+      if (gearInches < 45) terrainLabel = 'Steep Climb / Loaded Bikepacking';
+      else if (gearInches > 85) terrainLabel = 'Fast Descent / Peloton Sprint';
+
+      return {
+        ratio: ratio.toFixed(2),
+        gearInches,
+        developmentM,
+        speedKmh,
+        speedMph,
+        gainRatio,
+        terrainLabel
+      };
+    }
+
+    class DrivetrainCanvasController {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.rafId = null;
+        this.isVisible = true;
+        this.angle = 0;
+
+        this.resizeObserver = new ResizeObserver(() => this.resize());
+        this.resizeObserver.observe(canvas);
+
+        this.intersectionObserver = new IntersectionObserver((entries) => {
+          this.isVisible = entries[0]?.isIntersecting ?? true;
+          if (this.isVisible && !this.rafId) this.start();
+        });
+        this.intersectionObserver.observe(canvas);
+
+        this.resize();
+        this.start();
+      }
+
+      resize() {
+        const rect = this.canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+        this.canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+        this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        this.width = rect.width;
+        this.height = rect.height;
+        this.draw();
+      }
+
+      start() {
+        if (Utils.prefersReducedMotion()) {
+          this.draw();
+          return;
+        }
+        const loop = () => {
+          if (!document.body.contains(this.canvas)) {
+            this.destroy();
+            return;
+          }
+          if (this.isVisible && !document.hidden) {
+            if (store.state.gearLab.isSpinning) {
+              this.angle += (store.state.gearLab.cadenceRpm / 60) * 0.055;
+            }
+            this.draw();
+          }
+          this.rafId = requestAnimationFrame(loop);
+        };
+        this.rafId = requestAnimationFrame(loop);
+      }
+
+      drawGear(cx, cy, radius, teeth, rotation, strokeColor, fillColor) {
+        const { ctx } = this;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(rotation);
+
+        ctx.beginPath();
+        const step = (Math.PI * 2) / teeth;
+        for (let i = 0; i < teeth; i++) {
+          const a0 = i * step;
+          const a1 = a0 + step * 0.45;
+          const rOuter = radius + 4.5;
+          const rInner = radius - 3;
+          ctx.lineTo(Math.cos(a0) * rInner, Math.sin(a0) * rInner);
+          ctx.lineTo(Math.cos(a0 + step * 0.12) * rOuter, Math.sin(a0 + step * 0.12) * rOuter);
+          ctx.lineTo(Math.cos(a1) * rOuter, Math.sin(a1) * rOuter);
+          ctx.lineTo(Math.cos(a1 + step * 0.12) * rInner, Math.sin(a1 + step * 0.12) * rInner);
+        }
+        ctx.closePath();
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+        ctx.lineWidth = 1.8;
+        ctx.strokeStyle = strokeColor;
+        ctx.stroke();
+
+        // Spider arms
+        ctx.beginPath();
+        for (let s = 0; s < 5; s++) {
+          const sa = (s * Math.PI * 2) / 5;
+          ctx.moveTo(0, 0);
+          ctx.lineTo(Math.cos(sa) * (radius * 0.72), Math.sin(sa) * (radius * 0.72));
+        }
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, Math.max(8, radius * 0.22), 0, Math.PI * 2);
+        ctx.fillStyle = strokeColor;
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      draw() {
+        const { ctx, width: w, height: h } = this;
+        if (!ctx || !w || !h) return;
+
+        const lab = store.state.gearLab;
+        const metrics = calculateDrivetrainMetrics(lab);
+        const isDark = store.state.theme === 'dark';
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Workshop blueprint grid background
+        ctx.fillStyle = isDark ? '#141922' : '#eef2f7';
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)';
+        ctx.lineWidth = 1;
+        for (let gx = 0; gx < w; gx += 24) {
+          ctx.beginPath();
+          ctx.moveTo(gx, 0);
+          ctx.lineTo(gx, h);
+          ctx.stroke();
+        }
+        for (let gy = 0; gy < h; gy += 24) {
+          ctx.beginPath();
+          ctx.moveTo(0, gy);
+          ctx.lineTo(w, gy);
+          ctx.stroke();
+        }
+
+        const rearX = w * 0.28;
+        const frontX = w * 0.70;
+        const centerY = h * 0.52;
+
+        const rearR = Math.max(20, Math.min(54, lab.cog * 1.15));
+        const frontR = Math.max(34, Math.min(76, lab.chainring * 1.38));
+
+        const ratio = lab.chainring / Math.max(1, lab.cog);
+        const rearAngle = this.angle * ratio;
+
+        // Upper and lower chain runs
+        ctx.strokeStyle = isDark ? '#94a3b8' : '#334155';
+        ctx.lineWidth = 3.5;
+        ctx.setLineDash([6, 4]);
+        ctx.lineDashOffset = -this.angle * frontR;
+        ctx.beginPath();
+        ctx.moveTo(rearX, centerY - rearR);
+        ctx.lineTo(frontX, centerY - frontR);
+        ctx.moveTo(rearX, centerY + rearR);
+        ctx.lineTo(frontX, centerY + frontR);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        const accent = isDark ? '#60a5fa' : '#2563eb';
+        const fill = isDark ? 'rgba(96, 165, 250, 0.16)' : 'rgba(37, 99, 235, 0.12)';
+
+        this.drawGear(rearX, centerY, rearR, Math.max(10, Math.round(lab.cog / 2)), rearAngle, accent, fill);
+        this.drawGear(frontX, centerY, frontR, Math.max(16, Math.round(lab.chainring / 2)), this.angle, accent, fill);
+
+        // Crank arm
+        const crankX = frontX + Math.cos(this.angle) * (frontR + 18);
+        const crankY = centerY + Math.sin(this.angle) * (frontR + 18);
+        ctx.beginPath();
+        ctx.moveTo(frontX, centerY);
+        ctx.lineTo(crankX, crankY);
+        ctx.strokeStyle = isDark ? '#f8fafc' : '#0f172a';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Telemetry HUD
+        ctx.fillStyle = isDark ? '#e2e8f0' : '#1e293b';
+        ctx.font = '700 11px ui-monospace, monospace';
+        ctx.fillText(`REAR COG: ${lab.cog}T`, rearX - 42, h - 16);
+        ctx.fillText(`CHAINRING: ${lab.chainring}T`, frontX - 48, h - 16);
+        ctx.fillText(`${metrics.speedKmh} km/h (${metrics.speedMph} mph) @ ${lab.cadenceRpm} RPM`, 16, 22);
+      }
+
+      destroy() {
+        if (this.rafId) cancelAnimationFrame(this.rafId);
+        this.resizeObserver.disconnect();
+        this.intersectionObserver.disconnect();
+      }
+    }
+
+    /* ========================================================================
+       MODULE 5: SPA ROUTER (Navigation API + Hash/History + View Transitions)
+       ======================================================================== */
+    const VALID_ROUTES = new Set(['/shop', '/catalog', '/gear-lab', '/basket', '/checkout', '/workshop']);
+
+    function parseRouteFromLocation() {
+      const raw = location.hash.replace(/^#/, '');
+      if (!raw || raw === '/') return '/shop';
+      const clean = raw.split('?')[0];
+      return VALID_ROUTES.has(clean) ? clean : '/404';
+    }
+
+    function navigateTo(route, { push = true } = {}) {
+      const target = VALID_ROUTES.has(route) ? route : '/404';
+      const commit = () => {
+        if (push && location.hash !== `#${target}`) {
+          history.pushState({ route: target }, '', `#${target}`);
+        }
+        store.setRoute(target);
+        const titles = {
+          '/shop': 'Pennine & Chain Cycles — Showroom & Carousel',
+          '/catalog': 'Bikes, Components & Service — Pennine & Chain',
+          '/gear-lab': 'Drivetrain & Gear Ratio Lab — Pennine & Chain',
+          '/basket': 'Shopping Basket — Pennine & Chain Cycles',
+          '/checkout': 'Secure Checkout & Payment — Pennine & Chain',
+          '/workshop': 'Workshop & Platform Inspector — Pennine & Chain',
+          '/404': 'Route Not Found — Pennine & Chain Cycles'
+        };
+        document.title = titles[target] ?? titles['/shop'];
+        renderCurrentView();
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      };
+
+      if (typeof document.startViewTransition === 'function' && !Utils.prefersReducedMotion()) {
+        document.startViewTransition(commit);
+      } else {
+        commit();
+      }
+    }
+
+    /* ========================================================================
+       MODULE 6: DIALOGS (Product Specs & Official Payment Receipt)
+       ======================================================================== */
+    function openProductDialog(product) {
+      const dialog = document.getElementById('shop-dialog');
+      const body = document.getElementById('dialog-body');
+      if (!dialog || !body) return;
+
+      let selectedOpt = product.options[0] || 'Standard';
+      const optSelect = Utils.el('select', {
+        id: 'dialog-opt-select',
+        className: 'control-input',
+        onChange: (e) => { selectedOpt = e.target.value; }
+      }, product.options.map((opt) => Utils.el('option', { value: opt, textContent: opt })));
+
+      body.replaceChildren(
+        Utils.el('div', { className: 'between' }, [
+          Utils.el('div', { className: 'stack-sm' }, [
+            Utils.el('span', { className: 'badge', textContent: `${product.category} · ${product.sku}` }),
+            Utils.el('h2', { id: 'dialog-title', textContent: product.name })
+          ]),
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn btn-ghost btn-sm',
+            textContent: '✕ Close',
+            onClick: () => dialog.close()
+          })
+        ]),
+        Utils.el('p', { className: 'muted', textContent: product.description }),
+        Utils.el('div', { className: 'cluster' }, product.specs.map((s) =>
+          Utils.el('span', { className: 'badge badge-neutral', textContent: s })
+        )),
+        Utils.el('dl', { className: 'readout-grid' }, [
+          Utils.el('div', { className: 'readout-box' }, [
+            Utils.el('span', { textContent: 'Material / Build' }),
+            Utils.el('strong', { textContent: product.material })
+          ]),
+          Utils.el('div', { className: 'readout-box' }, [
+            Utils.el('span', { textContent: 'Weight' }),
+            Utils.el('strong', { textContent: product.weightKg > 0 ? `${product.weightKg} kg` : 'Bench Service' })
+          ]),
+          Utils.el('div', { className: 'readout-box' }, [
+            Utils.el('span', { textContent: 'Workshop Price' }),
+            Utils.el('strong', { textContent: Utils.formatCurrency(product.price) })
+          ])
+        ]),
+        Utils.el('div', { className: 'field-group' }, [
+          Utils.el('label', { for: 'dialog-opt-select', textContent: 'Select Size / Specification' }),
+          optSelect
+        ]),
+        Utils.el('div', { className: 'cluster' }, [
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn btn-primary',
+            textContent: `Add to Basket — ${Utils.formatCurrency(product.price)}`,
+            onClick: () => {
+              store.addToBasket(product.id, selectedOpt, 1);
+              dialog.close();
+            }
+          }),
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn',
+            textContent: 'Go to Basket',
+            onClick: () => {
+              dialog.close();
+              navigateTo('/basket');
+            }
+          })
+        ])
+      );
+
+      if (typeof dialog.showModal === 'function' && !dialog.open) dialog.showModal();
+    }
+
+    function openReceiptDialog(order) {
+      const dialog = document.getElementById('shop-dialog');
+      const body = document.getElementById('dialog-body');
+      if (!dialog || !body) return;
+
+      body.replaceChildren(
+        Utils.el('div', { className: 'between' }, [
+          Utils.el('span', { className: 'badge badge-ok', textContent: 'Payment Authorized · VAT Receipt' }),
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn btn-ghost btn-sm',
+            textContent: '✕ Close',
+            onClick: () => dialog.close()
+          })
+        ]),
+        Utils.el('h2', { id: 'dialog-title', textContent: `Order ${order.orderNumber}` }),
+        Utils.el('p', {
+          className: 'small muted',
+          textContent: `Issued ${order.dateFormatted} · Customer: ${order.customerName} (${order.customerEmail})`
+        }),
+        Utils.el('dl', { className: 'readout-grid' }, [
+          Utils.el('div', { className: 'readout-box' }, [
+            Utils.el('span', { textContent: 'Payment Gateway' }),
+            Utils.el('strong', { textContent: order.paymentSummary })
+          ]),
+          Utils.el('div', { className: 'readout-box' }, [
+            Utils.el('span', { textContent: 'Auth Ref' }),
+            Utils.el('strong', { textContent: order.authCode })
+          ]),
+          Utils.el('div', { className: 'readout-box' }, [
+            Utils.el('span', { textContent: 'Total Paid' }),
+            Utils.el('strong', { textContent: Utils.formatCurrency(order.total) })
+          ])
+        ]),
+        Utils.el('div', { className: 'stack-sm' }, order.items.map((item) =>
+          Utils.el('div', { className: 'between small' }, [
+            Utils.el('span', { textContent: `${item.qty}× ${item.name} (${item.option})` }),
+            Utils.el('strong', { className: 'mono', textContent: Utils.formatCurrency(item.lineTotal) })
+          ])
+        )),
+        Utils.el('div', { className: 'cluster' }, [
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn btn-primary',
+            textContent: 'Download JSON Receipt',
+            onClick: () => {
+              const blob = new Blob([JSON.stringify(order, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = Utils.el('a', { href: url, download: `${order.orderNumber}.json` });
+              a.click();
+              setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }
+          }),
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn',
+            textContent: 'Continue Shopping',
+            onClick: () => {
+              dialog.close();
+              navigateTo('/catalog');
+            }
+          })
+        ])
+      );
+
+      if (typeof dialog.showModal === 'function' && !dialog.open) dialog.showModal();
+    }
+
+    /* ========================================================================
+       MODULE 7: VIEWS (Showroom Carousel, Catalog, Gear Lab, Basket, Checkout)
+       ======================================================================== */
+    let activeCanvasController = null;
+    let carouselTimer = null;
+
+    function buildSlideIllustration(index) {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 380 230');
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', 'Technical bicycle frame and wheel schematic');
+
+      if (index === 0) {
+        svg.innerHTML = `
+          <rect x="8" y="8" width="364" height="214" rx="14" fill="var(--bg-surface)" stroke="var(--border-subtle)"/>
+          <!-- Wheels -->
+          <circle cx="105" cy="148" r="46" fill="none" stroke="var(--ink-primary)" stroke-width="4"/>
+          <circle cx="105" cy="148" r="39" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <circle cx="275" cy="148" r="46" fill="none" stroke="var(--ink-primary)" stroke-width="4"/>
+          <circle cx="275" cy="148" r="39" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <!-- Diamond Steel Frame -->
+          <path d="M105 148 L175 148 L242 82 L154 82 Z" fill="none" stroke="var(--accent)" stroke-width="4.5" stroke-linejoin="round"/>
+          <path d="M175 148 L148 64 M242 82 L275 148" stroke="var(--accent)" stroke-width="4.5" stroke-linecap="round"/>
+          <!-- Drop Bars & Saddle -->
+          <path d="M236 64 H258 C268 64 268 84 256 84" fill="none" stroke="var(--ink-primary)" stroke-width="3.5" stroke-linecap="round"/>
+          <path d="M134 62 H164" stroke="var(--ink-primary)" stroke-width="5" stroke-linecap="round"/>
+          <text x="24" y="34" fill="var(--ink-muted)" font-family="ui-monospace, monospace" font-size="11" font-weight="700">REYNOLDS 853 · 73° HTA</text>
+        `;
+      } else if (index === 1) {
+        svg.innerHTML = `
+          <rect x="8" y="8" width="364" height="214" rx="14" fill="var(--bg-surface)" stroke="var(--border-subtle)"/>
+          <circle cx="125" cy="118" r="34" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="3"/>
+          <circle cx="255" cy="118" r="54" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="3"/>
+          <line x1="125" y1="84" x2="255" y2="64" stroke="var(--ink-primary)" stroke-width="3" stroke-dasharray="6 4"/>
+          <line x1="125" y1="152" x2="255" y2="172" stroke="var(--ink-primary)" stroke-width="3" stroke-dasharray="6 4"/>
+          <text x="24" y="34" fill="var(--ink-muted)" font-family="ui-monospace, monospace" font-size="11" font-weight="700">DRIVETRAIN TELEMETRY BENCH</text>
+          <text x="24" y="204" fill="var(--ink-muted)" font-family="ui-monospace, monospace" font-size="11">RATIO · GEAR INCHES · CADENCE</text>
+        `;
+      } else {
+        svg.innerHTML = `
+          <rect x="8" y="8" width="364" height="214" rx="14" fill="var(--bg-surface)" stroke="var(--border-subtle)"/>
+          <circle cx="190" cy="118" r="68" fill="none" stroke="var(--ink-primary)" stroke-width="4"/>
+          <circle cx="190" cy="118" r="14" fill="var(--accent)"/>
+          <path d="M190 50 L190 186 M122 118 L258 118 M142 70 L238 166 M238 70 L142 166" stroke="var(--accent)" stroke-width="1.6"/>
+          <text x="24" y="34" fill="var(--ink-muted)" font-family="ui-monospace, monospace" font-size="11" font-weight="700">TRUING TOLERANCE &lt; 0.15 MM</text>
+          <text x="24" y="204" fill="var(--ink-muted)" font-family="ui-monospace, monospace" font-size="11">ULTRASONIC BATH · TORQUE SPEC</text>
+        `;
+      }
+      return svg;
+    }
+
+    function renderShopView() {
+      clearInterval(carouselTimer);
+
+      const track = Utils.el('div', {
+        className: 'carousel-track',
+        role: 'region',
+        'aria-roledescription': 'carousel',
+        'aria-label': 'Featured Workshop Builds and Services'
+      });
+
+      const dotsContainer = Utils.el('div', { className: 'carousel-dots', role: 'tablist', 'aria-label': 'Choose slide' });
+
+      const goToSlide = (idx) => {
+        const count = CAROUSEL_SLIDES.length;
+        const normalized = ((idx % count) + count) % count;
+        store.state.activeSlide = normalized;
+        const slideWidth = track.clientWidth;
+        track.scrollTo({
+          left: normalized * (slideWidth + 16),
+          behavior: Utils.prefersReducedMotion() ? 'auto' : 'smooth'
+        });
+        dotsContainer.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+          dot.setAttribute('aria-selected', String(i === normalized));
+        });
+      };
+
+      CAROUSEL_SLIDES.forEach((slide, idx) => {
+        const slideNode = Utils.el('article', {
+          className: 'carousel-slide',
+          'aria-roledescription': 'slide',
+          'aria-label': `${idx + 1} of ${CAROUSEL_SLIDES.length}: ${slide.title}`
+        }, [
+          Utils.el('div', { className: 'stack-md' }, [
+            Utils.el('span', { className: 'badge', textContent: slide.eyebrow }),
+            Utils.el('h1', { style: 'font-size: var(--text-2xl);', textContent: slide.title }),
+            Utils.el('p', { className: 'muted', textContent: slide.subtitle }),
+            Utils.el('div', { className: 'cluster' }, [
+              Utils.el('button', {
+                type: 'button',
+                className: 'btn btn-primary',
+                textContent: slide.ctaLabel,
+                onClick: () => {
+                  if (slide.ctaAction.type === 'item') {
+                    const p = CATALOG_ITEMS.find((i) => i.id === slide.ctaAction.itemId);
+                    if (p) openProductDialog(p);
+                  } else if (slide.ctaAction.type === 'basket') {
+                    store.addToBasket(slide.ctaAction.itemId, slide.ctaAction.option, 1);
+                  } else if (slide.ctaAction.type === 'route') {
+                    navigateTo(slide.ctaAction.route);
+                  }
+                }
+              }),
+              Utils.el('button', {
+                type: 'button',
+                className: 'btn',
+                textContent: slide.secondaryLabel,
+                onClick: () => {
+                  if (slide.secondaryAction.type === 'basket') {
+                    store.addToBasket(slide.secondaryAction.itemId, slide.secondaryAction.option, 1);
+                  } else if (slide.secondaryAction.type === 'route') {
+                    navigateTo(slide.secondaryAction.route);
+                  }
+                }
+              })
+            ]),
+            Utils.el('dl', { className: 'readout-grid' }, slide.stats.map((st) =>
+              Utils.el('div', { className: 'readout-box' }, [
+                Utils.el('span', { textContent: st.label }),
+                Utils.el('strong', { textContent: st.value })
+              ])
+            ))
+          ]),
+          Utils.el('div', {}, [buildSlideIllustration(idx)])
+        ]);
+
+        track.append(slideNode);
+
+        const dot = Utils.el('button', {
+          type: 'button',
+          role: 'tab',
+          className: 'carousel-dot',
+          'aria-selected': String(idx === store.state.activeSlide),
+          'aria-label': `Slide ${idx + 1}: ${slide.title}`,
+          onClick: () => goToSlide(idx)
+        });
+        dotsContainer.append(dot);
+      });
+
+      // Sync dots on manual touch/trackpad scroll
+      let scrollSyncTimer = null;
+      track.addEventListener('scroll', () => {
+        clearTimeout(scrollSyncTimer);
+        scrollSyncTimer = setTimeout(() => {
+          if (!track.clientWidth) return;
+          const idx = Math.round(track.scrollLeft / track.clientWidth);
+          store.state.activeSlide = idx;
+          dotsContainer.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+            dot.setAttribute('aria-selected', String(i === idx));
+          });
+        }, 80);
+      }, { passive: true });
+
+      const carouselSection = Utils.el('section', { className: 'carousel-shell' }, [
+        track,
+        Utils.el('div', { className: 'carousel-controls' }, [
+          dotsContainer,
+          Utils.el('div', { className: 'cluster' }, [
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-sm',
+              'aria-label': 'Previous slide',
+              textContent: '← Prev',
+              onClick: () => goToSlide(store.state.activeSlide - 1)
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-sm',
+              'aria-label': 'Next slide',
+              textContent: 'Next →',
+              onClick: () => goToSlide(store.state.activeSlide + 1)
+            })
+          ])
+        ])
+      ]);
+
+      // Gentle auto-advance paused on hover/focus or reduced motion
+      if (!Utils.prefersReducedMotion()) {
+        let paused = false;
+        carouselSection.addEventListener('mouseenter', () => { paused = true; });
+        carouselSection.addEventListener('mouseleave', () => { paused = false; });
+        carouselSection.addEventListener('focusin', () => { paused = true; });
+        carouselSection.addEventListener('focusout', () => { paused = false; });
+        carouselTimer = setInterval(() => {
+          if (!paused && !document.hidden && store.state.route === '/shop') {
+            goToSlide(store.state.activeSlide + 1);
+          }
+        }, 6500);
+      }
+
+      const highlights = CATALOG_ITEMS.slice(0, 3);
+
+      return Utils.el('div', { className: 'view-section' }, [
+        carouselSection,
+        Utils.el('section', { className: 'stack-md', 'aria-labelledby': 'showroom-picks-heading' }, [
+          Utils.el('div', { className: 'between' }, [
+            Utils.el('div', { className: 'stack-sm' }, [
+              Utils.el('h2', { id: 'showroom-picks-heading', textContent: 'Floor Builds Ready for Test Ride' }),
+              Utils.el('p', { className: 'small muted', textContent: 'Every bicycle is assembled to torque spec in our Chorlton workshop with free 6-week cable settle tune-up.' })
+            ]),
+            Utils.el('a', { href: '#/catalog', className: 'btn btn-sm', 'data-route': '/catalog', textContent: 'Full Bikes & Parts Catalog →' })
+          ]),
+          Utils.el('div', { className: 'catalog-scope' }, [
+            Utils.el('div', { className: 'product-grid' }, highlights.map((item) => renderProductCard(item)))
+          ])
+        ])
+      ]);
+    }
+
+    function renderProductCard(item) {
+      const isFav = store.state.favorites.has(item.id);
+
+      return Utils.el('div', { className: 'card-container' }, [
+        Utils.el('article', { className: 'product-card' }, [
+          Utils.el('div', { className: 'card-header' }, [
+            Utils.el('div', { className: 'stack-sm' }, [
+              Utils.el('div', { className: 'cluster' }, [
+                Utils.el('span', { className: 'badge', textContent: item.category }),
+                Utils.el('span', { className: 'badge badge-neutral', textContent: item.badge })
+              ]),
+              Utils.el('h3', { textContent: item.name })
+            ]),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-ghost btn-sm',
+              'data-fav': String(isFav),
+              'aria-pressed': String(isFav),
+              'aria-label': isFav ? `Remove ${item.name} from saved builds` : `Save ${item.name}`,
+              textContent: isFav ? '★ Saved' : '☆ Save',
+              onClick: () => store.toggleFavorite(item.id)
+            })
+          ]),
+          Utils.el('div', { className: 'stack-sm' }, [
+            Utils.el('p', { className: 'small muted', textContent: item.description }),
+            Utils.el('div', { className: 'spec-pills' }, item.specs.map((spec) =>
+              Utils.el('span', { className: 'badge badge-neutral', textContent: spec })
+            ))
+          ]),
+          Utils.el('div', { className: 'card-meta-bar' }, [
+            Utils.el('span', { textContent: item.weightKg > 0 ? `${item.weightKg} kg · ${item.options[0]}` : item.options[0] }),
+            Utils.el('strong', { style: 'font-size: var(--text-base);', textContent: Utils.formatCurrency(item.price) })
+          ]),
+          Utils.el('div', { className: 'card-actions' }, [
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-primary btn-sm',
+              textContent: 'Add to Basket',
+              onClick: () => store.addToBasket(item.id, item.options[0], 1)
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-sm',
+              textContent: 'Options & Specs',
+              onClick: () => openProductDialog(item)
+            })
+          ])
+        ])
+      ]);
+    }
+
+    function renderCatalogView() {
+      const { search, category, sortBy, onlyFavorites } = store.state.filters;
+      const q = search.trim().toLowerCase();
+
+      const filtered = CATALOG_ITEMS.filter((item) => {
+        if (onlyFavorites && !store.state.favorites.has(item.id)) return false;
+        if (category !== 'all' && item.category !== category) return false;
+        if (q) {
+          const hay = `${item.name} ${item.category} ${item.discipline} ${item.material} ${item.specs.join(' ')}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      }).sort((a, b) => {
+        if (sortBy === 'price-asc') return a.price - b.price;
+        if (sortBy === 'price-desc') return b.price - a.price;
+        return 0;
+      });
+
+      return Utils.el('div', { className: 'view-section' }, [
+        Utils.el('div', { className: 'stack-sm' }, [
+          Utils.el('h1', { textContent: 'Bikes, Handbuilt Wheels, Components & Servicing' }),
+          Utils.el('p', { className: 'muted', textContent: 'Filter by department, inspect sizing options, and add items directly to your workshop basket.' })
+        ]),
+        Utils.el('div', {
+          className: 'catalog-scope',
+          style: `--card-density: ${store.state.cardDensity};`
+        }, [
+          Utils.el('div', { className: 'filter-toolbar', role: 'search' }, [
+            Utils.el('div', { className: 'field-group' }, [
+              Utils.el('label', { for: 'cat-search', textContent: 'Search Bikes & Parts' }),
+              Utils.el('input', {
+                id: 'cat-search',
+                type: 'search',
+                className: 'control-input',
+                placeholder: 'Reynolds 853, dynamo, wax, GRX...',
+                value: search,
+                onInput: (e) => store.updateFilters({ search: e.target.value })
+              })
+            ]),
+            Utils.el('div', { className: 'field-group' }, [
+              Utils.el('label', { for: 'cat-dept', textContent: 'Department' }),
+              Utils.el('select', {
+                id: 'cat-dept',
+                className: 'control-input',
+                onChange: (e) => store.updateFilters({ category: e.target.value })
+              }, ['all', 'Complete Bikes', 'Wheels & Tyres', 'Components', 'Bags & Apparel', 'Workshop Service'].map((cat) =>
+                Utils.el('option', {
+                  value: cat,
+                  selected: category === cat,
+                  textContent: cat === 'all' ? 'All Departments' : cat
+                })
+              ))
+            ]),
+            Utils.el('div', { className: 'field-group' }, [
+              Utils.el('label', { for: 'cat-sort', textContent: 'Sort Order' }),
+              Utils.el('select', {
+                id: 'cat-sort',
+                className: 'control-input',
+                onChange: (e) => store.updateFilters({ sortBy: e.target.value })
+              }, [
+                Utils.el('option', { value: 'featured', selected: sortBy === 'featured', textContent: 'Workshop Featured' }),
+                Utils.el('option', { value: 'price-asc', selected: sortBy === 'price-asc', textContent: 'Price (Low → High)' }),
+                Utils.el('option', { value: 'price-desc', selected: sortBy === 'price-desc', textContent: 'Price (High → Low)' })
+              ])
+            ])
+          ]),
+          Utils.el('div', { className: 'between' }, [
+            Utils.el('div', { className: 'cluster' }, [
+              Utils.el('span', { className: 'small muted', textContent: `Showing ${filtered.length} of ${CATALOG_ITEMS.length} items` }),
+              Utils.el('button', {
+                type: 'button',
+                className: 'btn btn-sm',
+                'aria-pressed': String(onlyFavorites),
+                textContent: onlyFavorites ? '★ Saved Wishlist Only' : '☆ Filter Wishlist Only',
+                onClick: () => store.updateFilters({ onlyFavorites: !onlyFavorites })
+              })
+            ]),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-sm',
+              textContent: store.state.cardDensity === 'editorial' ? 'Compact View' : 'Editorial View',
+              onClick: () => store.setCardDensity(store.state.cardDensity === 'editorial' ? 'compact' : 'editorial')
+            })
+          ]),
+          Utils.el('div', { className: 'product-grid' }, filtered.map((item) => renderProductCard(item)))
+        ])
+      ]);
+    }
+
+    function renderGearLabView() {
+      const lab = store.state.gearLab;
+      const metrics = calculateDrivetrainMetrics(lab);
+      const canvas = Utils.el('canvas', {
+        'aria-label': `Drivetrain canvas simulation showing ${lab.chainring}T chainring driving ${lab.cog}T rear cog`
+      });
+
+      const makeSlider = (id, label, unit, min, max, step, val, key) =>
+        Utils.el('div', { className: 'stack-sm' }, [
+          Utils.el('div', { className: 'between' }, [
+            Utils.el('label', { for: id, className: 'small', style: 'font-weight: 700;', textContent: label }),
+            Utils.el('span', { className: 'mono small', style: 'color: var(--accent); font-weight: 700;', textContent: `${val}${unit}` })
+          ]),
+          Utils.el('input', {
+            id,
+            type: 'range',
+            min,
+            max,
+            step,
+            value: val,
+            style: 'width: 100%; accent-color: var(--accent);',
+            onInput: (e) => store.updateGearLab({ [key]: Number(e.target.value) })
+          })
+        ]);
+
+      const view = Utils.el('div', { className: 'view-section' }, [
+        Utils.el('div', { className: 'between' }, [
+          Utils.el('div', { className: 'stack-sm' }, [
+            Utils.el('h1', { textContent: 'Drivetrain Ratio, Cadence & Development Lab' }),
+            Utils.el('p', { className: 'muted', textContent: 'Model climbing gears, flat cruising speed, and metres of development before ordering custom chainrings or cassettes.' })
+          ]),
+          Utils.el('button', {
+            type: 'button',
+            className: 'btn btn-sm',
+            textContent: lab.isSpinning ? '⏸ Pause Crank Spin' : '▶ Spin Drivetrain',
+            onClick: () => store.updateGearLab({ isSpinning: !lab.isSpinning })
+          })
+        ]),
+        Utils.el('div', { className: 'split-grid' }, [
+          Utils.el('section', { className: 'panel-card' }, [
+            makeSlider('sl-ring', 'Front Chainring Teeth', 'T', 30, 54, 1, lab.chainring, 'chainring'),
+            makeSlider('sl-cog', 'Rear Cassette Cog Teeth', 'T', 10, 52, 1, lab.cog, 'cog'),
+            makeSlider('sl-wheel', 'Outer Wheel & Tyre Diameter', ' mm', 620, 720, 2, lab.wheelDiameterMm, 'wheelDiameterMm'),
+            makeSlider('sl-cadence', 'Pedalling Cadence', ' RPM', 50, 120, 2, lab.cadenceRpm, 'cadenceRpm'),
+            makeSlider('sl-crank', 'Crank Arm Length', ' mm', 165, 177.5, 2.5, lab.crankLengthMm, 'crankLengthMm')
+          ]),
+          Utils.el('section', { className: 'panel-card' }, [
+            Utils.el('div', { className: 'canvas-stage' }, [canvas]),
+            Utils.el('div', { className: 'between' }, [
+              Utils.el('span', { className: 'badge badge-ok', textContent: metrics.terrainLabel }),
+              Utils.el('span', { className: 'mono small', textContent: `Ratio ${metrics.ratio}:1` })
+            ]),
+            Utils.el('div', { className: 'readout-grid' }, [
+              Utils.el('div', { className: 'readout-box' }, [
+                Utils.el('span', { textContent: 'Gear Inches' }),
+                Utils.el('strong', { textContent: `${metrics.gearInches}"` })
+              ]),
+              Utils.el('div', { className: 'readout-box' }, [
+                Utils.el('span', { textContent: 'Development' }),
+                Utils.el('strong', { textContent: `${metrics.developmentM} m` })
+              ]),
+              Utils.el('div', { className: 'readout-box' }, [
+                Utils.el('span', { textContent: 'Cruising Speed' }),
+                Utils.el('strong', { textContent: `${metrics.speedKmh} km/h` })
+              ]),
+              Utils.el('div', { className: 'readout-box' }, [
+                Utils.el('span', { textContent: 'Gain Ratio' }),
+                Utils.el('strong', { textContent: `${metrics.gainRatio}` })
+              ])
+            ])
+          ])
+        ])
+      ]);
+
+      requestAnimationFrame(() => {
+        if (activeCanvasController) activeCanvasController.destroy();
+        activeCanvasController = new DrivetrainCanvasController(canvas);
+      });
+
+      return view;
+    }
+
+    /* ------------------------------------------------------------------------
+       VIEW 4: SHOPPING BASKET (Quantities, Promo Codes, Shipping Calculator)
+       ------------------------------------------------------------------------ */
+    function renderBasketView() {
+      const totals = store.getBasketTotals();
+
+      const promoInput = Utils.el('input', {
+        id: 'promo-code-input',
+        type: 'text',
+        className: 'control-input',
+        placeholder: 'Try PENNINE10 or CLUB15',
+        value: store.state.promoCode
+      });
+
+      return Utils.el('div', { className: 'view-section' }, [
+        Utils.el('div', { className: 'between' }, [
+          Utils.el('div', { className: 'stack-sm' }, [
+            Utils.el('h1', { textContent: 'Workshop Shopping Basket' }),
+            Utils.el('p', { className: 'muted', textContent: 'Review frame sizes, components, and booked bench services before proceeding to payment.' })
+          ]),
+          Utils.el('a', { href: '#/catalog', className: 'btn btn-sm', 'data-route': '/catalog', textContent: '← Continue Shopping' })
+        ]),
+
+        totals.lines.length === 0
+          ? Utils.el('div', { className: 'panel-card' }, [
+              Utils.el('h2', { textContent: 'Your workshop basket is empty' }),
+              Utils.el('p', { className: 'muted', textContent: 'Browse custom steel bikes, handbuilt dynamo wheels, or book a full winter service.' }),
+              Utils.el('a', { href: '#/catalog', className: 'btn btn-primary', 'data-route': '/catalog', textContent: 'Explore Bikes & Parts' })
+            ])
+          : Utils.el('div', { className: 'split-grid' }, [
+              // Basket Line Items
+              Utils.el('section', { className: 'panel-card', 'aria-label': 'Basket items' }, [
+                ...totals.lines.map(({ entry, idx, product, lineTotal }) =>
+                  Utils.el('div', { className: 'between', style: 'padding-block: 0.75rem; border-bottom: 1px solid var(--border-subtle);' }, [
+                    Utils.el('div', { className: 'stack-sm' }, [
+                      Utils.el('strong', { textContent: product.name }),
+                      Utils.el('span', { className: 'small muted', textContent: `Option: ${entry.option} · SKU ${product.sku} · ${Utils.formatCurrency(product.price)} each` })
+                    ]),
+                    Utils.el('div', { className: 'cluster' }, [
+                      Utils.el('button', {
+                        type: 'button',
+                        className: 'btn btn-sm',
+                        'aria-label': `Decrease quantity of ${product.name}`,
+                        textContent: '−',
+                        onClick: () => store.updateBasketQty(idx, -1)
+                      }),
+                      Utils.el('span', { className: 'mono', textContent: String(entry.qty) }),
+                      Utils.el('button', {
+                        type: 'button',
+                        className: 'btn btn-sm',
+                        'aria-label': `Increase quantity of ${product.name}`,
+                        textContent: '+',
+                        onClick: () => store.updateBasketQty(idx, 1)
+                      }),
+                      Utils.el('strong', { className: 'mono', style: 'min-width: 5.5rem; text-align: right;', textContent: Utils.formatCurrency(lineTotal) }),
+                      Utils.el('button', {
+                        type: 'button',
+                        className: 'btn btn-ghost btn-sm',
+                        'aria-label': `Remove ${product.name}`,
+                        textContent: '✕',
+                        onClick: () => store.removeBasketLine(idx)
+                      })
+                    ])
+                  ])
+                )
+              ]),
+
+              // Order Summary & Promo Box
+              Utils.el('aside', { className: 'panel-card', 'aria-label': 'Order summary' }, [
+                Utils.el('h2', { textContent: 'Order Summary' }),
+                Utils.el('div', { className: 'field-group' }, [
+                  Utils.el('label', { for: 'shipping-select', textContent: 'Fulfilment & Delivery' }),
+                  Utils.el('select', {
+                    id: 'shipping-select',
+                    className: 'control-input',
+                    onChange: (e) => store.setShippingMethod(e.target.value)
+                  }, [
+                    Utils.el('option', { value: 'collection', selected: store.state.shippingMethod === 'collection', textContent: 'Click & Collect — Chorlton Workshop (Free)' }),
+                    Utils.el('option', { value: 'courier', selected: store.state.shippingMethod === 'courier', textContent: 'Tracked UK Parcel Courier (Free over £100, else £6.50)' }),
+                    Utils.el('option', { value: 'bikebox', selected: store.state.shippingMethod === 'bikebox', textContent: 'Insured Complete-Bike Pallet Box (£18.00)' })
+                  ])
+                ]),
+                Utils.el('div', { className: 'field-group' }, [
+                  Utils.el('label', { for: 'promo-code-input', textContent: 'Club / Workshop Promo Code' }),
+                  Utils.el('div', { className: 'cluster' }, [
+                    promoInput,
+                    Utils.el('button', {
+                      type: 'button',
+                      className: 'btn btn-sm',
+                      textContent: 'Apply',
+                      onClick: () => {
+                        store.setPromoCode(promoInput.value);
+                        store.announce(store.state.promoCode ? `Promo code ${store.state.promoCode} checked` : 'Promo cleared', true);
+                      }
+                    })
+                  ])
+                ]),
+                Utils.el('div', { className: 'stack-sm', style: 'border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;' }, [
+                  Utils.el('div', { className: 'between small' }, [
+                    Utils.el('span', { textContent: `Subtotal (${totals.itemCount} items)` }),
+                    Utils.el('span', { className: 'mono', textContent: Utils.formatCurrency(totals.subtotal) })
+                  ]),
+                  totals.discount > 0 && Utils.el('div', { className: 'between small', style: 'color: var(--status-ok);' }, [
+                    Utils.el('span', { textContent: `Promo Discount (${store.state.promoCode})` }),
+                    Utils.el('span', { className: 'mono', textContent: `−${Utils.formatCurrency(totals.discount)}` })
+                  ]),
+                  Utils.el('div', { className: 'between small' }, [
+                    Utils.el('span', { textContent: 'Shipping / Workshop Prep' }),
+                    Utils.el('span', { className: 'mono', textContent: totals.shippingCost === 0 ? 'FREE' : Utils.formatCurrency(totals.shippingCost) })
+                  ]),
+                  Utils.el('div', { className: 'between', style: 'padding-top: 0.5rem; border-top: 1px solid var(--border-subtle);' }, [
+                    Utils.el('strong', { textContent: 'Total (incl. 20% UK VAT)' }),
+                    Utils.el('strong', { className: 'mono', style: 'font-size: var(--text-xl);', textContent: Utils.formatCurrency(totals.total) })
+                  ]),
+                  Utils.el('span', { className: 'small muted mono', textContent: `Includes ${Utils.formatCurrency(totals.vatIncluded)} VAT` })
+                ]),
+                Utils.el('a', {
+                  href: '#/checkout',
+                  className: 'btn btn-primary',
+                  'data-route': '/checkout',
+                  textContent: `Proceed to Checkout (${Utils.formatCurrency(totals.total)}) →`
+                })
+              ])
+            ])
+      ]);
+    }
+
+    /* ------------------------------------------------------------------------
+       VIEW 5: CHECKOUT & SIMULATED PAYMENT GATEWAY (Card Luhn, Bank Transfer, History)
+       ------------------------------------------------------------------------ */
+    function renderCheckoutView() {
+      const totals = store.getBasketTotals();
+
+      if (totals.lines.length === 0) {
+        return Utils.el('div', { className: 'view-section' }, [
+          Utils.el('div', { className: 'panel-card' }, [
+            Utils.el('h1', { textContent: 'Checkout' }),
+            Utils.el('p', { className: 'muted', textContent: 'Your basket is currently empty. Add bikes, parts, or a workshop service first.' }),
+            Utils.el('div', { className: 'cluster' }, [
+              Utils.el('a', { href: '#/catalog', className: 'btn btn-primary', 'data-route': '/catalog', textContent: 'Browse Catalog' }),
+              store.state.orders.length > 0 && Utils.el('button', {
+                type: 'button',
+                className: 'btn',
+                textContent: `View Latest Receipt (${store.state.orders[0].orderNumber})`,
+                onClick: () => openReceiptDialog(store.state.orders[0])
+              })
+            ])
+          ])
+        ]);
+      }
+
+      let paymentMethod = 'card';
+      let isProcessing = false;
+
+      const cardPreviewNumber = Utils.el('div', { className: 'mono', style: 'font-size: var(--text-lg); letter-spacing: 0.08em;', textContent: '•••• •••• •••• ••••' });
+      const cardPreviewHolder = Utils.el('span', { className: 'small', textContent: 'RIDER NAME' });
+      const cardPreviewBrand = Utils.el('span', { className: 'badge', style: 'background: rgba(255,255,255,0.2); color: inherit; border-color: rgba(255,255,255,0.3);', textContent: 'Encrypted Gateway' });
+      const errorBox = Utils.el('div', {
+        role: 'alert',
+        className: 'badge badge-danger',
+        style: 'display: none; padding: 0.65rem 0.9rem; border-radius: var(--radius-sm);'
+      });
+
+      const cardNumberInput = Utils.el('input', {
+        id: 'pay-card-num',
+        type: 'text',
+        inputmode: 'numeric',
+        autocomplete: 'cc-number',
+        className: 'control-input mono',
+        placeholder: '4532 0151 1283 0366',
+        maxlength: 19,
+        onInput: (e) => {
+          const formatted = Utils.formatCardNumber(e.target.value);
+          e.target.value = formatted;
+          cardPreviewNumber.textContent = formatted || '•••• •••• •••• ••••';
+          cardPreviewBrand.textContent = Utils.detectCardBrand(formatted);
+        }
+      });
+
+      const cardHolderInput = Utils.el('input', {
+        id: 'pay-card-name',
+        type: 'text',
+        autocomplete: 'cc-name',
+        className: 'control-input',
+        placeholder: 'A. Rider',
+        onInput: (e) => {
+          cardPreviewHolder.textContent = (e.target.value.trim() || 'RIDER NAME').toUpperCase();
+        }
+      });
+
+      const expiryInput = Utils.el('input', {
+        id: 'pay-expiry',
+        type: 'text',
+        inputmode: 'numeric',
+        autocomplete: 'cc-exp',
+        className: 'control-input mono',
+        placeholder: '09/29',
+        maxlength: 5,
+        onInput: (e) => {
+          const digits = e.target.value.replace(/\D/g, '').slice(0, 4);
+          e.target.value = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+        }
+      });
+
+      const cvcInput = Utils.el('input', {
+        id: 'pay-cvc',
+        type: 'password',
+        inputmode: 'numeric',
+        autocomplete: 'cc-csc',
+        className: 'control-input mono',
+        placeholder: '842',
+        maxlength: 4
+      });
+
+      const cardFieldsContainer = Utils.el('div', { className: 'stack-md' }, [
+        Utils.el('div', { className: 'payment-card-visual' }, [
+          Utils.el('div', { className: 'between' }, [
+            Utils.el('strong', { textContent: 'PENNINE PAY · SANDBOX GATEWAY' }),
+            cardPreviewBrand
+          ]),
+          cardPreviewNumber,
+          Utils.el('div', { className: 'between' }, [
+            cardPreviewHolder,
+            Utils.el('span', { className: 'small mono', textContent: '3DS2 VERIFIED' })
+          ])
+        ]),
+        Utils.el('div', { className: 'field-group' }, [
+          Utils.el('label', { for: 'pay-card-name', textContent: 'Name on Card' }),
+          cardHolderInput
+        ]),
+        Utils.el('div', { className: 'field-group' }, [
+          Utils.el('label', { for: 'pay-card-num', textContent: 'Card Number (Luhn-Validated — e.g. 4532 0151 1283 0366)' }),
+          cardNumberInput
+        ]),
+        Utils.el('div', { className: 'form-row-2' }, [
+          Utils.el('div', { className: 'field-group' }, [
+            Utils.el('label', { for: 'pay-expiry', textContent: 'Expiry (MM/YY)' }),
+            expiryInput
+          ]),
+          Utils.el('div', { className: 'field-group' }, [
+            Utils.el('label', { for: 'pay-cvc', textContent: 'Security Code (CVC)' }),
+            cvcInput
+          ])
+        ])
+      ]);
+
+      const altMethodInfo = Utils.el('div', { className: 'readout-box', style: 'display: none;' }, [
+        Utils.el('span', { textContent: 'Instant Open Banking / Workshop Counter Settlement' }),
+        Utils.el('strong', { textContent: 'Zero Card Fees · Immediate Order Reservation' }),
+        Utils.el('p', {
+          className: 'small muted',
+          textContent: 'Authorizes an instant sandbox settlement token and reserves your workshop stock immediately.'
+        })
+      ]);
+
+      const setPayTab = (method) => {
+        paymentMethod = method;
+        cardFieldsContainer.style.display = method === 'card' ? 'grid' : 'none';
+        altMethodInfo.style.display = method === 'card' ? 'none' : 'grid';
+        tabCard.className = `btn btn-sm ${method === 'card' ? 'btn-primary' : ''}`;
+        tabBank.className = `btn btn-sm ${method === 'bank' ? 'btn-primary' : ''}`;
+        tabCounter.className = `btn btn-sm ${method === 'counter' ? 'btn-primary' : ''}`;
+      };
+
+      const tabCard = Utils.el('button', { type: 'button', className: 'btn btn-sm btn-primary', textContent: 'Debit / Credit Card', onClick: () => setPayTab('card') });
+      const tabBank = Utils.el('button', { type: 'button', className: 'btn btn-sm', textContent: 'UK Instant Bank Pay', onClick: () => setPayTab('bank') });
+      const tabCounter = Utils.el('button', { type: 'button', className: 'btn btn-sm', textContent: 'Pay on Workshop Collection', onClick: () => setPayTab('counter') });
+
+      const submitBtn = Utils.el('button', {
+        type: 'submit',
+        className: 'btn btn-primary',
+        textContent: `Authorize Payment — ${Utils.formatCurrency(totals.total)}`
+      });
+
+      const checkoutForm = Utils.el('form', {
+        className: 'panel-card',
+        novalidate: true,
+        onSubmit: (e) => {
+          e.preventDefault();
+          if (isProcessing) return;
+
+          const fd = new FormData(checkoutForm);
+          const customerName = String(fd.get('customerName') || '').trim();
+          const customerEmail = String(fd.get('customerEmail') || '').trim();
+          const postcode = String(fd.get('postcode') || '').trim();
+
+          const showError = (msg) => {
+            errorBox.textContent = msg;
+            errorBox.style.display = 'block';
+            store.announce(msg, false);
+          };
+
+          if (customerName.length < 2) return showError('Please enter your full name for the workshop order.');
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) return showError('Please enter a valid email address for your receipt.');
+          if (store.state.shippingMethod !== 'collection' && postcode.length < 4) {
+            return showError('Please enter a valid UK delivery postcode.');
+          }
+
+          let paymentSummary = 'Pay on Workshop Collection';
+          if (paymentMethod === 'card') {
+            const digits = cardNumberInput.value.replace(/\D/g, '');
+            if (!Utils.luhnCheck(digits)) {
+              return showError('Card number failed Luhn checksum validation. Try test card 4532 0151 1283 0366.');
+            }
+            if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiryInput.value)) {
+              return showError('Enter a valid card expiry date in MM/YY format.');
+            }
+            if (cvcInput.value.replace(/\D/g, '').length < 3) {
+              return showError('Enter a 3- or 4-digit security code (CVC).');
+            }
+            paymentSummary = `${Utils.detectCardBrand(digits)} ending •••• ${digits.slice(-4)}`;
+          } else if (paymentMethod === 'bank') {
+            paymentSummary = 'UK Open Banking Instant Transfer';
+          }
+
+          errorBox.style.display = 'none';
+          isProcessing = true;
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Authorizing with Payment Gateway...';
+
+          setTimeout(() => {
+            const orderRecord = {
+              orderNumber: `PC-${Math.floor(100000 + Math.random() * 900000)}`,
+              authCode: `AUTH-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+              dateFormatted: new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date()),
+              customerName,
+              customerEmail,
+              postcode,
+              shippingMethod: store.state.shippingMethod,
+              paymentSummary,
+              items: totals.lines.map((l) => ({
+                name: l.product.name,
+                sku: l.product.sku,
+                option: l.entry.option,
+                qty: l.entry.qty,
+                lineTotal: l.lineTotal
+              })),
+              subtotal: totals.subtotal,
+              discount: totals.discount,
+              shippingCost: totals.shippingCost,
+              total: totals.total
+            };
+
+            store.completeOrder(orderRecord);
+            renderCurrentView();
+            openReceiptDialog(orderRecord);
+          }, 650);
+        }
+      }, [
+        Utils.el('h2', { textContent: '1. Rider & Delivery Details' }),
+        errorBox,
+        Utils.el('div', { className: 'form-row-2' }, [
+          Utils.el('div', { className: 'field-group' }, [
+            Utils.el('label', { for: 'chk-name', textContent: 'Full Name *' }),
+            Utils.el('input', { id: 'chk-name', name: 'customerName', required: true, autocomplete: 'name', className: 'control-input', placeholder: 'Paul McIntosh' })
+          ]),
+          Utils.el('div', { className: 'field-group' }, [
+            Utils.el('label', { for: 'chk-email', textContent: 'Receipt Email *' }),
+            Utils.el('input', { id: 'chk-email', name: 'customerEmail', type: 'email', required: true, autocomplete: 'email', className: 'control-input', placeholder: 'rider@example.co.uk' })
+          ])
+        ]),
+        Utils.el('div', { className: 'form-row-2' }, [
+          Utils.el('div', { className: 'field-group' }, [
+            Utils.el('label', { for: 'chk-address', textContent: 'Street Address (for Courier Delivery)' }),
+            Utils.el('input', { id: 'chk-address', name: 'address', autocomplete: 'street-address', className: 'control-input', placeholder: '42 Barlow Moor Road' })
+          ]),
+          Utils.el('div', { className: 'field-group' }, [
+            Utils.el('label', { for: 'chk-postcode', textContent: 'Postcode' }),
+            Utils.el('input', { id: 'chk-postcode', name: 'postcode', autocomplete: 'postal-code', className: 'control-input', placeholder: 'M21 8AB' })
+          ])
+        ]),
+        Utils.el('div', { className: 'field-group' }, [
+          Utils.el('label', { for: 'chk-notes', textContent: 'Workshop Fit / Build Notes (auto-expanding)' }),
+          Utils.el('textarea', { id: 'chk-notes', name: 'notes', className: 'control-input auto-grow', placeholder: 'e.g., Set saddle height to 745 mm, setup tyres tubeless at 42 PSI...' })
+        ]),
+        Utils.el('h2', { textContent: '2. Payment Gateway' }),
+        Utils.el('div', { className: 'payment-methods-tabs' }, [tabCard, tabBank, tabCounter]),
+        cardFieldsContainer,
+        altMethodInfo,
+        submitBtn
+      ]);
+
+      return Utils.el('div', { className: 'view-section' }, [
+        Utils.el('div', { className: 'stack-sm' }, [
+          Utils.el('h1', { textContent: 'Workshop Checkout & Sandbox Payment Gateway' }),
+          Utils.el('p', { className: 'muted', textContent: 'Client-side sandbox payment processor with Luhn card validation, Open Banking simulation, and downloadable VAT receipts.' })
+        ]),
+        Utils.el('div', { className: 'split-grid' }, [
+          checkoutForm,
+          Utils.el('aside', { className: 'panel-card' }, [
+            Utils.el('h2', { textContent: 'Order Manifest' }),
+            ...totals.lines.map((l) =>
+              Utils.el('div', { className: 'between small' }, [
+                Utils.el('span', { textContent: `${l.entry.qty}× ${l.product.name} (${l.entry.option})` }),
+                Utils.el('strong', { className: 'mono', textContent: Utils.formatCurrency(l.lineTotal) })
+              ])
+            ),
+            Utils.el('div', { className: 'between', style: 'border-top: 1px solid var(--border-subtle); padding-top: 0.65rem;' }, [
+              Utils.el('strong', { textContent: 'Amount Due' }),
+              Utils.el('strong', { className: 'mono', style: 'font-size: var(--text-xl);', textContent: Utils.formatCurrency(totals.total) })
+            ])
+          ])
+        ])
+      ]);
+    }
+
+    /* ------------------------------------------------------------------------
+       VIEW 6: WORKSHOP SETTINGS, PAST ORDERS & PLATFORM CAPABILITY INSPECTOR
+       ------------------------------------------------------------------------ */
+    function renderWorkshopView() {
+      const capabilities = Utils.detectCapabilities();
+
+      return Utils.el('div', { className: 'view-section' }, [
+        Utils.el('div', { className: 'stack-sm' }, [
+          Utils.el('h1', { textContent: 'Workshop Studio, Orders & Browser Capabilities' }),
+          Utils.el('p', { className: 'muted', textContent: 'Switch anodized frame accents, review completed payment receipts, and inspect native browser APIs.' })
+        ]),
+
+        Utils.el('section', { className: 'panel-card' }, [
+          Utils.el('h2', { textContent: 'Anodized Workshop Palette' }),
+          Utils.el('div', { className: 'cluster' }, [
+            Utils.el('button', {
+              type: 'button',
+              className: `btn btn-sm ${store.state.shopAccent === 'cobalt' ? 'btn-primary' : ''}`,
+              textContent: 'Anodized Cobalt',
+              onClick: () => store.setShopAccent('cobalt')
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: `btn btn-sm ${store.state.shopAccent === 'racing' ? 'btn-primary' : ''}`,
+              textContent: 'British Racing Green',
+              onClick: () => store.setShopAccent('racing')
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: `btn btn-sm ${store.state.shopAccent === 'copper' ? 'btn-primary' : ''}`,
+              textContent: 'Brazed Copper',
+              onClick: () => store.setShopAccent('copper')
+            }),
+            Utils.el('button', {
+              type: 'button',
+              className: 'btn btn-sm',
+              textContent: 'Reset All Local Store Data',
+              onClick: () => store.resetShopData()
+            })
+          ])
+        ]),
+
+        store.state.orders.length > 0 && Utils.el('section', { className: 'panel-card' }, [
+          Utils.el('h2', { textContent: `Completed Orders (${store.state.orders.length})` }),
+          ...store.state.orders.map((ord) =>
+            Utils.el('div', { className: 'between', style: 'padding-block: 0.5rem; border-bottom: 1px solid var(--border-subtle);' }, [
+              Utils.el('div', { className: 'stack-sm' }, [
+                Utils.el('strong', { textContent: `${ord.orderNumber} · ${ord.paymentSummary}` }),
+                Utils.el('span', { className: 'small muted', textContent: `${ord.dateFormatted} · ${ord.items.length} line item(s)` })
+              ]),
+              Utils.el('div', { className: 'cluster' }, [
+                Utils.el('strong', { className: 'mono', textContent: Utils.formatCurrency(ord.total) }),
+                Utils.el('button', {
+                  type: 'button',
+                  className: 'btn btn-sm',
+                  textContent: 'View Receipt',
+                  onClick: () => openReceiptDialog(ord)
+                })
+              ])
+            ])
+          )
+        ]),
+
+        Utils.el('section', { className: 'panel-card' }, [
+          Utils.el('div', { className: 'between' }, [
+            Utils.el('h2', { textContent: 'Native Web Platform Capability Inspector' }),
+            Utils.el('span', {
+              className: 'badge badge-ok',
+              textContent: `${capabilities.filter((c) => c.supported).length} / ${capabilities.length} Active`
+            })
+          ]),
+          Utils.el('div', { style: 'overflow-x: auto;' }, [
+            Utils.el('table', { className: 'cap-table' }, [
+              Utils.el('thead', {}, [
+                Utils.el('tr', {}, [
+                  Utils.el('th', { textContent: 'Web Platform Feature' }),
+                  Utils.el('th', { textContent: 'Status' }),
+                  Utils.el('th', { textContent: 'Role in Pennine & Chain SPA' })
+                ])
+              ]),
+              Utils.el('tbody', {}, capabilities.map((cap) =>
+                Utils.el('tr', {}, [
+                  Utils.el('td', {}, [Utils.el('strong', { textContent: cap.name })]),
+                  Utils.el('td', {}, [
+                    Utils.el('span', {
+                      className: `badge ${cap.supported ? 'badge-ok' : 'badge-warn'}`,
+                      textContent: cap.supported ? 'Active' : 'Fallback Active'
+                    })
+                  ]),
+                  Utils.el('td', { className: 'muted', textContent: cap.role })
+                ])
+              ))
+            ])
+          ])
+        ])
+      ]);
+    }
+
+    function renderNotFoundView() {
+      return Utils.el('section', { className: 'panel-card' }, [
+        Utils.el('span', { className: 'badge badge-warn', textContent: '404 · Off-Route Trail' }),
+        Utils.el('h1', { textContent: 'That bridleway doesn’t appear on our workshop map.' }),
+        Utils.el('a', { href: '#/shop', className: 'btn btn-primary', 'data-route': '/shop', textContent: 'Return to Showroom' })
+      ]);
+    }
+
+    /* ========================================================================
+       MODULE 8: ROOT RENDER ORCHESTRATION
+       ======================================================================== */
+    function syncHeaderChrome() {
+      const currentRoute = store.state.route;
+      document.querySelectorAll('.nav-link').forEach((link) => {
+        if (link.dataset.route === currentRoute) {
+          link.setAttribute('aria-current', 'page');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
+
+      const themeLabel = document.getElementById('theme-toggle-label');
+      if (themeLabel) {
+        themeLabel.textContent = store.state.theme === 'light' ? 'Night Stand' : 'Daylight Shop';
+      }
+
+      const basketBadge = document.getElementById('basket-count-badge');
+      if (basketBadge) {
+        const totals = store.getBasketTotals();
+        basketBadge.textContent = String(totals.itemCount);
+      }
+    }
+
+    function renderCurrentView() {
+      const main = document.getElementById('main-content');
+      if (!main) return;
+
+      if (activeCanvasController && store.state.route !== '/gear-lab') {
+        activeCanvasController.destroy();
+        activeCanvasController = null;
+      }
+      if (store.state.route !== '/shop') {
+        clearInterval(carouselTimer);
+      }
+
+      syncHeaderChrome();
+
+      const viewMap = {
+        '/shop': renderShopView,
+        '/catalog': renderCatalogView,
+        '/gear-lab': renderGearLabView,
+        '/basket': renderBasketView,
+        '/checkout': renderCheckoutView,
+        '/workshop': renderWorkshopView,
+        '/404': renderNotFoundView
+      };
+
+      const renderFn = viewMap[store.state.route] ?? renderNotFoundView;
+      main.replaceChildren(renderFn());
+    }
+
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest('a[data-route]');
+      if (!link) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      navigateTo(link.dataset.route);
+    });
+
+    document.getElementById('theme-toggle-btn')?.addEventListener('click', () => {
+      store.toggleTheme();
+    });
+
+    store.addEventListener('appearance', () => {
+      syncHeaderChrome();
+      if (store.state.route === '/gear-lab' || store.state.route === '/workshop') {
+        renderCurrentView();
+      }
+    });
+    store.addEventListener('catalog', () => {
+      if (store.state.route === '/catalog' || store.state.route === '/shop') {
+        renderCurrentView();
+      }
+    });
+    store.addEventListener('basket', () => {
+      syncHeaderChrome();
+      if (store.state.route === '/basket' || store.state.route === '/checkout') {
+        renderCurrentView();
+      }
+    });
+    store.addEventListener('gearlab', () => {
+      if (store.state.route === '/gear-lab') renderCurrentView();
+    });
+
+    window.addEventListener('popstate', () => {
+      navigateTo(parseRouteFromLocation(), { push: false });
+    });
+
+    navigateTo(parseRouteFromLocation(), { push: false });
+  </script>
+</body>
+</html>
