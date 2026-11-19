@@ -1,0 +1,1952 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>LLM Mesh Console — One model, many machines</title>
+<style>
+/* ============================================================
+   styles: embedded single-file design system
+   ============================================================ */
+@layer reset, tokens, base, layout, components, utilities, motion;
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { min-height: 100dvh; }
+  img, svg, canvas, video { display: block; max-width: 100%; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  ul, ol { list-style: none; padding: 0; }
+  a { color: inherit; }
+}
+
+@layer tokens {
+  :root {
+    color-scheme: dark;
+    --bg: oklch(17% 0.025 258);
+    --bg-2: oklch(20% 0.03 258);
+    --surface: oklch(23% 0.032 258);
+    --surface-2: oklch(27% 0.035 258);
+    --border: oklch(38% 0.03 258);
+    --text: oklch(96% 0.01 258);
+    --muted: oklch(74% 0.022 258);
+    --accent: oklch(82% 0.16 82);
+    --accent-ink: oklch(18% 0.05 82);
+    --cyan: oklch(80% 0.14 205);
+    --violet: oklch(72% 0.17 295);
+    --green: oklch(78% 0.16 155);
+    --amber: oklch(82% 0.16 82);
+    --red: oklch(68% 0.19 25);
+    --radius-s: 7px;
+    --radius: 12px;
+    --radius-l: 18px;
+    --ring: 0 0 0 2px color-mix(in oklab, var(--cyan) 70%, transparent);
+    --shadow: 0 12px 32px oklch(0% 0 0 / 0.28);
+    --space-1: 0.35rem;
+    --space-2: 0.7rem;
+    --space-3: 1.1rem;
+    --space-4: 1.7rem;
+    --space-5: 2.6rem;
+    --font: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+    --step-0: clamp(0.94rem, 0.91rem + 0.2vw, 1.03rem);
+    --step-1: clamp(1.08rem, 1rem + 0.45vw, 1.28rem);
+    --step-2: clamp(1.32rem, 1.12rem + 1vw, 1.85rem);
+    --step-3: clamp(1.75rem, 1.25rem + 2.4vw, 3rem);
+    --motion: 1;
+  }
+
+  [data-theme="light"] {
+    color-scheme: light;
+    --bg: oklch(96% 0.012 255);
+    --bg-2: oklch(93% 0.017 255);
+    --surface: oklch(99% 0.004 255);
+    --surface-2: oklch(95% 0.014 255);
+    --border: oklch(84% 0.02 255);
+    --text: oklch(20% 0.03 258);
+    --muted: oklch(43% 0.03 258);
+    --accent: oklch(52% 0.15 75);
+    --accent-ink: oklch(98% 0.02 82);
+    --cyan: oklch(48% 0.13 220);
+    --violet: oklch(48% 0.17 295);
+    --green: oklch(47% 0.14 155);
+    --amber: oklch(56% 0.15 75);
+    --red: oklch(50% 0.19 25);
+    --shadow: 0 10px 28px oklch(20% 0.03 258 / 0.12);
+  }
+
+  [data-motion="off"] { --motion: 0; }
+}
+
+@layer base {
+  body {
+    background:
+      radial-gradient(1200px 620px at 78% -10%, color-mix(in oklab, var(--violet) 22%, transparent), transparent 60%),
+      radial-gradient(900px 520px at 10% 0%, color-mix(in oklab, var(--cyan) 15%, transparent), transparent 62%),
+      var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: var(--step-0);
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 { line-height: 1.12; text-wrap: balance; }
+  h1 { font-size: var(--step-3); letter-spacing: -0.03em; }
+  h2 { font-size: var(--step-2); letter-spacing: -0.02em; }
+  h3 { font-size: var(--step-1); }
+  p { text-wrap: pretty; }
+  a { text-decoration-color: color-mix(in oklab, var(--cyan) 60%, transparent); text-underline-offset: 3px; }
+  a:hover { color: var(--cyan); }
+  :focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--radius-s); }
+  code, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  svg[aria-hidden="true"], canvas[aria-hidden="true"] { pointer-events: none; }
+}
+
+@layer layout {
+  .shell {
+    width: min(1520px, 100%);
+    margin-inline: auto;
+    padding: clamp(0.7rem, 2vw, 1.6rem);
+    display: grid;
+    min-height: 100dvh;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.65rem clamp(0.7rem, 2vw, 1.3rem);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-l);
+    background: color-mix(in oklab, var(--surface) 82%, transparent);
+    backdrop-filter: blur(14px);
+    box-shadow: var(--shadow);
+  }
+
+  .brand { display: flex; align-items: center; gap: 0.65rem; min-width: 0; }
+  .brand strong { font-size: var(--step-1); letter-spacing: -0.02em; white-space: nowrap; }
+  .brand small { display: block; color: var(--muted); font-size: 0.72rem; }
+
+  .nav {
+    display: flex;
+    gap: 0.25rem;
+    margin-left: auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav a {
+    display: grid;
+    place-items: center;
+    min-height: 44px;
+    padding: 0 0.9rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    color: var(--muted);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.18s, background 0.18s, border-color 0.18s;
+  }
+  .nav a:hover { color: var(--text); background: var(--surface-2); }
+  .nav a[aria-current="page"] {
+    color: var(--accent-ink);
+    background: var(--accent);
+    border-color: color-mix(in oklab, var(--accent) 70%, transparent);
+    font-weight: 650;
+  }
+
+  .view {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    padding-block: var(--space-4);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+  }
+  .grid-wide { grid-template-columns: repeat(auto-fit, minmax(min(100%, 390px), 1fr)); }
+
+  .footer {
+    color: var(--muted);
+    font-size: 0.78rem;
+    padding-block: var(--space-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: space-between;
+  }
+}
+
+@layer components {
+  .panel {
+    container-type: inline-size;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-l);
+    background: color-mix(in oklab, var(--surface) 90%, transparent);
+    box-shadow: var(--shadow);
+    overflow: clip;
+  }
+  .panel > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--border);
+    background: color-mix(in oklab, var(--surface-2) 58%, transparent);
+  }
+  .panel > header h2, .panel > header h3 { font-size: var(--step-1); }
+  .panel-body { padding: var(--space-3); }
+  .panel-body > * + * { margin-top: var(--space-3); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 44px;
+    padding: 0.55rem 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--text);
+    text-decoration: none;
+    transition: transform 0.16s, background 0.16s, border-color 0.16s;
+  }
+  .btn:hover { background: color-mix(in oklab, var(--surface-2) 72%, var(--cyan) 10%); border-color: color-mix(in oklab, var(--cyan) 45%, var(--border)); }
+  .btn:active { transform: translateY(1px) scale(0.99); }
+  .btn-primary {
+    background: var(--accent);
+    border-color: color-mix(in oklab, var(--accent) 78%, transparent);
+    color: var(--accent-ink);
+    font-weight: 700;
+  }
+  .btn-primary:hover { background: color-mix(in oklab, var(--accent) 88%, white 8%); }
+  .btn-ghost { background: transparent; }
+  .btn-danger { color: var(--red); border-color: color-mix(in oklab, var(--red) 45%, var(--border)); }
+  .btn[disabled] { opacity: 0.55; cursor: not-allowed; transform: none; }
+  .btn-sm { min-height: 36px; padding: 0.3rem 0.65rem; font-size: 0.82rem; }
+  .icon-btn { width: 44px; padding: 0; }
+
+  .field { display: grid; gap: 0.35rem; }
+  .field label { font-size: 0.8rem; font-weight: 650; color: var(--muted); }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.6rem 0.75rem;
+    color: var(--text);
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-s);
+  }
+  .field textarea { field-sizing: content; min-height: 96px; resize: vertical; }
+  .field input:user-invalid, .field select:user-invalid, .field textarea:user-invalid {
+    border-color: var(--red);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--red) 28%, transparent);
+  }
+  .field:has(:user-invalid) .hint { color: var(--red); }
+  .hint { font-size: 0.76rem; color: var(--muted); }
+  .error-text { color: var(--red); font-size: 0.8rem; font-weight: 650; }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 28px;
+    padding: 0.18rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--muted);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  .chip-accent { color: var(--accent); border-color: color-mix(in oklab, var(--accent) 45%, var(--border)); }
+  .chip-cyan { color: var(--cyan); border-color: color-mix(in oklab, var(--cyan) 45%, var(--border)); }
+  .chip-green { color: var(--green); border-color: color-mix(in oklab, var(--green) 45%, var(--border)); }
+  .chip-red { color: var(--red); border-color: color-mix(in oklab, var(--red) 45%, var(--border)); }
+
+  .metric {
+    display: grid;
+    gap: 0.2rem;
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: linear-gradient(145deg, var(--surface-2), color-mix(in oklab, var(--surface) 88%, transparent));
+  }
+  .metric dt { color: var(--muted); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; }
+  .metric dd { font-size: var(--step-2); font-weight: 750; font-variant-numeric: tabular-nums; }
+  .metric small { color: var(--muted); }
+
+  @scope (.metric) {
+    :scope { position: relative; }
+    :scope::after {
+      content: "";
+      position: absolute;
+      inset: auto 12% -1px;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      opacity: 0.5;
+    }
+  }
+  .metric::after {
+    content: "";
+    position: absolute;
+    inset: auto 12% -1px;
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity: 0.5;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: end;
+  }
+  .toolbar .field { flex: 1 1 180px; }
+
+  .shard-card {
+    display: grid;
+    gap: 0.7rem;
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+  }
+  .shard-card[data-favorite="true"] { border-color: color-mix(in oklab, var(--amber) 55%, var(--border)); }
+  .shard-card header { display: flex; align-items: start; justify-content: space-between; gap: 0.6rem; }
+  .shard-card h3 { font-size: 1rem; }
+  .shard-meta { color: var(--muted); font-size: 0.78rem; }
+  .shard-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .bar {
+    height: 7px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--bg) 72%, transparent);
+    overflow: hidden;
+  }
+  .bar > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--cyan), var(--violet));
+    transition: width 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .chat {
+    display: grid;
+    gap: var(--space-3);
+    min-height: min(62dvh, 640px);
+    grid-template-rows: 1fr auto;
+  }
+  .chat-log {
+    overflow-y: auto;
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: color-mix(in oklab, var(--bg-2) 72%, transparent);
+    scroll-behavior: smooth;
+  }
+  .msg {
+    max-width: min(72ch, 100%);
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    margin-bottom: 0.7rem;
+  }
+  .msg-user {
+    margin-left: auto;
+    background: color-mix(in oklab, var(--violet) 18%, var(--surface));
+    border-color: color-mix(in oklab, var(--violet) 38%, var(--border));
+  }
+  .msg-ai { background: color-mix(in oklab, var(--cyan) 10%, var(--surface)); }
+  .msg-label {
+    display: flex;
+    gap: 0.45rem;
+    align-items: center;
+    margin-bottom: 0.35rem;
+    color: var(--muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  .msg-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .cursor { display: inline-block; width: 0.55em; height: 1em; background: var(--cyan); vertical-align: text-bottom; animation: blink 0.9s steps(2, start) infinite; }
+  .routing {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px dashed var(--border);
+  }
+
+  .composer {
+    display: grid;
+    gap: 0.55rem;
+    grid-template-columns: 1fr auto;
+  }
+  .composer textarea {
+    min-height: 78px;
+    field-sizing: content;
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-2);
+    resize: vertical;
+  }
+
+  .canvas-wrap {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    min-height: 280px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 40%, color-mix(in oklab, var(--violet) 20%, transparent), transparent 65%), var(--bg-2);
+  }
+  .canvas-wrap canvas { width: 100%; height: 100%; }
+  .canvas-hint {
+    position: absolute;
+    inset: auto 0.8rem 0.8rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+    pointer-events: none;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { padding: 0.65rem 0.55rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; }
+  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+  .table-scroll table { min-width: 720px; }
+
+  dialog {
+    width: min(580px, calc(100vw - 2rem));
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-l);
+    color: var(--text);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  dialog::backdrop { background: oklch(10% 0.02 258 / 0.65); backdrop-filter: blur(3px); }
+  dialog form { display: grid; gap: var(--space-3); padding: var(--space-3); }
+  dialog .dialog-actions { display: flex; justify-content: flex-end; gap: 0.5rem; flex-wrap: wrap; }
+
+  [popover] {
+    position: fixed;
+    inset: auto;
+    width: min(360px, calc(100vw - 2rem));
+    max-height: min(72dvh, 620px);
+    overflow: auto;
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow);
+  }
+  @supports (anchor-name: --a) {
+    #capabilities-popover {
+      position-anchor: --capabilities-btn;
+      position-area: block-end inline-end;
+      position-try-fallbacks: flip-block, flip-inline;
+    }
+  }
+  .capability {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.35rem 0.7rem;
+    padding-block: 0.55rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .capability:last-child { border-bottom: 0; }
+  .capability strong { font-size: 0.85rem; }
+  .capability p { grid-column: 2; color: var(--muted); font-size: 0.76rem; }
+
+  .empty {
+    display: grid;
+    place-items: center;
+    gap: 0.55rem;
+    min-height: 180px;
+    padding: var(--space-4);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
+    text-align: center;
+  }
+  .toast {
+    position: fixed;
+    z-index: 90;
+    inset: auto 1rem 1rem;
+    max-width: min(420px, calc(100vw - 2rem));
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow);
+    translate: 0 130%;
+    transition: translate 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .toast[data-open="true"] { translate: 0 0; }
+  .toast[data-tone="error"] { border-color: color-mix(in oklab, var(--red) 55%, var(--border)); }
+  .toast[data-tone="success"] { border-color: color-mix(in oklab, var(--green) 55%, var(--border)); }
+
+  .skip {
+    position: fixed;
+    z-index: 100;
+    top: 0.6rem;
+    left: 0.6rem;
+    padding: 0.65rem 0.9rem;
+    border-radius: var(--radius-s);
+    background: var(--accent);
+    color: var(--accent-ink);
+    translate: 0 -160%;
+    transition: translate 0.2s;
+  }
+  .skip:focus-visible { translate: 0 0; }
+}
+
+@layer utilities {
+  .visually-hidden {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .muted { color: var(--muted); }
+  .small { font-size: 0.8rem; }
+  .mono { font-family: var(--mono); }
+  .row { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
+  .spread { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: space-between; align-items: center; }
+  .stack { display: grid; gap: var(--space-2); }
+}
+
+@layer motion {
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes pulse {
+    from { transform: scale(0.94); opacity: 0.35; }
+    to { transform: scale(1.06); opacity: 0.85; }
+  }
+  .pulse { animation: pulse 2.4s ease-in-out infinite alternate; }
+
+  @starting-style {
+    dialog:open, [popover]:open { opacity: 0; transform: translateY(10px) scale(0.98); }
+  }
+  dialog, [popover] {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.22s, transform 0.22s, display 0.22s allow-discrete, overlay 0.22s allow-discrete;
+  }
+
+  .progress {
+    position: fixed;
+    z-index: 80;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 3px;
+    background: transparent;
+    transform-origin: 0 50%;
+    scale: 0 1;
+  }
+  @supports (animation-timeline: scroll()) {
+    .progress {
+      animation: grow linear both;
+      animation-timeline: scroll();
+    }
+    @keyframes grow { from { scale: 0 1; } to { scale: 1 1; } }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  [data-motion="off"] *, [data-motion="off"] *::before, [data-motion="off"] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .topbar { flex-wrap: wrap; }
+  .nav { order: 3; width: 100%; margin-left: 0; }
+  .composer { grid-template-columns: 1fr; }
+  .canvas-wrap { aspect-ratio: 4 / 3; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<div class="progress" aria-hidden="true"></div>
+
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="#/overview">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+        <defs>
+          <linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="var(--cyan)"/><stop offset="1" stop-color="var(--violet)"/>
+          </linearGradient>
+        </defs>
+        <rect width="34" height="34" rx="9" fill="url(#bg1)" opacity="0.18"/>
+        <circle cx="17" cy="17" r="5" fill="var(--accent)"/>
+        <path d="M17 5v7M17 22v7M5 17h7M22 17h7M8.5 8.5l5 5M20.5 20.5l5 5M25.5 8.5l-5 5M13.5 20.5l-5 5" stroke="var(--cyan)" stroke-width="1.7" stroke-linecap="round"/>
+      </svg>
+      <span><strong>LLM Mesh Console</strong><small>One model · many machines</small></span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <a href="#/overview">Overview</a>
+      <a href="#/console">Unified chat</a>
+      <a href="#/cluster">Cluster</a>
+      <a href="#/shards">Shard registry</a>
+      <a href="#/settings">System</a>
+    </nav>
+
+    <button id="capabilities-btn" class="btn btn-ghost icon-btn" popovertarget="capabilities-popover" aria-label="Platform capabilities">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+      </svg>
+    </button>
+    <button id="theme-btn" class="btn btn-ghost icon-btn" aria-label="Toggle color theme">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="4"/>
+      </svg>
+    </button>
+  </header>
+
+  <main id="main" class="view" tabindex="-1"></main>
+
+  <footer class="footer">
+    <span>LLM Mesh Console · local simulation · no external network requests</span>
+    <span>Shards are illustrative infrastructure records, not real hosts.</span>
+  </footer>
+</div>
+
+<div id="capabilities-popover" popover>
+  <h2 style="font-size:var(--step-1)">Platform capabilities</h2>
+  <p class="muted small">Feature detection determines which enhancements are active. Core functionality remains available when a capability is unavailable.</p>
+  <div id="capability-list" class="stack" style="margin-top:1rem"></div>
+</div>
+
+<dialog id="shard-dialog" aria-labelledby="shard-dialog-title">
+  <form id="shard-form" novalidate>
+    <h2 id="shard-dialog-title">Shard configuration</h2>
+    <div class="grid">
+      <label class="field"><span>Shard name</span>
+        <input name="name" required maxlength="48" autocomplete="off" placeholder="e.g. atlas-a1">
+      </label>
+      <label class="field"><span>Host</span>
+        <input name="host" required maxlength="64" autocomplete="off" placeholder="e.g. 10.24.8.11">
+      </label>
+    </div>
+    <div class="grid">
+      <label class="field"><span>Role</span>
+        <select name="role">
+          <option value="router">Router</option>
+          <option value="embedding">Embedding</option>
+          <option value="attention">Attention</option>
+          <option value="feedforward">Feed-forward</option>
+          <option value="generation">Generation</option>
+        </select>
+      </label>
+      <label class="field"><span>VRAM (GB)</span>
+        <input name="vram" type="number" min="1" max="1024" step="1" required inputmode="numeric">
+      </label>
+    </div>
+    <div class="grid">
+      <label class="field"><span>Target throughput (tokens/s)</span>
+        <input name="tps" type="number" min="1" max="20000" step="1" required inputmode="numeric">
+      </label>
+      <label class="field"><span>Tags (comma-separated)</span>
+        <input name="tags" maxlength="120" placeholder="a100, rack-2, low-latency">
+      </label>
+    </div>
+    <p class="error-text" id="shard-error" hidden></p>
+    <div class="dialog-actions">
+      <button type="button" class="btn" data-close>Cancel</button>
+      <button type="submit" class="btn btn-primary">Save shard</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+/* ============================================================
+   LLM Mesh Console — state, routing, rendering, simulation
+   Single-file vanilla ES module. No dependencies.
+   ============================================================ */
+
+const STORAGE_KEY = "llm-mesh-console/v1";
+const ROUTES = new Set(["overview", "console", "cluster", "shards", "settings"]);
+const ROLES = ["router", "embedding", "attention", "feedforward", "generation"];
+
+const seedShards = [
+  { id:"sh-atlas-a1", name:"atlas-a1", host:"10.24.8.11", role:"router", vram:24, tps:2400, status:"healthy", load:0.31, tags:["a100","rack-2","low-latency"], favorite:false, custom:false },
+  { id:"sh-atlas-a2", name:"atlas-a2", host:"10.24.8.12", role:"embedding", vram:48, tps:3100, status:"healthy", load:0.48, tags:["a100","rack-2"], favorite:true, custom:false },
+  { id:"sh-orion-b1", name:"orion-b1", host:"10.24.9.21", role:"attention", vram:80, tps:1800, status:"healthy", load:0.66, tags:["h100","rack-3","high-memory"], favorite:false, custom:false },
+  { id:"sh-orion-b2", name:"orion-b2", host:"10.24.9.22", role:"attention", vram:80, tps:1750, status:"degraded", load:0.88, tags:["h100","rack-3","thermal"], favorite:false, custom:false },
+  { id:"sh-orion-b3", name:"orion-b3", host:"10.24.9.23", role:"feedforward", vram:80, tps:1900, status:"healthy", load:0.42, tags:["h100","rack-3"], favorite:false, custom:false },
+  { id:"sh-lyra-c1", name:"lyra-c1", host:"10.24.10.31", role:"feedforward", vram:48, tps:2600, status:"healthy", load:0.37, tags:["l40s","rack-4"], favorite:false, custom:false },
+  { id:"sh-lyra-c2", name:"lyra-c2", host:"10.24.10.32", role:"generation", vram:48, tps:2200, status:"healthy", load:0.59, tags:["l40s","rack-4","decode"], favorite:true, custom:false },
+  { id:"sh-lyra-c3", name:"lyra-c3", host:"10.24.10.33", role:"generation", vram:48, tps:2150, status:"healthy", load:0.54, tags:["l40s","rack-4","decode"], favorite:false, custom:false },
+  { id:"sh-vega-d1", name:"vega-d1", host:"10.24.11.41", role:"embedding", vram:24, tps:3400, status:"healthy", load:0.25, tags:["a100","rack-5","retrieval"], favorite:false, custom:false },
+  { id:"sh-vega-d2", name:"vega-d2", host:"10.24.11.42", role:"router", vram:24, tps:2800, status:"maintenance", load:0.08, tags:["a100","rack-5"], favorite:false, custom:false },
+  { id:"sh-nova-e1", name:"nova-e1", host:"10.24.12.51", role:"attention", vram:141, tps:1500, status:"healthy", load:0.72, tags:["mi300x","rack-6","long-context"], favorite:false, custom:false },
+  { id:"sh-nova-e2", name:"nova-e2", host:"10.24.12.52", role:"generation", vram:141, tps:1650, status:"healthy", load:0.49, tags:["mi300x","rack-6","decode"], favorite:false, custom:false },
+  { id:"sh-quartz-f1", name:"quartz-f1", host:"10.24.13.61", role:"feedforward", vram:32, tps:2900, status:"healthy", load:0.33, tags:["l4","edge","rack-7"], favorite:false, custom:false },
+  { id:"sh-quartz-f2", name:"quartz-f2", host:"10.24.13.62", role:"router", vram:32, tps:2700, status:"healthy", load:0.29, tags:["l4","edge","rack-7"], favorite:false, custom:false }
+];
+
+const defaultState = {
+  route: "overview",
+  shards: structuredClone(seedShards),
+  chat: { messages: [], busy: false, revealRouting: true },
+  settings: { theme: "dark", motion: "system", topology: "mesh", packetRate: 1 },
+  filters: { query: "", role: "all", sort: "name", favoritesOnly: false }
+};
+
+/* ---------- utilities ---------- */
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const uid = (prefix = "id") => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+const hash = (text) => {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return Math.abs(h);
+};
+const numberFmt = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 });
+const timeFmt = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" });
+const listFmt = new Intl.ListFormat(undefined, { style: "short", type: "conjunction" });
+const sum = (values) => "sumPrecise" in Math ? Math.sumPrecise(values) : values.reduce((a, b) => a + b, 0);
+
+function safeStorage() {
+  try {
+    const probe = "__mesh_probe__";
+    localStorage.setItem(probe, "1");
+    localStorage.removeItem(probe);
+    return localStorage;
+  } catch {
+    return {
+      getItem: () => null,
+      setItem: () => { throw new Error("Storage unavailable"); },
+      removeItem: () => {}
+    };
+  }
+}
+const storage = safeStorage();
+
+function loadState() {
+  try {
+    const raw = storage.getItem(STORAGE_KEY);
+    if (!raw) return structuredClone(defaultState);
+    const parsed = JSON.parse(raw);
+    if (parsed?.version !== 1) return structuredClone(defaultState);
+    return {
+      ...structuredClone(defaultState),
+      ...parsed,
+      chat: { ...defaultState.chat, ...parsed.chat, busy: false },
+      settings: { ...defaultState.settings, ...parsed.settings },
+      filters: { ...defaultState.filters, ...parsed.filters }
+    };
+  } catch {
+    return structuredClone(defaultState);
+  }
+}
+
+function persist() {
+  try {
+    storage.setItem(STORAGE_KEY, JSON.stringify({
+      version: 1,
+      shards: state.shards,
+      settings: state.settings,
+      filters: state.filters,
+      chat: { messages: state.chat.messages.slice(-30), revealRouting: state.chat.revealRouting }
+    }));
+  } catch {
+    toast("Local storage is unavailable; changes will not persist.", "error");
+  }
+}
+
+/* ---------- reactive store ---------- */
+const listeners = new Set();
+let state = loadState();
+
+function getState() { return state; }
+function setState(patch, options = {}) {
+  const previous = state;
+  state = { ...state, ...patch };
+  if (options.persist !== false) persist();
+  listeners.forEach((listener) => listener(state, previous, options));
+}
+function subscribe(listener) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+/* ---------- toast + announcements ---------- */
+let toastTimer;
+function toast(message, tone = "info") {
+  const node = $("#toast");
+  node.textContent = message;
+  node.dataset.tone = tone;
+  node.dataset.open = "true";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { node.dataset.open = "false"; }, 3600);
+}
+
+/* ---------- simulated inference domain ---------- */
+const ROLE_LABEL = {
+  router: "Request routing",
+  embedding: "Prompt embedding",
+  attention: "Context attention",
+  feedforward: "Feed-forward transform",
+  generation: "Token generation"
+};
+
+function healthyShards() {
+  return state.shards.filter((shard) => shard.status !== "maintenance");
+}
+
+function routePrompt(prompt) {
+  const pool = healthyShards();
+  if (pool.length === 0) return [];
+  const seed = hash(prompt.toLowerCase().trim());
+  const selected = [];
+  const roles = ["router", "embedding", "attention", "feedforward", "generation"];
+  roles.forEach((role, index) => {
+    const candidates = pool.filter((shard) => shard.role === role);
+    const chosen = candidates.length
+      ? candidates[seed % candidates.length]
+      : pool[(seed + index) % pool.length];
+    if (!selected.some((shard) => shard.id === chosen.id)) selected.push(chosen);
+  });
+  return selected.slice(0, 4);
+}
+
+function estimateRequest(prompt, shards) {
+  const promptTokens = Math.max(8, Math.round(prompt.trim().split(/\s+/).length * 1.35));
+  const outputTokens = clamp(24 + (hash(prompt) % 90), 24, 128);
+  const perShard = shards.map((shard) => {
+    const capacity = shard.tps * (1 - shard.load * 0.72);
+    const latency = 18 + (promptTokens / Math.max(120, capacity)) * 1000 + shard.load * 70;
+    return {
+      shard,
+      latency,
+      tokens: Math.round(outputTokens / shards.length),
+      contribution: ROLE_LABEL[shard.role] ?? "Distributed compute"
+    };
+  });
+  return {
+    promptTokens,
+    outputTokens,
+    perShard,
+    totalLatency: Math.max(...perShard.map((item) => item.latency)) + 12,
+    throughput: sum(perShard.map((item) => item.shard.tps)) / shards.length
+  };
+}
+
+function composeResponse(prompt, estimate) {
+  const p = prompt.toLowerCase();
+  const topic = p.includes("route") || p.includes("shard")
+    ? "routing"
+    : p.includes("latency") || p.includes("slow")
+      ? "latency"
+      : p.includes("memory") || p.includes("vram")
+        ? "memory"
+        : p.includes("explain") || p.includes("how")
+          ? "explain"
+          : "general";
+  const lead = {
+    routing: "The unified model treats your request as one inference, while the mesh divides it into coordinated stages.",
+    latency: "End-to-end latency is governed by the slowest participating shard, not merely average machine speed.",
+    memory: "Memory pressure is balanced by assigning attention-heavy work to high-VRAM nodes and keeping router overhead small.",
+    explain: "From your perspective, this is one conversational model; underneath, its layers and operations are distributed across the mesh.",
+    general: "I can help reason about distributed inference, shard placement, routing policy, throughput, and failure behavior."
+  }[topic];
+
+  const names = estimate.perShard.map((item) => item.shard.name);
+  return `${lead}\n\nFor this request, ${listFmt.format(names)} collaborated across ${estimate.perShard.length} stages. The router selected them from the healthy pool, embedding encoded the prompt, attention and feed-forward stages processed context, and generation produced the reply.\n\nSimulated result: ${estimate.promptTokens} prompt tokens in, approximately ${estimate.outputTokens} tokens out. This response is generated locally by the console’s routing simulator; it does not call an external model.`;
+}
+
+/* ---------- chat streaming ---------- */
+let streamToken = 0;
+
+function appendMessage(role, text, routing = []) {
+  const message = { id: uid("msg"), role, text, routing, at: Date.now() };
+  state.chat.messages.push(message);
+  setState({ chat: state.chat }, { persist: false });
+  return message;
+}
+
+function renderChatMessage(message) {
+  const article = document.createElement("article");
+  article.className = `msg msg-${message.role}`;
+  article.dataset.id = message.id;
+
+  const label = document.createElement("p");
+  label.className = "msg-label";
+  label.textContent = message.role === "user" ? "You" : "Unified model";
+
+  const body = document.createElement("p");
+  body.className = "msg-text";
+  body.textContent = message.text;
+
+  article.append(label, body);
+
+  if (message.routing.length && state.chat.revealRouting) {
+    const routingRow = document.createElement("div");
+    routingRow.className = "routing";
+    message.routing.forEach((item) => {
+      const chip = document.createElement("span");
+      chip.className = "chip chip-cyan";
+      chip.textContent = `${item.shard.name} · ${item.contribution} · ${Math.round(item.latency)} ms`;
+      routingRow.append(chip);
+    });
+    article.append(routingRow);
+  }
+  return article;
+}
+
+function streamAssistant(prompt, estimate) {
+  const text = composeResponse(prompt, estimate);
+  const message = appendMessage("assistant", "", estimate.perShard);
+  const log = $("#chat-log");
+  const node = renderChatMessage(message);
+  log?.append(node);
+  log?.scrollTo({ top: log.scrollHeight });
+
+  const target = node.querySelector(".msg-text");
+  const cursor = document.createElement("span");
+  cursor.className = "cursor";
+  cursor.setAttribute("aria-hidden", "true");
+  target.append(cursor);
+
+  const words = text.split(/(\s+)/);
+  let index = 0;
+  const id = ++streamToken;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches || state.settings.motion === "off";
+
+  const tick = () => {
+    if (id !== streamToken) return;
+    const chunk = words.slice(index, index + (reduced ? words.length : 2)).join("");
+    index += reduced ? words.length : 2;
+    target.insertBefore(document.createTextNode(chunk), cursor);
+    log?.scrollTo({ top: log.scrollHeight });
+    if (index < words.length) setTimeout(tick, reduced ? 0 : 22);
+    else {
+      cursor.remove();
+      state.chat.busy = false;
+      setState({ chat: state.chat });
+    }
+  };
+  setTimeout(tick, reduced ? 0 : 180);
+}
+
+function sendMessage(prompt) {
+  if (!prompt.trim() || state.chat.busy) return;
+  const shards = routePrompt(prompt);
+  if (shards.length === 0) {
+    toast("No healthy shards are available. Add or restore a shard first.", "error");
+    return;
+  }
+  const estimate = estimateRequest(prompt, shards);
+  appendMessage("user", prompt);
+  const log = $("#chat-log");
+  log?.append(renderChatMessage(state.chat.messages.at(-1)));
+  log?.scrollTo({ top: log.scrollHeight });
+
+  state.chat.busy = true;
+  setState({ chat: state.chat }, { persist: false });
+  streamAssistant(prompt, estimate);
+  toast(`Routed across ${shards.length} shards · simulated ${Math.round(estimate.totalLatency)} ms`, "success");
+}
+
+/* ---------- cluster canvas ---------- */
+function createClusterCanvas(canvas) {
+  const context = canvas.getContext("2d");
+  if (!context) return { destroy() {} };
+  let width = 0, height = 0, dpr = 1, running = false, visible = true, frame = 0;
+  const packets = [];
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    width = Math.max(1, rect.width);
+    height = Math.max(1, rect.height);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function positions(count, topology) {
+    const points = [];
+    const cx = width / 2, cy = height / 2;
+    const radius = Math.min(width, height) * 0.34;
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2 - Math.PI / 2;
+      if (topology === "star") {
+        const ring = i === 0 ? 0 : radius;
+        const a = i === 0 ? 0 : angle;
+        points.push({ x: cx + Math.cos(a) * ring, y: cy + Math.sin(a) * ring });
+      } else if (topology === "ring") {
+        points.push({ x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius });
+      } else {
+        const cols = Math.ceil(Math.sqrt(count));
+        const rows = Math.ceil(count / cols);
+        const cellW = width / (cols + 1);
+        const cellH = height / (rows + 1);
+        points.push({
+          x: cellW * ((i % cols) + 1),
+          y: cellH * (Math.floor(i / cols) + 1)
+        });
+      }
+    }
+    return points;
+  }
+
+  function edges(points, topology) {
+    const result = [];
+    if (topology === "star") {
+      for (let i = 1; i < points.length; i++) result.push([0, i]);
+    } else if (topology === "ring") {
+      for (let i = 0; i < points.length; i++) result.push([i, (i + 1) % points.length]);
+    } else {
+      for (let i = 0; i < points.length; i++) {
+        for (let j = i + 1; j < points.length; j++) {
+          if ((i + j) % 3 === 0 || j === i + 1) result.push([i, j]);
+        }
+      }
+    }
+    return result;
+  }
+
+  function draw() {
+    context.clearRect(0, 0, width, height);
+    const shards = state.shards.slice(0, 16);
+    const points = positions(shards.length, state.settings.topology);
+    const links = edges(points, state.settings.topology);
+
+    context.lineWidth = 1;
+    links.forEach(([a, b]) => {
+      context.strokeStyle = "rgba(128,180,220,0.22)";
+      context.beginPath();
+      context.moveTo(points[a].x, points[a].y);
+      context.lineTo(points[b].x, points[b].y);
+      context.stroke();
+    });
+
+    shards.forEach((shard, i) => {
+      const point = points[i];
+      const radius = 7 + shard.vram / 22;
+      const statusColor = shard.status === "healthy" ? "#59d3a6" : shard.status === "degraded" ? "#e6b25a" : "#7c879b";
+      context.beginPath();
+      context.arc(point.x, point.y, radius + 5, 0, Math.PI * 2);
+      context.fillStyle = `${statusColor}22`;
+      context.fill();
+      context.beginPath();
+      context.arc(point.x, point.y, radius, 0, Math.PI * 2);
+      context.fillStyle = statusColor;
+      context.fill();
+      context.fillStyle = "rgba(235,240,250,0.88)";
+      context.font = "10px ui-monospace, monospace";
+      context.textAlign = "center";
+      context.fillText(shard.name, point.x, point.y - radius - 7);
+    });
+
+    if (frame % 16 === 0 && packets.length < 70 * state.settings.packetRate) {
+      const link = links[Math.floor(Math.random() * links.length)];
+      if (link) packets.push({ link, t: 0, speed: 0.004 + Math.random() * 0.008 });
+    }
+
+    for (let i = packets.length - 1; i >= 0; i--) {
+      const packet = packets[i];
+      packet.t += packet.speed;
+      if (packet.t >= 1) {
+        packets.splice(i, 1);
+        continue;
+      }
+      const [a, b] = packet.link;
+      const x = points[a].x + (points[b].x - points[a].x) * packet.t;
+      const y = points[a].y + (points[b].y - points[a].y) * packet.t;
+      context.beginPath();
+      context.arc(x, y, 2.4, 0, Math.PI * 2);
+      context.fillStyle = "rgba(120,220,255,0.9)";
+      context.fill();
+    }
+
+    frame++;
+    if (running && visible && !document.hidden) requestAnimationFrame(draw);
+  }
+
+  const resizeObserver = new ResizeObserver(() => { resize(); draw(); });
+  resizeObserver.observe(canvas);
+
+  const intersectionObserver = new IntersectionObserver((entries) => {
+    visible = entries[0]?.isIntersecting ?? true;
+    if (visible && !running) { running = true; requestAnimationFrame(draw); }
+  }, { threshold: 0.05 });
+  intersectionObserver.observe(canvas);
+
+  const visibilityHandler = () => {
+    if (!document.hidden && visible && !running) { running = true; requestAnimationFrame(draw); }
+  };
+  document.addEventListener("visibilitychange", visibilityHandler);
+
+  resize();
+  running = true;
+  requestAnimationFrame(draw);
+
+  return {
+    refresh: draw,
+    destroy() {
+      running = false;
+      resizeObserver.disconnect();
+      intersectionObserver.disconnect();
+      document.removeEventListener("visibilitychange", visibilityHandler);
+    }
+  };
+}
+
+/* ---------- rendering helpers ---------- */
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function icon(path) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("width", "18");
+  svg.setAttribute("height", "18");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "1.8");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("aria-hidden", "true");
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", path);
+  svg.append(p);
+  return svg;
+}
+
+function panel(title, body, actions) {
+  const section = el("section", "panel");
+  const header = el("header");
+  const heading = el("h2", "", title);
+  header.append(heading);
+  if (actions) header.append(actions);
+  const content = el("div", "panel-body");
+  if (Array.isArray(body)) content.append(...body); else if (body) content.append(body);
+  section.append(header, content);
+  return section;
+}
+
+function statusChip(status) {
+  const map = { healthy: ["chip-green", "Healthy"], degraded: ["chip-red", "Degraded"], maintenance: ["chip", "Maintenance"] };
+  const [cls, label] = map[status] ?? ["chip", status];
+  return el("span", `chip ${cls}`, label);
+}
+
+/* ---------- views ---------- */
+function renderOverview() {
+  const healthy = healthyShards();
+  const totalVram = sum(state.shards.map((shard) => shard.vram));
+  const totalTps = sum(healthy.map((shard) => shard.tps));
+  const averageLoad = state.shards.length ? sum(state.shards.map((shard) => shard.load)) / state.shards.length : 0;
+
+  const hero = el("section", "panel");
+  const heroBody = el("div", "panel-body");
+  const eyebrow = el("p", "muted small", "Distributed inference control plane");
+  const h1 = el("h1", "", "Operate one LLM across a fleet of machines");
+  const copy = el("p", "", "Chat with a single unified assistant while the console routes each request through embedding, attention, feed-forward, and generation shards. Inspect machine health, capacity, topology, and simulated request flow without leaving the browser.");
+  const actions = el("div", "row");
+  const chatLink = el("a", "btn btn-primary", "Open unified chat");
+  chatLink.href = "#/console";
+  const clusterLink = el("a", "btn", "View live cluster");
+  clusterLink.href = "#/cluster";
+  actions.append(chatLink, clusterLink);
+  heroBody.append(eyebrow, h1, copy, actions);
+
+  const mesh = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  mesh.setAttribute("viewBox", "0 0 520 220");
+  mesh.setAttribute("role", "img");
+  mesh.setAttribute("aria-label", "Illustration of one unified model distributed across connected machines");
+  mesh.style.marginTop = "1.2rem";
+  mesh.innerHTML = `
+    <defs>
+      <linearGradient id="meshline" x1="0" x2="1">
+        <stop offset="0" stop-color="var(--cyan)"/><stop offset="1" stop-color="var(--violet)"/>
+      </linearGradient>
+      <filter id="soft"><feGaussianBlur stdDeviation="2.2"/></filter>
+    </defs>
+    <circle cx="260" cy="105" r="36" fill="var(--accent)" opacity="0.18" filter="url(#soft)"/>
+    <circle cx="260" cy="105" r="20" fill="var(--accent)"/>
+    <text x="260" y="110" text-anchor="middle" font-size="11" fill="var(--accent-ink)" font-family="ui-monospace, monospace">LLM</text>
+    ${[40,150,370,480].map((x, i) => `
+      <rect x="${x - 28}" y="${i % 2 ? 30 : 150}" width="56" height="40" rx="9" fill="var(--surface-2)" stroke="var(--border)"/>
+      <text x="${x}" y="${(i % 2 ? 30 : 150) + 24}" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="ui-monospace, monospace">SHARD</text>
+      <path d="M${x} ${i % 2 ? 70 : 150} L260 105" stroke="url(#meshline)" stroke-width="2" opacity="0.75"/>
+    `).join("")}
+  `;
+  heroBody.append(mesh);
+  hero.append(el("header"), heroBody);
+  hero.querySelector("header").remove();
+
+  const metrics = el("div", "grid");
+  [
+    ["Active shards", `${healthy.length}/${state.shards.length}`, "Available for routing"],
+    ["Aggregate VRAM", `${numberFmt.format(totalVram)} GB`, "Across registered machines"],
+    ["Simulated throughput", `${numberFmt.format(totalTps)} tok/s`, "Healthy shard capacity"],
+    ["Mean utilization", `${Math.round(averageLoad * 100)}%`, "Fleet-wide load estimate"]
+  ].forEach(([label, value, note]) => {
+    const card = el("dl", "metric");
+    const dt = el("dt", "", label);
+    const dd = el("dd", "", value);
+    const small = el("small", "", note);
+    card.append(dt, dd, small);
+    metrics.append(card);
+  });
+
+  const feature = panel("What the console does", (() => {
+    const wrap = el("div", "stack");
+    [
+      ["Unified chat", "Send a prompt once. The console assigns it to a router, embedding node, attention workers, and generation shards, then presents one streamed answer."],
+      ["Live topology", "Watch packets traverse the selected mesh, ring, or star topology. Node size reflects VRAM; color reflects operational status."],
+      ["Shard registry", "Search, filter, sort, favorite, duplicate, edit, and remove machine records. Custom entries persist locally."],
+      ["Local-first system", "Preferences and shard edits remain in this browser. Export or import a JSON snapshot at any time."]
+    ].forEach(([title, text]) => {
+      const item = el("article");
+      item.append(el("h3", "", title), el("p", "muted", text));
+      wrap.append(item);
+    });
+    return wrap;
+  })());
+
+  return [hero, metrics, feature];
+}
+
+function renderConsole() {
+  const chatPanel = panel("Unified chat", el("div"));
+  const body = chatPanel.querySelector(".panel-body");
+  body.innerHTML = "";
+
+  const chat = el("div", "chat");
+  const log = el("div", "chat-log");
+  log.id = "chat-log";
+  log.setAttribute("aria-label", "Conversation with the unified model");
+  log.setAttribute("aria-live", "polite");
+
+  if (state.chat.messages.length === 0) {
+    const empty = el("div", "empty");
+    empty.append(
+      el("strong", "", "No conversation yet"),
+      el("p", "small", "Ask about routing, shard placement, latency, or memory balance. The unified-model interface hides the distributed execution details unless you enable routing reveal.")
+    );
+    log.append(empty);
+  } else {
+    state.chat.messages.forEach((message) => log.append(renderChatMessage(message)));
+    log.scrollTop = log.scrollHeight;
+  }
+
+  const composer = el("form", "composer");
+  const field = el("label", "field");
+  field.append(el("span", "visually-hidden", "Message for the unified model"));
+  const textarea = el("textarea");
+  textarea.name = "prompt";
+  textarea.placeholder = "Ask the unified model: “How should I route a long-context request across the mesh?”";
+  textarea.required = true;
+  field.append(textarea);
+
+  const send = el("button", "btn btn-primary", "Send");
+  send.type = "submit";
+  const stop = el("button", "btn btn-ghost", "Stop");
+  stop.type = "button";
+  stop.disabled = !state.chat.busy;
+  stop.addEventListener("click", () => {
+    streamToken++;
+    state.chat.busy = false;
+    setState({ chat: state.chat });
+    toast("Generation stopped.", "info");
+  });
+
+  composer.append(field, send);
+  composer.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const value = textarea.value.trim();
+    if (!value) return;
+    textarea.value = "";
+    sendMessage(value);
+  });
+
+  const controls = el("div", "spread");
+  const revealLabel = el("label", "row small");
+  const reveal = document.createElement("input");
+  reveal.type = "checkbox";
+  reveal.checked = state.chat.revealRouting;
+  reveal.addEventListener("change", () => {
+    state.chat.revealRouting = reveal.checked;
+    setState({ chat: state.chat });
+    renderRoute();
+  });
+  revealLabel.append(reveal, el("span", "", "Show shard routing"));
+  const note = el("p", "muted small", "Simulated inference · no external API calls");
+  controls.append(revealLabel, note);
+
+  chat.append(log, composer);
+  body.append(chat, controls);
+
+  const stats = panel("Request telemetry", el("div"));
+  const statBody = stats.querySelector(".panel-body");
+  statBody.innerHTML = "";
+  const last = [...state.chat.messages].reverse().find((message) => message.role === "assistant" && message.routing.length);
+  if (!last) {
+    statBody.append(el("div", "empty", "Send a prompt to see shard assignments, simulated latency, and token distribution."));
+  } else {
+    const grid = el("div", "grid");
+    const estimate = estimateRequest("telemetry", last.routing.map((item) => item.shard));
+    [
+      ["Participating shards", String(last.routing.length)],
+      ["Prompt tokens", numberFmt.format(estimate.promptTokens)],
+      ["Output target", numberFmt.format(estimate.outputTokens)],
+      ["Worst-stage latency", `${Math.round(Math.max(...last.routing.map((r) => r.latency)))} ms`]
+    ].forEach(([label, value]) => {
+      const card = el("dl", "metric");
+      card.append(el("dt", "", label), el("dd", "", value));
+      grid.append(card);
+    });
+    statBody.append(grid);
+
+    const table = el("div", "table-scroll");
+    const tableNode = el("table");
+    const thead = el("thead");
+    const headRow = el("tr");
+    ["Shard", "Stage", "Simulated latency", "Token share"].forEach((text) => headRow.append(el("th", "", text)));
+    thead.append(headRow);
+    const tbody = el("tbody");
+    last.routing.forEach((item) => {
+      const row = el("tr");
+      [item.shard.name, item.contribution, `${Math.round(item.latency)} ms`, `${Math.round(item.tokens)}`]
+        .forEach((value) => row.append(el("td", "", value)));
+      tbody.append(row);
+    });
+    tableNode.append(thead, tbody);
+    table.append(tableNode);
+    statBody.append(table);
+  }
+
+  return [chatPanel, stats];
+}
+
+function renderCluster() {
+  const canvasPanel = panel("Cluster topology", el("div"));
+  const body = canvasPanel.querySelector(".panel-body");
+  body.innerHTML = "";
+
+  const controls = el("div", "toolbar");
+  const topologyField = el("label", "field");
+  topologyField.append(el("span", "", "Topology"));
+  const topology = el("select");
+  ["mesh", "ring", "star"].forEach((value) => {
+    const option = el("option", "", value[0].toUpperCase() + value.slice(1));
+    option.value = value;
+    topology.append(option);
+  });
+  topology.value = state.settings.topology;
+  topology.addEventListener("change", () => {
+    setState({ settings: { ...state.settings, topology: topology.value } });
+    canvasApi?.refresh();
+  });
+  topologyField.append(topology);
+
+  const rateField = el("label", "field");
+  rateField.append(el("span", "", `Packet rate: ${state.settings.packetRate}×`));
+  const rate = el("input");
+  rate.type = "range";
+  rate.min = "0";
+  rate.max = "3";
+  rate.step = "0.25";
+  rate.value = String(state.settings.packetRate);
+  rate.addEventListener("input", () => {
+    setState({ settings: { ...state.settings, packetRate: Number(rate.value) } }, { persist: false });
+    rateField.querySelector("span").textContent = `Packet rate: ${rate.value}×`;
+  });
+  rateField.append(rate);
+
+  const reset = el("button", "btn btn-ghost", "Reset defaults");
+  reset.addEventListener("click", () => {
+    setState({ settings: { ...state.settings, topology: "mesh", packetRate: 1 } });
+    renderRoute();
+    toast("Cluster visualization restored to defaults.", "success");
+  });
+
+  controls.append(topologyField, rateField, reset);
+
+  const wrap = el("div", "canvas-wrap");
+  const canvas = el("canvas");
+  canvas.setAttribute("aria-hidden", "true");
+  wrap.append(canvas, el("p", "canvas-hint", "Node diameter reflects VRAM. Color indicates health: green healthy, amber degraded, gray maintenance."));
+
+  const summary = el("div", "grid");
+  const healthy = healthyShards();
+  [
+    ["Machines", String(state.shards.length)],
+    ["Healthy routes", String(healthy.length)],
+    ["Topology", state.settings.topology],
+    ["Roles", listFmt.format([...new Set(state.shards.map((shard) => shard.role))])]
+  ].forEach(([label, value]) => {
+    const card = el("dl", "metric");
+    card.append(el("dt", "", label), el("dd", "", value));
+    summary.append(card);
+  });
+
+  body.append(controls, wrap, summary);
+  let canvasApi = null;
+  requestAnimationFrame(() => { canvasApi = createClusterCanvas(canvas); });
+
+  const health = panel("Machine health", (() => {
+    const wrapHealth = el("div", "stack");
+    state.shards.forEach((shard) => {
+      const row = el("article", "shard-card");
+      const top = el("div", "spread");
+      top.append(el("h3", "", shard.name), statusChip(shard.status));
+      const meta = el("p", "shard-meta", `${ROLE_LABEL[shard.role]} · ${shard.host} · ${shard.vram} GB VRAM`);
+      const bar = el("div", "bar");
+      const fill = el("span");
+      fill.style.width = `${Math.round(shard.load * 100)}%`;
+      bar.append(fill);
+      row.append(top, meta, bar);
+      wrapHealth.append(row);
+    });
+    return wrapHealth;
+  })());
+
+  return [canvasPanel, health];
+}
+
+function shardMatches(shard, filters) {
+  const query = filters.query.trim().toLowerCase();
+  const matchesQuery = !query || [shard.name, shard.host, shard.role, ...shard.tags].join(" ").toLowerCase().includes(query);
+  const matchesRole = filters.role === "all" || shard.role === filters.role;
+  const matchesFavorite = !filters.favoritesOnly || shard.favorite;
+  return matchesQuery && matchesRole && matchesFavorite;
+}
+
+function sortShards(shards, sort) {
+  const sorted = [...shards];
+  const collator = new Intl.Collator(undefined, { sensitivity: "base", numeric: true });
+  if (sort === "name") sorted.sort((a, b) => collator.compare(a.name, b.name));
+  if (sort === "load") sorted.sort((a, b) => b.load - a.load);
+  if (sort === "vram") sorted.sort((a, b) => b.vram - a.vram);
+  if (sort === "tps") sorted.sort((a, b) => b.tps - a.tps);
+  if (sort === "role") sorted.sort((a, b) => collator.compare(a.role, b.role));
+  return sorted;
+}
+
+function renderShards() {
+  const filters = state.filters;
+  const visible = sortShards(state.shards.filter((shard) => shardMatches(shard, filters)), filters.sort);
+
+  const controlsPanel = panel("Find and organize shards", (() => {
+    const form = el("form", "toolbar");
+    const search = el("label", "field");
+    search.append(el("span", "", "Search"));
+    const input = el("input");
+    input.type = "search";
+    input.placeholder = "Name, host, role, or tag";
+    input.value = filters.query;
+    input.addEventListener("input", () => {
+      state.filters.query = input.value;
+      setState({ filters: state.filters }, { persist: false });
+      renderRoute();
+    });
+    search.append(input);
+
+    const role = el("label", "field");
+    role.append(el("span", "", "Role"));
+    const roleSelect = el("select");
+    ["all", ...ROLES].forEach((value) => {
+      const option = el("option", "", value === "all" ? "All roles" : ROLE_LABEL[value]);
+      option.value = value;
+      roleSelect.append(option);
+    });
+    roleSelect.value = filters.role;
+    roleSelect.addEventListener("change", () => {
+      state.filters.role = roleSelect.value;
+      setState({ filters: state.filters });
+      renderRoute();
+    });
+    role.append(roleSelect);
+
+    const sort = el("label", "field");
+    sort.append(el("span", "", "Sort"));
+    const sortSelect = el("select");
+    [["name", "Name"], ["load", "Utilization"], ["vram", "VRAM"], ["tps", "Throughput"], ["role", "Role"]].forEach(([value, label]) => {
+      const option = el("option", "", label);
+      option.value = value;
+      sortSelect.append(option);
+    });
+    sortSelect.value = filters.sort;
+    sortSelect.addEventListener("change", () => {
+      state.filters.sort = sortSelect.value;
+      setState({ filters: state.filters });
+      renderRoute();
+    });
+    sort.append(sortSelect);
+
+    const favoriteLabel = el("label", "row small");
+    const favorite = document.createElement("input");
+    favorite.type = "checkbox";
+    favorite.checked = filters.favoritesOnly;
+    favorite.addEventListener("change", () => {
+      state.filters.favoritesOnly = favorite.checked;
+      setState({ filters: state.filters });
+      renderRoute();
+    });
+    favoriteLabel.append(favorite, el("span", "", "Favorites only"));
+
+    const clear = el("button", "btn btn-ghost", "Clear filters");
+    clear.type = "button";
+    clear.addEventListener("click", () => {
+      setState({ filters: structuredClone(defaultState.filters) });
+      renderRoute();
+      toast("Filters cleared.", "info");
+    });
+
+    form.append(search, role, sort, favoriteLabel, clear);
+    return form;
+  })());
+
+  const listPanel = panel(`Shard registry · ${visible.length}`, (() => {
+    const wrap = el("div", "stack");
+    if (visible.length === 0) {
+      wrap.append(el("div", "empty", "No shards match the current filters. Adjust search, role, or favorites."));
+      return wrap;
+    }
+    const grid = el("div", "grid");
+    visible.forEach((shard) => {
+      const card = el("article", "shard-card");
+      card.dataset.favorite = String(shard.favorite);
+      const header = el("header");
+      const title = el("div");
+      title.append(el("h3", "", shard.name), el("p", "shard-meta", `${shard.host} · ${ROLE_LABEL[shard.role]}`));
+      const favoriteButton = el("button", "btn btn-ghost btn-sm", shard.favorite ? "★ Saved" : "☆ Save");
+      favoriteButton.setAttribute("aria-pressed", String(shard.favorite));
+      favoriteButton.addEventListener("click", () => {
+        const shards = state.shards.map((item) => item.id === shard.id ? { ...item, favorite: !item.favorite } : item);
+        setState({ shards });
+        renderRoute();
+      });
+      header.append(title, favoriteButton);
+
+      const chips = el("div", "row");
+      chips.append(statusChip(shard.status), el("span", "chip", `${shard.vram} GB VRAM`), el("span", "chip chip-cyan", `${numberFmt.format(shard.tps)} tok/s`));
+      shard.tags.forEach((tag) => chips.append(el("span", "chip", tag)));
+
+      const bar = el("div", "bar");
+      const fill = el("span");
+      fill.style.width = `${Math.round(shard.load * 100)}%`;
+      bar.append(fill);
+      const load = el("p", "small muted", `Utilization ${Math.round(shard.load * 100)}%`);
+
+      const actions = el("div", "shard-actions");
+      const details = el("button", "btn btn-sm", "Details");
+      details.addEventListener("click", () => openShardDetails(shard));
+      const edit = el("button", "btn btn-sm", "Edit");
+      edit.addEventListener("click", () => openShardEditor(shard));
+      const duplicate = el("button", "btn btn-sm", "Duplicate");
+      duplicate.addEventListener("click", () => {
+        const copy = { ...structuredClone(shard), id: uid("sh"), name: `${shard.name}-copy`, custom: true, favorite: false };
+        setState({ shards: [...state.shards, copy] });
+        renderRoute();
+        toast(`Duplicated ${shard.name}.`, "success");
+      });
+      const remove = el("button", "btn btn-sm btn-danger", "Remove");
+      remove.addEventListener("click", () => {
+        if (!confirm(`Remove ${shard.name} from the registry?`)) return;
+        setState({ shards: state.shards.filter((item) => item.id !== shard.id) });
+        renderRoute();
+        toast(`Removed ${shard.name}.`, "info");
+      });
+      actions.append(details, edit, duplicate, remove);
+
+      card.append(header, chips, bar, load, actions);
+      grid.append(card);
+    });
+    wrap.append(grid);
+    return wrap;
+  })());
+
+  const addPanel = panel("Add a machine", (() => {
+    const wrap = el("div", "stack");
+    wrap.append(el("p", "muted", "Register an additional logical shard. Entries are stored only in this browser and can be exported as JSON."));
+    const add = el("button", "btn btn-primary", "Add shard");
+    add.addEventListener("click", () => openShardEditor(null));
+    wrap.append(add);
+    return wrap;
+  })());
+
+  return [controlsPanel, listPanel, addPanel];
+}
+
+function openShardDetails(shard) {
+  const dialog = $("#shard-dialog");
+  const form = $("#shard-form");
+  form.reset();
+  $("#shard-dialog-title").textContent = `${shard.name} · shard details`;
+  $("#shard-error").hidden = true;
+  const details = el("div", "stack");
+  [
+    ["Host", shard.host],
+    ["Role", ROLE_LABEL[shard.role]],
+    ["Status", shard.status],
+    ["VRAM", `${shard.vram} GB`],
+    ["Target throughput", `${numberFmt.format(shard.tps)} tokens/s`],
+    ["Utilization", `${Math.round(shard.load * 100)}%`],
+    ["Tags", shard.tags.length ? listFmt.format(shard.tags) : "None"]
+  ].forEach(([label, value]) => {
+    const row = el("div", "spread");
+    row.append(el("strong", "small", label), el("span", "small muted", String(value)));
+    details.append(row);
+  });
+  const existing = form.querySelector(".details-view");
+  existing?.remove();
+  details.className = "details-view stack";
+  form.prepend(details);
+  $$(".field", form).forEach((field) => { field.hidden = true; });
+  form.querySelector(".dialog-actions").hidden = false;
+  form.querySelector("[data-close]").textContent = "Close";
+  form.querySelector('button[type="submit"]').hidden = true;
+  dialog.showModal();
+}
+
+function openShardEditor(shard) {
+  const dialog = $("#shard-dialog");
+  const form = $("#shard-form");
+  form.reset();
+  $("#shard-error").hidden = true;
+  form.querySelector(".details-view")?.remove();
+  $$(".field", form).forEach((field) => { field.hidden = false; });
+  form.querySelector('button[type="submit"]').hidden = false;
+  form.querySelector("[data-close]").textContent = "Cancel";
+
+  $("#shard-dialog-title").textContent = shard ? `Edit ${shard.name}` : "Add shard";
+  if (shard) {
+    form.elements.name.value = shard.name;
+    form.elements.host.value = shard.host;
+    form.elements.role.value = shard.role;
+    form.elements.vram.value = shard.vram;
+    form.elements.tps.value = shard.tps;
+    form.elements.tags.value = shard.tags.join(", ");
+    form.dataset.editing = shard.id;
+  } else {
+    delete form.dataset.editing;
+  }
+  dialog.showModal();
+  form.elements.name.focus();
+}
+
+function handleShardForm(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const error = $("#shard-error");
+  const name = form.elements.name.value.trim();
+  const host = form.elements.host.value.trim();
+  const vram = Number(form.elements.vram.value);
+  const tps = Number(form.elements.tps.value);
+  const tags = form.elements.tags.value.split(",").map((tag) => tag.trim()).filter(Boolean);
+
+  if (!name || !host || !Number.isFinite(vram) || !Number.isFinite(tps)) {
+    error.textContent = "Name, host, VRAM, and throughput are required.";
+    error.hidden = false;
+    return;
+  }
+  error.hidden = true;
+
+  const editingId = form.dataset.editing;
+  if (editingId) {
+    const shards = state.shards.map((shard) => shard.id === editingId
+      ? { ...shard, name, host, role: form.elements.role.value, vram, tps, tags }
+      : shard);
+    setState({ shards });
+    toast(`Updated ${name}.`, "success");
+  } else {
+    const shard = {
+      id: uid("sh"), name, host, role: form.elements.role.value, vram, tps,
+      status: "healthy", load: 0.15 + Math.random() * 0.35, tags, favorite: false, custom: true
+    };
+    setState({ shards: [...state.shards, shard] });
+    toast(`Added ${name} to the registry.`, "success");
+  }
+  $("#shard-dialog").close();
+  renderRoute();
+}
+
+function renderSettings() {
+  const appearance = panel("Appearance and motion", (() => {
+    const wrap = el("div", "stack");
+    const theme = el("label", "field");
+    theme.append(el("span", "", "Color theme"));
+    const themeSelect = el("select");
+    [["dark", "Dark"], ["light", "Light"], ["system", "Match system"]].forEach(([value, label]) => {
+      const option = el("option", "", label);
+      option.value = value;
+      themeSelect.append(option);
+    });
+    themeSelect.value = state.settings.theme;
+    themeSelect.addEventListener("change", () => {
+      setState({ settings: { ...state.settings, theme: themeSelect.value } });
+      applyTheme();
+    });
+    theme.append(themeSelect);
+
+    const motion = el("label", "field");
+    motion.append(el("span", "", "Motion"));
+    const motionSelect = el("select");
+    [["system", "Follow system preference"], ["on", "Full motion"], ["off", "Reduce motion"]].forEach(([value, label]) => {
+      const option = el("option", "", label);
+      option.value = value;
+      motionSelect.append(option);
+    });
+    motionSelect.value = state.settings.motion;
+    motionSelect.addEventListener("change", () => {
+      setState({ settings: { ...state.settings, motion: motionSelect.value } });
+      applyTheme();
+    });
+    motion.append(motionSelect);
+    wrap.append(theme, motion);
+    return wrap;
+  })());
+
+  const data = panel("Local data", (() => {
+    const wrap = el("div", "stack");
+    const exportButton = el("button", "btn", "Export JSON snapshot");
+    exportButton.addEventListener("click", () => {
+      const payload = JSON.stringify({ version: 1, shards: state.shards, settings: state.settings }, null, 2);
+      const blob = new Blob([payload], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = el("a");
+      link.href = url;
+      link.download = "llm-mesh-console.json";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast("Snapshot exported.", "success");
+    });
+
+    const importLabel = el("label", "field");
+    importLabel.append(el("span", "", "Import JSON snapshot"));
+    const file = el("input");
+    file.type = "file";
+    file.accept = "application/json,.json";
+    file.addEventListener("change", async () => {
+      const selected = file.files?.[0];
+      if (!selected) return;
+      if (selected.size > 2_000_000) {
+        toast("File is too large. Use a JSON snapshot under 2 MB.", "error");
+        return;
+      }
+      try {
+        const parsed = JSON.parse(await selected.text());
+        if (!Array.isArray(parsed.shards)) throw new Error("Missing shards array");
+        const shards = parsed.shards.filter((shard) => shard?.id && shard?.name && ROLES.includes(shard.role));
+        if (shards.length === 0) throw new Error("No valid shard records found");
+        setState({ shards });
+        renderRoute();
+        toast(`Imported ${shards.length} shards.`, "success");
+      } catch (caught) {
+        toast(`Import failed: ${caught.message}`, "error");
+      } finally {
+        file.value = "";
+      }
+    });
+    importLabel.append(file);
+
+    const reset = el("button", "btn btn-danger", "Reset all local data");
+    reset.addEventListener("click", () => {
+      if (!confirm("Reset shards, chat history, filters, and preferences to defaults?")) return;
+      try { storage.removeItem(STORAGE_KEY); } catch {}
+      state = structuredClone(defaultState);
+      persist();
+      applyTheme();
+      renderRoute();
+      toast("Local data reset.", "info");
+    });
+
+    wrap.append(exportButton, importLabel, reset);
+    return wrap;
+  })());
+
+  const about = panel("About this console", (() => {
+    const wrap = el("div", "stack");
+    wrap.append(
+      el("p", "", "LLM Mesh Console models a control plane for a single logical LLM distributed across several machines. It is designed to make partitioning visible: a user converses with one assistant, while routing, embedding, attention, feed-forward, and generation work is assigned to separate shards."),
+      el("p", "muted small", "All machine records, latency figures, throughput values, and model responses are illustrative simulations generated locally. No external model or network service is contacted."),
+      el("p", "muted small", "The application uses browser localStorage for preferences, favorites, custom shards, and recent chat history. Avoid storing production credentials or confidential prompts.")
+    );
+    return wrap;
+  })());
+
+  return [appearance, data, about];
+}
+
+/* ---------- router ---------- */
+const renderers = {
+  overview: renderOverview,
+  console: renderConsole,
+  cluster: renderCluster,
+  shards: renderShards,
+  settings: renderSettings
+};
+
+const titles = {
+  overview: "Overview — LLM Mesh Console",
+  console: "Unified chat — LLM Mesh Console",
+  cluster: "Cluster topology — LLM Mesh Console",
+  shards: "Shard registry — LLM Mesh Console",
+  settings: "System — LLM Mesh Console"
+};
+
+function currentRoute() {
+  const route = location.hash.replace(/^#\/?/, "").split("?")[0];
+  return ROUTES.has(route) ? route : "overview";
+}
+
+function renderRoute() {
+  const route = currentRoute();
+  const main = $("#main");
+  const update = () => {
+    main.replaceChildren(...renderers[route]());
+    $$(".nav a").forEach((link) => {
+      const target = link.getAttribute("href")?.replace("#/", "");
+      if (target === route) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+    document.title = titles[route];
+  };
+
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches || state.settings.motion === "off";
+  if (document.startViewTransition && !reduceMotion) document.startViewTransition(update);
+  else update();
+}
+
+function navigate(route) {
+  if (!ROUTES.has(route)) route = "overview";
+  if (`#/${route}` === location.hash) { renderRoute(); return; }
+  location.hash = `#/${route}`;
+}
+
+/* ---------- theme ---------- */
+function applyTheme() {
+  const { theme, motion } = state.settings;
+  const systemDark = matchMedia("(prefers-color-scheme: dark)").matches;
+  const resolved = theme === "system" ? (systemDark ? "dark" : "light") : theme;
+  document.documentElement.dataset.theme = resolved;
+  document.documentElement.dataset.motion = motion === "system"
+    ? (matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on")
+    : motion;
+}
+
+/* ---------- capabilities ---------- */
+function renderCapabilities() {
+  const checks = [
+    ["View Transitions API", "document.startViewTransition" in document, "Animates major view changes."],
+    ["Scroll-driven animations", CSS.supports("animation-timeline: scroll()"), "Links the top progress bar to page scroll."],
+    ["Container queries", CSS.supports("container-type: inline-size"), "Lets panels adapt to their own width."],
+    ["Container style queries", CSS.supports("container: inline-size") && CSS.supports("(width: 1cqi)"), "Supports component-aware responsive styling."],
+    ["CSS nesting", CSS.supports("selector(&)", "& {}"), "Improves stylesheet organization."],
+    ["@scope", CSS.supports("selector(:scope)", "@scope (.metric) { :scope {} }"), "Bounds selected component styles."],
+    ["Anchor positioning", CSS.supports("anchor-name: --a"), "Positions the capabilities popover relative to its trigger."],
+    ["Popover API", "popover" in HTMLElement.prototype, "Provides lightweight, dismissible overlays."],
+    ["dialog element", "showModal" in HTMLDialogElement.prototype, "Provides accessible modal shard editing."],
+    [":has()", CSS.supports("selector(:has(*))"), "Styles fields based on validation state."],
+    ["field-sizing", CSS.supports("field-sizing: content"), "Lets textareas grow with content where supported."],
+    ["Trusted Types", "trustedTypes" in window, "Available for stricter HTML injection policies."],
+    ["Navigation API", "navigation" in window, "Can provide advanced client-side navigation integration."],
+    ["Web Animations API", "animate" in Element.prototype, "Available for programmatic interaction motion."],
+    ["Canvas 2D", Boolean(document.createElement("canvas").getContext("2d")), "Renders the live cluster topology."],
+    ["Web Audio", "AudioContext" in window || "webkitAudioContext" in window, "Available for optional user-initiated sound."],
+    ["Clipboard API", Boolean(navigator.clipboard?.writeText), "Can support copy actions with feedback."],
+    ["Web Share", Boolean(navigator.share), "Can support native sharing where appropriate."],
+    ["localStorage", (() => { try { localStorage.setItem("__probe__", "1"); localStorage.removeItem("__probe__"); return true; } catch { return false; } })(), "Persists preferences and shard edits."]
+  ];
+
+  const list = $("#capability-list");
+  list.replaceChildren();
+  checks.forEach(([label, active, explanation]) => {
+    const row = el("div", "capability");
+    row.append(el("span", `chip ${active ? "chip-green" : ""}`, active ? "Active" : "Unavailable"));
+    const text = el("div");
+    text.append(el("strong", "", label), el("p", "", explanation));
+    row.append(text);
+    list.append(row);
+  });
+}
+
+/* ---------- event wiring ---------- */
+function wireGlobalEvents() {
+  window.addEventListener("hashchange", renderRoute);
+  $("#theme-btn").addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    setState({ settings: { ...state.settings, theme: next } });
+    applyTheme();
+    toast(`${next[0].toUpperCase()}${next.slice(1)} theme enabled.`, "info");
+  });
+
+  const dialog = $("#shard-dialog");
+  $("#shard-form").addEventListener("submit", handleShardForm);
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+  dialog.querySelector("[data-close]").addEventListener("click", () => dialog.close());
+
+  $("#capabilities-btn").addEventListener("click", renderCapabilities);
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if (state.settings.theme === "system") applyTheme();
+  });
+  matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => {
+    if (state.settings.motion === "system") applyTheme();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "g" && event.altKey) { event.preventDefault(); navigate("overview"); }
+    if (event.key === "c" && event.altKey) { event.preventDefault(); navigate("console"); }
+    if (event.key === "s" && event.altKey) { event.preventDefault(); navigate("shards"); }
+  });
+}
+
+/* ---------- startup ---------- */
+applyTheme();
+wireGlobalEvents();
+renderRoute();
+if (!location.hash) history.replaceState(null, "", "#/overview");
+</script>
+</body>
+</html>
