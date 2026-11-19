@@ -1,0 +1,2610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="description" content="Editorial Content Studio — a zero-dependency modern CMS for digital publications" />
+  <title>Editorial Content Studio</title>
+  <style>
+    @layer reset, tokens, base, layout, components, utilities, motion;
+
+    @layer reset {
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+      body { min-height: 100dvh; line-height: 1.5; }
+      img, svg, canvas { display: block; max-width: 100%; }
+      button, input, select, textarea { font: inherit; color: inherit; }
+      button { cursor: pointer; border: none; background: none; }
+      a { color: inherit; text-decoration: none; }
+      ul, ol { list-style: none; }
+      dialog { border: none; padding: 0; background: transparent; }
+      :focus { outline: none; }
+      :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    }
+
+    @layer tokens {
+      :root {
+        color-scheme: dark;
+
+        /* Core palette — deep nocturnal slate + warm amber */
+        --hue: 250;
+        --bg: oklch(0.16 0.02 var(--hue));
+        --bg-elevated: oklch(0.20 0.025 var(--hue));
+        --surface: oklch(0.23 0.03 var(--hue));
+        --surface-2: oklch(0.27 0.035 var(--hue));
+        --border: oklch(0.32 0.03 var(--hue));
+        --border-strong: oklch(0.40 0.04 var(--hue));
+        --text: oklch(0.93 0.01 var(--hue));
+        --text-muted: oklch(0.70 0.02 var(--hue));
+        --text-faint: oklch(0.55 0.02 var(--hue));
+        --accent: oklch(0.78 0.14 75);
+        --accent-hover: oklch(0.84 0.15 75);
+        --accent-muted: oklch(0.45 0.08 75);
+        --success: oklch(0.72 0.14 145);
+        --warning: oklch(0.78 0.14 85);
+        --danger: oklch(0.65 0.18 25);
+        --focus: oklch(0.78 0.14 75);
+
+        --radius-sm: 6px;
+        --radius: 10px;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.25);
+        --shadow: 0 4px 16px oklch(0 0 0 / 0.35);
+        --shadow-lg: 0 12px 40px oklch(0 0 0 / 0.45);
+        --ring: 0 0 0 3px color-mix(in oklch, var(--accent) 35%, transparent);
+
+        --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+
+        --space-1: 0.25rem;
+        --space-2: 0.5rem;
+        --space-3: 0.75rem;
+        --space-4: 1rem;
+        --space-5: 1.25rem;
+        --space-6: 1.5rem;
+        --space-8: 2rem;
+        --space-10: 2.5rem;
+        --space-12: 3rem;
+        --space-16: 4rem;
+
+        --text-xs: clamp(0.75rem, 0.7rem + 0.2vw, 0.8125rem);
+        --text-sm: clamp(0.8125rem, 0.78rem + 0.2vw, 0.875rem);
+        --text-base: clamp(0.9375rem, 0.9rem + 0.25vw, 1rem);
+        --text-lg: clamp(1.0625rem, 1rem + 0.35vw, 1.125rem);
+        --text-xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.375rem);
+        --text-2xl: clamp(1.5rem, 1.25rem + 1vw, 1.75rem);
+        --text-3xl: clamp(1.875rem, 1.5rem + 1.5vw, 2.25rem);
+        --text-4xl: clamp(2.25rem, 1.75rem + 2vw, 3rem);
+
+        --header-h: 3.5rem;
+        --sidebar-w: 16rem;
+        --motion: 1;
+        --density: 1;
+      }
+
+      [data-theme="light"] {
+        color-scheme: light;
+        --bg: oklch(0.97 0.01 250);
+        --bg-elevated: oklch(1 0.005 250);
+        --surface: oklch(0.99 0.008 250);
+        --surface-2: oklch(0.94 0.015 250);
+        --border: oklch(0.88 0.02 250);
+        --border-strong: oklch(0.78 0.025 250);
+        --text: oklch(0.22 0.02 250);
+        --text-muted: oklch(0.42 0.02 250);
+        --text-faint: oklch(0.55 0.02 250);
+        --accent: oklch(0.62 0.16 75);
+        --accent-hover: oklch(0.55 0.17 75);
+        --accent-muted: oklch(0.85 0.08 75);
+        --focus: oklch(0.55 0.16 75);
+        --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.06);
+        --shadow: 0 4px 16px oklch(0 0 0 / 0.08);
+        --shadow-lg: 0 12px 40px oklch(0 0 0 / 0.12);
+      }
+
+      [data-motion="reduce"] { --motion: 0; }
+      @media (prefers-reduced-motion: reduce) {
+        :root:not([data-motion="full"]) { --motion: 0; }
+      }
+    }
+
+    @layer base {
+      body {
+        font-family: var(--font-sans);
+        font-size: var(--text-base);
+        background: var(--bg);
+        color: var(--text);
+        overflow-x: hidden;
+      }
+
+      h1, h2, h3, h4 {
+        text-wrap: balance;
+        line-height: 1.2;
+        font-weight: 650;
+      }
+
+      p { text-wrap: pretty; max-width: 70ch; }
+
+      .sr-only {
+        position: absolute;
+        width: 1px; height: 1px;
+        padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0,0,0,0);
+        white-space: nowrap; border: 0;
+      }
+
+      .skip-link {
+        position: absolute;
+        top: -100%;
+        left: var(--space-4);
+        z-index: 1000;
+        padding: var(--space-3) var(--space-5);
+        background: var(--accent);
+        color: oklch(0.15 0.02 75);
+        border-radius: var(--radius);
+        font-weight: 600;
+        transition: top 0.2s;
+      }
+      .skip-link:focus { top: var(--space-3); }
+
+      ::selection {
+        background: color-mix(in oklch, var(--accent) 40%, transparent);
+      }
+    }
+
+    @layer layout {
+      .app-shell {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        min-height: 100dvh;
+      }
+
+      .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        height: var(--header-h);
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+        padding: 0 var(--space-4);
+        background: color-mix(in oklch, var(--bg-elevated) 92%, transparent);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        font-weight: 700;
+        font-size: var(--text-lg);
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+      }
+      .brand svg { width: 28px; height: 28px; flex-shrink: 0; }
+
+      .nav-main {
+        display: none;
+        gap: var(--space-1);
+        margin-left: var(--space-4);
+      }
+      @media (min-width: 768px) {
+        .nav-main { display: flex; }
+      }
+
+      .nav-link {
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        font-size: var(--text-sm);
+        font-weight: 500;
+        color: var(--text-muted);
+        transition: background 0.15s, color 0.15s;
+      }
+      .nav-link:hover { color: var(--text); background: var(--surface); }
+      .nav-link[aria-current="page"] {
+        color: var(--accent);
+        background: color-mix(in oklch, var(--accent) 12%, transparent);
+      }
+
+      .header-actions {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+      }
+
+      .main-content {
+        display: grid;
+        grid-template-columns: 1fr;
+        min-height: 0;
+      }
+      @media (min-width: 1024px) {
+        .main-content.has-sidebar {
+          grid-template-columns: var(--sidebar-w) 1fr;
+        }
+      }
+
+      .sidebar {
+        display: none;
+        flex-direction: column;
+        gap: var(--space-4);
+        padding: var(--space-5);
+        border-right: 1px solid var(--border);
+        background: var(--bg-elevated);
+        overflow-y: auto;
+      }
+      @media (min-width: 1024px) {
+        .main-content.has-sidebar .sidebar { display: flex; }
+      }
+
+      .content-area {
+        padding: var(--space-5);
+        overflow-y: auto;
+        min-width: 0;
+      }
+      @media (min-width: 768px) {
+        .content-area { padding: var(--space-8); }
+      }
+
+      .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--space-4);
+        margin-bottom: var(--space-8);
+      }
+      .page-title {
+        font-size: var(--text-3xl);
+        letter-spacing: -0.03em;
+      }
+      .page-desc {
+        color: var(--text-muted);
+        margin-top: var(--space-2);
+        max-width: 48ch;
+      }
+
+      /* Mobile bottom nav */
+      .mobile-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0; right: 0;
+        z-index: 40;
+        display: flex;
+        justify-content: space-around;
+        padding: var(--space-2) var(--space-2) calc(var(--space-2) + env(safe-area-inset-bottom));
+        background: color-mix(in oklch, var(--bg-elevated) 94%, transparent);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid var(--border);
+      }
+      @media (min-width: 768px) {
+        .mobile-nav { display: none; }
+      }
+      .mobile-nav a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--text-xs);
+        color: var(--text-muted);
+        min-width: 64px;
+        border-radius: var(--radius-sm);
+      }
+      .mobile-nav a[aria-current="page"] { color: var(--accent); }
+      .mobile-nav svg { width: 22px; height: 22px; }
+
+      body { padding-bottom: calc(4rem + env(safe-area-inset-bottom)); }
+      @media (min-width: 768px) { body { padding-bottom: 0; } }
+    }
+
+    @layer components {
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        padding: var(--space-2) var(--space-4);
+        min-height: 40px;
+        border-radius: var(--radius);
+        font-size: var(--text-sm);
+        font-weight: 600;
+        transition: background 0.15s, color 0.15s, box-shadow 0.15s, transform 0.1s;
+        white-space: nowrap;
+      }
+      .btn:active { transform: scale(0.97); }
+      .btn-primary {
+        background: var(--accent);
+        color: oklch(0.15 0.02 75);
+      }
+      .btn-primary:hover { background: var(--accent-hover); }
+      .btn-secondary {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+      .btn-secondary:hover { background: var(--surface-2); border-color: var(--border-strong); }
+      .btn-ghost {
+        color: var(--text-muted);
+      }
+      .btn-ghost:hover { color: var(--text); background: var(--surface); }
+      .btn-danger {
+        background: color-mix(in oklch, var(--danger) 15%, transparent);
+        color: var(--danger);
+      }
+      .btn-danger:hover { background: color-mix(in oklch, var(--danger) 25%, transparent); }
+      .btn-icon {
+        width: 40px; height: 40px;
+        padding: 0;
+        border-radius: var(--radius);
+      }
+      .btn-icon svg { width: 20px; height: 20px; }
+
+      /* Cards */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .card:hover { border-color: var(--border-strong); }
+      .card-body { padding: var(--space-5); }
+      .card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: var(--space-4) var(--space-5);
+        border-bottom: 1px solid var(--border);
+      }
+      .card-title { font-size: var(--text-lg); font-weight: 650; }
+
+      /* Article cards */
+      .article-grid {
+        display: grid;
+        gap: var(--space-4);
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 640px) {
+        .article-grid { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (min-width: 1200px) {
+        .article-grid { grid-template-columns: repeat(3, 1fr); }
+      }
+
+      .article-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        container-type: inline-size;
+        container-name: article-card;
+      }
+      .article-card .thumb {
+        aspect-ratio: 16 / 9;
+        background: var(--surface-2);
+        position: relative;
+        overflow: hidden;
+      }
+      .article-card .thumb svg,
+      .article-card .thumb canvas {
+        width: 100%; height: 100%;
+        object-fit: cover;
+      }
+      .article-card .body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: var(--space-4);
+        gap: var(--space-2);
+      }
+      .article-card .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        font-size: var(--text-xs);
+        color: var(--text-faint);
+      }
+      .article-card .title {
+        font-size: var(--text-lg);
+        font-weight: 650;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+      }
+      .article-card .excerpt {
+        font-size: var(--text-sm);
+        color: var(--text-muted);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+      }
+      .article-card .footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: var(--space-3);
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--border);
+      }
+
+      @container article-card (max-width: 280px) {
+        .article-card .excerpt { display: none; }
+      }
+
+      /* Status badges */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: var(--text-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .badge-draft { background: color-mix(in oklch, var(--text-faint) 20%, transparent); color: var(--text-muted); }
+      .badge-review { background: color-mix(in oklch, var(--warning) 18%, transparent); color: var(--warning); }
+      .badge-published { background: color-mix(in oklch, var(--success) 18%, transparent); color: var(--success); }
+      .badge-archived { background: color-mix(in oklch, var(--text-faint) 15%, transparent); color: var(--text-faint); }
+
+      /* Form controls */
+      .field { display: flex; flex-direction: column; gap: var(--space-2); }
+      .field label {
+        font-size: var(--text-sm);
+        font-weight: 550;
+        color: var(--text-muted);
+      }
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        padding: var(--space-3) var(--space-4);
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .field input:focus,
+      .field select:focus,
+      .field textarea:focus {
+        border-color: var(--accent);
+        box-shadow: var(--ring);
+      }
+      .field textarea { min-height: 140px; resize: vertical; field-sizing: content; }
+      .field-error { font-size: var(--text-xs); color: var(--danger); }
+
+      .search-bar {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-2) var(--space-3);
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        min-width: 0;
+        flex: 1;
+        max-width: 360px;
+      }
+      .search-bar input {
+        flex: 1;
+        min-width: 0;
+        background: transparent;
+        border: none;
+        padding: var(--space-1) 0;
+        color: var(--text);
+      }
+      .search-bar input::placeholder { color: var(--text-faint); }
+      .search-bar svg { width: 18px; height: 18px; color: var(--text-faint); flex-shrink: 0; }
+
+      /* Filter chips */
+      .chip-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+      }
+      .chip {
+        padding: var(--space-1) var(--space-3);
+        border-radius: 999px;
+        font-size: var(--text-xs);
+        font-weight: 550;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        transition: all 0.15s;
+      }
+      .chip:hover { border-color: var(--border-strong); color: var(--text); }
+      .chip[aria-pressed="true"] {
+        background: color-mix(in oklch, var(--accent) 18%, transparent);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* Dialog */
+      dialog::backdrop {
+        background: oklch(0.1 0.02 250 / 0.65);
+        backdrop-filter: blur(4px);
+      }
+      .dialog-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        width: min(92vw, 640px);
+        max-height: min(88dvh, 800px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .dialog-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-5);
+        border-bottom: 1px solid var(--border);
+      }
+      .dialog-body {
+        padding: var(--space-5);
+        overflow-y: auto;
+        flex: 1;
+      }
+      .dialog-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--space-3);
+        padding: var(--space-4) var(--space-5);
+        border-top: 1px solid var(--border);
+      }
+
+      /* Popover */
+      [popover] {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        padding: var(--space-3);
+        margin: 0;
+        inset: auto;
+      }
+      .popover-menu {
+        min-width: 200px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .popover-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        font-size: var(--text-sm);
+        color: var(--text);
+        text-align: left;
+        width: 100%;
+      }
+      .popover-item:hover { background: var(--surface-2); }
+      .popover-item.danger { color: var(--danger); }
+
+      /* Hero */
+      .hero {
+        position: relative;
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        margin-bottom: var(--space-10);
+      }
+      .hero-visual {
+        position: absolute;
+        inset: 0;
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      .hero-content {
+        position: relative;
+        padding: var(--space-10) var(--space-6);
+        max-width: 42rem;
+      }
+      @media (min-width: 768px) {
+        .hero-content { padding: var(--space-16) var(--space-10); }
+      }
+      .hero h1 {
+        font-size: var(--text-4xl);
+        letter-spacing: -0.04em;
+        margin-bottom: var(--space-4);
+      }
+      .hero p {
+        color: var(--text-muted);
+        font-size: var(--text-lg);
+        margin-bottom: var(--space-6);
+      }
+      .hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+      /* Stats */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-4);
+        margin-bottom: var(--space-10);
+      }
+      @media (min-width: 640px) {
+        .stats-row { grid-template-columns: repeat(4, 1fr); }
+      }
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-5);
+      }
+      .stat-value {
+        font-size: var(--text-2xl);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+      }
+      .stat-label {
+        font-size: var(--text-sm);
+        color: var(--text-muted);
+        margin-top: var(--space-1);
+      }
+
+      /* Progress bar (scroll-driven) */
+      .reading-progress {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        z-index: 100;
+        background: transparent;
+        transform-origin: left;
+        scale: 0 1;
+      }
+      .reading-progress-bar {
+        height: 100%;
+        background: var(--accent);
+        width: 100%;
+      }
+
+      /* Editor layout */
+      .editor-layout {
+        display: grid;
+        gap: var(--space-6);
+      }
+      @media (min-width: 960px) {
+        .editor-layout {
+          grid-template-columns: 1fr 340px;
+          align-items: start;
+        }
+      }
+      .editor-main { display: flex; flex-direction: column; gap: var(--space-4); }
+      .editor-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+        position: sticky;
+        top: calc(var(--header-h) + var(--space-4));
+      }
+      .preview-pane {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-5);
+        min-height: 200px;
+        font-size: var(--text-sm);
+        line-height: 1.65;
+        white-space: pre-wrap;
+      }
+
+      /* Capability inspector */
+      .cap-grid {
+        display: grid;
+        gap: var(--space-2);
+        font-size: var(--text-xs);
+      }
+      .cap-item {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: var(--space-2);
+        align-items: center;
+        padding: var(--space-2) var(--space-3);
+        background: var(--bg);
+        border-radius: var(--radius-sm);
+      }
+      .cap-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+      }
+      .cap-dot.on { background: var(--success); }
+      .cap-dot.off { background: var(--text-faint); }
+      .cap-name { font-weight: 550; }
+      .cap-desc { color: var(--text-faint); grid-column: 2 / -1; font-size: 0.7rem; }
+
+      /* Empty state */
+      .empty-state {
+        text-align: center;
+        padding: var(--space-16) var(--space-6);
+        color: var(--text-muted);
+      }
+      .empty-state svg {
+        width: 64px; height: 64px;
+        margin: 0 auto var(--space-4);
+        opacity: 0.5;
+      }
+      .empty-state h3 {
+        font-size: var(--text-xl);
+        color: var(--text);
+        margin-bottom: var(--space-2);
+      }
+
+      /* Toast / live region */
+      .toast-region {
+        position: fixed;
+        bottom: calc(5rem + env(safe-area-inset-bottom));
+        right: var(--space-4);
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        pointer-events: none;
+      }
+      @media (min-width: 768px) {
+        .toast-region { bottom: var(--space-6); }
+      }
+      .toast {
+        pointer-events: auto;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: var(--space-3) var(--space-4);
+        box-shadow: var(--shadow);
+        font-size: var(--text-sm);
+        animation: toast-in 0.3s ease;
+        max-width: 320px;
+      }
+      @keyframes toast-in {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Fav button */
+      .fav-btn {
+        color: var(--text-faint);
+        transition: color 0.15s, transform 0.15s;
+      }
+      .fav-btn[aria-pressed="true"] { color: var(--accent); }
+      .fav-btn:hover { transform: scale(1.1); }
+
+      /* Tag */
+      .tag {
+        display: inline-flex;
+        padding: 1px 7px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        background: var(--surface-2);
+        color: var(--text-muted);
+      }
+    }
+
+    @layer utilities {
+      .flex { display: flex; }
+      .flex-col { flex-direction: column; }
+      .items-center { align-items: center; }
+      .justify-between { justify-content: space-between; }
+      .gap-2 { gap: var(--space-2); }
+      .gap-3 { gap: var(--space-3); }
+      .gap-4 { gap: var(--space-4); }
+      .mt-2 { margin-top: var(--space-2); }
+      .mt-4 { margin-top: var(--space-4); }
+      .mb-4 { margin-bottom: var(--space-4); }
+      .text-muted { color: var(--text-muted); }
+      .text-sm { font-size: var(--text-sm); }
+      .text-xs { font-size: var(--text-xs); }
+      .font-mono { font-family: var(--font-mono); }
+      .hidden { display: none !important; }
+      .truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    @layer motion {
+      @media (prefers-reduced-motion: no-preference) {
+        :root:not([data-motion="reduce"]) {
+          .card, .btn, .nav-link, .chip {
+            transition-duration: calc(0.15s * var(--motion));
+          }
+        }
+      }
+
+      /* View Transition names */
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: calc(0.28s * var(--motion));
+      }
+      .article-card { view-transition-name: article-card; }
+      .page-title { view-transition-name: page-title; }
+
+      /* Scroll-driven progress (enhanced) */
+      @supports (animation-timeline: scroll()) {
+        .reading-progress {
+          animation: progress-grow linear;
+          animation-timeline: scroll(root);
+        }
+        @keyframes progress-grow {
+          from { scale: 0 1; }
+          to { scale: 1 1; }
+        }
+      }
+    }
+
+    /* Fallback for browsers without container queries */
+    @supports not (container-type: inline-size) {
+      .article-card .excerpt { -webkit-line-clamp: 3; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="reading-progress" aria-hidden="true">
+    <div class="reading-progress-bar"></div>
+  </div>
+
+  <div class="app-shell" id="app">
+    <header class="app-header" role="banner">
+      <a href="#/" class="brand" data-link>
+        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <rect x="2" y="4" width="28" height="24" rx="4" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 12h16M8 16h12M8 20h8" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>Editorial Studio</span>
+      </a>
+
+      <nav class="nav-main" aria-label="Primary">
+        <a href="#/" class="nav-link" data-link data-route="/">Overview</a>
+        <a href="#/archive" class="nav-link" data-link data-route="/archive">Archive</a>
+        <a href="#/editor" class="nav-link" data-link data-route="/editor">Composer</a>
+        <a href="#/settings" class="nav-link" data-link data-route="/settings">System</a>
+      </nav>
+
+      <div class="header-actions">
+        <button type="button" class="btn btn-ghost btn-icon" id="btn-caps" aria-label="Platform capabilities" title="Platform capabilities" popovertarget="caps-popover">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+        </button>
+        <button type="button" class="btn btn-ghost btn-icon" id="btn-theme" aria-label="Toggle theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg class="icon-moon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3a7 7 0 0 0 11.5 11.5z"/></svg>
+        </button>
+        <a href="#/editor" class="btn btn-primary" data-link>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          New
+        </a>
+      </div>
+    </header>
+
+    <div class="main-content" id="main-layout">
+      <aside class="sidebar" id="sidebar" aria-label="Filters"></aside>
+      <main class="content-area" id="main" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Mobile">
+    <a href="#/" data-link data-route="/">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      Home
+    </a>
+    <a href="#/archive" data-link data-route="/archive">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      Archive
+    </a>
+    <a href="#/editor" data-link data-route="/editor">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+      Write
+    </a>
+    <a href="#/settings" data-link data-route="/settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      System
+    </a>
+  </nav>
+
+  <div class="toast-region" id="toasts" aria-live="polite" aria-relevant="additions"></div>
+
+  <!-- Capability Popover -->
+  <div id="caps-popover" popover="auto" class="popover-menu" style="width:min(92vw,340px);padding:var(--space-4);">
+    <h3 style="font-size:var(--text-sm);margin-bottom:var(--space-3);font-weight:650;">Platform Capabilities</h3>
+    <div class="cap-grid" id="cap-list"></div>
+  </div>
+
+  <!-- Detail Dialog -->
+  <dialog id="detail-dialog">
+    <div class="dialog-panel">
+      <div class="dialog-header">
+        <h2 class="card-title" id="detail-title">Article</h2>
+        <button type="button" class="btn btn-ghost btn-icon" id="detail-close" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="dialog-body" id="detail-body"></div>
+      <div class="dialog-footer" id="detail-footer"></div>
+    </div>
+  </dialog>
+
+  <!-- Confirm Dialog -->
+  <dialog id="confirm-dialog">
+    <div class="dialog-panel" style="width:min(92vw,400px);">
+      <div class="dialog-header">
+        <h2 class="card-title" id="confirm-title">Confirm</h2>
+      </div>
+      <div class="dialog-body" id="confirm-body"></div>
+      <div class="dialog-footer">
+        <button type="button" class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirm-ok">Delete</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script type="module">
+    // ============================================================
+    // DATA — curated built-in dataset
+    // ============================================================
+    const SEED_ARTICLES = [
+      {
+        id: "a1",
+        title: "The Quiet Geometry of Editorial Layouts",
+        slug: "quiet-geometry-editorial-layouts",
+        excerpt: "How modular grids and optical margins shape the reading experience in contemporary digital magazines.",
+        body: "Editorial design is less about decoration and more about the disciplined distribution of attention. A well-tuned modular grid does not constrain creativity; it gives every element a reason to exist in relation to its neighbors.\n\nOptical margins, baseline alignment, and careful hierarchy turn dense information into a navigable landscape. The best layouts feel inevitable once seen.",
+        author: "Mira Chen",
+        category: "Design",
+        tags: ["typography", "grids", "layout"],
+        status: "published",
+        publishedAt: "2025-11-02",
+        wordCount: 1280,
+        readingTime: 6,
+        featured: true
+      },
+      {
+        id: "a2",
+        title: "Color Systems That Survive Dark Mode",
+        slug: "color-systems-dark-mode",
+        excerpt: "Building perceptual palettes with oklch that remain legible and intentional across theme switches.",
+        body: "Traditional HSL systems often collapse under dark surfaces. oklch offers a more uniform perceptual space, allowing designers to derive surfaces, borders, and accents that keep their intended relationships.\n\nThe key is to treat theme switching as a first-class design problem rather than a post-processing filter.",
+        author: "Julian Vargas",
+        category: "Design",
+        tags: ["color", "accessibility", "tokens"],
+        status: "published",
+        publishedAt: "2025-10-18",
+        wordCount: 980,
+        readingTime: 5,
+        featured: true
+      },
+      {
+        id: "a3",
+        title: "Field Notes from a Zero-Dependency CMS",
+        slug: "zero-dependency-cms-notes",
+        excerpt: "What becomes possible—and what becomes harder—when you refuse external libraries and build only with the platform.",
+        body: "Removing the dependency graph forces clarity. Every interaction must be justified. Every visual must be authored locally. The result is often slower to start and more intentional to finish.\n\nModern browser APIs have closed many of the gaps that once required frameworks. The remaining challenge is discipline.",
+        author: "Elena Rostova",
+        category: "Engineering",
+        tags: ["architecture", "web-platform", "performance"],
+        status: "published",
+        publishedAt: "2025-09-30",
+        wordCount: 1540,
+        readingTime: 8,
+        featured: false
+      },
+      {
+        id: "a4",
+        title: "Reading Time as a Design Constraint",
+        slug: "reading-time-design-constraint",
+        excerpt: "Treating estimated reading duration as a primary signal for structure, hierarchy, and progressive disclosure.",
+        body: "When readers know the cost of attention up front, they allocate it more carefully. Displaying realistic reading times changes how we sequence sections and where we place calls to action.\n\nIt also changes editorial standards: longer is no longer automatically better.",
+        author: "Sam Okonkwo",
+        category: "Editorial",
+        tags: ["ux", "metrics", "attention"],
+        status: "published",
+        publishedAt: "2025-11-08",
+        wordCount: 720,
+        readingTime: 4,
+        featured: false
+      },
+      {
+        id: "a5",
+        title: "The Archive as a Living System",
+        slug: "archive-living-system",
+        excerpt: "Moving beyond static repositories toward collections that surface relationships, recency, and editorial intent.",
+        body: "An archive is not a landfill. The best digital collections continuously re-surface relevant material through thoughtful facets, saved views, and relationship graphs.\n\nStatus, tags, and publication dates are only the beginning. The real work is in the filters and the empty states.",
+        author: "Mira Chen",
+        category: "Editorial",
+        tags: ["information-architecture", "search", "discovery"],
+        status: "review",
+        publishedAt: null,
+        wordCount: 1100,
+        readingTime: 6,
+        featured: false
+      },
+      {
+        id: "a6",
+        title: "Canvas as Editorial Illustration",
+        slug: "canvas-editorial-illustration",
+        excerpt: "Using procedural graphics and resolution-aware canvas rendering to create living, theme-aware visual systems.",
+        body: "Static hero images age quickly. A small canvas scene driven by the same tokens as the interface can respond to theme, motion preference, and even content density.\n\nThe goal is not spectacle. It is coherence.",
+        author: "Julian Vargas",
+        category: "Design",
+        tags: ["canvas", "generative", "illustration"],
+        status: "draft",
+        publishedAt: null,
+        wordCount: 860,
+        readingTime: 4,
+        featured: false
+      },
+      {
+        id: "a7",
+        title: "Keyboard-First Publishing Workflows",
+        slug: "keyboard-first-publishing",
+        excerpt: "Designing command surfaces and focus management so power users never need to reach for the mouse.",
+        body: "Editors live in text. Every context switch to a pointer is friction. A well-designed CMS treats the keyboard as the primary input surface and the pointer as an optional accelerator.\n\nFocus traps, skip links, and consistent shortcut patterns are not accessibility add-ons; they are productivity features.",
+        author: "Elena Rostova",
+        category: "Engineering",
+        tags: ["accessibility", "keyboard", "workflow"],
+        status: "published",
+        publishedAt: "2025-10-05",
+        wordCount: 1320,
+        readingTime: 7,
+        featured: true
+      },
+      {
+        id: "a8",
+        title: "Microcopy That Guides Without Lecturing",
+        slug: "microcopy-guides",
+        excerpt: "Empty states, error messages, and confirmation language that respect the reader’s intelligence.",
+        body: "The difference between a tool that feels supportive and one that feels condescending often lives in twelve words. Empty states should invite action. Errors should explain the next step. Success should be quiet.",
+        author: "Sam Okonkwo",
+        category: "Editorial",
+        tags: ["writing", "ux-writing", "tone"],
+        status: "published",
+        publishedAt: "2025-08-22",
+        wordCount: 640,
+        readingTime: 3,
+        featured: false
+      },
+      {
+        id: "a9",
+        title: "Local-First Data Patterns for Editorial Tools",
+        slug: "local-first-editorial",
+        excerpt: "Persisting drafts, favorites, and preferences safely with versioned localStorage and graceful degradation.",
+        body: "Not every document needs a server. Drafts, reading lists, and personal settings can live entirely on the device. The challenge is defensive parsing, quota handling, and clear export paths so users never feel trapped.",
+        author: "Elena Rostova",
+        category: "Engineering",
+        tags: ["localStorage", "offline", "data"],
+        status: "published",
+        publishedAt: "2025-09-12",
+        wordCount: 1450,
+        readingTime: 7,
+        featured: false
+      },
+      {
+        id: "a10",
+        title: "View Transitions in Content Navigation",
+        slug: "view-transitions-content",
+        excerpt: "Using the View Transitions API to preserve spatial context when moving between list and detail states.",
+        body: "Sudden DOM swaps break spatial memory. Named view transitions let a card morph into a detail panel, or a title persist across route changes, giving the interface a sense of continuity without heavy animation libraries.",
+        author: "Julian Vargas",
+        category: "Engineering",
+        tags: ["view-transitions", "motion", "spa"],
+        status: "review",
+        publishedAt: null,
+        wordCount: 920,
+        readingTime: 5,
+        featured: false
+      },
+      {
+        id: "a11",
+        title: "Seasonal Editorial Calendars",
+        slug: "seasonal-editorial-calendars",
+        excerpt: "Planning publication cadence around cultural moments without forcing content into artificial themes.",
+        body: "A calendar is a negotiation between ambition and capacity. The most useful editorial calendars surface constraints early and leave room for opportunistic pieces that respond to the present.",
+        author: "Mira Chen",
+        category: "Editorial",
+        tags: ["planning", "calendar", "workflow"],
+        status: "draft",
+        publishedAt: null,
+        wordCount: 780,
+        readingTime: 4,
+        featured: false
+      },
+      {
+        id: "a12",
+        title: "Contrast, Not Just Color",
+        slug: "contrast-not-just-color",
+        excerpt: "Meeting WCAG 2.2 AA while preserving a distinctive visual identity in both light and dark surfaces.",
+        body: "Contrast is a relationship, not a fixed value. Pairing text and background through perceptual color spaces and testing under forced-colors and high-contrast modes prevents accidental regressions when the palette evolves.",
+        author: "Julian Vargas",
+        category: "Design",
+        tags: ["accessibility", "contrast", "wcag"],
+        status: "published",
+        publishedAt: "2025-07-15",
+        wordCount: 1050,
+        readingTime: 5,
+        featured: false
+      },
+      {
+        id: "a13",
+        title: "The Case for Semantic Landmarks",
+        slug: "semantic-landmarks",
+        excerpt: "How header, nav, main, and complementary regions improve both assistive technology and CSS architecture.",
+        body: "Landmarks are not bureaucracy. They give screen-reader users a map and give stylesheets clear ownership boundaries. When every major region has a role, the rest of the interface can be simpler.",
+        author: "Elena Rostova",
+        category: "Engineering",
+        tags: ["semantics", "a11y", "html"],
+        status: "published",
+        publishedAt: "2025-06-28",
+        wordCount: 690,
+        readingTime: 3,
+        featured: false
+      },
+      {
+        id: "a14",
+        title: "Generative Thumbnails from Content",
+        slug: "generative-thumbnails",
+        excerpt: "Deriving abstract visual signatures from title, category, and tags so every article has a unique but on-brand image.",
+        body: "When photography is unavailable or undesirable, a deterministic generative system can produce consistent, recognizable marks. Hash the title, map categories to hue ranges, and let a small canvas or SVG draw the rest.",
+        author: "Julian Vargas",
+        category: "Design",
+        tags: ["generative", "canvas", "branding"],
+        status: "published",
+        publishedAt: "2025-11-12",
+        wordCount: 880,
+        readingTime: 4,
+        featured: true
+      },
+      {
+        id: "a15",
+        title: "Undo as a First-Class Interaction",
+        slug: "undo-first-class",
+        excerpt: "Designing reversible actions so users feel safe experimenting with structure, status, and metadata.",
+        body: "Destructive actions should be rare and recoverable. Soft deletes, confirmation dialogs with clear consequences, and short-lived undo toasts turn anxiety into confidence.",
+        author: "Sam Okonkwo",
+        category: "Editorial",
+        tags: ["ux", "safety", "interaction"],
+        status: "archived",
+        publishedAt: "2025-04-10",
+        wordCount: 540,
+        readingTime: 3,
+        featured: false
+      },
+      {
+        id: "a16",
+        title: "Container Queries for Card Systems",
+        slug: "container-queries-cards",
+        excerpt: "Letting individual cards adapt their internal layout based on available inline size rather than viewport width.",
+        body: "Viewport media queries force every card to behave the same. Container queries allow a card in a narrow sidebar and the same card in a wide grid to present different levels of detail without JavaScript measurement.",
+        author: "Elena Rostova",
+        category: "Engineering",
+        tags: ["css", "container-queries", "responsive"],
+        status: "published",
+        publishedAt: "2025-10-28",
+        wordCount: 760,
+        readingTime: 4,
+        featured: false
+      }
+    ];
+
+    const CATEGORIES = ["Design", "Engineering", "Editorial"];
+    const STATUSES = ["draft", "review", "published", "archived"];
+    const ALL_TAGS = [...new Set(SEED_ARTICLES.flatMap(a => a.tags))].sort();
+
+    // ============================================================
+    // UTILITIES
+    // ============================================================
+    const uid = () => "u" + Math.random().toString(36).slice(2, 10);
+
+    function escapeHtml(str) {
+      const d = document.createElement("div");
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    function formatDate(iso) {
+      if (!iso) return "—";
+      try {
+        return new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric" }).format(new Date(iso));
+      } catch {
+        return iso;
+      }
+    }
+
+    function readingLabel(mins) {
+      return `${mins} min read`;
+    }
+
+    function debounce(fn, ms = 200) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    }
+
+    function toast(message, duration = 2800) {
+      const region = document.getElementById("toasts");
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.textContent = message;
+      region.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(8px)";
+        el.style.transition = "all 0.25s";
+        setTimeout(() => el.remove(), 260);
+      }, duration);
+    }
+
+    // ============================================================
+    // STORAGE
+    // ============================================================
+    const STORAGE_KEY = "ecs-v1";
+
+    function loadStore() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (!data || data.version !== 1) return null;
+        return data;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveStore(state) {
+      try {
+        const payload = {
+          version: 1,
+          articles: state.articles,
+          favorites: [...state.favorites],
+          settings: state.settings
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        return true;
+      } catch (e) {
+        console.warn("localStorage unavailable or full", e);
+        toast("Could not save preferences (storage unavailable)");
+        return false;
+      }
+    }
+
+    // ============================================================
+    // STATE
+    // ============================================================
+    const defaultSettings = {
+      theme: "system", // system | dark | light
+      motion: "system", // system | full | reduce
+      density: "comfortable"
+    };
+
+    function createInitialState() {
+      const saved = loadStore();
+      return {
+        articles: saved?.articles?.length ? saved.articles : structuredClone(SEED_ARTICLES),
+        favorites: new Set(saved?.favorites || []),
+        settings: { ...defaultSettings, ...(saved?.settings || {}) },
+        route: { path: "/", params: {} },
+        filters: {
+          query: "",
+          category: "all",
+          status: "all",
+          tag: "all",
+          sort: "newest",
+          favoritesOnly: false
+        },
+        editingId: null,
+        draft: null
+      };
+    }
+
+    const listeners = new Set();
+    let state = createInitialState();
+
+    function getState() { return state; }
+
+    function setState(partial) {
+      const prev = state;
+      state = { ...state, ...partial };
+      if (partial.articles || partial.favorites || partial.settings) {
+        saveStore(state);
+      }
+      listeners.forEach(fn => fn(state, prev));
+    }
+
+    function subscribe(fn) {
+      listeners.add(fn);
+      return () => listeners.delete(fn);
+    }
+
+    function dispatch(action) {
+      switch (action.type) {
+        case "SET_ROUTE":
+          setState({ route: action.route });
+          break;
+        case "SET_FILTERS":
+          setState({ filters: { ...state.filters, ...action.filters } });
+          break;
+        case "TOGGLE_FAVORITE": {
+          const next = new Set(state.favorites);
+          if (next.has(action.id)) next.delete(action.id);
+          else next.add(action.id);
+          setState({ favorites: next });
+          toast(next.has(action.id) ? "Added to favorites" : "Removed from favorites");
+          break;
+        }
+        case "SAVE_ARTICLE": {
+          const articles = [...state.articles];
+          const idx = articles.findIndex(a => a.id === action.article.id);
+          if (idx >= 0) articles[idx] = action.article;
+          else articles.unshift(action.article);
+          setState({ articles, editingId: null, draft: null });
+          toast(idx >= 0 ? "Article updated" : "Article created");
+          break;
+        }
+        case "DELETE_ARTICLE": {
+          const articles = state.articles.filter(a => a.id !== action.id);
+          const favorites = new Set(state.favorites);
+          favorites.delete(action.id);
+          setState({ articles, favorites });
+          toast("Article deleted");
+          break;
+        }
+        case "SET_SETTINGS":
+          setState({ settings: { ...state.settings, ...action.settings } });
+          applySettings();
+          break;
+        case "RESET_DATA":
+          setState({
+            articles: structuredClone(SEED_ARTICLES),
+            favorites: new Set(),
+            settings: { ...defaultSettings }
+          });
+          applySettings();
+          toast("Local data reset");
+          break;
+        case "IMPORT_DATA":
+          setState({
+            articles: action.data.articles || state.articles,
+            favorites: new Set(action.data.favorites || []),
+            settings: { ...state.settings, ...(action.data.settings || {}) }
+          });
+          applySettings();
+          toast("Data imported");
+          break;
+        case "SET_EDITING":
+          setState({ editingId: action.id, draft: action.draft || null });
+          break;
+        default:
+          break;
+      }
+    }
+
+    // ============================================================
+    // THEME / SETTINGS APPLICATION
+    // ============================================================
+    function applySettings() {
+      const { theme, motion } = state.settings;
+      const root = document.documentElement;
+
+      if (theme === "system") {
+        root.removeAttribute("data-theme");
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        root.dataset.theme = prefersDark ? "dark" : "light";
+      } else {
+        root.dataset.theme = theme;
+      }
+
+      if (motion === "system") {
+        root.removeAttribute("data-motion");
+      } else {
+        root.dataset.motion = motion;
+      }
+
+      // Update theme toggle icons
+      const isDark = root.dataset.theme === "dark";
+      document.querySelector(".icon-sun")?.classList.toggle("hidden", isDark);
+      document.querySelector(".icon-moon")?.classList.toggle("hidden", !isDark);
+    }
+
+    // ============================================================
+    // ROUTING (hash-based for file:// + static server compatibility)
+    // ============================================================
+    function parseHash() {
+      const hash = location.hash.slice(1) || "/";
+      const [pathPart, queryPart] = hash.split("?");
+      const segments = pathPart.replace(/\/$/, "") || "/";
+      const parts = segments.split("/").filter(Boolean);
+
+      if (parts.length === 0) return { path: "/", params: {} };
+      if (parts[0] === "archive") return { path: "/archive", params: {} };
+      if (parts[0] === "editor") {
+        return { path: "/editor", params: { id: parts[1] || null } };
+      }
+      if (parts[0] === "settings") return { path: "/settings", params: {} };
+      if (parts[0] === "article" && parts[1]) return { path: "/article", params: { id: parts[1] } };
+      return { path: "/404", params: {} };
+    }
+
+    function navigate(to, { replace = false } = {}) {
+      const url = to.startsWith("#") ? to : `#${to}`;
+      if (replace) history.replaceState(null, "", url);
+      else history.pushState(null, "", url);
+      handleRoute();
+    }
+
+    function handleRoute() {
+      const route = parseHash();
+      dispatch({ type: "SET_ROUTE", route });
+      updateNav(route.path);
+      render();
+      document.getElementById("main")?.focus({ preventScroll: true });
+    }
+
+    function updateNav(path) {
+      document.querySelectorAll("[data-route]").forEach(el => {
+        const r = el.getAttribute("data-route");
+        const current = r === path || (r === "/editor" && path === "/editor");
+        el.setAttribute("aria-current", current ? "page" : "false");
+      });
+    }
+
+    // ============================================================
+    // GENERATIVE THUMBNAIL (canvas)
+    // ============================================================
+    function hashStr(s) {
+      let h = 0;
+      for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+      return Math.abs(h);
+    }
+
+    function drawThumb(canvas, article) {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = canvas.clientWidth || 320;
+      const h = canvas.clientHeight || 180;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.scale(dpr, dpr);
+
+      const seed = hashStr(article.id + article.title);
+      const hue = (seed % 60) + (article.category === "Design" ? 40 : article.category === "Engineering" ? 220 : 140);
+
+      // Background
+      const g = ctx.createLinearGradient(0, 0, w, h);
+      g.addColorStop(0, `oklch(0.28 0.06 ${hue})`);
+      g.addColorStop(1, `oklch(0.18 0.04 ${hue + 40})`);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+
+      // Soft shapes
+      ctx.globalAlpha = 0.35;
+      for (let i = 0; i < 5; i++) {
+        const x = ((seed * (i + 3)) % 100) / 100 * w;
+        const y = ((seed * (i + 7)) % 100) / 100 * h;
+        const r = 30 + (seed % 40) + i * 8;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = `oklch(0.55 0.12 ${hue + i * 15})`;
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // Accent bar
+      ctx.fillStyle = `oklch(0.78 0.14 75)`;
+      ctx.fillRect(0, h - 4, w * 0.35, 4);
+
+      // Category letter
+      ctx.fillStyle = "oklch(0.92 0.02 250 / 0.9)";
+      ctx.font = `600 ${Math.max(18, w * 0.08)}px system-ui`;
+      ctx.fillText(article.category[0], 16, 36);
+    }
+
+    // ============================================================
+    // HERO CANVAS BACKGROUND
+    // ============================================================
+    let heroAnimId = null;
+    function startHeroCanvas(canvas) {
+      if (!canvas) return;
+      const prefersReduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        document.documentElement.dataset.motion === "reduce";
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      let w, h;
+      const particles = [];
+
+      function resize() {
+        w = canvas.clientWidth;
+        h = canvas.clientHeight;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        const ctx = canvas.getContext("2d");
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function initParticles() {
+        particles.length = 0;
+        const count = prefersReduce ? 12 : 28;
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: 1 + Math.random() * 2.5,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: (Math.random() - 0.5) * 0.25,
+            a: 0.15 + Math.random() * 0.35
+          });
+        }
+      }
+
+      resize();
+      initParticles();
+
+      const ro = new ResizeObserver(() => {
+        resize();
+        initParticles();
+      });
+      ro.observe(canvas);
+
+      let last = 0;
+      function frame(t) {
+        if (prefersReduce) {
+          // Static draw
+          const ctx = canvas.getContext("2d");
+          ctx.clearRect(0, 0, w, h);
+          const g = ctx.createRadialGradient(w * 0.7, h * 0.3, 0, w * 0.5, h * 0.5, w * 0.8);
+          g.addColorStop(0, "oklch(0.35 0.06 250 / 0.5)");
+          g.addColorStop(1, "oklch(0.16 0.02 250 / 0)");
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, w, h);
+          return;
+        }
+
+        if (t - last < 32) {
+          heroAnimId = requestAnimationFrame(frame);
+          return;
+        }
+        last = t;
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, w, h);
+
+        const g = ctx.createRadialGradient(w * 0.75, h * 0.25, 0, w * 0.5, h * 0.5, w * 0.85);
+        g.addColorStop(0, "oklch(0.32 0.07 75 / 0.25)");
+        g.addColorStop(0.5, "oklch(0.25 0.05 250 / 0.2)");
+        g.addColorStop(1, "oklch(0.16 0.02 250 / 0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+
+        for (const p of particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > w) p.vx *= -1;
+          if (p.y < 0 || p.y > h) p.vy *= -1;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `oklch(0.78 0.12 75 / ${p.a})`;
+          ctx.fill();
+        }
+        heroAnimId = requestAnimationFrame(frame);
+      }
+
+      const io = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          if (!heroAnimId) heroAnimId = requestAnimationFrame(frame);
+        } else {
+          cancelAnimationFrame(heroAnimId);
+          heroAnimId = null;
+        }
+      }, { threshold: 0.1 });
+      io.observe(canvas);
+
+      if (!prefersReduce) heroAnimId = requestAnimationFrame(frame);
+      else frame(0);
+    }
+
+    // ============================================================
+    // CAPABILITY INSPECTOR
+    // ============================================================
+    function detectCapabilities() {
+      const supports = (cond) => {
+        try { return !!cond; } catch { return false; }
+      };
+      return [
+        { name: "View Transitions", on: supports(document.startViewTransition), desc: "Smooth route & detail morphs" },
+        { name: "Scroll-driven Animations", on: CSS.supports("animation-timeline", "scroll()"), desc: "Reading progress bar" },
+        { name: "Container Queries", on: CSS.supports("container-type", "inline-size"), desc: "Card layout adaptation" },
+        { name: "Container Style Queries", on: CSS.supports("container-type", "normal") && CSS.supports("style(--x: 1)"), desc: "State-based component styles" },
+        { name: "CSS Nesting", on: CSS.supports("selector(&)"), desc: "Organized component CSS" },
+        { name: "@scope", on: CSS.supports("selector(:scope)"), desc: "Scoped component styles" },
+        { name: "Anchor Positioning", on: CSS.supports("anchor-name", "--a"), desc: "Popover placement" },
+        { name: "Popover API", on: supports(HTMLElement.prototype.hasOwnProperty("popover")), desc: "Menus & capability panel" },
+        { name: "<dialog>", on: supports(typeof HTMLDialogElement !== "undefined"), desc: "Detail & confirm modals" },
+        { name: ":has()", on: CSS.supports("selector(:has(*))"), desc: "Parent-state styling" },
+        { name: "field-sizing", on: CSS.supports("field-sizing", "content"), desc: "Auto-growing textareas" },
+        { name: "Trusted Types", on: supports(window.trustedTypes), desc: "XSS hardening (when enforced)" },
+        { name: "Navigation API", on: supports(window.navigation), desc: "Enhanced history (fallback used)" },
+        { name: "Web Animations", on: supports(Element.prototype.animate), desc: "Micro-interactions" },
+        { name: "Canvas 2D", on: supports(document.createElement("canvas").getContext("2d")), desc: "Thumbnails & hero visuals" },
+        { name: "Web Audio", on: supports(window.AudioContext || window.webkitAudioContext), desc: "Optional sound (unused)" },
+        { name: "Clipboard API", on: supports(navigator.clipboard?.writeText), desc: "Copy actions" },
+        { name: "Web Share", on: supports(navigator.share), desc: "Share article metadata" },
+        { name: "localStorage", on: (() => { try { localStorage.setItem("__t", "1"); localStorage.removeItem("__t"); return true; } catch { return false; } })(), desc: "Favorites, drafts, settings" }
+      ];
+    }
+
+    function renderCapabilities() {
+      const list = document.getElementById("cap-list");
+      if (!list) return;
+      const caps = detectCapabilities();
+      list.replaceChildren(...caps.map(c => {
+        const row = document.createElement("div");
+        row.className = "cap-item";
+        row.innerHTML = `
+          <span class="cap-dot ${c.on ? "on" : "off"}" aria-hidden="true"></span>
+          <span class="cap-name">${escapeHtml(c.name)}</span>
+          <span class="text-xs" style="color:var(--text-faint)">${c.on ? "active" : "unavailable"}</span>
+          <span class="cap-desc">${escapeHtml(c.desc)}</span>
+        `;
+        return row;
+      }));
+    }
+
+    // ============================================================
+    // RENDER HELPERS
+    // ============================================================
+    function articleCard(article) {
+      const fav = state.favorites.has(article.id);
+      const el = document.createElement("article");
+      el.className = "card article-card";
+      el.dataset.id = article.id;
+
+      const thumb = document.createElement("div");
+      thumb.className = "thumb";
+      const canvas = document.createElement("canvas");
+      canvas.setAttribute("aria-hidden", "true");
+      thumb.appendChild(canvas);
+
+      const body = document.createElement("div");
+      body.className = "body";
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.innerHTML = `
+        <span class="badge badge-${escapeHtml(article.status)}">${escapeHtml(article.status)}</span>
+        <span>${escapeHtml(article.category)}</span>
+        <span>${readingLabel(article.readingTime)}</span>
+      `;
+
+      const title = document.createElement("h3");
+      title.className = "title";
+      const titleLink = document.createElement("a");
+      titleLink.href = `#/article/${article.id}`;
+      titleLink.dataset.link = "";
+      titleLink.textContent = article.title;
+      title.appendChild(titleLink);
+
+      const excerpt = document.createElement("p");
+      excerpt.className = "excerpt";
+      excerpt.textContent = article.excerpt;
+
+      const footer = document.createElement("div");
+      footer.className = "footer";
+      footer.innerHTML = `
+        <span class="text-xs text-muted">${escapeHtml(article.author)} · ${formatDate(article.publishedAt)}</span>
+      `;
+      const favBtn = document.createElement("button");
+      favBtn.type = "button";
+      favBtn.className = "fav-btn btn-icon";
+      favBtn.setAttribute("aria-label", fav ? "Remove from favorites" : "Add to favorites");
+      favBtn.setAttribute("aria-pressed", String(fav));
+      favBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="${fav ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+      favBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dispatch({ type: "TOGGLE_FAVORITE", id: article.id });
+      });
+      footer.appendChild(favBtn);
+
+      body.append(meta, title, excerpt, footer);
+      el.append(thumb, body);
+
+      // Draw after layout
+      requestAnimationFrame(() => drawThumb(canvas, article));
+
+      el.addEventListener("click", (e) => {
+        if (e.target.closest("a, button")) return;
+        navigate(`#/article/${article.id}`);
+      });
+
+      return el;
+    }
+
+    function filteredArticles() {
+      const { query, category, status, tag, sort, favoritesOnly } = state.filters;
+      let list = [...state.articles];
+
+      if (query.trim()) {
+        const q = query.trim().toLowerCase();
+        list = list.filter(a =>
+          a.title.toLowerCase().includes(q) ||
+          a.excerpt.toLowerCase().includes(q) ||
+          a.author.toLowerCase().includes(q) ||
+          a.tags.some(t => t.includes(q))
+        );
+      }
+      if (category !== "all") list = list.filter(a => a.category === category);
+      if (status !== "all") list = list.filter(a => a.status === status);
+      if (tag !== "all") list = list.filter(a => a.tags.includes(tag));
+      if (favoritesOnly) list = list.filter(a => state.favorites.has(a.id));
+
+      list.sort((a, b) => {
+        if (sort === "newest") return (b.publishedAt || "").localeCompare(a.publishedAt || "");
+        if (sort === "oldest") return (a.publishedAt || "").localeCompare(b.publishedAt || "");
+        if (sort === "title") return a.title.localeCompare(b.title);
+        if (sort === "reading") return a.readingTime - b.readingTime;
+        return 0;
+      });
+      return list;
+    }
+
+    // ============================================================
+    // VIEWS
+    // ============================================================
+    function renderOverview() {
+      const main = document.getElementById("main");
+      const layout = document.getElementById("main-layout");
+      layout.classList.remove("has-sidebar");
+      document.getElementById("sidebar").replaceChildren();
+
+      const articles = state.articles;
+      const published = articles.filter(a => a.status === "published").length;
+      const drafts = articles.filter(a => a.status === "draft").length;
+      const reviews = articles.filter(a => a.status === "review").length;
+      const favCount = state.favorites.size;
+
+      main.replaceChildren();
+
+      // Hero
+      const hero = document.createElement("section");
+      hero.className = "hero";
+      hero.innerHTML = `
+        <canvas class="hero-visual" aria-hidden="true"></canvas>
+        <div class="hero-content">
+          <h1>Editorial Content Studio</h1>
+          <p>A zero-dependency workspace for crafting, organizing, and publishing digital magazine pieces. Local-first, keyboard-friendly, and built entirely on modern platform APIs.</p>
+          <div class="hero-actions">
+            <a href="#/editor" class="btn btn-primary" data-link>Open Composer</a>
+            <a href="#/archive" class="btn btn-secondary" data-link>Browse Archive</a>
+          </div>
+        </div>
+      `;
+      main.appendChild(hero);
+      const heroCanvas = hero.querySelector("canvas");
+      requestAnimationFrame(() => startHeroCanvas(heroCanvas));
+
+      // Stats
+      const stats = document.createElement("div");
+      stats.className = "stats-row";
+      stats.innerHTML = `
+        <div class="stat-card"><div class="stat-value">${published}</div><div class="stat-label">Published</div></div>
+        <div class="stat-card"><div class="stat-value">${drafts}</div><div class="stat-label">Drafts</div></div>
+        <div class="stat-card"><div class="stat-value">${reviews}</div><div class="stat-label">In Review</div></div>
+        <div class="stat-card"><div class="stat-value">${favCount}</div><div class="stat-label">Favorites</div></div>
+      `;
+      main.appendChild(stats);
+
+      // Featured
+      const featured = articles.filter(a => a.featured && a.status === "published").slice(0, 3);
+      if (featured.length) {
+        const section = document.createElement("section");
+        section.innerHTML = `<h2 class="page-title" style="font-size:var(--text-xl);margin-bottom:var(--space-4)">Featured</h2>`;
+        const grid = document.createElement("div");
+        grid.className = "article-grid";
+        featured.forEach(a => grid.appendChild(articleCard(a)));
+        section.appendChild(grid);
+        main.appendChild(section);
+      }
+
+      // Recent
+      const recent = [...articles].sort((a, b) => (b.publishedAt || "").localeCompare(a.publishedAt || "")).slice(0, 6);
+      const recentSection = document.createElement("section");
+      recentSection.style.marginTop = "var(--space-10)";
+      recentSection.innerHTML = `<h2 class="page-title" style="font-size:var(--text-xl);margin-bottom:var(--space-4)">Recent</h2>`;
+      const rgrid = document.createElement("div");
+      rgrid.className = "article-grid";
+      recent.forEach(a => rgrid.appendChild(articleCard(a)));
+      recentSection.appendChild(rgrid);
+      main.appendChild(recentSection);
+
+      document.title = "Overview · Editorial Content Studio";
+    }
+
+    function renderArchive() {
+      const main = document.getElementById("main");
+      const layout = document.getElementById("main-layout");
+      layout.classList.add("has-sidebar");
+
+      // Sidebar filters
+      const sidebar = document.getElementById("sidebar");
+      sidebar.replaceChildren();
+
+      const filterBlock = (title, content) => {
+        const wrap = document.createElement("div");
+        const h = document.createElement("h3");
+        h.className = "text-sm";
+        h.style.fontWeight = "650";
+        h.style.marginBottom = "var(--space-2)";
+        h.style.color = "var(--text-muted)";
+        h.textContent = title;
+        wrap.append(h, content);
+        return wrap;
+      };
+
+      // Search
+      const searchWrap = document.createElement("div");
+      searchWrap.className = "search-bar";
+      searchWrap.style.maxWidth = "none";
+      searchWrap.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>`;
+      const searchInput = document.createElement("input");
+      searchInput.type = "search";
+      searchInput.placeholder = "Search titles, authors, tags…";
+      searchInput.value = state.filters.query;
+      searchInput.setAttribute("aria-label", "Search archive");
+      searchInput.addEventListener("input", debounce(e => {
+        dispatch({ type: "SET_FILTERS", filters: { query: e.target.value } });
+        renderArchiveResults();
+      }, 180));
+      searchWrap.appendChild(searchInput);
+      sidebar.appendChild(filterBlock("Search", searchWrap));
+
+      // Category
+      const catGroup = document.createElement("div");
+      catGroup.className = "chip-group";
+      ["all", ...CATEGORIES].forEach(c => {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip";
+        chip.textContent = c === "all" ? "All" : c;
+        chip.setAttribute("aria-pressed", String(state.filters.category === c));
+        chip.addEventListener("click", () => {
+          dispatch({ type: "SET_FILTERS", filters: { category: c } });
+          renderArchive();
+        });
+        catGroup.appendChild(chip);
+      });
+      sidebar.appendChild(filterBlock("Category", catGroup));
+
+      // Status
+      const stGroup = document.createElement("div");
+      stGroup.className = "chip-group";
+      ["all", ...STATUSES].forEach(s => {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip";
+        chip.textContent = s === "all" ? "All" : s;
+        chip.setAttribute("aria-pressed", String(state.filters.status === s));
+        chip.addEventListener("click", () => {
+          dispatch({ type: "SET_FILTERS", filters: { status: s } });
+          renderArchive();
+        });
+        stGroup.appendChild(chip);
+      });
+      sidebar.appendChild(filterBlock("Status", stGroup));
+
+      // Tags
+      const tagGroup = document.createElement("div");
+      tagGroup.className = "chip-group";
+      ["all", ...ALL_TAGS].forEach(t => {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip";
+        chip.textContent = t === "all" ? "All tags" : t;
+        chip.setAttribute("aria-pressed", String(state.filters.tag === t));
+        chip.addEventListener("click", () => {
+          dispatch({ type: "SET_FILTERS", filters: { tag: t } });
+          renderArchive();
+        });
+        tagGroup.appendChild(chip);
+      });
+      sidebar.appendChild(filterBlock("Tags", tagGroup));
+
+      // Favorites toggle
+      const favChip = document.createElement("button");
+      favChip.type = "button";
+      favChip.className = "chip";
+      favChip.textContent = "Favorites only";
+      favChip.setAttribute("aria-pressed", String(state.filters.favoritesOnly));
+      favChip.addEventListener("click", () => {
+        dispatch({ type: "SET_FILTERS", filters: { favoritesOnly: !state.filters.favoritesOnly } });
+        renderArchive();
+      });
+      sidebar.appendChild(filterBlock("Saved", favChip));
+
+      // Sort
+      const sortSelect = document.createElement("select");
+      sortSelect.setAttribute("aria-label", "Sort by");
+      [["newest", "Newest first"], ["oldest", "Oldest first"], ["title", "Title A–Z"], ["reading", "Reading time"]].forEach(([v, l]) => {
+        const o = document.createElement("option");
+        o.value = v; o.textContent = l;
+        if (state.filters.sort === v) o.selected = true;
+        sortSelect.appendChild(o);
+      });
+      sortSelect.addEventListener("change", () => {
+        dispatch({ type: "SET_FILTERS", filters: { sort: sortSelect.value } });
+        renderArchiveResults();
+      });
+      sidebar.appendChild(filterBlock("Sort", sortSelect));
+
+      // Main results
+      main.replaceChildren();
+      const header = document.createElement("div");
+      header.className = "page-header";
+      header.innerHTML = `
+        <div>
+          <h1 class="page-title">Archive</h1>
+          <p class="page-desc">Search, filter, and explore the editorial collection.</p>
+        </div>
+      `;
+      main.appendChild(header);
+
+      const results = document.createElement("div");
+      results.id = "archive-results";
+      main.appendChild(results);
+      renderArchiveResults();
+
+      document.title = "Archive · Editorial Content Studio";
+    }
+
+    function renderArchiveResults() {
+      const results = document.getElementById("archive-results");
+      if (!results) return;
+      const list = filteredArticles();
+
+      results.replaceChildren();
+      const count = document.createElement("p");
+      count.className = "text-sm text-muted mb-4";
+      count.textContent = `${list.length} article${list.length === 1 ? "" : "s"}`;
+      results.appendChild(count);
+
+      if (list.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+          <h3>No matching articles</h3>
+          <p>Try clearing filters or searching for a different term.</p>
+        `;
+        results.appendChild(empty);
+        return;
+      }
+
+      const grid = document.createElement("div");
+      grid.className = "article-grid";
+      list.forEach(a => grid.appendChild(articleCard(a)));
+      results.appendChild(grid);
+    }
+
+    function renderEditor() {
+      const main = document.getElementById("main");
+      const layout = document.getElementById("main-layout");
+      layout.classList.remove("has-sidebar");
+      document.getElementById("sidebar").replaceChildren();
+
+      const id = state.route.params.id || state.editingId;
+      let article = id ? state.articles.find(a => a.id === id) : null;
+      if (!article) {
+        article = {
+          id: uid(),
+          title: "",
+          slug: "",
+          excerpt: "",
+          body: "",
+          author: "You",
+          category: "Editorial",
+          tags: [],
+          status: "draft",
+          publishedAt: null,
+          wordCount: 0,
+          readingTime: 1,
+          featured: false
+        };
+      }
+
+      const isNew = !state.articles.some(a => a.id === article.id);
+
+      main.replaceChildren();
+      const header = document.createElement("div");
+      header.className = "page-header";
+      header.innerHTML = `
+        <div>
+          <h1 class="page-title">${isNew ? "New Article" : "Edit Article"}</h1>
+          <p class="page-desc">Compose with live preview. Changes are saved locally.</p>
+        </div>
+      `;
+      main.appendChild(header);
+
+      const layoutEl = document.createElement("div");
+      layoutEl.className = "editor-layout";
+
+      const mainCol = document.createElement("div");
+      mainCol.className = "editor-main";
+
+      const fields = [
+        { key: "title", label: "Title", type: "text", required: true },
+        { key: "excerpt", label: "Excerpt", type: "textarea" },
+        { key: "body", label: "Body", type: "textarea" }
+      ];
+
+      const formState = { ...article };
+
+      fields.forEach(f => {
+        const field = document.createElement("div");
+        field.className = "field";
+        const label = document.createElement("label");
+        label.textContent = f.label;
+        label.htmlFor = `field-${f.key}`;
+        let input;
+        if (f.type === "textarea") {
+          input = document.createElement("textarea");
+          input.rows = f.key === "body" ? 12 : 3;
+        } else {
+          input = document.createElement("input");
+          input.type = "text";
+        }
+        input.id = `field-${f.key}`;
+        input.value = formState[f.key] || "";
+        if (f.required) input.required = true;
+        input.addEventListener("input", () => {
+          formState[f.key] = input.value;
+          if (f.key === "title") {
+            formState.slug = input.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+          }
+          if (f.key === "body") {
+            const words = input.value.trim().split(/\s+/).filter(Boolean).length;
+            formState.wordCount = words;
+            formState.readingTime = Math.max(1, Math.round(words / 200));
+          }
+          updatePreview();
+        });
+        field.append(label, input);
+        mainCol.appendChild(field);
+      });
+
+      // Preview
+      const previewLabel = document.createElement("h3");
+      previewLabel.className = "text-sm";
+      previewLabel.style.fontWeight = "650";
+      previewLabel.style.color = "var(--text-muted)";
+      previewLabel.textContent = "Live Preview";
+      const preview = document.createElement("div");
+      preview.className = "preview-pane";
+      preview.id = "live-preview";
+      mainCol.append(previewLabel, preview);
+
+      function updatePreview() {
+        preview.textContent = formState.body || "Start writing to see a preview…";
+      }
+      updatePreview();
+
+      // Sidebar controls
+      const side = document.createElement("div");
+      side.className = "editor-sidebar";
+
+      const metaCard = document.createElement("div");
+      metaCard.className = "card";
+      metaCard.innerHTML = `<div class="card-header"><span class="card-title" style="font-size:var(--text-base)">Metadata</span></div>`;
+      const metaBody = document.createElement("div");
+      metaBody.className = "card-body";
+      metaBody.style.display = "flex";
+      metaBody.style.flexDirection = "column";
+      metaBody.style.gap = "var(--space-4)";
+
+      // Status
+      const statusField = document.createElement("div");
+      statusField.className = "field";
+      statusField.innerHTML = `<label for="field-status">Status</label>`;
+      const statusSelect = document.createElement("select");
+      statusSelect.id = "field-status";
+      STATUSES.forEach(s => {
+        const o = document.createElement("option");
+        o.value = s; o.textContent = s;
+        if (formState.status === s) o.selected = true;
+        statusSelect.appendChild(o);
+      });
+      statusSelect.addEventListener("change", () => {
+        formState.status = statusSelect.value;
+        if (formState.status === "published" && !formState.publishedAt) {
+          formState.publishedAt = new Date().toISOString().slice(0, 10);
+        }
+      });
+      statusField.appendChild(statusSelect);
+      metaBody.appendChild(statusField);
+
+      // Category
+      const catField = document.createElement("div");
+      catField.className = "field";
+      catField.innerHTML = `<label for="field-cat">Category</label>`;
+      const catSelect = document.createElement("select");
+      catSelect.id = "field-cat";
+      CATEGORIES.forEach(c => {
+        const o = document.createElement("option");
+        o.value = c; o.textContent = c;
+        if (formState.category === c) o.selected = true;
+        catSelect.appendChild(o);
+      });
+      catSelect.addEventListener("change", () => { formState.category = catSelect.value; });
+      catField.appendChild(catSelect);
+      metaBody.appendChild(catField);
+
+      // Author
+      const authorField = document.createElement("div");
+      authorField.className = "field";
+      authorField.innerHTML = `<label for="field-author">Author</label>`;
+      const authorInput = document.createElement("input");
+      authorInput.id = "field-author";
+      authorInput.type = "text";
+      authorInput.value = formState.author;
+      authorInput.addEventListener("input", () => { formState.author = authorInput.value; });
+      authorField.appendChild(authorInput);
+      metaBody.appendChild(authorField);
+
+      // Tags
+      const tagsField = document.createElement("div");
+      tagsField.className = "field";
+      tagsField.innerHTML = `<label for="field-tags">Tags (comma-separated)</label>`;
+      const tagsInput = document.createElement("input");
+      tagsInput.id = "field-tags";
+      tagsInput.type = "text";
+      tagsInput.value = formState.tags.join(", ");
+      tagsInput.addEventListener("input", () => {
+        formState.tags = tagsInput.value.split(",").map(t => t.trim()).filter(Boolean);
+      });
+      tagsField.appendChild(tagsInput);
+      metaBody.appendChild(tagsField);
+
+      metaCard.appendChild(metaBody);
+      side.appendChild(metaCard);
+
+      // Actions
+      const actions = document.createElement("div");
+      actions.style.display = "flex";
+      actions.style.flexDirection = "column";
+      actions.style.gap = "var(--space-2)";
+
+      const saveBtn = document.createElement("button");
+      saveBtn.type = "button";
+      saveBtn.className = "btn btn-primary";
+      saveBtn.textContent = isNew ? "Create Article" : "Save Changes";
+      saveBtn.addEventListener("click", () => {
+        if (!formState.title.trim()) {
+          toast("Title is required");
+          return;
+        }
+        formState.slug = formState.slug || formState.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        dispatch({ type: "SAVE_ARTICLE", article: { ...formState } });
+        navigate("#/archive");
+      });
+
+      const cancelBtn = document.createElement("button");
+      cancelBtn.type = "button";
+      cancelBtn.className = "btn btn-secondary";
+      cancelBtn.textContent = "Cancel";
+      cancelBtn.addEventListener("click", () => navigate("#/archive"));
+
+      actions.append(saveBtn, cancelBtn);
+      side.appendChild(actions);
+
+      layoutEl.append(mainCol, side);
+      main.appendChild(layoutEl);
+
+      document.title = `${isNew ? "New" : "Edit"} · Editorial Content Studio`;
+    }
+
+    function renderArticleDetail() {
+      const id = state.route.params.id;
+      const article = state.articles.find(a => a.id === id);
+      if (!article) {
+        render404();
+        return;
+      }
+
+      // Prefer dialog for detail on larger screens, full page otherwise
+      openDetailDialog(article);
+      // Also keep a lightweight page for deep links / back button
+      const main = document.getElementById("main");
+      const layout = document.getElementById("main-layout");
+      layout.classList.remove("has-sidebar");
+      main.replaceChildren();
+
+      const header = document.createElement("div");
+      header.className = "page-header";
+      header.innerHTML = `
+        <div>
+          <p class="text-sm text-muted mb-4"><a href="#/archive" data-link>← Archive</a></p>
+          <h1 class="page-title">${escapeHtml(article.title)}</h1>
+          <p class="page-desc">${escapeHtml(article.author)} · ${formatDate(article.publishedAt)} · ${readingLabel(article.readingTime)}</p>
+        </div>
+      `;
+      main.appendChild(header);
+
+      const body = document.createElement("div");
+      body.className = "card";
+      body.innerHTML = `<div class="card-body" style="white-space:pre-wrap;line-height:1.7">${escapeHtml(article.body)}</div>`;
+      main.appendChild(body);
+
+      document.title = `${article.title} · Editorial Content Studio`;
+    }
+
+    function openDetailDialog(article) {
+      const dialog = document.getElementById("detail-dialog");
+      const title = document.getElementById("detail-title");
+      const body = document.getElementById("detail-body");
+      const footer = document.getElementById("detail-footer");
+
+      title.textContent = article.title;
+      body.replaceChildren();
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.style.marginBottom = "var(--space-4)";
+      meta.innerHTML = `
+        <span class="badge badge-${escapeHtml(article.status)}">${escapeHtml(article.status)}</span>
+        <span class="text-sm text-muted">${escapeHtml(article.category)} · ${escapeHtml(article.author)}</span>
+        <span class="text-sm text-muted">${formatDate(article.publishedAt)} · ${readingLabel(article.readingTime)}</span>
+      `;
+      body.appendChild(meta);
+
+      const tags = document.createElement("div");
+      tags.className = "chip-group";
+      tags.style.marginBottom = "var(--space-4)";
+      article.tags.forEach(t => {
+        const span = document.createElement("span");
+        span.className = "tag";
+        span.textContent = t;
+        tags.appendChild(span);
+      });
+      body.appendChild(tags);
+
+      const content = document.createElement("div");
+      content.style.whiteSpace = "pre-wrap";
+      content.style.lineHeight = "1.7";
+      content.textContent = article.body;
+      body.appendChild(content);
+
+      footer.replaceChildren();
+      const editBtn = document.createElement("a");
+      editBtn.href = `#/editor/${article.id}`;
+      editBtn.className = "btn btn-secondary";
+      editBtn.dataset.link = "";
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", () => dialog.close());
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "btn btn-danger";
+      delBtn.textContent = "Delete";
+      delBtn.addEventListener("click", () => {
+        dialog.close();
+        confirmDelete(article);
+      });
+
+      const closeBtn = document.createElement("button");
+      closeBtn.type = "button";
+      closeBtn.className = "btn btn-primary";
+      closeBtn.textContent = "Close";
+      closeBtn.addEventListener("click", () => dialog.close());
+
+      footer.append(editBtn, delBtn, closeBtn);
+
+      if (typeof dialog.showModal === "function") {
+        dialog.showModal();
+      } else {
+        dialog.setAttribute("open", "");
+      }
+    }
+
+    function confirmDelete(article) {
+      const dialog = document.getElementById("confirm-dialog");
+      document.getElementById("confirm-title").textContent = "Delete article?";
+      document.getElementById("confirm-body").textContent = `“${article.title}” will be permanently removed from local storage. This cannot be undone.`;
+      const ok = document.getElementById("confirm-ok");
+      const cancel = document.getElementById("confirm-cancel");
+
+      const onOk = () => {
+        dispatch({ type: "DELETE_ARTICLE", id: article.id });
+        dialog.close();
+        navigate("#/archive");
+        cleanup();
+      };
+      const onCancel = () => { dialog.close(); cleanup(); };
+      function cleanup() {
+        ok.removeEventListener("click", onOk);
+        cancel.removeEventListener("click", onCancel);
+      }
+      ok.addEventListener("click", onOk);
+      cancel.addEventListener("click", onCancel);
+
+      if (typeof dialog.showModal === "function") dialog.showModal();
+      else dialog.setAttribute("open", "");
+    }
+
+    function renderSettings() {
+      const main = document.getElementById("main");
+      const layout = document.getElementById("main-layout");
+      layout.classList.remove("has-sidebar");
+      document.getElementById("sidebar").replaceChildren();
+
+      main.replaceChildren();
+      const header = document.createElement("div");
+      header.className = "page-header";
+      header.innerHTML = `
+        <div>
+          <h1 class="page-title">System</h1>
+          <p class="page-desc">Theme, motion, data export, and platform capabilities.</p>
+        </div>
+      `;
+      main.appendChild(header);
+
+      const grid = document.createElement("div");
+      grid.style.display = "grid";
+      grid.style.gap = "var(--space-6)";
+      grid.style.maxWidth = "640px";
+
+      // Appearance
+      const appear = document.createElement("div");
+      appear.className = "card";
+      appear.innerHTML = `<div class="card-header"><span class="card-title">Appearance</span></div>`;
+      const appearBody = document.createElement("div");
+      appearBody.className = "card-body";
+      appearBody.style.display = "flex";
+      appearBody.style.flexDirection = "column";
+      appearBody.style.gap = "var(--space-4)";
+
+      const themeField = document.createElement("div");
+      themeField.className = "field";
+      themeField.innerHTML = `<label>Color theme</label>`;
+      const themeSelect = document.createElement("select");
+      [["system", "System"], ["dark", "Dark"], ["light", "Light"]].forEach(([v, l]) => {
+        const o = document.createElement("option");
+        o.value = v; o.textContent = l;
+        if (state.settings.theme === v) o.selected = true;
+        themeSelect.appendChild(o);
+      });
+      themeSelect.addEventListener("change", () => {
+        dispatch({ type: "SET_SETTINGS", settings: { theme: themeSelect.value } });
+      });
+      themeField.appendChild(themeSelect);
+      appearBody.appendChild(themeField);
+
+      const motionField = document.createElement("div");
+      motionField.className = "field";
+      motionField.innerHTML = `<label>Motion</label>`;
+      const motionSelect = document.createElement("select");
+      [["system", "System preference"], ["full", "Full motion"], ["reduce", "Reduced motion"]].forEach(([v, l]) => {
+        const o = document.createElement("option");
+        o.value = v; o.textContent = l;
+        if (state.settings.motion === v) o.selected = true;
+        motionSelect.appendChild(o);
+      });
+      motionSelect.addEventListener("change", () => {
+        dispatch({ type: "SET_SETTINGS", settings: { motion: motionSelect.value } });
+      });
+      motionField.appendChild(motionSelect);
+      appearBody.appendChild(motionField);
+
+      appear.appendChild(appearBody);
+      grid.appendChild(appear);
+
+      // Data
+      const dataCard = document.createElement("div");
+      dataCard.className = "card";
+      dataCard.innerHTML = `<div class="card-header"><span class="card-title">Local Data</span></div>`;
+      const dataBody = document.createElement("div");
+      dataBody.className = "card-body";
+      dataBody.style.display = "flex";
+      dataBody.style.flexDirection = "column";
+      dataBody.style.gap = "var(--space-3)";
+
+      const exportBtn = document.createElement("button");
+      exportBtn.type = "button";
+      exportBtn.className = "btn btn-secondary";
+      exportBtn.textContent = "Export JSON";
+      exportBtn.addEventListener("click", () => {
+        const payload = {
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          articles: state.articles,
+          favorites: [...state.favorites],
+          settings: state.settings
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `editorial-studio-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast("Export downloaded");
+      });
+
+      const importLabel = document.createElement("label");
+      importLabel.className = "btn btn-secondary";
+      importLabel.textContent = "Import JSON";
+      importLabel.style.cursor = "pointer";
+      const importInput = document.createElement("input");
+      importInput.type = "file";
+      importInput.accept = "application/json,.json";
+      importInput.className = "sr-only";
+      importInput.addEventListener("change", async () => {
+        const file = importInput.files?.[0];
+        if (!file) return;
+        if (file.size > 2_000_000) {
+          toast("File too large (max 2 MB)");
+          return;
+        }
+        try {
+          const text = await file.text();
+          const data = JSON.parse(text);
+          if (!data.articles || !Array.isArray(data.articles)) throw new Error("Invalid format");
+          dispatch({ type: "IMPORT_DATA", data });
+        } catch {
+          toast("Import failed — invalid JSON");
+        }
+        importInput.value = "";
+      });
+      importLabel.appendChild(importInput);
+
+      const resetBtn = document.createElement("button");
+      resetBtn.type = "button";
+      resetBtn.className = "btn btn-danger";
+      resetBtn.textContent = "Reset all local data";
+      resetBtn.addEventListener("click", () => {
+        const dialog = document.getElementById("confirm-dialog");
+        document.getElementById("confirm-title").textContent = "Reset everything?";
+        document.getElementById("confirm-body").textContent = "This restores the original sample articles and clears favorites and settings.";
+        const ok = document.getElementById("confirm-ok");
+        const cancel = document.getElementById("confirm-cancel");
+        const onOk = () => {
+          dispatch({ type: "RESET_DATA" });
+          dialog.close();
+          cleanup();
+        };
+        const onCancel = () => { dialog.close(); cleanup(); };
+        function cleanup() {
+          ok.removeEventListener("click", onOk);
+          cancel.removeEventListener("click", onCancel);
+        }
+        ok.addEventListener("click", onOk);
+        cancel.addEventListener("click", onCancel);
+        if (typeof dialog.showModal === "function") dialog.showModal();
+      });
+
+      dataBody.append(exportBtn, importLabel, resetBtn);
+      dataCard.appendChild(dataBody);
+      grid.appendChild(dataCard);
+
+      // About
+      const about = document.createElement("div");
+      about.className = "card";
+      about.innerHTML = `
+        <div class="card-header"><span class="card-title">About</span></div>
+        <div class="card-body text-sm text-muted" style="line-height:1.65">
+          <p>Editorial Content Studio is a demonstration of a production-minded, zero-dependency SPA CMS built with native HTML, CSS Cascade Layers, and vanilla ES modules.</p>
+          <p style="margin-top:var(--space-3)">All data stays in your browser. No network requests are made for core functionality. Sample articles are illustrative.</p>
+        </div>
+      `;
+      grid.appendChild(about);
+
+      main.appendChild(grid);
+      document.title = "System · Editorial Content Studio";
+    }
+
+    function render404() {
+      const main = document.getElementById("main");
+      const layout = document.getElementById("main-layout");
+      layout.classList.remove("has-sidebar");
+      main.innerHTML = `
+        <div class="empty-state">
+          <h1 class="page-title">Page not found</h1>
+          <p class="page-desc" style="margin:var(--space-4) auto">This route does not exist in the studio.</p>
+          <a href="#/" class="btn btn-primary" data-link>Return to Overview</a>
+        </div>
+      `;
+      document.title = "Not Found · Editorial Content Studio";
+    }
+
+    // ============================================================
+    // MAIN RENDER with View Transitions
+    // ============================================================
+    function render() {
+      const path = state.route.path;
+      const update = () => {
+        if (path === "/") renderOverview();
+        else if (path === "/archive") renderArchive();
+        else if (path === "/editor") renderEditor();
+        else if (path === "/article") renderArticleDetail();
+        else if (path === "/settings") renderSettings();
+        else render404();
+      };
+
+      if (document.startViewTransition && document.documentElement.dataset.motion !== "reduce") {
+        document.startViewTransition(update);
+      } else {
+        update();
+      }
+    }
+
+    // ============================================================
+    // EVENT WIRING
+    // ============================================================
+    document.addEventListener("click", (e) => {
+      const link = e.target.closest("[data-link]");
+      if (link && link.href) {
+        const url = new URL(link.href);
+        if (url.origin === location.origin && url.hash) {
+          e.preventDefault();
+          navigate(url.hash);
+        }
+      }
+    });
+
+    window.addEventListener("popstate", handleRoute);
+    window.addEventListener("hashchange", handleRoute);
+
+    document.getElementById("btn-theme")?.addEventListener("click", () => {
+      const current = state.settings.theme;
+      const next = current === "dark" ? "light" : current === "light" ? "system" : "dark";
+      dispatch({ type: "SET_SETTINGS", settings: { theme: next } });
+      toast(`Theme: ${next}`);
+    });
+
+    document.getElementById("detail-close")?.addEventListener("click", () => {
+      document.getElementById("detail-dialog").close();
+    });
+
+    document.getElementById("detail-dialog")?.addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) e.currentTarget.close();
+    });
+
+    // System preference listener
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+      if (state.settings.theme === "system") applySettings();
+    });
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    applySettings();
+    renderCapabilities();
+    handleRoute();
+
+    // Keyboard shortcut: / focuses search when on archive
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "/" && !e.target.matches("input, textarea, select") && state.route.path === "/archive") {
+        e.preventDefault();
+        document.querySelector(".search-bar input")?.focus();
+      }
+      if (e.key === "Escape") {
+        document.getElementById("detail-dialog")?.close();
+        document.getElementById("confirm-dialog")?.close();
+      }
+    });
+  </script>
+</body>
+</html>
