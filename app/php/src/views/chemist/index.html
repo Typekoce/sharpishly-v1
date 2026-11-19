@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Ashbourne Family Chemist — community pharmacy for prescriptions, over-the-counter medicines and everyday health essentials." />
+  <title>Ashbourne Family Chemist</title>
+  <style>
+    @layer reset, tokens, base, layout, components, utilities, motion;
+
+    @layer reset {
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+      body { min-height: 100dvh; line-height: 1.5; }
+      img, svg { display: block; max-width: 100%; }
+      button, input, select, textarea { font: inherit; color: inherit; }
+      button { cursor: pointer; background: none; border: none; }
+      a { color: inherit; text-decoration: none; }
+      ul, ol { list-style: none; }
+      dialog { border: none; padding: 0; }
+      :focus { outline: none; }
+      :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    }
+
+    @layer tokens {
+      :root {
+        --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+
+        /* Core palette — soft medical teal + warm cream */
+        --hue: 175;
+        --surface-0: oklch(0.99 0.005 var(--hue));
+        --surface-1: oklch(0.97 0.012 var(--hue));
+        --surface-2: oklch(0.94 0.02 var(--hue));
+        --surface-3: oklch(0.90 0.03 var(--hue));
+        --elevated: oklch(1 0.004 var(--hue));
+        --text: oklch(0.28 0.03 250);
+        --text-muted: oklch(0.48 0.025 250);
+        --text-faint: oklch(0.62 0.02 250);
+        --border: oklch(0.88 0.02 var(--hue));
+        --border-strong: oklch(0.78 0.03 var(--hue));
+        --accent: oklch(0.55 0.11 var(--hue));
+        --accent-hover: oklch(0.48 0.12 var(--hue));
+        --accent-soft: oklch(0.92 0.04 var(--hue));
+        --warm: oklch(0.72 0.09 55);
+        --warm-soft: oklch(0.94 0.04 55);
+        --success: oklch(0.58 0.12 145);
+        --success-soft: oklch(0.94 0.04 145);
+        --warning: oklch(0.72 0.14 75);
+        --danger: oklch(0.58 0.16 25);
+        --danger-soft: oklch(0.95 0.04 25);
+        --focus: oklch(0.55 0.14 230);
+
+        --radius-sm: 6px;
+        --radius: 10px;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --shadow-sm: 0 1px 2px oklch(0.3 0.02 250 / 0.06);
+        --shadow: 0 4px 16px oklch(0.3 0.02 250 / 0.08);
+        --shadow-lg: 0 12px 40px oklch(0.3 0.02 250 / 0.12);
+        --space-1: 0.25rem;
+        --space-2: 0.5rem;
+        --space-3: 0.75rem;
+        --space-4: 1rem;
+        --space-5: 1.25rem;
+        --space-6: 1.5rem;
+        --space-8: 2rem;
+        --space-10: 2.5rem;
+        --space-12: 3rem;
+        --space-16: 4rem;
+        --header-h: 4rem;
+        --content-max: 72rem;
+        --transition: 180ms cubic-bezier(0.22, 1, 0.36, 1);
+        --motion: 1;
+      }
+
+      [data-theme="dark"] {
+        --surface-0: oklch(0.18 0.02 250);
+        --surface-1: oklch(0.22 0.025 250);
+        --surface-2: oklch(0.26 0.03 250);
+        --surface-3: oklch(0.30 0.035 250);
+        --elevated: oklch(0.24 0.03 250);
+        --text: oklch(0.93 0.01 250);
+        --text-muted: oklch(0.72 0.02 250);
+        --text-faint: oklch(0.58 0.02 250);
+        --border: oklch(0.35 0.03 250);
+        --border-strong: oklch(0.45 0.04 250);
+        --accent: oklch(0.72 0.11 var(--hue));
+        --accent-hover: oklch(0.78 0.12 var(--hue));
+        --accent-soft: oklch(0.30 0.05 var(--hue));
+        --warm: oklch(0.78 0.1 55);
+        --warm-soft: oklch(0.32 0.05 55);
+        --success: oklch(0.72 0.12 145);
+        --success-soft: oklch(0.28 0.05 145);
+        --danger: oklch(0.68 0.14 25);
+        --danger-soft: oklch(0.30 0.05 25);
+        --focus: oklch(0.72 0.12 230);
+        --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.3);
+        --shadow: 0 4px 16px oklch(0 0 0 / 0.4);
+        --shadow-lg: 0 12px 40px oklch(0 0 0 / 0.5);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --surface-0: oklch(0.18 0.02 250);
+          --surface-1: oklch(0.22 0.025 250);
+          --surface-2: oklch(0.26 0.03 250);
+          --surface-3: oklch(0.30 0.035 250);
+          --elevated: oklch(0.24 0.03 250);
+          --text: oklch(0.93 0.01 250);
+          --text-muted: oklch(0.72 0.02 250);
+          --text-faint: oklch(0.58 0.02 250);
+          --border: oklch(0.35 0.03 250);
+          --border-strong: oklch(0.45 0.04 250);
+          --accent: oklch(0.72 0.11 var(--hue));
+          --accent-hover: oklch(0.78 0.12 var(--hue));
+          --accent-soft: oklch(0.30 0.05 var(--hue));
+          --warm: oklch(0.78 0.1 55);
+          --warm-soft: oklch(0.32 0.05 55);
+          --success: oklch(0.72 0.12 145);
+          --success-soft: oklch(0.28 0.05 145);
+          --danger: oklch(0.68 0.14 25);
+          --danger-soft: oklch(0.30 0.05 25);
+          --focus: oklch(0.72 0.12 230);
+          --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.3);
+          --shadow: 0 4px 16px oklch(0 0 0 / 0.4);
+          --shadow-lg: 0 12px 40px oklch(0 0 0 / 0.5);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        :root { --motion: 0; }
+      }
+      [data-motion="reduce"] { --motion: 0; }
+      [data-motion="full"] { --motion: 1; }
+    }
+
+    @layer base {
+      body {
+        font-family: var(--font);
+        background: var(--surface-0);
+        color: var(--text);
+        font-size: clamp(0.9375rem, 0.9rem + 0.2vw, 1.0625rem);
+      }
+      h1, h2, h3, h4 {
+        text-wrap: balance;
+        font-weight: 650;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+      }
+      h1 { font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.5rem); }
+      h2 { font-size: clamp(1.35rem, 1.2rem + 0.8vw, 1.75rem); }
+      h3 { font-size: clamp(1.1rem, 1.05rem + 0.3vw, 1.25rem); }
+      p { text-wrap: pretty; }
+      .muted { color: var(--text-muted); }
+      .faint { color: var(--text-faint); }
+      .tabular { font-variant-numeric: tabular-nums; }
+      .sr-only {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+      }
+      .skip-link {
+        position: absolute; top: -100%; left: var(--space-4); z-index: 1000;
+        background: var(--accent); color: white; padding: var(--space-2) var(--space-4);
+        border-radius: var(--radius-sm); font-weight: 600;
+      }
+      .skip-link:focus { top: var(--space-2); }
+    }
+
+    @layer layout {
+      .app-shell {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        min-height: 100dvh;
+      }
+      .site-header {
+        position: sticky; top: 0; z-index: 50;
+        height: var(--header-h);
+        background: color-mix(in oklch, var(--surface-0) 88%, transparent);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center;
+        transition: box-shadow var(--transition);
+      }
+      .site-header.is-scrolled { box-shadow: var(--shadow-sm); }
+      .header-inner {
+        width: min(100% - 2rem, var(--content-max));
+        margin-inline: auto;
+        display: flex; align-items: center; gap: var(--space-4);
+      }
+      .logo {
+        display: flex; align-items: center; gap: var(--space-2);
+        font-weight: 700; font-size: 1.05rem; letter-spacing: -0.03em;
+        flex-shrink: 0;
+      }
+      .logo svg { width: 32px; height: 32px; }
+      .nav-main {
+        display: none; gap: var(--space-1); margin-left: auto;
+      }
+      @media (min-width: 768px) {
+        .nav-main { display: flex; }
+      }
+      .nav-link {
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        font-weight: 500; font-size: 0.9rem;
+        color: var(--text-muted);
+        transition: color var(--transition), background var(--transition);
+      }
+      .nav-link:hover, .nav-link:focus-visible { color: var(--text); background: var(--surface-2); }
+      .nav-link[aria-current="page"] {
+        color: var(--accent); background: var(--accent-soft); font-weight: 600;
+      }
+      .header-actions {
+        display: flex; align-items: center; gap: var(--space-2); margin-left: auto;
+      }
+      @media (min-width: 768px) { .header-actions { margin-left: var(--space-4); } }
+      .icon-btn {
+        width: 44px; height: 44px; display: grid; place-items: center;
+        border-radius: var(--radius); color: var(--text-muted);
+        transition: background var(--transition), color var(--transition);
+        position: relative;
+      }
+      .icon-btn:hover, .icon-btn:focus-visible { background: var(--surface-2); color: var(--text); }
+      .badge {
+        position: absolute; top: 6px; right: 6px;
+        min-width: 18px; height: 18px; padding: 0 4px;
+        background: var(--accent); color: white; font-size: 0.7rem; font-weight: 700;
+        border-radius: 999px; display: grid; place-items: center;
+      }
+      .mobile-nav-toggle { display: grid; }
+      @media (min-width: 768px) { .mobile-nav-toggle { display: none; } }
+
+      main { flex: 1; }
+      .page {
+        width: min(100% - 2rem, var(--content-max));
+        margin-inline: auto;
+        padding-block: var(--space-8) var(--space-16);
+      }
+      .site-footer {
+        border-top: 1px solid var(--border);
+        background: var(--surface-1);
+        padding: var(--space-8) 0;
+      }
+      .footer-inner {
+        width: min(100% - 2rem, var(--content-max));
+        margin-inline: auto;
+        display: grid; gap: var(--space-6);
+      }
+      @media (min-width: 640px) {
+        .footer-inner { grid-template-columns: 2fr 1fr 1fr; }
+      }
+      .footer-brand { font-weight: 700; margin-bottom: var(--space-2); }
+      .footer-links { display: flex; flex-direction: column; gap: var(--space-2); }
+      .footer-links a { color: var(--text-muted); font-size: 0.9rem; }
+      .footer-links a:hover { color: var(--accent); }
+
+      /* Mobile bottom nav */
+      .mobile-bar {
+        display: flex; position: fixed; bottom: 0; inset-inline: 0; z-index: 40;
+        background: color-mix(in oklch, var(--surface-0) 92%, transparent);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid var(--border);
+        padding: var(--space-2) var(--space-2) calc(var(--space-2) + env(safe-area-inset-bottom));
+        justify-content: space-around;
+      }
+      @media (min-width: 768px) { .mobile-bar { display: none; } }
+      .mobile-bar a {
+        display: flex; flex-direction: column; align-items: center; gap: 2px;
+        padding: var(--space-2); font-size: 0.7rem; font-weight: 500;
+        color: var(--text-muted); min-width: 64px;
+      }
+      .mobile-bar a[aria-current="page"] { color: var(--accent); }
+      .mobile-bar svg { width: 22px; height: 22px; }
+      body { padding-bottom: 0; }
+      @media (max-width: 767px) {
+        body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+      }
+    }
+
+    @layer components {
+      /* Buttons */
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+        padding: 0.65rem 1.15rem; border-radius: var(--radius);
+        font-weight: 600; font-size: 0.9rem;
+        transition: background var(--transition), color var(--transition), box-shadow var(--transition), transform calc(var(--motion) * 100ms);
+      }
+      .btn:active { transform: scale(calc(1 - 0.02 * var(--motion))); }
+      .btn-primary {
+        background: var(--accent); color: white;
+      }
+      .btn-primary:hover, .btn-primary:focus-visible { background: var(--accent-hover); }
+      .btn-secondary {
+        background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+      }
+      .btn-secondary:hover, .btn-secondary:focus-visible { background: var(--surface-3); }
+      .btn-ghost {
+        background: transparent; color: var(--text-muted);
+      }
+      .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+      .btn-danger { background: var(--danger); color: white; }
+      .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+      .btn-icon { width: 40px; height: 40px; padding: 0; }
+
+      /* Cards */
+      .card {
+        background: var(--elevated);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        transition: box-shadow var(--transition), border-color var(--transition);
+      }
+      .card:hover { box-shadow: var(--shadow); }
+      .card-body { padding: var(--space-5); }
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+        gap: var(--space-5);
+      }
+      .product-card {
+        display: flex; flex-direction: column;
+        container-type: inline-size;
+      }
+      .product-card .thumb {
+        aspect-ratio: 1.1;
+        background: var(--surface-2);
+        display: grid; place-items: center;
+        position: relative;
+      }
+      .product-card .thumb svg { width: 56px; height: 56px; opacity: 0.7; }
+      .product-card .badge-stock {
+        position: absolute; top: var(--space-2); left: var(--space-2);
+        font-size: 0.7rem; font-weight: 600; padding: 2px 8px;
+        border-radius: 999px; background: var(--success-soft); color: var(--success);
+      }
+      .product-card .badge-stock.low { background: var(--warm-soft); color: oklch(0.5 0.1 55); }
+      .product-card .badge-stock.out { background: var(--danger-soft); color: var(--danger); }
+      .product-card .fav-btn {
+        position: absolute; top: var(--space-2); right: var(--space-2);
+        width: 36px; height: 36px; border-radius: 50%;
+        background: var(--elevated); display: grid; place-items: center;
+        box-shadow: var(--shadow-sm); color: var(--text-faint);
+      }
+      .product-card .fav-btn[aria-pressed="true"] { color: var(--danger); }
+      .product-card h3 { font-size: 1rem; margin-bottom: var(--space-1); }
+      .product-card .price { font-weight: 700; font-size: 1.1rem; color: var(--accent); }
+      .product-card .meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: var(--space-3); }
+      .product-card .actions { margin-top: auto; display: flex; gap: var(--space-2); }
+
+      /* Hero */
+      .hero {
+        display: grid; gap: var(--space-8);
+        padding: var(--space-10) 0 var(--space-12);
+        align-items: center;
+      }
+      @media (min-width: 900px) {
+        .hero { grid-template-columns: 1.1fr 0.9fr; }
+      }
+      .hero-copy h1 { margin-bottom: var(--space-4); }
+      .hero-copy p { font-size: 1.1rem; color: var(--text-muted); max-width: 36ch; margin-bottom: var(--space-6); }
+      .hero-cta { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+      .hero-visual {
+        background: linear-gradient(145deg, var(--accent-soft), var(--warm-soft));
+        border-radius: var(--radius-xl);
+        aspect-ratio: 1.15;
+        display: grid; place-items: center;
+        position: relative; overflow: hidden;
+      }
+      .hero-visual svg { width: min(80%, 280px); height: auto; }
+
+      /* Filters */
+      .toolbar {
+        display: flex; flex-wrap: wrap; gap: var(--space-3);
+        margin-bottom: var(--space-6); align-items: center;
+      }
+      .search-wrap {
+        flex: 1 1 220px; position: relative;
+      }
+      .search-wrap input {
+        width: 100%; padding: 0.7rem 1rem 0.7rem 2.6rem;
+        border: 1px solid var(--border); border-radius: var(--radius);
+        background: var(--elevated); color: var(--text);
+      }
+      .search-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+      .search-wrap svg {
+        position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%);
+        width: 18px; height: 18px; color: var(--text-faint); pointer-events: none;
+      }
+      .chip-group { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+      .chip {
+        padding: 0.4rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 500;
+        background: var(--surface-2); color: var(--text-muted); border: 1px solid transparent;
+        transition: all var(--transition);
+      }
+      .chip:hover { background: var(--surface-3); }
+      .chip[aria-pressed="true"] {
+        background: var(--accent-soft); color: var(--accent); border-color: color-mix(in oklch, var(--accent) 30%, transparent);
+      }
+      .sort-select {
+        padding: 0.55rem 2rem 0.55rem 0.85rem; border-radius: var(--radius);
+        border: 1px solid var(--border); background: var(--elevated);
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 0.7rem center;
+      }
+
+      /* Forms */
+      .form-grid { display: grid; gap: var(--space-4); }
+      @media (min-width: 600px) {
+        .form-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+      }
+      .field { display: flex; flex-direction: column; gap: var(--space-2); }
+      .field label { font-weight: 600; font-size: 0.875rem; }
+      .field input, .field select, .field textarea {
+        padding: 0.7rem 0.9rem; border: 1px solid var(--border); border-radius: var(--radius);
+        background: var(--elevated); color: var(--text);
+      }
+      .field input:focus, .field select:focus, .field textarea:focus {
+        border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+      }
+      .field textarea { min-height: 100px; resize: vertical; }
+      .field .hint { font-size: 0.8rem; color: var(--text-muted); }
+      .field .error { font-size: 0.8rem; color: var(--danger); }
+      .field input:user-invalid, .field textarea:user-invalid { border-color: var(--danger); }
+      .field input:user-valid { border-color: var(--success); }
+
+      /* Dialog */
+      dialog {
+        background: var(--elevated); color: var(--text);
+        border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);
+        max-width: min(92vw, 480px); width: 100%;
+        max-height: min(90dvh, 640px); overflow: auto;
+      }
+      dialog::backdrop {
+        background: oklch(0.2 0.02 250 / 0.45);
+        backdrop-filter: blur(4px);
+      }
+      dialog[open] {
+        animation: dialog-in calc(var(--motion) * 220ms) cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      @keyframes dialog-in {
+        from { opacity: 0; transform: translateY(12px) scale(0.97); }
+        to { opacity: 1; transform: none; }
+      }
+      .dialog-header {
+        padding: var(--space-5) var(--space-5) var(--space-3);
+        display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4);
+      }
+      .dialog-body { padding: 0 var(--space-5) var(--space-5); }
+      .dialog-footer {
+        padding: var(--space-4) var(--space-5); border-top: 1px solid var(--border);
+        display: flex; gap: var(--space-3); justify-content: flex-end; flex-wrap: wrap;
+      }
+
+      /* Cart drawer */
+      .cart-panel {
+        position: fixed; top: 0; right: 0; bottom: 0; z-index: 60;
+        width: min(100%, 380px); background: var(--elevated);
+        box-shadow: var(--shadow-lg); display: flex; flex-direction: column;
+        transform: translateX(100%); transition: transform calc(var(--motion) * 280ms) cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .cart-panel.open { transform: none; }
+      .cart-overlay {
+        position: fixed; inset: 0; z-index: 55; background: oklch(0.2 0.02 250 / 0.4);
+        opacity: 0; pointer-events: none; transition: opacity calc(var(--motion) * 200ms);
+      }
+      .cart-overlay.open { opacity: 1; pointer-events: auto; }
+      .cart-header {
+        padding: var(--space-5); border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .cart-items { flex: 1; overflow: auto; padding: var(--space-4); }
+      .cart-item {
+        display: grid; grid-template-columns: 56px 1fr auto; gap: var(--space-3);
+        padding: var(--space-3) 0; border-bottom: 1px solid var(--border);
+        align-items: center;
+      }
+      .cart-item .thumb {
+        width: 56px; height: 56px; border-radius: var(--radius-sm);
+        background: var(--surface-2); display: grid; place-items: center;
+      }
+      .cart-item .thumb svg { width: 28px; height: 28px; opacity: 0.6; }
+      .cart-qty {
+        display: flex; align-items: center; gap: var(--space-1); margin-top: var(--space-1);
+      }
+      .cart-qty button {
+        width: 28px; height: 28px; border-radius: var(--radius-sm);
+        background: var(--surface-2); font-weight: 600;
+      }
+      .cart-footer {
+        padding: var(--space-5); border-top: 1px solid var(--border);
+      }
+      .cart-total {
+        display: flex; justify-content: space-between; font-weight: 700;
+        font-size: 1.15rem; margin-bottom: var(--space-4);
+      }
+
+      /* Status / toast */
+      .toast-region {
+        position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); right: var(--space-4);
+        z-index: 100; display: flex; flex-direction: column; gap: var(--space-2);
+        max-width: min(360px, calc(100vw - 2rem));
+      }
+      @media (min-width: 768px) {
+        .toast-region { bottom: var(--space-6); }
+      }
+      .toast {
+        background: var(--elevated); border: 1px solid var(--border);
+        border-radius: var(--radius); padding: var(--space-3) var(--space-4);
+        box-shadow: var(--shadow); display: flex; align-items: flex-start; gap: var(--space-3);
+        animation: toast-in calc(var(--motion) * 250ms) ease;
+      }
+      .toast.success { border-color: color-mix(in oklch, var(--success) 40%, var(--border)); }
+      .toast.error { border-color: color-mix(in oklch, var(--danger) 40%, var(--border)); }
+      @keyframes toast-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: none; }
+      }
+
+      /* Sections */
+      .section-title { margin-bottom: var(--space-5); }
+      .section-title .eyebrow {
+        font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.06em; color: var(--accent); margin-bottom: var(--space-1);
+      }
+      .metrics {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: var(--space-4); margin: var(--space-8) 0;
+      }
+      .metric {
+        background: var(--surface-1); border-radius: var(--radius-lg);
+        padding: var(--space-5); text-align: center; border: 1px solid var(--border);
+      }
+      .metric .value { font-size: 1.75rem; font-weight: 700; color: var(--accent); }
+      .metric .label { font-size: 0.85rem; color: var(--text-muted); margin-top: var(--space-1); }
+
+      /* Capability inspector */
+      .cap-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: var(--space-3);
+      }
+      .cap-item {
+        padding: var(--space-3); border-radius: var(--radius); border: 1px solid var(--border);
+        background: var(--surface-1); font-size: 0.85rem;
+      }
+      .cap-item .status {
+        display: inline-flex; align-items: center; gap: 4px;
+        font-weight: 600; font-size: 0.75rem; margin-bottom: var(--space-1);
+      }
+      .cap-item .status::before {
+        content: ""; width: 8px; height: 8px; border-radius: 50%;
+      }
+      .cap-item.ok .status { color: var(--success); }
+      .cap-item.ok .status::before { background: var(--success); }
+      .cap-item.no .status { color: var(--text-faint); }
+      .cap-item.no .status::before { background: var(--text-faint); }
+
+      /* Prescription status list */
+      .request-list { display: flex; flex-direction: column; gap: var(--space-3); }
+      .request-card {
+        padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius);
+        background: var(--surface-1); display: grid; gap: var(--space-2);
+      }
+      .request-card .status-pill {
+        display: inline-flex; padding: 2px 10px; border-radius: 999px;
+        font-size: 0.75rem; font-weight: 600; width: fit-content;
+      }
+      .status-pill.pending { background: var(--warm-soft); color: oklch(0.5 0.1 55); }
+      .status-pill.ready { background: var(--success-soft); color: var(--success); }
+
+      /* Empty */
+      .empty {
+        text-align: center; padding: var(--space-12) var(--space-4);
+        color: var(--text-muted);
+      }
+      .empty svg { width: 64px; height: 64px; margin: 0 auto var(--space-4); opacity: 0.4; }
+
+      /* Progress bar (scroll) */
+      .scroll-progress {
+        position: fixed; top: 0; left: 0; height: 3px; z-index: 100;
+        background: var(--accent); width: 0; transform-origin: left;
+      }
+      @supports (animation-timeline: scroll()) {
+        .scroll-progress {
+          animation: progress linear;
+          animation-timeline: scroll(root);
+        }
+        @keyframes progress { to { width: 100%; } }
+      }
+    }
+
+    @layer utilities {
+      .flex { display: flex; }
+      .flex-wrap { flex-wrap: wrap; }
+      .items-center { align-items: center; }
+      .justify-between { justify-content: space-between; }
+      .gap-2 { gap: var(--space-2); }
+      .gap-3 { gap: var(--space-3); }
+      .gap-4 { gap: var(--space-4); }
+      .mt-2 { margin-top: var(--space-2); }
+      .mt-4 { margin-top: var(--space-4); }
+      .mb-4 { margin-bottom: var(--space-4); }
+      .mb-6 { margin-bottom: var(--space-6); }
+      .text-sm { font-size: 0.875rem; }
+      .text-xs { font-size: 0.75rem; }
+      .font-semibold { font-weight: 600; }
+      .w-full { width: 100%; }
+      .hidden { display: none !important; }
+    }
+
+    @layer motion {
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+      [data-motion="reduce"] *, [data-motion="reduce"] *::before, [data-motion="reduce"] *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      /* View Transitions */
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: calc(var(--motion) * 280ms);
+      }
+      .product-card { view-transition-name: var(--vt-name, none); }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="scroll-progress" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <header class="site-header" id="site-header">
+      <div class="header-inner">
+        <a href="#/" class="logo" data-link>
+          <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <rect x="2" y="6" width="28" height="20" rx="4" stroke="currentColor" stroke-width="2"/>
+            <path d="M10 14h12M16 10v12" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="16" cy="16" r="3" fill="var(--accent)" opacity="0.25"/>
+          </svg>
+          <span>Ashbourne Chemist</span>
+        </a>
+        <nav class="nav-main" aria-label="Primary">
+          <a href="#/" class="nav-link" data-link data-route="home">Home</a>
+          <a href="#/shop" class="nav-link" data-link data-route="shop">Shop</a>
+          <a href="#/prescriptions" class="nav-link" data-link data-route="prescriptions">Prescriptions</a>
+          <a href="#/wellness" class="nav-link" data-link data-route="wellness">Wellness</a>
+          <a href="#/about" class="nav-link" data-link data-route="about">About</a>
+        </nav>
+        <div class="header-actions">
+          <button type="button" class="icon-btn" id="fav-toggle" aria-label="Favourites" title="Favourites">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="badge hidden" id="fav-count">0</span>
+          </button>
+          <button type="button" class="icon-btn" id="cart-toggle" aria-label="Open basket" title="Basket">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M6 6L5 2H2"/></svg>
+            <span class="badge hidden" id="cart-count">0</span>
+          </button>
+          <button type="button" class="icon-btn mobile-nav-toggle" id="mobile-menu-btn" aria-label="Menu" aria-expanded="false">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1"></main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div>
+          <div class="footer-brand">Ashbourne Family Chemist</div>
+          <p class="text-sm muted">Caring for our community since 1978. Independent, family-run, and proud of it.</p>
+          <p class="text-xs faint mt-2">This is a demonstration SPA. No real medicines are dispensed and no medical advice is given.</p>
+        </div>
+        <div>
+          <div class="font-semibold mb-2">Visit</div>
+          <div class="footer-links">
+            <span class="text-sm muted">14 High Street, Ashbourne</span>
+            <span class="text-sm muted">Mon–Fri 9:00–18:00 · Sat 9:00–13:00</span>
+          </div>
+        </div>
+        <div>
+          <div class="font-semibold mb-2">Quick links</div>
+          <div class="footer-links">
+            <a href="#/shop" data-link>Shop OTC</a>
+            <a href="#/prescriptions" data-link>Request prescription</a>
+            <a href="#/settings" data-link>Settings & capabilities</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Mobile bottom bar -->
+  <nav class="mobile-bar" aria-label="Mobile navigation">
+    <a href="#/" data-link data-route="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9.5z"/></svg>
+      Home
+    </a>
+    <a href="#/shop" data-link data-route="shop">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+      Shop
+    </a>
+    <a href="#/prescriptions" data-link data-route="prescriptions">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+      Rx
+    </a>
+    <a href="#/wellness" data-link data-route="wellness">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"/><path d="M12 8v4l3 2"/></svg>
+      Wellness
+    </a>
+  </nav>
+
+  <!-- Cart panel -->
+  <div class="cart-overlay" id="cart-overlay" hidden></div>
+  <aside class="cart-panel" id="cart-panel" aria-label="Shopping basket" role="dialog" aria-modal="true" hidden>
+    <div class="cart-header">
+      <h2>Your basket</h2>
+      <button type="button" class="icon-btn" id="cart-close" aria-label="Close basket">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-footer" id="cart-footer"></div>
+  </aside>
+
+  <!-- Product detail dialog -->
+  <dialog id="product-dialog" aria-labelledby="product-dialog-title">
+    <div class="dialog-header">
+      <h2 id="product-dialog-title">Product</h2>
+      <button type="button" class="icon-btn" data-close-dialog aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body" id="product-dialog-body"></div>
+    <div class="dialog-footer" id="product-dialog-footer"></div>
+  </dialog>
+
+  <!-- Favourites dialog -->
+  <dialog id="fav-dialog" aria-labelledby="fav-dialog-title">
+    <div class="dialog-header">
+      <h2 id="fav-dialog-title">Favourites</h2>
+      <button type="button" class="icon-btn" data-close-dialog aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body" id="fav-dialog-body"></div>
+  </dialog>
+
+  <!-- Checkout confirm -->
+  <dialog id="checkout-dialog" aria-labelledby="checkout-title">
+    <div class="dialog-header">
+      <h2 id="checkout-title">Order placed</h2>
+      <button type="button" class="icon-btn" data-close-dialog aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body" id="checkout-body"></div>
+    <div class="dialog-footer">
+      <button type="button" class="btn btn-primary" data-close-dialog>Done</button>
+    </div>
+  </dialog>
+
+  <div class="toast-region" id="toast-region" aria-live="polite" aria-relevant="additions"></div>
+  <div id="live-region" class="sr-only" aria-live="polite"></div>
+
+  <script type="module">
+    /* ============================================================
+       Ashbourne Family Chemist — zero-dependency SPA
+       ============================================================ */
+
+    // ---------- Data ----------
+    const PRODUCTS = [
+      { id: "p01", name: "Paracetamol 500 mg", category: "Pain Relief", price: 2.49, stock: 48, unit: "16 tablets", tags: ["pain", "fever", "headache"], desc: "Trusted relief for mild to moderate pain and fever. Suitable for adults and children over 12 when used as directed.", advice: "Do not take more than 8 tablets in 24 hours. Avoid other products containing paracetamol." },
+      { id: "p02", name: "Ibuprofen 200 mg", category: "Pain Relief", price: 3.15, stock: 36, unit: "24 tablets", tags: ["pain", "inflammation", "period"], desc: "Anti-inflammatory pain relief for muscular aches, backache, dental pain and period pain.", advice: "Take with food. Not for people with stomach ulcers or severe asthma without advice." },
+      { id: "p03", name: "Aspirin 300 mg", category: "Pain Relief", price: 1.89, stock: 22, unit: "16 tablets", tags: ["pain", "heart"], desc: "Classic analgesic and antiplatelet. Also used at low dose under medical advice for cardiovascular protection.", advice: "Not for children under 16. Seek advice if you have a bleeding disorder." },
+      { id: "p04", name: "Cetirizine 10 mg", category: "Allergy", price: 4.29, stock: 40, unit: "30 tablets", tags: ["allergy", "hayfever", "non-drowsy"], desc: "Once-daily non-drowsy antihistamine for hay fever, pet allergy and year-round allergies.", advice: "May still cause drowsiness in some people. Avoid alcohol." },
+      { id: "p05", name: "Loratadine 10 mg", category: "Allergy", price: 3.99, stock: 28, unit: "30 tablets", tags: ["allergy", "hayfever"], desc: "Non-drowsy daily relief from seasonal and perennial allergic rhinitis.", advice: "Suitable for most adults and children over 12." },
+      { id: "p06", name: "Sodium Cromoglicate Eye Drops", category: "Allergy", price: 6.50, stock: 15, unit: "10 ml", tags: ["allergy", "eyes"], desc: "Soothes itchy, watery eyes caused by allergens. Suitable for contact lens wearers once settled.", advice: "Use regularly during the allergy season for best effect." },
+      { id: "p07", name: "Guaifenesin Expectorant", category: "Cold & Flu", price: 5.25, stock: 20, unit: "150 ml", tags: ["cough", "chest"], desc: "Helps loosen and clear chesty coughs so you can breathe more easily.", advice: "Drink plenty of fluids. See a pharmacist if cough lasts more than a week." },
+      { id: "p08", name: "Dextromethorphan Cough Syrup", category: "Cold & Flu", price: 4.75, stock: 18, unit: "100 ml", tags: ["cough", "dry"], desc: "Suppresses dry, irritating coughs day or night.", advice: "Not for productive (chesty) coughs. Check interactions with antidepressants." },
+      { id: "p09", name: "Pseudoephedrine Decongestant", category: "Cold & Flu", price: 4.99, stock: 12, unit: "12 tablets", tags: ["congestion", "cold"], desc: "Relieves blocked nose and sinus pressure. Behind-the-counter item — pharmacist will check suitability.", advice: "Not for people with high blood pressure or heart problems without advice. ID may be required." },
+      { id: "p10", name: "Omeprazole 20 mg", category: "Digestion", price: 6.99, stock: 25, unit: "14 capsules", tags: ["heartburn", "acid"], desc: "Proton pump inhibitor for short-term relief of heartburn and acid reflux.", advice: "Maximum 14 days continuous use without medical advice. Take before food." },
+      { id: "p11", name: "Gaviscon Advance", category: "Digestion", price: 7.45, stock: 30, unit: "150 ml", tags: ["heartburn", "reflux"], desc: "Forms a protective raft to keep acid down. Fast relief from heartburn and indigestion.", advice: "Can be taken after meals and at bedtime." },
+      { id: "p12", name: "Loperamide 2 mg", category: "Digestion", price: 3.49, stock: 35, unit: "12 capsules", tags: ["diarrhoea"], desc: "Slows gut motility to control acute diarrhoea. Keep hydrated.", advice: "Do not use if you have fever or bloody stools — see a doctor." },
+      { id: "p13", name: "Vitamin D3 25 µg", category: "Vitamins", price: 5.99, stock: 42, unit: "60 tablets", tags: ["vitamin", "bone", "immunity"], desc: "Supports bone health and immune function. Recommended for many adults, especially in winter months.", advice: "One a day with a meal containing fat for best absorption." },
+      { id: "p14", name: "Multivitamin Complete", category: "Vitamins", price: 8.50, stock: 28, unit: "30 tablets", tags: ["vitamin", "daily"], desc: "Balanced daily multivitamin and mineral complex for general wellbeing.", advice: "Food first — supplements fill gaps, they don’t replace a varied diet." },
+      { id: "p15", name: "Omega-3 Fish Oil", category: "Vitamins", price: 9.99, stock: 20, unit: "60 capsules", tags: ["omega", "heart", "brain"], desc: "High-strength EPA & DHA to support heart and brain health.", advice: "Store in a cool place. May thin blood slightly — mention to your pharmacist if on anticoagulants." },
+      { id: "p16", name: "Antiseptic Cream", category: "First Aid", price: 3.25, stock: 45, unit: "30 g", tags: ["wound", "skin"], desc: "Cleanses minor cuts, grazes and insect bites and helps prevent infection.", advice: "Clean the area first. Seek advice for deep or dirty wounds." },
+      { id: "p17", name: "Hydrocortisone 1% Cream", category: "First Aid", price: 4.15, stock: 22, unit: "15 g", tags: ["itch", "eczema", "rash"], desc: "Mild steroid cream for itchy skin, insect bites and mild eczema flares.", advice: "Thin layer only. Not for face or broken skin long-term without advice." },
+      { id: "p18", name: "Plasters Mixed Pack", category: "First Aid", price: 2.99, stock: 50, unit: "40 assorted", tags: ["wound", "first-aid"], desc: "Assorted waterproof plasters for everyday cuts and blisters.", advice: "Change if wet or dirty. Watch for signs of infection." },
+      { id: "p19", name: "Clotrimazole Cream 1%", category: "Skin Care", price: 5.49, stock: 18, unit: "20 g", tags: ["fungal", "athlete"], desc: "Treats athlete’s foot, ringworm and other common fungal skin infections.", advice: "Continue for a few days after symptoms clear to reduce recurrence." },
+      { id: "p20", name: "Emollient Cream", category: "Skin Care", price: 6.25, stock: 32, unit: "500 g", tags: ["dry skin", "eczema"], desc: "Fragrance-free emollient for dry, itchy and eczema-prone skin. Use as a moisturiser and soap substitute.", advice: "Apply liberally and frequently. Pat skin dry after washing." },
+      { id: "p21", name: "Sunscreen SPF 50", category: "Skin Care", price: 11.50, stock: 24, unit: "200 ml", tags: ["sun", "protection"], desc: "Broad-spectrum, water-resistant high-protection sunscreen for face and body.", advice: "Reapply every two hours and after swimming. Don’t rely on sunscreen alone." },
+      { id: "p22", name: "Saline Nasal Spray", category: "Cold & Flu", price: 3.75, stock: 38, unit: "100 ml", tags: ["nose", "congestion", "gentle"], desc: "Gentle isotonic saline to clear and moisturise blocked or dry noses. Suitable for all ages.", advice: "Can be used as often as needed. Ideal for babies and during pregnancy." },
+      { id: "p23", name: "Throat Lozenges Honey & Lemon", category: "Cold & Flu", price: 2.85, stock: 55, unit: "24 lozenges", tags: ["throat", "soothe"], desc: "Soothing lozenges for sore throats with a classic honey and lemon flavour.", advice: "Dissolve slowly. Not a substitute for medical care if symptoms are severe." },
+      { id: "p24", name: "Digital Thermometer", category: "First Aid", price: 8.99, stock: 14, unit: "1 unit", tags: ["thermometer", "fever"], desc: "Fast-reading digital thermometer with fever alert. Memory recall of last reading.", advice: "Clean probe before and after use. Follow age-specific placement guidance." },
+    ];
+
+    const CATEGORIES = ["All", "Pain Relief", "Allergy", "Cold & Flu", "Digestion", "Vitamins", "First Aid", "Skin Care"];
+
+    // ---------- State ----------
+    const STORAGE_KEY = "ashbourne-chemist-v1";
+
+    function loadPersisted() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (data && typeof data === "object" && data.v === 1) return data;
+      } catch (_) {}
+      return null;
+    }
+
+    function savePersisted(partial) {
+      try {
+        const current = loadPersisted() || { v: 1, cart: [], favourites: [], requests: [], prefs: {} };
+        const next = { ...current, ...partial, v: 1 };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch (_) {}
+    }
+
+    const initial = loadPersisted() || {};
+    const state = {
+      route: "home",
+      productId: null,
+      cart: Array.isArray(initial.cart) ? initial.cart : [],
+      favourites: Array.isArray(initial.favourites) ? initial.favourites : [],
+      requests: Array.isArray(initial.requests) ? initial.requests : [],
+      prefs: {
+        theme: "system",
+        motion: "system",
+        ...(initial.prefs || {}),
+      },
+      shop: {
+        query: "",
+        category: "All",
+        sort: "name",
+      },
+      listeners: new Set(),
+    };
+
+    function getState() {
+      return structuredClone ? structuredClone({
+        route: state.route,
+        productId: state.productId,
+        cart: state.cart,
+        favourites: state.favourites,
+        requests: state.requests,
+        prefs: state.prefs,
+        shop: state.shop,
+      }) : JSON.parse(JSON.stringify({
+        route: state.route,
+        productId: state.productId,
+        cart: state.cart,
+        favourites: state.favourites,
+        requests: state.requests,
+        prefs: state.prefs,
+        shop: state.shop,
+      }));
+    }
+
+    function dispatch(action) {
+      switch (action.type) {
+        case "NAVIGATE":
+          state.route = action.route;
+          state.productId = action.productId || null;
+          break;
+        case "SET_SHOP":
+          state.shop = { ...state.shop, ...action.payload };
+          break;
+        case "ADD_TO_CART": {
+          const existing = state.cart.find(c => c.id === action.id);
+          if (existing) existing.qty += action.qty || 1;
+          else state.cart.push({ id: action.id, qty: action.qty || 1 });
+          savePersisted({ cart: state.cart });
+          break;
+        }
+        case "UPDATE_CART_QTY": {
+          const item = state.cart.find(c => c.id === action.id);
+          if (!item) break;
+          item.qty = Math.max(0, action.qty);
+          if (item.qty === 0) state.cart = state.cart.filter(c => c.id !== action.id);
+          savePersisted({ cart: state.cart });
+          break;
+        }
+        case "CLEAR_CART":
+          state.cart = [];
+          savePersisted({ cart: [] });
+          break;
+        case "TOGGLE_FAV": {
+          const i = state.favourites.indexOf(action.id);
+          if (i >= 0) state.favourites.splice(i, 1);
+          else state.favourites.push(action.id);
+          savePersisted({ favourites: state.favourites });
+          break;
+        }
+        case "ADD_REQUEST":
+          state.requests.unshift(action.payload);
+          savePersisted({ requests: state.requests });
+          break;
+        case "SET_PREFS":
+          state.prefs = { ...state.prefs, ...action.payload };
+          savePersisted({ prefs: state.prefs });
+          applyPrefs();
+          break;
+        case "RESET_DATA":
+          state.cart = [];
+          state.favourites = [];
+          state.requests = [];
+          savePersisted({ cart: [], favourites: [], requests: [] });
+          break;
+        default:
+          break;
+      }
+      state.listeners.forEach(fn => fn(getState()));
+    }
+
+    function subscribe(fn) {
+      state.listeners.add(fn);
+      return () => state.listeners.delete(fn);
+    }
+
+    // ---------- Prefs & theme ----------
+    function applyPrefs() {
+      const root = document.documentElement;
+      const theme = state.prefs.theme;
+      if (theme === "light") root.setAttribute("data-theme", "light");
+      else if (theme === "dark") root.setAttribute("data-theme", "dark");
+      else root.removeAttribute("data-theme");
+
+      const motion = state.prefs.motion;
+      if (motion === "reduce") root.setAttribute("data-motion", "reduce");
+      else if (motion === "full") root.setAttribute("data-motion", "full");
+      else root.removeAttribute("data-motion");
+    }
+    applyPrefs();
+
+    // ---------- Routing ----------
+    function parseHash() {
+      const hash = location.hash.slice(1) || "/";
+      const parts = hash.replace(/^\/+/, "").split("/");
+      const route = parts[0] || "home";
+      const productId = parts[0] === "product" && parts[1] ? parts[1] : null;
+      return { route: productId ? "product" : route, productId };
+    }
+
+    function navigate(path, { replace = false } = {}) {
+      const url = path.startsWith("#") ? path : `#${path.startsWith("/") ? path : "/" + path}`;
+      if (replace) location.replace(url);
+      else location.hash = url.slice(1);
+    }
+
+    function onRouteChange() {
+      const { route, productId } = parseHash();
+      const update = () => {
+        dispatch({ type: "NAVIGATE", route, productId });
+        render();
+        updateNav();
+        window.scrollTo(0, 0);
+      };
+      if (document.startViewTransition && state.prefs.motion !== "reduce") {
+        document.startViewTransition(update);
+      } else {
+        update();
+      }
+    }
+
+    window.addEventListener("hashchange", onRouteChange);
+
+    // ---------- Helpers ----------
+    function formatPrice(n) {
+      return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(n);
+    }
+
+    function cartTotal() {
+      return state.cart.reduce((sum, c) => {
+        const p = PRODUCTS.find(x => x.id === c.id);
+        return sum + (p ? p.price * c.qty : 0);
+      }, 0);
+    }
+
+    function cartCount() {
+      return state.cart.reduce((s, c) => s + c.qty, 0);
+    }
+
+    function announce(msg) {
+      const el = document.getElementById("live-region");
+      el.textContent = "";
+      requestAnimationFrame(() => { el.textContent = msg; });
+    }
+
+    function toast(message, type = "success") {
+      const region = document.getElementById("toast-region");
+      const el = document.createElement("div");
+      el.className = `toast ${type}`;
+      el.setAttribute("role", "status");
+      el.innerHTML = `<span>${escapeHtml(message)}</span>`;
+      region.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = "0";
+        el.style.transition = "opacity 200ms";
+        setTimeout(() => el.remove(), 220);
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function productIcon(category) {
+      const icons = {
+        "Pain Relief": `<path d="M9 3h6v4H9zM7 7h10v14H7z"/><path d="M10 12h4M12 10v4"/>`,
+        "Allergy": `<path d="M12 3c-2 4-6 6-6 10a6 6 0 0 0 12 0c0-4-4-6-6-10z"/>`,
+        "Cold & Flu": `<path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/>`,
+        "Digestion": `<path d="M12 3c-3 0-5 2-5 5v4c0 2 1 3 2 4l1 4h4l1-4c1-1 2-2 2-4V8c0-3-2-5-5-5z"/>`,
+        "Vitamins": `<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>`,
+        "First Aid": `<path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="3"/>`,
+        "Skin Care": `<path d="M12 3c4 4 7 7 7 11a7 7 0 0 1-14 0c0-4 3-7 7-11z"/>`,
+      };
+      const path = icons[category] || icons["Vitamins"];
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="48" height="48">${path}</svg>`;
+    }
+
+    // ---------- Render pages ----------
+    function render() {
+      const main = document.getElementById("main");
+      const route = state.route;
+
+      let html = "";
+      if (route === "home") html = renderHome();
+      else if (route === "shop") html = renderShop();
+      else if (route === "product") html = renderProductDetail();
+      else if (route === "prescriptions") html = renderPrescriptions();
+      else if (route === "wellness") html = renderWellness();
+      else if (route === "about") html = renderAbout();
+      else if (route === "settings") html = renderSettings();
+      else html = renderNotFound();
+
+      main.innerHTML = html;
+      bindPageEvents();
+      updateBadges();
+      document.title = pageTitle(route);
+    }
+
+    function pageTitle(route) {
+      const map = {
+        home: "Ashbourne Family Chemist",
+        shop: "Shop — Ashbourne Chemist",
+        product: "Product — Ashbourne Chemist",
+        prescriptions: "Prescriptions — Ashbourne Chemist",
+        wellness: "Wellness — Ashbourne Chemist",
+        about: "About — Ashbourne Chemist",
+        settings: "Settings — Ashbourne Chemist",
+      };
+      return map[route] || "Ashbourne Family Chemist";
+    }
+
+    function updateNav() {
+      document.querySelectorAll("[data-route]").forEach(el => {
+        const r = el.getAttribute("data-route");
+        if (r === state.route || (state.route === "product" && r === "shop")) {
+          el.setAttribute("aria-current", "page");
+        } else {
+          el.removeAttribute("aria-current");
+        }
+      });
+    }
+
+    function updateBadges() {
+      const cc = cartCount();
+      const cartBadge = document.getElementById("cart-count");
+      if (cc > 0) {
+        cartBadge.textContent = cc > 99 ? "99+" : String(cc);
+        cartBadge.classList.remove("hidden");
+      } else cartBadge.classList.add("hidden");
+
+      const fc = state.favourites.length;
+      const favBadge = document.getElementById("fav-count");
+      if (fc > 0) {
+        favBadge.textContent = String(fc);
+        favBadge.classList.remove("hidden");
+      } else favBadge.classList.add("hidden");
+    }
+
+    // ---------- Home ----------
+    function renderHome() {
+      return `
+        <div class="page">
+          <section class="hero">
+            <div class="hero-copy">
+              <p class="eyebrow" style="color:var(--accent);font-weight:700;font-size:0.8rem;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.75rem;">Family-run since 1978</p>
+              <h1>Your neighbourhood chemist, now online</h1>
+              <p>Browse trusted over-the-counter medicines, request prescriptions for collection or delivery, and get practical self-care guidance from a team that knows your name.</p>
+              <div class="hero-cta">
+                <a href="#/shop" class="btn btn-primary" data-link>Shop medicines</a>
+                <a href="#/prescriptions" class="btn btn-secondary" data-link>Request a prescription</a>
+              </div>
+            </div>
+            <div class="hero-visual" aria-hidden="true">
+              <svg viewBox="0 0 280 240" fill="none">
+                <ellipse cx="140" cy="210" rx="90" ry="12" fill="var(--accent)" opacity="0.15"/>
+                <rect x="90" y="70" width="100" height="120" rx="12" fill="var(--elevated)" stroke="var(--accent)" stroke-width="3"/>
+                <path d="M120 100h40M140 80v40" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="140" cy="140" r="18" fill="var(--warm)" opacity="0.35"/>
+                <path d="M70 160c20-40 40-50 70-50s50 10 70 50" stroke="var(--accent)" stroke-width="2" opacity="0.4" fill="none"/>
+                <rect x="40" y="150" width="40" height="50" rx="6" fill="var(--surface-2)" stroke="var(--border-strong)" stroke-width="2"/>
+                <rect x="200" y="140" width="36" height="60" rx="6" fill="var(--surface-2)" stroke="var(--border-strong)" stroke-width="2"/>
+              </svg>
+            </div>
+          </section>
+
+          <div class="metrics">
+            <div class="metric"><div class="value tabular">47</div><div class="label">Years serving Ashbourne</div></div>
+            <div class="metric"><div class="value tabular">${PRODUCTS.length}</div><div class="label">OTC products listed</div></div>
+            <div class="metric"><div class="value tabular">Same day</div><div class="label">Prescription collection</div></div>
+            <div class="metric"><div class="value tabular">Free</div><div class="label">Local delivery over £20</div></div>
+          </div>
+
+          <section class="mb-6">
+            <div class="section-title">
+              <div class="eyebrow">Popular right now</div>
+              <h2>Everyday essentials</h2>
+            </div>
+            <div class="product-grid">
+              ${PRODUCTS.slice(0, 4).map(p => productCard(p)).join("")}
+            </div>
+            <div class="mt-4">
+              <a href="#/shop" class="btn btn-secondary" data-link>View full range</a>
+            </div>
+          </section>
+
+          <section class="card" style="margin-top:var(--space-10)">
+            <div class="card-body" style="display:grid;gap:var(--space-4);@media(min-width:700px){grid-template-columns:1fr 1fr}">
+              <div>
+                <h2 style="margin-bottom:var(--space-3)">How we can help</h2>
+                <ul style="display:grid;gap:var(--space-3)">
+                  <li class="flex gap-3 items-center"><span style="color:var(--accent)">●</span> Over-the-counter medicines & advice</li>
+                  <li class="flex gap-3 items-center"><span style="color:var(--accent)">●</span> NHS & private prescription dispensing</li>
+                  <li class="flex gap-3 items-center"><span style="color:var(--accent)">●</span> Repeat prescription requests</li>
+                  <li class="flex gap-3 items-center"><span style="color:var(--accent)">●</span> Local collection & delivery</li>
+                </ul>
+              </div>
+              <div>
+                <h3 style="margin-bottom:var(--space-3)">A note from the family</h3>
+                <p class="muted text-sm">“We’ve looked after generations of Ashbourne families. Whether you need a quick remedy or help navigating a new prescription, we’re here — in person or online.”</p>
+                <p class="text-sm font-semibold mt-2">— The Harper family</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    // ---------- Shop ----------
+    function filteredProducts() {
+      let list = [...PRODUCTS];
+      const { query, category, sort } = state.shop;
+      if (category && category !== "All") {
+        list = list.filter(p => p.category === category);
+      }
+      if (query.trim()) {
+        const q = query.trim().toLowerCase();
+        list = list.filter(p =>
+          p.name.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          p.tags.some(t => t.includes(q)) ||
+          p.desc.toLowerCase().includes(q)
+        );
+      }
+      if (sort === "price-asc") list.sort((a, b) => a.price - b.price);
+      else if (sort === "price-desc") list.sort((a, b) => b.price - a.price);
+      else if (sort === "stock") list.sort((a, b) => b.stock - a.stock);
+      else list.sort((a, b) => a.name.localeCompare(b.name));
+      return list;
+    }
+
+    function productCard(p) {
+      const fav = state.favourites.includes(p.id);
+      let stockClass = "";
+      let stockLabel = "In stock";
+      if (p.stock === 0) { stockClass = "out"; stockLabel = "Out of stock"; }
+      else if (p.stock < 15) { stockClass = "low"; stockLabel = "Low stock"; }
+      return `
+        <article class="card product-card" data-product-id="${p.id}" style="--vt-name: product-${p.id}">
+          <div class="thumb">
+            ${productIcon(p.category)}
+            <span class="badge-stock ${stockClass}">${stockLabel}</span>
+            <button type="button" class="fav-btn" data-fav="${p.id}" aria-pressed="${fav}" aria-label="${fav ? "Remove from" : "Add to"} favourites">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="${fav ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+          <div class="card-body" style="display:flex;flex-direction:column;flex:1">
+            <div class="meta">${escapeHtml(p.category)} · ${escapeHtml(p.unit)}</div>
+            <h3>${escapeHtml(p.name)}</h3>
+            <div class="price tabular">${formatPrice(p.price)}</div>
+            <div class="actions mt-4">
+              <button type="button" class="btn btn-primary btn-sm" data-add="${p.id}" ${p.stock === 0 ? "disabled" : ""}>Add to basket</button>
+              <a href="#/product/${p.id}" class="btn btn-ghost btn-sm" data-link>Details</a>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderShop() {
+      const list = filteredProducts();
+      return `
+        <div class="page">
+          <div class="section-title">
+            <div class="eyebrow">Over-the-counter</div>
+            <h1>Shop</h1>
+            <p class="muted">Medicines and health essentials available without a prescription. Always read the label and ask our team if unsure.</p>
+          </div>
+
+          <div class="toolbar">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="search" id="shop-search" placeholder="Search medicines, symptoms…" value="${escapeHtml(state.shop.query)}" aria-label="Search products" />
+            </div>
+            <select class="sort-select" id="shop-sort" aria-label="Sort products">
+              <option value="name" ${state.shop.sort === "name" ? "selected" : ""}>Name A–Z</option>
+              <option value="price-asc" ${state.shop.sort === "price-asc" ? "selected" : ""}>Price: low to high</option>
+              <option value="price-desc" ${state.shop.sort === "price-desc" ? "selected" : ""}>Price: high to low</option>
+              <option value="stock" ${state.shop.sort === "stock" ? "selected" : ""}>Stock level</option>
+            </select>
+          </div>
+
+          <div class="chip-group mb-6" role="group" aria-label="Filter by category">
+            ${CATEGORIES.map(c => `
+              <button type="button" class="chip" data-category="${c}" aria-pressed="${state.shop.category === c}">${c}</button>
+            `).join("")}
+          </div>
+
+          <p class="text-sm muted mb-4" id="shop-count">${list.length} product${list.length === 1 ? "" : "s"}</p>
+
+          ${list.length === 0 ? `
+            <div class="empty">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <p>No products match your search.</p>
+              <button type="button" class="btn btn-secondary mt-4" id="clear-filters">Clear filters</button>
+            </div>
+          ` : `
+            <div class="product-grid">${list.map(productCard).join("")}</div>
+          `}
+        </div>
+      `;
+    }
+
+    function renderProductDetail() {
+      const p = PRODUCTS.find(x => x.id === state.productId);
+      if (!p) return renderNotFound();
+      const fav = state.favourites.includes(p.id);
+      return `
+        <div class="page">
+          <nav class="text-sm muted mb-4"><a href="#/shop" data-link>Shop</a> / ${escapeHtml(p.category)}</nav>
+          <div class="card" style="display:grid;@media(min-width:700px){grid-template-columns:1fr 1.2fr}">
+            <div class="thumb" style="aspect-ratio:1;background:var(--surface-2);display:grid;place-items:center;padding:var(--space-8)">
+              ${productIcon(p.category)}
+            </div>
+            <div class="card-body">
+              <div class="meta text-sm muted">${escapeHtml(p.category)} · ${escapeHtml(p.unit)}</div>
+              <h1 style="margin:var(--space-2) 0">${escapeHtml(p.name)}</h1>
+              <div class="price tabular" style="font-size:1.5rem;margin-bottom:var(--space-4)">${formatPrice(p.price)}</div>
+              <p class="mb-4">${escapeHtml(p.desc)}</p>
+              <div class="card" style="background:var(--warm-soft);border:none;padding:var(--space-4);margin-bottom:var(--space-5)">
+                <div class="font-semibold text-sm mb-1">Pharmacist note</div>
+                <p class="text-sm">${escapeHtml(p.advice)}</p>
+              </div>
+              <div class="flex flex-wrap gap-3">
+                <button type="button" class="btn btn-primary" data-add="${p.id}" ${p.stock === 0 ? "disabled" : ""}>Add to basket</button>
+                <button type="button" class="btn btn-secondary" data-fav="${p.id}" aria-pressed="${fav}">${fav ? "Favourited" : "Favourite"}</button>
+              </div>
+              <p class="text-xs faint mt-4">Stock: ${p.stock} · This information is general and not personalised medical advice.</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---------- Prescriptions ----------
+    function renderPrescriptions() {
+      return `
+        <div class="page">
+          <div class="section-title">
+            <div class="eyebrow">NHS & private</div>
+            <h1>Prescription requests</h1>
+            <p class="muted">Request a new or repeat prescription for collection or local delivery. This is a demonstration form — no real prescription is sent.</p>
+          </div>
+
+          <div style="display:grid;gap:var(--space-8);@media(min-width:900px){grid-template-columns:1.2fr 0.8fr}">
+            <form id="rx-form" class="card card-body form-grid" novalidate>
+              <div class="field">
+                <label for="rx-type">Request type</label>
+                <select id="rx-type" name="type" required>
+                  <option value="repeat">Repeat prescription</option>
+                  <option value="new">New prescription (I have a paper form)</option>
+                  <option value="transfer">Transfer from another pharmacy</option>
+                </select>
+              </div>
+              <div class="form-grid cols-2">
+                <div class="field">
+                  <label for="rx-name">Full name</label>
+                  <input id="rx-name" name="name" required autocomplete="name" placeholder="As on your NHS record" />
+                </div>
+                <div class="field">
+                  <label for="rx-dob">Date of birth</label>
+                  <input id="rx-dob" name="dob" type="date" required />
+                </div>
+              </div>
+              <div class="field">
+                <label for="rx-meds">Medicines required</label>
+                <textarea id="rx-meds" name="meds" required placeholder="e.g. Amlodipine 5 mg — 28 tablets&#10;Atorvastatin 20 mg — 28 tablets"></textarea>
+                <span class="hint">List each medicine and strength if known.</span>
+              </div>
+              <div class="field">
+                <label for="rx-method">Collection or delivery</label>
+                <select id="rx-method" name="method" required>
+                  <option value="collect">Collect from the pharmacy</option>
+                  <option value="deliver">Local delivery (Ashbourne area)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="rx-notes">Notes for the pharmacist (optional)</label>
+                <textarea id="rx-notes" name="notes" placeholder="Allergies, preferred time, etc."></textarea>
+              </div>
+              <div class="flex gap-3 flex-wrap">
+                <button type="submit" class="btn btn-primary">Submit request</button>
+                <button type="reset" class="btn btn-ghost">Clear</button>
+              </div>
+              <p class="text-xs faint">By submitting you confirm this is a simulated request for demonstration only.</p>
+            </form>
+
+            <div>
+              <h2 class="mb-4">Your recent requests</h2>
+              <div class="request-list" id="request-list">
+                ${state.requests.length === 0 ? `
+                  <div class="empty" style="padding:var(--space-8)">
+                    <p>No requests yet. Submit the form to see them appear here (stored only on this device).</p>
+                  </div>
+                ` : state.requests.map(r => `
+                  <div class="request-card">
+                    <span class="status-pill ${r.status}">${r.status === "ready" ? "Ready" : "Pending"}</span>
+                    <div class="font-semibold">${escapeHtml(r.name)}</div>
+                    <div class="text-sm muted">${escapeHtml(r.type)} · ${escapeHtml(r.method)}</div>
+                    <div class="text-sm">${escapeHtml(r.meds.slice(0, 80))}${r.meds.length > 80 ? "…" : ""}</div>
+                    <div class="text-xs faint">${new Date(r.created).toLocaleString("en-GB")}</div>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---------- Wellness (interactive lab) ----------
+    function renderWellness() {
+      return `
+        <div class="page">
+          <div class="section-title">
+            <div class="eyebrow">Self-care tools</div>
+            <h1>Wellness lab</h1>
+            <p class="muted">Educational tools only. These do not replace professional advice. If you are unsure, speak to a pharmacist or GP.</p>
+          </div>
+
+          <div style="display:grid;gap:var(--space-6);@media(min-width:800px){grid-template-columns:1fr 1fr}">
+            <section class="card">
+              <div class="card-body">
+                <h2 class="mb-2">Symptom matcher</h2>
+                <p class="text-sm muted mb-4">Select common symptoms to see related over-the-counter product categories we stock. This is general information, not a diagnosis.</p>
+                <div class="chip-group mb-4" id="symptom-chips">
+                  ${["Headache", "Fever", "Hay fever", "Cough", "Heartburn", "Diarrhoea", "Sore throat", "Dry skin", "Insect bite"].map(s =>
+                    `<button type="button" class="chip" data-symptom="${s}">${s}</button>`
+                  ).join("")}
+                </div>
+                <div id="symptom-result" class="card" style="background:var(--surface-1);border:none;padding:var(--space-4);min-height:80px">
+                  <p class="text-sm muted">Select one or more symptoms above.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="card-body">
+                <h2 class="mb-2">Paracetamol dose helper</h2>
+                <p class="text-sm muted mb-4">Illustrative adult dose calculator based on standard UK labelling. Always check the pack and ask a pharmacist for children or special circumstances.</p>
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="dose-weight">Weight (kg) — optional for adults</label>
+                    <input type="number" id="dose-weight" min="40" max="150" step="1" placeholder="e.g. 70" />
+                  </div>
+                  <div class="field">
+                    <label for="dose-age">Age group</label>
+                    <select id="dose-age">
+                      <option value="adult">Adult (16+)</option>
+                      <option value="12-15">12–15 years</option>
+                      <option value="child">Under 12 — see pharmacist</option>
+                    </select>
+                  </div>
+                </div>
+                <div id="dose-result" class="mt-4 card" style="background:var(--accent-soft);border:none;padding:var(--space-4)">
+                  <p class="text-sm">Select age group to see standard guidance.</p>
+                </div>
+                <p class="text-xs faint mt-3">Maximum 4 doses in 24 hours. Leave at least 4 hours between doses. Do not exceed 4 g (8 × 500 mg) in 24 hours for adults.</p>
+              </div>
+            </section>
+          </div>
+
+          <section class="card mt-6">
+            <div class="card-body">
+              <h2 class="mb-3">When to seek further help</h2>
+              <ul class="text-sm" style="display:grid;gap:var(--space-2)">
+                <li>• Symptoms that are severe, sudden, or getting worse</li>
+                <li>• Fever lasting more than 3 days, or fever in a baby under 3 months</li>
+                <li>• Difficulty breathing, chest pain, or confusion</li>
+                <li>• Suspected overdose or allergic reaction — call emergency services</li>
+              </ul>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    // ---------- About ----------
+    function renderAbout() {
+      return `
+        <div class="page">
+          <div class="section-title">
+            <div class="eyebrow">Our story</div>
+            <h1>About Ashbourne Family Chemist</h1>
+          </div>
+          <div class="card card-body mb-6">
+            <p class="mb-4">Founded in 1978 by Margaret and George Harper, Ashbourne Family Chemist has been part of the high street for nearly five decades. Today the pharmacy is run by their children and a small team of pharmacists and counter staff who still know many customers by name.</p>
+            <p class="mb-4">We dispense NHS and private prescriptions, offer over-the-counter advice, and provide a local delivery service. This website is a modern front door to the same personal service — built as a fully client-side demonstration with no external services.</p>
+            <p class="muted text-sm">Nothing on this site constitutes medical advice. Always follow pack instructions and speak to a qualified professional about your health.</p>
+          </div>
+          <div class="metrics">
+            <div class="metric"><div class="value">1978</div><div class="label">Year established</div></div>
+            <div class="metric"><div class="value">Family</div><div class="label">Still independent</div></div>
+            <div class="metric"><div class="value">Local</div><div class="label">Delivery available</div></div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---------- Settings + capability inspector ----------
+    function detectCapabilities() {
+      const supports = (prop) => {
+        try { return CSS.supports(prop); } catch { return false; }
+      };
+      return [
+        { id: "view-transitions", label: "View Transitions API", ok: typeof document.startViewTransition === "function", note: "Smooth page and detail transitions" },
+        { id: "scroll-timeline", label: "Scroll-driven animations", ok: supports("animation-timeline: scroll()"), note: "Reading progress bar on scroll" },
+        { id: "container-queries", label: "Container queries", ok: supports("container-type: inline-size"), note: "Responsive product cards" },
+        { id: "nesting", label: "CSS nesting", ok: supports("selector(&)"), note: "Organised stylesheets" },
+        { id: "scope", label: "@scope", ok: supports("@scope"), note: "Scoped component styles (progressive)" },
+        { id: "anchor", label: "CSS Anchor Positioning", ok: supports("anchor-name: --a"), note: "Positioned popovers when supported" },
+        { id: "popover", label: "Popover API", ok: HTMLElement.prototype.hasOwnProperty("popover"), note: "Native light-dismiss menus" },
+        { id: "dialog", label: "<dialog>", ok: typeof HTMLDialogElement === "function", note: "Accessible product & checkout modals" },
+        { id: "has", label: ":has()", ok: supports("selector(:has(*))"), note: "Parent-state styling" },
+        { id: "field-sizing", label: "field-sizing", ok: supports("field-sizing: content"), note: "Auto-growing textareas where supported" },
+        { id: "trusted-types", label: "Trusted Types", ok: typeof window.trustedTypes !== "undefined", note: "Extra DOM injection safety" },
+        { id: "navigation", label: "Navigation API", ok: typeof window.navigation !== "undefined", note: "Modern navigation (we use hash fallback)" },
+        { id: "waapi", label: "Web Animations API", ok: typeof Element.prototype.animate === "function", note: "Micro-interactions" },
+        { id: "canvas", label: "Canvas 2D", ok: !!document.createElement("canvas").getContext, note: "Visuals when needed" },
+        { id: "clipboard", label: "Clipboard API", ok: !!navigator.clipboard, note: "Copy order references" },
+        { id: "share", label: "Web Share API", ok: !!navigator.share, note: "Share product links when available" },
+        { id: "localstorage", label: "localStorage", ok: (() => { try { localStorage.setItem("__t", "1"); localStorage.removeItem("__t"); return true; } catch { return false; } })(), note: "Basket, favourites & requests persist" },
+      ];
+    }
+
+    function renderSettings() {
+      const caps = detectCapabilities();
+      return `
+        <div class="page">
+          <div class="section-title">
+            <div class="eyebrow">System</div>
+            <h1>Settings & capabilities</h1>
+          </div>
+
+          <section class="card card-body mb-6">
+            <h2 class="mb-4">Preferences</h2>
+            <div class="form-grid cols-2">
+              <div class="field">
+                <label for="pref-theme">Colour theme</label>
+                <select id="pref-theme">
+                  <option value="system" ${state.prefs.theme === "system" ? "selected" : ""}>System</option>
+                  <option value="light" ${state.prefs.theme === "light" ? "selected" : ""}>Light</option>
+                  <option value="dark" ${state.prefs.theme === "dark" ? "selected" : ""}>Dark</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="pref-motion">Motion</label>
+                <select id="pref-motion">
+                  <option value="system" ${state.prefs.motion === "system" ? "selected" : ""}>System</option>
+                  <option value="full" ${state.prefs.motion === "full" ? "selected" : ""}>Full motion</option>
+                  <option value="reduce" ${state.prefs.motion === "reduce" ? "selected" : ""}>Reduced motion</option>
+                </select>
+              </div>
+            </div>
+            <div class="mt-4 flex gap-3 flex-wrap">
+              <button type="button" class="btn btn-secondary" id="export-data">Export my data (JSON)</button>
+              <button type="button" class="btn btn-ghost" id="reset-data">Clear basket & requests</button>
+            </div>
+          </section>
+
+          <section>
+            <h2 class="mb-3">Platform capabilities</h2>
+            <p class="text-sm muted mb-4">Detected features used by this app and their status in your browser.</p>
+            <div class="cap-grid">
+              ${caps.map(c => `
+                <div class="cap-item ${c.ok ? "ok" : "no"}">
+                  <div class="status">${c.ok ? "Available" : "Unavailable"}</div>
+                  <div class="font-semibold">${escapeHtml(c.label)}</div>
+                  <div class="text-xs muted">${escapeHtml(c.note)}</div>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderNotFound() {
+      return `
+        <div class="page">
+          <div class="empty">
+            <h1>Page not found</h1>
+            <p class="muted">That shelf doesn’t exist.</p>
+            <a href="#/" class="btn btn-primary mt-4" data-link>Back home</a>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---------- Cart UI ----------
+    function openCart() {
+      const panel = document.getElementById("cart-panel");
+      const overlay = document.getElementById("cart-overlay");
+      panel.hidden = false;
+      overlay.hidden = false;
+      requestAnimationFrame(() => {
+        panel.classList.add("open");
+        overlay.classList.add("open");
+      });
+      renderCart();
+      document.getElementById("cart-close").focus();
+    }
+
+    function closeCart() {
+      const panel = document.getElementById("cart-panel");
+      const overlay = document.getElementById("cart-overlay");
+      panel.classList.remove("open");
+      overlay.classList.remove("open");
+      setTimeout(() => {
+        panel.hidden = true;
+        overlay.hidden = true;
+      }, 280);
+    }
+
+    function renderCart() {
+      const itemsEl = document.getElementById("cart-items");
+      const footerEl = document.getElementById("cart-footer");
+      if (state.cart.length === 0) {
+        itemsEl.innerHTML = `<div class="empty"><p>Your basket is empty.</p><a href="#/shop" class="btn btn-secondary mt-4" data-link data-close-cart>Browse shop</a></div>`;
+        footerEl.innerHTML = "";
+        return;
+      }
+      itemsEl.innerHTML = state.cart.map(c => {
+        const p = PRODUCTS.find(x => x.id === c.id);
+        if (!p) return "";
+        return `
+          <div class="cart-item" data-cart-id="${p.id}">
+            <div class="thumb">${productIcon(p.category)}</div>
+            <div>
+              <div class="font-semibold text-sm">${escapeHtml(p.name)}</div>
+              <div class="text-xs muted">${formatPrice(p.price)} each</div>
+              <div class="cart-qty">
+                <button type="button" data-qty-dec="${p.id}" aria-label="Decrease quantity">−</button>
+                <span class="tabular">${c.qty}</span>
+                <button type="button" data-qty-inc="${p.id}" aria-label="Increase quantity">+</button>
+              </div>
+            </div>
+            <div class="tabular font-semibold">${formatPrice(p.price * c.qty)}</div>
+          </div>
+        `;
+      }).join("");
+      const total = cartTotal();
+      footerEl.innerHTML = `
+        <div class="cart-total"><span>Total</span><span class="tabular">${formatPrice(total)}</span></div>
+        <button type="button" class="btn btn-primary w-full" id="checkout-btn">Place order (demo)</button>
+        <p class="text-xs faint mt-2" style="text-align:center">Demo only — no payment is taken.</p>
+      `;
+    }
+
+    // ---------- Event binding ----------
+    function bindPageEvents() {
+      // Shop search / sort / category
+      const search = document.getElementById("shop-search");
+      if (search) {
+        let t;
+        search.addEventListener("input", () => {
+          clearTimeout(t);
+          t = setTimeout(() => {
+            dispatch({ type: "SET_SHOP", payload: { query: search.value } });
+            render();
+          }, 180);
+        });
+      }
+      const sort = document.getElementById("shop-sort");
+      if (sort) {
+        sort.addEventListener("change", () => {
+          dispatch({ type: "SET_SHOP", payload: { sort: sort.value } });
+          render();
+        });
+      }
+      document.querySelectorAll("[data-category]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          dispatch({ type: "SET_SHOP", payload: { category: btn.getAttribute("data-category") } });
+          render();
+        });
+      });
+      const clear = document.getElementById("clear-filters");
+      if (clear) {
+        clear.addEventListener("click", () => {
+          dispatch({ type: "SET_SHOP", payload: { query: "", category: "All" } });
+          render();
+        });
+      }
+
+      // Add to cart / fav
+      document.querySelectorAll("[data-add]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-add");
+          dispatch({ type: "ADD_TO_CART", id });
+          toast(`${PRODUCTS.find(p => p.id === id)?.name || "Item"} added to basket`);
+          announce("Added to basket");
+          updateBadges();
+        });
+      });
+      document.querySelectorAll("[data-fav]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-fav");
+          dispatch({ type: "TOGGLE_FAV", id });
+          const on = state.favourites.includes(id);
+          toast(on ? "Added to favourites" : "Removed from favourites");
+          render();
+        });
+      });
+
+      // Prescription form
+      const rxForm = document.getElementById("rx-form");
+      if (rxForm) {
+        rxForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const fd = new FormData(rxForm);
+          const payload = {
+            id: "rx-" + Date.now(),
+            type: fd.get("type"),
+            name: String(fd.get("name") || "").trim(),
+            dob: fd.get("dob"),
+            meds: String(fd.get("meds") || "").trim(),
+            method: fd.get("method"),
+            notes: String(fd.get("notes") || "").trim(),
+            status: "pending",
+            created: new Date().toISOString(),
+          };
+          if (!payload.name || !payload.meds || !payload.dob) {
+            toast("Please fill in the required fields", "error");
+            return;
+          }
+          dispatch({ type: "ADD_REQUEST", payload });
+          // Simulate status change after a short delay for demo
+          setTimeout(() => {
+            const req = state.requests.find(r => r.id === payload.id);
+            if (req) {
+              req.status = "ready";
+              savePersisted({ requests: state.requests });
+              if (state.route === "prescriptions") render();
+            }
+          }, 4000);
+          toast("Prescription request submitted (demo)");
+          announce("Request submitted");
+          rxForm.reset();
+          render();
+        });
+      }
+
+      // Wellness symptom matcher
+      const selectedSymptoms = new Set();
+      document.querySelectorAll("[data-symptom]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const s = btn.getAttribute("data-symptom");
+          if (selectedSymptoms.has(s)) {
+            selectedSymptoms.delete(s);
+            btn.setAttribute("aria-pressed", "false");
+          } else {
+            selectedSymptoms.add(s);
+            btn.setAttribute("aria-pressed", "true");
+          }
+          updateSymptomResult(selectedSymptoms);
+        });
+      });
+
+      // Dose helper
+      const doseAge = document.getElementById("dose-age");
+      const doseWeight = document.getElementById("dose-weight");
+      const updateDose = () => {
+        const res = document.getElementById("dose-result");
+        if (!res || !doseAge) return;
+        const age = doseAge.value;
+        if (age === "child") {
+          res.innerHTML = `<p class="text-sm font-semibold">Under 12 years</p><p class="text-sm">Please ask a pharmacist or use age-specific children’s formulations. Do not use adult tablets without advice.</p>`;
+        } else if (age === "12-15") {
+          res.innerHTML = `<p class="text-sm font-semibold">12–15 years (illustrative)</p><p class="text-sm">Typically 1 × 500 mg tablet every 4–6 hours as needed. Maximum 4 tablets in 24 hours. Confirm on the pack.</p>`;
+        } else {
+          res.innerHTML = `<p class="text-sm font-semibold">Adults 16+ (standard labelling)</p><p class="text-sm">1–2 × 500 mg tablets every 4–6 hours as needed. Maximum 8 tablets (4 g) in 24 hours. Do not take with other paracetamol products.</p>`;
+        }
+      };
+      if (doseAge) {
+        doseAge.addEventListener("change", updateDose);
+        updateDose();
+      }
+
+      // Settings
+      const prefTheme = document.getElementById("pref-theme");
+      if (prefTheme) {
+        prefTheme.addEventListener("change", () => {
+          dispatch({ type: "SET_PREFS", payload: { theme: prefTheme.value } });
+        });
+      }
+      const prefMotion = document.getElementById("pref-motion");
+      if (prefMotion) {
+        prefMotion.addEventListener("change", () => {
+          dispatch({ type: "SET_PREFS", payload: { motion: prefMotion.value } });
+        });
+      }
+      const exportBtn = document.getElementById("export-data");
+      if (exportBtn) {
+        exportBtn.addEventListener("click", () => {
+          const data = {
+            exportedAt: new Date().toISOString(),
+            cart: state.cart,
+            favourites: state.favourites,
+            requests: state.requests,
+            prefs: state.prefs,
+          };
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "ashbourne-chemist-data.json";
+          a.click();
+          URL.revokeObjectURL(url);
+          toast("Data exported");
+        });
+      }
+      const resetBtn = document.getElementById("reset-data");
+      if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
+          if (confirm("Clear basket, favourites and prescription requests stored on this device?")) {
+            dispatch({ type: "RESET_DATA" });
+            toast("Local data cleared");
+            render();
+          }
+        });
+      }
+    }
+
+    function updateSymptomResult(selected) {
+      const el = document.getElementById("symptom-result");
+      if (!el) return;
+      if (selected.size === 0) {
+        el.innerHTML = `<p class="text-sm muted">Select one or more symptoms above.</p>`;
+        return;
+      }
+      const map = {
+        "Headache": ["Pain Relief"],
+        "Fever": ["Pain Relief"],
+        "Hay fever": ["Allergy"],
+        "Cough": ["Cold & Flu"],
+        "Heartburn": ["Digestion"],
+        "Diarrhoea": ["Digestion"],
+        "Sore throat": ["Cold & Flu"],
+        "Dry skin": ["Skin Care"],
+        "Insect bite": ["First Aid", "Skin Care"],
+      };
+      const cats = new Set();
+      selected.forEach(s => (map[s] || []).forEach(c => cats.add(c)));
+      const products = PRODUCTS.filter(p => cats.has(p.category)).slice(0, 6);
+      el.innerHTML = `
+        <p class="text-sm font-semibold mb-2">Related categories: ${[...cats].join(", ")}</p>
+        <ul class="text-sm" style="display:grid;gap:4px">
+          ${products.map(p => `<li><a href="#/product/${p.id}" data-link>${escapeHtml(p.name)}</a> — ${formatPrice(p.price)}</li>`).join("")}
+        </ul>
+        <p class="text-xs faint mt-2">General information only. Ask a pharmacist for personalised advice.</p>
+      `;
+    }
+
+    // ---------- Global events ----------
+    document.addEventListener("click", (e) => {
+      const link = e.target.closest("[data-link]");
+      if (link) {
+        const href = link.getAttribute("href");
+        if (href && href.startsWith("#")) {
+          e.preventDefault();
+          navigate(href);
+          if (link.hasAttribute("data-close-cart")) closeCart();
+        }
+      }
+      if (e.target.closest("#cart-toggle")) openCart();
+      if (e.target.closest("#cart-close") || e.target.closest("#cart-overlay")) closeCart();
+      if (e.target.closest("[data-close-dialog]")) {
+        e.target.closest("dialog")?.close();
+      }
+      if (e.target.closest("#fav-toggle")) {
+        openFavourites();
+      }
+      // Cart qty
+      const dec = e.target.closest("[data-qty-dec]");
+      if (dec) {
+        const id = dec.getAttribute("data-qty-dec");
+        const item = state.cart.find(c => c.id === id);
+        if (item) {
+          dispatch({ type: "UPDATE_CART_QTY", id, qty: item.qty - 1 });
+          renderCart();
+          updateBadges();
+        }
+      }
+      const inc = e.target.closest("[data-qty-inc]");
+      if (inc) {
+        const id = inc.getAttribute("data-qty-inc");
+        const item = state.cart.find(c => c.id === id);
+        if (item) {
+          dispatch({ type: "UPDATE_CART_QTY", id, qty: item.qty + 1 });
+          renderCart();
+          updateBadges();
+        }
+      }
+      if (e.target.closest("#checkout-btn")) {
+        const total = cartTotal();
+        const ref = "ASH-" + Date.now().toString(36).toUpperCase();
+        dispatch({ type: "CLEAR_CART" });
+        closeCart();
+        updateBadges();
+        const dlg = document.getElementById("checkout-dialog");
+        document.getElementById("checkout-body").innerHTML = `
+          <p>Thank you. This is a demonstration order.</p>
+          <p class="mt-2"><strong>Reference:</strong> <span class="tabular">${ref}</span></p>
+          <p class="mt-2"><strong>Total:</strong> ${formatPrice(total)}</p>
+          <p class="text-sm muted mt-4">In a real pharmacy this would be prepared for collection or delivery. No payment has been taken.</p>
+        `;
+        dlg.showModal();
+        toast("Order placed (demo)");
+      }
+    });
+
+    function openFavourites() {
+      const dlg = document.getElementById("fav-dialog");
+      const body = document.getElementById("fav-dialog-body");
+      if (state.favourites.length === 0) {
+        body.innerHTML = `<p class="muted">No favourites yet. Heart products in the shop to save them here.</p>`;
+      } else {
+        body.innerHTML = `<div class="product-grid">${state.favourites.map(id => {
+          const p = PRODUCTS.find(x => x.id === id);
+          return p ? productCard(p) : "";
+        }).join("")}</div>`;
+      }
+      dlg.showModal();
+      // Re-bind fav/add inside dialog
+      body.querySelectorAll("[data-add]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          dispatch({ type: "ADD_TO_CART", id: btn.getAttribute("data-add") });
+          toast("Added to basket");
+          updateBadges();
+        });
+      });
+      body.querySelectorAll("[data-fav]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          dispatch({ type: "TOGGLE_FAV", id: btn.getAttribute("data-fav") });
+          openFavourites();
+          updateBadges();
+        });
+      });
+    }
+
+    // Header scroll
+    const header = document.getElementById("site-header");
+    window.addEventListener("scroll", () => {
+      header.classList.toggle("is-scrolled", window.scrollY > 8);
+    }, { passive: true });
+
+    // Keyboard: Escape closes cart
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeCart();
+        document.querySelectorAll("dialog[open]").forEach(d => d.close());
+      }
+    });
+
+    // Init
+    onRouteChange();
+  </script>
+</body>
+</html>
