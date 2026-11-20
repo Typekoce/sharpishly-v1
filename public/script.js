@@ -981,125 +981,101 @@ const ContextController = {
       return response;
    } 
 };
-const MultiplePromptsController = {
+const MultiplePromptsController = Object.assign(Object.create(AiController), {
     defaultTool: 'qwen',
-    executeEndpoint: `${AiConfig.apiBaseUrl}/mcp/execute`,
 
     splitPrompt(prompt) {
         if (!prompt || typeof prompt !== 'string') return [];
-
-        return prompt
-            .split(/\s*(?:&&|;|\r?\n)\s*/)
-            .map((part) => part.trim())
-            .filter(Boolean);
+        return prompt.split(/\s*(?:&&|;|\r?\n)\s*/).map((s) => s.trim()).filter(Boolean);
     },
 
     inferTool(segment, fallbackTool = this.defaultTool) {
         const lower = segment.toLowerCase();
-
-        if (/^(?:gmail|email|mail|inbox|read\s+\S+|list)$/i.test(lower) || /@[\w.-]+\.\w+/.test(segment)) {
-            return 'gmail';
-        }
-        if (/^(?:calc|calculator)\b/i.test(lower) || (/^[0-9+\-*/().%\s^]+$/.test(segment.trim()) && /[+\-*/^]/.test(segment))) {
-            return 'calculator';
-        }
-        if (/^(?:stock|quote|ticker)\s+[A-Za-z]{1,5}$/i.test(lower)) {
-            return 'stock_quote';
-        }
-
+        if (/^(?:gmail|email|mail|inbox|read\s+\S+|list)$/i.test(lower) || /@[\w.-]+\.\w+/.test(segment)) return 'gmail';
+        if (/^(?:calc|calculator)\b/i.test(lower) || (/^[0-9+\-*/().%\s^]+$/.test(segment.trim()) && /[+\-*/^]/.test(segment))) return 'calculator';
+        if (/^(?:stock|quote|ticker)\s+[A-Za-z]{1,5}$/i.test(lower)) return 'stock_quote';
         return fallbackTool;
     },
 
-    cleanSegment(segment, tool) {
-        if (tool === 'calculator') {
-            return segment.replace(/^(?:calc|calculator)\s*:?\s*/i, '').trim();
-        }
-        if (tool === 'stock_quote') {
-            return segment.replace(/^(?:stock|quote|ticker)\s*:?\s*/i, '').trim();
-        }
-        return segment;
-    },
-
     async _tools(promptOrInput, fallbackTool = this.defaultTool) {
-        const rawPrompt = typeof promptOrInput === 'string'
-            ? promptOrInput
-            : (promptOrInput?.value ?? '');
-
-        const segments = this.splitPrompt(rawPrompt);
-        app.dBug('MultiplePromptsController._tools segments', segments);
-
+        const raw = typeof promptOrInput === 'string' ? promptOrInput : (promptOrInput?.value ?? '');
+        const segments = this.splitPrompt(raw);
         if (!segments.length) return [];
 
-        const execContext = {
-            ...AiController,
-            executeEndpoint: this.executeEndpoint || AiController.executeEndpoint
-        };
-
-        const tasks = segments.map(async (segment, index) => {
+        return Promise.all(segments.map(async (segment, index) => {
             const tool = this.inferTool(segment, fallbackTool);
-            const cleaned = this.cleanSegment(segment, tool);
-
-            app.dBug('MultiplePromptsController task', { index, tool, prompt: cleaned });
-
+            const prompt = segment.replace(/^(?:calc|calculator|stock|quote|ticker)\s*:?\s*/i, '').trim();
+            app.dBug('MultiplePromptsController task', { index, tool, prompt });
             try {
-                const output = await AiController.executeTool.call(execContext, tool, cleaned);
-                return { index, tool, prompt: cleaned, status: 'fulfilled', output };
+                const output = await AiController.executeTool.call(this, tool, prompt);
+                return { index, tool, prompt, status: 'fulfilled', output };
             } catch (error) {
                 app.dBug('MultiplePromptsController task error', error.message);
-                return { index, tool, prompt: cleaned, status: 'rejected', error: error.message };
+                return { index, tool, prompt, status: 'rejected', error: error.message };
             }
-        });
-
-        const results = await Promise.all(tasks);
-        app.dBug('MultiplePromptsController._tools results', results);
-        return results;
+        }));
     }
-};
+});
 const ChatController = Object.assign(Object.create(AiController), {
     defaultTool: 'qwen',
+    lastMessageId: null,
+
+    _resolveUrl(path) {
+        return typeof app.url === 'function' ? app.url(path) : path;
+    },
 
     _withToolFallback(fn) {
         const existing = app.el('tool-select');
         let tempSelect = null;
 
-        app.dBug('ChatController._withToolFallback start', {
-            hasExistingSelect: Boolean(existing),
-            defaultTool: this.defaultTool
-        });
-
         if (!existing && this.defaultTool) {
             tempSelect = document.createElement('select');
             tempSelect.id = 'tool-select';
             tempSelect.style.display = 'none';
-
-            const option = document.createElement('option');
-            option.value = this.defaultTool;
-            option.selected = true;
-            tempSelect.appendChild(option);
-
+            const opt = document.createElement('option');
+            opt.value = this.defaultTool;
+            opt.selected = true;
+            tempSelect.appendChild(opt);
             document.body.appendChild(tempSelect);
-            app.dBug('ChatController._withToolFallback injected tempSelect', this.defaultTool);
         }
 
         try {
             return fn();
         } finally {
-            if (tempSelect) {
-                tempSelect.remove();
-                app.dBug('ChatController._withToolFallback removed tempSelect');
-            }
+            if (tempSelect) tempSelect.remove();
         }
     },
 
-    async saveResponsePref(responseText, prompt = '') {
-        app.dBug('ChatController saveResponsePref start', { pref: responseText, prompt });
+    _bindSubmit(target, input) {
+        if (!target) return;
+        target.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const prompt = input.value;
+            app.dBug('ChatController submit', prompt);
+            Object.create(MultiplePromptsController)._tools(prompt, this.defaultTool);
+            this._withToolFallback(() => this.handlePromptSubmit(input));
+        });
+    },
+
+    setSavedMessageId(res) {
+        const id = res?.message_id ?? res?.id ?? null;
+        if (id) {
+            this.lastMessageId = id;
+        }
+        app.dBug('ChatController lastMessageId', this.lastMessageId);
+        return this.lastMessageId;
+    },
+
+async saveResponsePref(responseText, prompt = '', messageId = this.lastMessageId) {
+        app.dBug('ChatController saveResponsePref', { id: messageId, pref: responseText, prompt });
+        if (!messageId) return null;
 
         try {
-            const res = await app.post('chat/save', {
-                prompt,
+            const res = await app.post('chat/update', {
+                id: messageId,
                 pref: responseText
             });
-            app.dBug('ChatController saveResponsePref response', res);
+            app.dBug('ChatController chat/update result', res);
             return res;
         } catch (error) {
             app.dBug('ChatController saveResponsePref ERROR', error.message);
@@ -1108,101 +1084,55 @@ const ChatController = Object.assign(Object.create(AiController), {
     },
 
     renderSuccess(messageEl, text) {
-        app.dBug('ChatController renderSuccess', { hasMessageEl: Boolean(messageEl), text });
+        app.dBug('ChatController renderSuccess', text);
         const content = messageEl?.querySelector('.message-content');
-        if (!content) {
-            app.dBug('ChatController renderSuccess missing .message-content');
-            return;
-        }
-
-        content.replaceChildren();
-        content.appendChild(
-            app.item('p', 'chat-success', text)
-        );
+        if (!content) return;
+        content.replaceChildren(app.item('p', 'chat-success', text));
     },
 
     async executeTool(tool, prompt) {
-        app.dBug('ChatController executeTool start', { tool, prompt });
-
+        app.dBug('ChatController executeTool', { tool, prompt });
         try {
             const output = await AiController.executeTool.call(this, tool, prompt);
-            app.dBug('ChatController executeTool raw output', output);
-
             const text = this.formatToolOutput(tool, output);
-            app.dBug('ChatController executeTool formatted text', text);
-
-            const saveResult = await this.saveResponsePref(text, prompt);
-            const savedId = saveResult?.message_id ?? 1;
-            app.dBug('ChatController executeTool calling reply()', { savedId });
-            await this.reply(savedId);
-
+            const targetId = this.lastMessageId || 1;
+            await this.saveResponsePref(text, prompt, targetId);
+            await this.reply(targetId);
             return output;
         } catch (error) {
-            app.dBug('ChatController executeTool fallback error', error.message);
+            app.dBug('ChatController executeTool fallback', error.message);
+            const label = prompt ? `Message saved: "${prompt}"` : 'Message saved successfully.';
+            const targetId = this.lastMessageId || 1;
+            await this.saveResponsePref(label, prompt, targetId);
 
-            const label = prompt
-                ? `Message saved: "${prompt}"`
-                : 'Message saved successfully.';
-
-            const saveResult = await this.saveResponsePref(label, prompt);
-            const savedId = saveResult?.message_id ?? 1;
-
-            const stream = app.el('ai-chat-stream');
-            const lastMessage = stream?.lastElementChild;
-            app.dBug('ChatController executeTool fallback DOM', {
-                hasStream: Boolean(stream),
-                hasLastMessage: Boolean(lastMessage),
-                savedId
-            });
-
+            const lastMessage = app.el('ai-chat-stream')?.lastElementChild;
             if (lastMessage) {
                 this.renderSuccess(lastMessage, label);
                 return null;
             }
-
             throw error;
         }
     },
 
     renderAssistantResponse(messageEl, tool, prompt, output) {
-        app.dBug('ChatController renderAssistantResponse', {
-            hasMessageEl: Boolean(messageEl),
-            tool,
-            prompt,
-            output
-        });
-
         if (output === null || output === undefined) {
-            const label = prompt
-                ? `Message saved: "${prompt}"`
-                : 'Message saved successfully.';
+            const label = prompt ? `Message saved: "${prompt}"` : 'Message saved successfully.';
             this.renderSuccess(messageEl, label);
             return;
         }
-
         AiController.renderAssistantResponse.call(this, messageEl, tool, prompt, output);
     },
 
     renderHistory(records) {
-        app.dBug('ChatController renderHistory', {
-            isArray: Array.isArray(records),
-            count: Array.isArray(records) ? records.length : 0
-        });
-
         if (!Array.isArray(records) || !records.length) return;
-
         const stream = app.el('ai-chat-stream');
-        if (stream) {
-            stream.replaceChildren();
-        }
+        if (stream) stream.replaceChildren();
 
         records.forEach((record) => {
             const role = record.role === 'user' ? 'user' : 'assistant';
             const text = role === 'assistant'
                 ? (record.pref ?? record.content ?? '')
                 : (record.content ?? record.pref ?? '');
-
-            app.dBug('ChatController renderHistory item', { id: record.id, role, hasPref: Boolean(record.pref), text });
             this.appendMessage(role, app.item('p', '', text));
         });
 
@@ -1210,73 +1140,60 @@ const ChatController = Object.assign(Object.create(AiController), {
     },
 
     extractSavedResponse(data) {
-        app.dBug('ChatController extractSavedResponse input', data);
+        app.dBug('ChatController extractSavedResponse data', data);
         if (!data) return '';
-
-        const records = Array.isArray(data.records)
-            ? data.records
-            : (data.record ? [data.record] : []);
-
+        const records = Array.isArray(data.records) ? data.records : (data.record ? [data.record] : []);
         if (records.length > 0) {
             const first = records[0];
-            app.dBug('ChatController extractSavedResponse first record', first);
-            const fromRecord = first.pref ?? first.content ?? first.response ?? first.message ?? '';
-            if (String(fromRecord).trim() !== '') {
-                return String(fromRecord);
-            }
+            app.dBug('ChatController first record', first);
+            const val = first.pref ?? first.content ?? first.response ?? first.message ?? '';
+            if (String(val).trim() !== '') return String(val);
         }
-
         return data.pref ?? data.message ?? '';
     },
 
-    async reply(id = 1) {
-        app.dBug('ChatController.reply() start', { id });
-
-        const stream = app.el('ai-chat-stream');
-        app.dBug('ChatController.reply() stream element', stream);
-
+    async reply(id = this.lastMessageId || 1) {
+        app.dBug('ChatController.reply()', { id });
         const loadingEl = this.appendLoadingMessage();
-        app.dBug('ChatController.reply() loadingEl', loadingEl);
-
-        const relPath = `ai/reply/${id}`;
-        const url = typeof app.url === 'function' ? app.url(relPath) : relPath;
-        app.dBug('ChatController.reply() resolved url', { relPath, url });
+        const url = this._resolveUrl(`ai/reply/${id}`);
+        app.dBug('ChatController.reply() url', url);
 
         try {
             const raw = await app.request(url);
-            app.dBug('ChatController.reply() raw response', raw);
-
             const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
-            app.dBug('ChatController.reply() parsed data', data);
+            app.dBug('ChatController.reply() data', data);
 
             const savedText = this.extractSavedResponse(data) || 'No saved AI response found.';
             app.dBug('ChatController.reply() savedText', savedText);
 
-            if (loadingEl) {
-                const content = loadingEl.querySelector('.message-content');
-                app.dBug('ChatController.reply() target .message-content', content);
-                if (content) {
-                    content.replaceChildren(app.item('p', '', savedText));
-                }
+            const target = loadingEl?.querySelector('.message-content');
+            app.dBug('ChatController.reply() target', {
+                hasLoadingEl: Boolean(loadingEl),
+                hasTarget: Boolean(target),
+                stream: app.el('ai-chat-stream')
+            });
+
+            if (target) {
+if (target) {
+                target.replaceChildren(app.item('p', '', savedText));
+                app.dBug('ChatController.reply() rendered in target', {
+                    childCount: app.el('ai-chat-stream')?.children.length ?? 0,
+                    text: target.textContent
+                });
             } else {
-                app.dBug('ChatController.reply() appending new assistant message');
+                this.appendMessage('assistant', app.item('p', '', savedText));
+            }            } else {
                 this.appendMessage('assistant', app.item('p', '', savedText));
             }
-
             this.scrollToBottom();
             return savedText;
         } catch (error) {
-            app.dBug('ChatController.reply() ERROR', {
-                message: error.message,
-                stack: error.stack
-            });
-
+            app.dBug('ChatController.reply() ERROR', error.message);
             if (loadingEl) {
                 this.renderError(loadingEl, error.message);
             } else {
                 this.appendMessage('assistant', app.item('p', 'chat-error', `[Error]: ${error.message}`));
             }
-
             this.scrollToBottom();
             return null;
         }
@@ -1284,39 +1201,19 @@ const ChatController = Object.assign(Object.create(AiController), {
 
     index() {
         app.dBug('ChatController', 'index()');
-
         const container = app.el('ai');
         const form = app.el('ai-prompt-form');
         const input = app.el('ai-prompt-input');
         const button = app.el('ai-send-btn');
 
-        app.dBug('ChatController container', container);
-        app.dBug('ChatController form', form);
-        app.dBug('ChatController input', input);
-        app.dBug('ChatController button', button);
-
-        if (!container || !button || !input) {
-            app.dBug('ChatController', 'Missing required chat DOM elements');
-            return;
-        }
+        if (!container || !button || !input) return;
 
         if (form) {
-            form.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const currentPrompt = input.value;
-                app.dBug('ChatController submit', currentPrompt);
-                const mpc = Object.create(MultiplePromptsController);
-                mpc._tools(currentPrompt, this.defaultTool);
-                this._withToolFallback(() => this.handlePromptSubmit(input));
-            });
+            this._bindSubmit(form, input);
         } else {
             button.addEventListener('click', (event) => {
                 event.preventDefault();
-                const currentPrompt = input.value;
-                app.dBug('ChatController click', currentPrompt);
-                const mpc = Object.create(MultiplePromptsController);
-                mpc._tools(currentPrompt, this.defaultTool);
-                this._withToolFallback(() => this.handlePromptSubmit(input));
+                form ? form.requestSubmit() : this._withToolFallback(() => this.handlePromptSubmit(input));
             });
         }
 
