@@ -107,19 +107,10 @@ class BaseModel {
 
     }
 
-    public function update(){
+    public function update($tbl,$conditions){
 
         try {
-            $conditions = [
-                'tbl'   => $this->tbl,
-                'order' => ['id' => 'DESC']
-            ];
-
-            if (!empty($id)) {
-                $conditions['where'] = ['id' => $id];
-            }
-
-            return $this->db->find($conditions);
+            return $this->db->save($tbl,$conditions);
         } catch (Throwable $e) {
             return [
                 'error'   => true,

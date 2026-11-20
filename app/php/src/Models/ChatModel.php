@@ -4,33 +4,28 @@ namespace App\Models;
 
 use Throwable;
 
-class ChatModel extends BaseModel {
+class ChatModel extends BaseModel
+{
+    public string $tbl = 'messages';
 
     public function getRecentMessages(int $realityId, int $limit = 50): array
     {
         try {
-            $conditions = [
-                'tbl'   => 'messages',
+            $messages = $this->db->find([
+                'tbl'   => $this->tbl,
                 'where' => ['reality_id' => $realityId],
                 'order' => ['id' => 'DESC'],
-                'limit' => $limit
-            ];
-
-            $messages = $this->db->find($conditions);
+                'limit' => $limit,
+            ]);
             return is_array($messages) ? array_reverse($messages) : [];
-            
         } catch (Throwable $e) {
-            return [
-                'error'   => true,
-                'message' => $e->getMessage()
-            ];
+            return ['error' => true, 'message' => $e->getMessage()];
         }
     }
 
     public function createMessage(array $data): int|false
     {
         $allowedRoles = ['user', 'assistant', 'tool', 'system'];
-
         if (
             empty($data['reality_id']) ||
             empty($data['role']) ||
@@ -42,17 +37,13 @@ class ChatModel extends BaseModel {
 
         $metadata = null;
         if (isset($data['metadata']) && $data['metadata'] !== null) {
-            try {
-                $metadata = is_string($data['metadata'])
-                    ? $data['metadata']
-                    : json_encode($data['metadata'], JSON_THROW_ON_ERROR);
-            } catch (Throwable) {
-                $metadata = null;
-            }
+            $metadata = is_string($data['metadata'])
+                ? $data['metadata']
+                : json_encode($data['metadata']);
         }
 
         try {
-            return $this->db->save('messages', [
+            return $this->db->save($this->tbl, [
                 'reality_id'     => (int) $data['reality_id'],
                 'role'           => (string) $data['role'],
                 'content'        => (string) $data['content'],
@@ -61,7 +52,7 @@ class ChatModel extends BaseModel {
                 'status'         => $data['status'] ?? 'completed',
                 'metadata'       => $metadata,
                 'token_estimate' => (int) ceil(strlen((string) $data['content']) / 4),
-                'created_at'     => date('Y-m-d H:i:s')
+                'created_at'     => date('Y-m-d H:i:s'),
             ]);
         } catch (Throwable $e) {
             if ($this->logger) {
@@ -69,5 +60,16 @@ class ChatModel extends BaseModel {
             }
             return false;
         }
+    }
+
+    public function updateMessage(int $id, array $fields, int $realityId = 1): mixed
+    {
+        $payload = ['reality_id' => $realityId];
+        foreach (['pref', 'content', 'status'] as $col) {
+            if (array_key_exists($col, $fields)) {
+                $payload[$col] = $fields[$col];
+            }
+        }
+        return $this->db->update($this->tbl, ['id' => $id], $payload);
     }
 }
