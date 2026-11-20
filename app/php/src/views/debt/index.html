@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClearPath Debt Solutions | Take Back Control of Your Finances</title>
+<meta name="description" content="Clear, confidential UK debt support. Explore debt management plans, IVAs, DROs and creditor support with ClearPath Debt Solutions.">
+<style>
+@layer reset, tokens, base, layout, components, utilities, motion;
+
+@layer reset {
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body,h1,h2,h3,h4,p,ul,ol,figure,blockquote,dl,dd{margin:0}
+  ul[class],ol[class]{padding:0;list-style:none}
+  img,svg,canvas{display:block;max-width:100%}
+  button,input,select,textarea{font:inherit;color:inherit}
+  button{background:none;border:0;cursor:pointer}
+  a{color:inherit}
+}
+
+@layer tokens {
+  :root{
+    --navy:#0F2942;
+    --navy-deep:#0A1E30;
+    --teal:#1E8275;
+    --teal-dark:#166A60;
+    --off-white:#F8FAFC;
+    --slate:#475569;
+    --amber:#D97706;
+    --white:#FFFFFF;
+    --danger:#B42318;
+    --success:#146C43;
+
+    --surface:var(--off-white);
+    --surface-raised:var(--white);
+    --surface-inverse:var(--navy);
+    --text:var(--navy);
+    --text-muted:var(--slate);
+    --border:color-mix(in oklab, var(--navy) 12%, white);
+    --accent:var(--teal);
+    --accent-strong:var(--teal-dark);
+    --focus:var(--amber);
+
+    --radius-sm:8px;
+    --radius:12px;
+    --radius-lg:20px;
+    --shadow-1:0 1px 2px rgb(15 41 66 / .06),0 8px 24px rgb(15 41 66 / .07);
+    --shadow-2:0 2px 6px rgb(15 41 66 / .08),0 18px 48px rgb(15 41 66 / .12);
+    --ring:0 0 0 3px color-mix(in oklab, var(--amber) 45%, transparent);
+
+    --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+    --space-5:1.5rem;--space-6:2rem;--space-7:3rem;--space-8:4.5rem;
+
+    --font-display:"Plus Jakarta Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --font-body:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+
+    --text-xs:clamp(.75rem,.72rem + .1vw,.8125rem);
+    --text-sm:clamp(.875rem,.84rem + .12vw,.9375rem);
+    --text-md:clamp(1rem,.96rem + .15vw,1.0625rem);
+    --text-lg:clamp(1.125rem,1.05rem + .3vw,1.3125rem);
+    --text-xl:clamp(1.375rem,1.15rem + .8vw,1.75rem);
+    --text-2xl:clamp(1.75rem,1.35rem + 1.5vw,2.5rem);
+    --text-3xl:clamp(2.1rem,1.4rem + 3vw,3.5rem);
+  }
+
+  @media (prefers-color-scheme:dark){
+    :root{
+      --surface:#0B1824;
+      --surface-raised:#122435;
+      --surface-inverse:#F8FAFC;
+      --text:#EAF2F7;
+      --text-muted:#A8B8C6;
+      --border:color-mix(in oklab, #EAF2F7 16%, transparent);
+      --accent:#3AA797;
+      --accent-strong:#57C2B2;
+      --focus:#FBBF24;
+      --shadow-1:0 1px 2px rgb(0 0 0 / .3),0 8px 24px rgb(0 0 0 / .25);
+      --shadow-2:0 2px 6px rgb(0 0 0 / .35),0 18px 48px rgb(0 0 0 / .35);
+    }
+  }
+
+  :root[data-theme="light"]{
+    --surface:var(--off-white);--surface-raised:var(--white);--surface-inverse:var(--navy);
+    --text:var(--navy);--text-muted:var(--slate);
+    --border:color-mix(in oklab, var(--navy) 12%, white);
+    --accent:var(--teal);--accent-strong:var(--teal-dark);--focus:var(--amber);
+  }
+
+  :root[data-theme="dark"]{
+    --surface:#0B1824;--surface-raised:#122435;--surface-inverse:#F8FAFC;
+    --text:#EAF2F7;--text-muted:#A8B8C6;
+    --border:color-mix(in oklab, #EAF2F7 16%, transparent);
+    --accent:#3AA797;--accent-strong:#57C2B2;--focus:#FBBF24;
+  }
+}
+
+@layer base {
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--surface);
+    color:var(--text);
+    font-family:var(--font-body);
+    font-size:var(--text-md);
+    line-height:1.6;
+    min-height:100dvh;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4{font-family:var(--font-display);line-height:1.15;text-wrap:balance}
+  p{text-wrap:pretty}
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{
+    outline:none;box-shadow:var(--ring);border-radius:6px
+  }
+  :user-invalid{border-color:var(--danger)}
+  .skip-link{
+    position:absolute;left:var(--space-4);top:-100px;z-index:100;
+    background:var(--navy);color:#fff;padding:.75rem 1rem;border-radius:var(--radius-sm)
+  }
+  .skip-link:focus{top:var(--space-3)}
+  ::selection{background:color-mix(in oklab,var(--teal) 25%,transparent)}
+}
+
+@layer layout {
+  .container{width:min(1180px,100% - 2.5rem);margin-inline:auto}
+  .section{padding-block:clamp(3rem,6vw,5.5rem)}
+  .section-head{max-width:56ch;margin-bottom:var(--space-6)}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:.5rem;color:var(--accent-strong);
+    font-weight:700;font-size:var(--text-xs);letter-spacing:.08em;text-transform:uppercase
+  }
+  .grid{display:grid;gap:var(--space-5)}
+  .two-col{grid-template-columns:1fr}
+  .three-col{grid-template-columns:1fr}
+  .four-col{grid-template-columns:1fr}
+  @media(min-width:720px){
+    .two-col{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .three-col{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .four-col{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media(min-width:1024px){
+    .three-col{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .four-col{grid-template-columns:repeat(4,minmax(0,1fr))}
+  }
+}
+
+@layer components {
+  .trust-bar{
+    background:var(--navy);color:#EAF2F7;font-size:var(--text-xs);
+    padding:.55rem 0;text-align:center
+  }
+  .trust-bar strong{color:#FCD34D}
+  .site-header{
+    position:sticky;top:0;z-index:50;background:color-mix(in oklab,var(--surface) 88%,transparent);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--border)
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);padding-block:.8rem}
+  .brand{display:flex;align-items:center;gap:.65rem;font-family:var(--font-display);font-weight:800;font-size:1.05rem}
+  .brand-mark{
+    inline-size:2.25rem;block-size:2.25rem;border-radius:9px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--teal),var(--navy));color:#fff
+  }
+  .nav-links{display:none;gap:1.25rem;font-size:var(--text-sm);font-weight:600}
+  .nav-links a{text-decoration:none;color:var(--text-muted);padding:.5rem;border-radius:6px}
+  .nav-links a:hover,.nav-links a[aria-current="true"]{color:var(--text);background:color-mix(in oklab,var(--teal) 10%,transparent)}
+  .nav-actions{display:flex;align-items:center;gap:.6rem}
+  .phone-link{
+    display:none;align-items:center;gap:.45rem;text-decoration:none;font-weight:700;
+    color:var(--text);padding:.55rem .7rem;border:1px solid var(--border);border-radius:999px
+  }
+  .badge-free{
+    background:color-mix(in oklab,var(--teal) 18%,transparent);color:var(--accent-strong);
+    font-size:.65rem;padding:.15rem .4rem;border-radius:999px;font-weight:800
+  }
+  @media(min-width:900px){.nav-links{display:flex}.phone-link{display:inline-flex}}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+    min-height:44px;padding:.7rem 1.15rem;border-radius:999px;font-weight:700;
+    text-decoration:none;border:1px solid transparent;transition:transform .18s ease,background .18s ease,box-shadow .18s ease
+  }
+  .btn-primary{background:var(--teal);color:#fff;box-shadow:var(--shadow-1)}
+  .btn-primary:hover{background:var(--accent-strong);transform:translateY(-1px)}
+  .btn-primary:active{transform:translateY(0)}
+  .btn-ghost{border-color:var(--border);color:var(--text);background:var(--surface-raised)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent-strong)}
+  .btn-sm{min-height:40px;padding:.45rem .85rem;font-size:var(--text-sm)}
+
+  .hero{
+    position:relative;overflow:hidden;
+    background:linear-gradient(160deg,var(--navy) 0%,#123149 55%,var(--navy-deep) 100%);
+    color:#EAF2F7;padding-block:clamp(3rem,7vw,6rem)
+  }
+  .hero-grid{display:grid;gap:var(--space-6);align-items:center}
+  @media(min-width:960px){.hero-grid{grid-template-columns:1.08fr .92fr}}
+  .hero h1{font-size:var(--text-3xl);color:#fff}
+  .hero p{color:#C8D6E1;max-width:52ch}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:var(--space-5)}
+  .hero-badges{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:var(--space-5)}
+  .trust-chip{
+    display:inline-flex;align-items:center;gap:.45rem;background:rgb(255 255 255 / .09);
+    border:1px solid rgb(255 255 255 / .16);padding:.5rem .75rem;border-radius:999px;
+    font-size:var(--text-xs);font-weight:650
+  }
+  .hero-art{position:absolute;inset:0;pointer-events:none;opacity:.5}
+  .hero-art path{animation:drift 24s ease-in-out infinite alternate}
+  @keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(24px,-18px,0)}}
+
+  .card{
+    container-type:inline-size;
+    background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow-1);padding:clamp(1.15rem,3cqi,1.75rem)
+  }
+  .card h3{font-size:var(--text-lg);margin-bottom:.4rem}
+  .card p{color:var(--text-muted);font-size:var(--text-sm)}
+  .card-label{
+    display:inline-flex;align-items:center;gap:.4rem;font-size:var(--text-xs);font-weight:800;
+    color:var(--accent-strong);background:color-mix(in oklab,var(--teal) 13%,transparent);
+    padding:.3rem .6rem;border-radius:999px;margin-bottom:.8rem
+  }
+  .card ul{margin-top:.8rem;display:grid;gap:.45rem;font-size:var(--text-sm);color:var(--text-muted)}
+  .card li{display:flex;gap:.5rem}
+  .card li svg{flex:none;margin-top:.2rem;color:var(--accent)}
+  .card-note{
+    margin-top:.9rem;padding-top:.8rem;border-top:1px dashed var(--border);
+    font-size:var(--text-xs);color:var(--text-muted)
+  }
+
+  .assessment{background:var(--surface-raised);color:var(--text);border-radius:var(--radius-lg);box-shadow:var(--shadow-2);padding:clamp(1.25rem,4cqi,2rem)}
+  .assessment header{display:flex;justify-content:space-between;align-items:start;gap:1rem;margin-bottom:1rem}
+  .step-count{font-size:var(--text-xs);font-weight:800;color:var(--accent-strong);background:color-mix(in oklab,var(--teal) 12%,transparent);padding:.3rem .55rem;border-radius:999px}
+  .choice-grid{display:grid;gap:.55rem}
+  .choice{
+    display:flex;align-items:center;gap:.7rem;padding:.8rem .9rem;border:1px solid var(--border);
+    border-radius:var(--radius);cursor:pointer;font-weight:650;font-size:var(--text-sm);background:var(--surface)
+  }
+  .choice:hover{border-color:var(--accent)}
+  .choice input{accent-color:var(--teal);inline-size:1.1rem;block-size:1.1rem}
+  .choice:has(input:checked){border-color:var(--teal);background:color-mix(in oklab,var(--teal) 9%,var(--surface))}
+  .type-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+  .type{display:flex;align-items:center;gap:.5rem;font-size:var(--text-xs);font-weight:650;border:1px solid var(--border);border-radius:999px;padding:.55rem .65rem;cursor:pointer;background:var(--surface)}
+  .type input{accent-color:var(--teal)}
+  .type:has(input:checked){border-color:var(--teal);color:var(--accent-strong)}
+  .assessment-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
+
+  .calculator{display:grid;gap:var(--space-5)}
+  @media(min-width:960px){.calculator{grid-template-columns:1fr 1fr}}
+  .field{display:grid;gap:.4rem;margin-bottom:1.1rem}
+  .field label{font-weight:700;font-size:var(--text-sm)}
+  .field-help{font-size:var(--text-xs);color:var(--text-muted)}
+  .slider-row{display:flex;align-items:center;gap:.8rem}
+  input[type="range"]{flex:1;accent-color:var(--teal);min-height:44px}
+  .number-box{
+    inline-size:7.5rem;padding:.55rem .65rem;border:1px solid var(--border);border-radius:var(--radius-sm);
+    background:var(--surface);font-variant-numeric:tabular-nums;font-weight:700
+  }
+  .result-grid{display:grid;gap:.75rem}
+  .result{
+    display:flex;justify-content:space-between;gap:1rem;align-items:center;
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.8rem .9rem
+  }
+  .result dt{font-size:var(--text-xs);color:var(--text-muted);font-weight:700}
+  .result dd{margin:0;font-family:var(--font-display);font-weight:800;font-variant-numeric:tabular-nums;font-size:var(--text-lg)}
+  .solution-pill{
+    display:inline-flex;align-items:center;gap:.45rem;padding:.5rem .75rem;border-radius:999px;
+    font-weight:800;font-size:var(--text-xs);background:color-mix(in oklab,var(--amber) 18%,transparent);color:#92400E
+  }
+  .chart{display:grid;gap:.8rem;margin-top:1rem}
+  .bar-track{block-size:.85rem;border-radius:999px;background:color-mix(in oklab,var(--slate) 15%,transparent);overflow:hidden}
+  .bar-fill{block-size:100%;border-radius:inherit;transition:inline-size .45s cubic-bezier(.2,.8,.2,1)}
+  .bar-current{background:linear-gradient(90deg,#7C8798,#475569)}
+  .bar-managed{background:linear-gradient(90deg,var(--teal),#31A794)}
+  .bar-meta{display:flex;justify-content:space-between;font-size:var(--text-xs);font-weight:700;color:var(--text-muted)}
+  .disclaimer{font-size:var(--text-xs);color:var(--text-muted);margin-top:1rem}
+
+  .process{counter-reset:step}
+  .process-card{position:relative;padding-top:2.5rem}
+  .process-card::before{
+    counter-increment:step;content:counter(step);
+    position:absolute;top:-1rem;left:1.25rem;inline-size:2.4rem;block-size:2.4rem;border-radius:50%;
+    display:grid;place-items:center;background:var(--teal);color:#fff;font-weight:800;font-family:var(--font-display)
+  }
+
+  .priority-table{inline-size:100%;border-collapse:collapse;font-size:var(--text-sm)}
+  .priority-table th,.priority-table td{text-align:left;padding:.8rem;border-bottom:1px solid var(--border);vertical-align:top}
+  .priority-table th{font-family:var(--font-display);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted)}
+  .table-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-raised)}
+  .tag{display:inline-block;padding:.2rem .5rem;border-radius:999px;font-size:var(--text-xs);font-weight:800}
+  .tag-priority{background:color-mix(in oklab,var(--amber) 20%,transparent);color:#92400E}
+  .tag-nonpriority{background:color-mix(in oklab,var(--teal) 15%,transparent);color:var(--accent-strong)}
+
+  .faq-item{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-raised);overflow:hidden}
+  .faq-item + .faq-item{margin-top:.7rem}
+  .faq-item summary{
+    display:flex;justify-content:space-between;align-items:center;gap:1rem;cursor:pointer;
+    padding:1rem 1.15rem;font-weight:700;list-style:none;min-height:44px
+  }
+  .faq-item summary::-webkit-details-marker{display:none}
+  .faq-item summary::after{content:"+";font-family:var(--font-display);font-size:1.25rem;color:var(--accent);transition:transform .2s}
+  .faq-item[open] summary::after{transform:rotate(45deg)}
+  .faq-answer{padding:0 1.15rem 1.15rem;color:var(--text-muted);font-size:var(--text-sm)}
+
+  .form-card{background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-2);padding:clamp(1.25rem,4cqi,2rem)}
+  .form-grid{display:grid;gap:1rem}
+  @media(min-width:640px){.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.form-full{grid-column:1/-1}}
+  .input,.select{
+    inline-size:100%;min-height:48px;padding:.7rem .85rem;border:1px solid var(--border);
+    border-radius:var(--radius-sm);background:var(--surface)
+  }
+  .error{color:var(--danger);font-size:var(--text-xs);font-weight:700}
+  .confirmation{
+    display:none;border:1px solid color-mix(in oklab,var(--success) 35%,transparent);
+    background:color-mix(in oklab,var(--success) 9%,var(--surface-raised));
+    border-radius:var(--radius);padding:1.25rem
+  }
+  .confirmation strong{color:var(--success)}
+  .ref-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:800}
+
+  .site-footer{background:var(--navy);color:#C8D6E1;padding-block:var(--space-7);font-size:var(--text-sm)}
+  .footer-grid{display:grid;gap:var(--space-6)}
+  @media(min-width:900px){.footer-grid{grid-template-columns:1.3fr 1fr 1fr}}
+  .footer-title{color:#fff;font-family:var(--font-display);font-weight:800;margin-bottom:.7rem}
+  .footer-links{display:grid;gap:.5rem}
+  .footer-links a{color:#C8D6E1;text-decoration:none}
+  .footer-links a:hover{color:#fff;text-decoration:underline}
+  .legal{margin-top:var(--space-6);padding-top:var(--space-5);border-top:1px solid rgb(255 255 255 / .14);font-size:var(--text-xs);color:#9DB1C0}
+  .free-advice{
+    margin-top:var(--space-5);background:rgb(255 255 255 / .07);border:1px solid rgb(255 255 255 / .14);
+    border-radius:var(--radius);padding:1rem
+  }
+
+  .capability-button{
+    position:fixed;right:1rem;bottom:1rem;z-index:60;inline-size:3rem;block-size:3rem;border-radius:50%;
+    background:var(--navy);color:#fff;box-shadow:var(--shadow-2);display:grid;place-items:center
+  }
+  .capability-panel{
+    position:fixed;right:1rem;bottom:4.5rem;z-index:60;inline-size:min(22rem,calc(100vw - 2rem));
+    background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow-2);padding:1rem;font-size:var(--text-xs);display:none
+  }
+  .capability-panel[data-open="true"]{display:block}
+  .capability-list{display:grid;gap:.45rem;margin-top:.7rem}
+  .capability{display:flex;justify-content:space-between;gap:.6rem}
+  .cap-ok{color:var(--success);font-weight:800}
+  .cap-off{color:var(--danger);font-weight:800}
+}
+
+@layer utilities {
+  .visually-hidden{
+    position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+    clip:rect(0 0 0 0);white-space:nowrap;border:0
+  }
+  .mt-2{margin-top:var(--space-2)}
+  .mt-4{margin-top:var(--space-4)}
+  .muted{color:var(--text-muted)}
+  .small{font-size:var(--text-sm)}
+  .xs{font-size:var(--text-xs)}
+  .center{text-align:center}
+  .amber{color:var(--amber)}
+}
+
+@layer motion {
+  @media(prefers-reduced-motion:no-preference){
+    .reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.8,.2,1)}
+    .reveal.is-visible{opacity:1;transform:none}
+    .btn:hover{transform:translateY(-1px)}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+    html{scroll-behavior:auto}
+  }
+}
+</style>
+</head>
+<body data-theme="system">
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<div class="trust-bar">
+  <p><strong>Authorised and Regulated by the Financial Conduct Authority (FCA)</strong> • Free, Confidential Debt Advice • No Upfront Fees</p>
+</div>
+
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="#top" aria-label="ClearPath Debt Solutions home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 18l5-5 4 3 7-8"/><path d="M14 8h6v6"/></svg>
+      </span>
+      ClearPath Debt Solutions
+    </a>
+    <nav aria-label="Primary">
+      <ul class="nav-links">
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#solutions">Debt Solutions</a></li>
+        <li><a href="#calculator">Debt Calculator</a></li>
+        <li><a href="#stories">Client Stories</a></li>
+        <li><a href="#faqs">FAQs</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <a class="phone-link" href="tel:08001234567">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z"/></svg>
+        0800 123 4567 <span class="badge-free">Free Call</span>
+      </a>
+      <a class="btn btn-primary btn-sm" href="#consultation">Check Your Options</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <svg class="hero-art" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="heroGradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#1E8275" stop-opacity=".35"/>
+          <stop offset="1" stop-color="#D97706" stop-opacity=".15"/>
+        </linearGradient>
+      </defs>
+      <path d="M0 560C220 480 360 620 580 520s380-190 620-90v270H0Z" fill="url(#heroGradient)"/>
+      <path d="M0 620C260 540 420 680 660 590s330-150 540-70v180H0Z" fill="#1E8275" opacity=".14"/>
+      <circle cx="1010" cy="150" r="180" fill="#1E8275" opacity=".12"/>
+    </svg>
+
+    <div class="container hero-grid" style="position:relative">
+      <div>
+        <p class="eyebrow" style="color:#7BD3C4">Confidential UK debt support</p>
+        <h1 id="hero-title">Take Back Control of Your Finances—Starting Today.</h1>
+        <p class="mt-4">If repayments feel unmanageable, you do not have to face creditors alone. We help you review your situation without judgment, combine eligible unsecured debts into one affordable monthly payment, and ask creditors to freeze interest and charges where appropriate.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#calculator">See My Tailored Plan</a>
+          <a class="btn btn-ghost" style="color:#EAF2F7;border-color:rgb(255 255 255 / .25)" href="#consultation">Request a Free Callback</a>
+        </div>
+        <ul class="hero-badges">
+          <li class="trust-chip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2" aria-hidden="true"><path d="m12 2 3 6.5 7 .8-5.2 4.7L18.3 21 12 17.3 5.7 21l1.5-7L2 9.3l7-.8Z"/></svg>
+            4.9/5 Trustpilot Rating
+          </li>
+          <li class="trust-chip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7BD3C4" stroke-width="2" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+            £45M+ Debt Managed
+          </li>
+          <li class="trust-chip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7BD3C4" stroke-width="2" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5Z"/><path d="m9 12 2 2 4-4"/></svg>
+            100% Confidential
+          </li>
+        </ul>
+      </div>
+
+      <section class="assessment" aria-labelledby="assessment-title">
+        <header>
+          <div>
+            <h2 id="assessment-title" style="font-size:var(--text-xl)">30-Second Debt Check</h2>
+            <p class="small muted mt-2">Answer two quick questions to see which support route may suit your circumstances.</p>
+          </div>
+          <span class="step-count" id="assessmentStep">Step 1 of 2</span>
+        </header>
+
+        <form id="quickCheck" novalidate>
+          <fieldset class="choice-grid" id="debtRangeFieldset">
+            <legend class="field-help" style="font-weight:700;color:var(--text)">Approximately how much unsecured debt do you have?</legend>
+            <label class="choice"><input type="radio" name="debtRange" value="4000" checked> Under £5,000</label>
+            <label class="choice"><input type="radio" name="debtRange" value="10000"> £5,000 – £15,000</label>
+            <label class="choice"><input type="radio" name="debtRange" value="22000"> £15,000 – £30,000</label>
+            <label class="choice"><input type="radio" name="debtRange" value="45000"> £30,000+</label>
+          </fieldset>
+
+          <fieldset class="mt-4">
+            <legend class="field-help" style="font-weight:700;color:var(--text)">Which debts are included? <span class="muted">(Select all that apply)</span></legend>
+            <div class="type-grid mt-2">
+              <label class="type"><input type="checkbox" name="debtType" value="Credit cards" checked> Credit cards</label>
+              <label class="type"><input type="checkbox" name="debtType" value="Personal loans"> Personal loans</label>
+              <label class="type"><input type="checkbox" name="debtType" value="Overdrafts"> Overdrafts</label>
+              <label class="type"><input type="checkbox" name="debtType" value="Utility arrears"> Utility arrears</label>
+              <label class="type"><input type="checkbox" name="debtType" value="Council Tax"> Council Tax</label>
+              <label class="type"><input type="checkbox" name="debtType" value="Buy Now Pay Later"> Buy Now Pay Later</label>
+            </div>
+          </fieldset>
+
+          <div class="assessment-actions">
+            <button class="btn btn-primary" type="submit">See My Tailored Plan</button>
+            <button class="btn btn-ghost" type="button" id="resetQuickCheck">Reset</button>
+          </div>
+          <p class="xs muted mt-2" id="quickCheckStatus" role="status" aria-live="polite">Your selection will pre-fill the calculator. It is an indication only and does not constitute debt advice.</p>
+        </form>
+      </section>
+    </div>
+  </section>
+
+  <section class="section" id="calculator" aria-labelledby="calculator-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Debt Consolidation &amp; Repayment Calculator</p>
+        <h2 id="calculator-title" style="font-size:var(--text-2xl)">See what one affordable monthly payment could look like</h2>
+        <p class="muted mt-2">Move the sliders to explore an illustration based on the information you provide. This is not a quotation, credit agreement, or formal debt solution.</p>
+      </div>
+
+      <div class="calculator">
+        <form class="card" id="calculatorForm" aria-describedby="calculatorDisclaimer">
+          <div class="field">
+            <label for="debtInput">Total unsecured debt</label>
+            <div class="slider-row">
+              <input id="debtRange" type="range" min="2000" max="100000" step="500" value="12000" aria-describedby="debtHelp">
+              <label class="visually-hidden" for="debtInput">Total unsecured debt in pounds</label>
+              <input id="debtInput" class="number-box" type="number" inputmode="numeric" min="2000" max="100000" step="500" value="12000">
+            </div>
+            <p class="field-help" id="debtHelp">£2,000 to £100,000. Includes eligible credit cards, loans, overdrafts and similar unsecured borrowing.</p>
+          </div>
+
+          <div class="field">
+            <label for="creditorsInput">Number of creditors</label>
+            <div class="slider-row">
+              <input id="creditorsRange" type="range" min="1" max="15" step="1" value="4" aria-describedby="creditorsHelp">
+              <label class="visually-hidden" for="creditorsInput">Number of creditors</label>
+              <input id="creditorsInput" class="number-box" type="number" inputmode="numeric" min="1" max="15" step="1" value="4">
+            </div>
+            <p class="field-help" id="creditorsHelp">Companies or organisations you owe money to.</p>
+          </div>
+
+          <div class="field">
+            <label for="incomeInput">Estimated monthly disposable income</label>
+            <div class="slider-row">
+              <input id="incomeRange" type="range" min="50" max="1500" step="10" value="280" aria-describedby="incomeHelp">
+              <label class="visually-hidden" for="incomeInput">Estimated monthly disposable income in pounds</label>
+              <input id="incomeInput" class="number-box" type="number" inputmode="numeric" min="50" max="1500" step="10" value="280">
+            </div>
+            <p class="field-help" id="incomeHelp">Money remaining after essential bills such as rent or mortgage, food, utilities and transport.</p>
+          </div>
+
+          <div class="assessment-actions">
+            <button type="button" class="btn btn-ghost" id="resetCalculator">Restore Defaults</button>
+          </div>
+          <p class="disclaimer" id="calculatorDisclaimer">Illustrative estimates only. Actual solutions depend on your full income, essential spending, assets, creditor positions and personal circumstances.</p>
+        </form>
+
+        <div class="card" aria-labelledby="resultsTitle">
+          <h3 id="resultsTitle">Your estimated repayment picture</h3>
+          <dl class="result-grid mt-4">
+            <div class="result"><dt>Estimated new single monthly payment</dt><dd id="managedPayment">£280</dd></div>
+            <div class="result"><dt>Estimated monthly saving</dt><dd id="monthlySaving">£80</dd></div>
+            <div class="result"><dt>Estimated current minimum payments</dt><dd id="currentMinimum">£360</dd></div>
+          </dl>
+
+          <div class="mt-4">
+            <span class="solution-pill" id="solutionPill">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 2"/></svg>
+              <span id="solutionText">Debt Management Plan may be worth exploring</span>
+            </span>
+          </div>
+
+          <figure class="chart" aria-labelledby="chartTitle">
+            <figcaption id="chartTitle" class="bar-meta"><span>Current estimated minimum payments</span><span id="currentBarValue">£360</span></figcaption>
+            <div class="bar-track" role="img" aria-label="Comparison of current estimated minimum payments and ClearPath managed payment">
+              <div class="bar-fill bar-current" id="currentBar" style="inline-size:100%"></div>
+            </div>
+            <div class="bar-meta"><span>ClearPath managed payment</span><span id="managedBarValue">£280</span></div>
+            <div class="bar-track"><div class="bar-fill bar-managed" id="managedBar" style="inline-size:78%"></div></div>
+          </figure>
+
+          <p class="disclaimer">A Debt Management Plan is informal and creditors are not obliged to freeze interest or charges. An IVA or DRO has eligibility conditions and potential consequences; a qualified adviser should assess your circumstances.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="solutions" aria-labelledby="solutions-title" style="background:color-mix(in oklab,var(--teal) 5%,var(--surface))">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Debt Solutions</p>
+        <h2 id="solutions-title" style="font-size:var(--text-2xl)">Clear options, explained without pressure</h2>
+        <p class="muted mt-2">There is no single solution for everyone. The right route depends on your income, essential costs, assets, the debts involved and where you live in the UK.</p>
+      </div>
+      <div class="three-col" id="solutionCards"></div>
+    </div>
+  </section>
+
+  <section class="section" id="how-it-works" aria-labelledby="process-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">How Our Process Works</p>
+        <h2 id="process-title" style="font-size:var(--text-2xl)">A straightforward path from first conversation to one manageable payment</h2>
+      </div>
+      <div class="four-col process">
+        <article class="card process-card">
+          <h3>Free, Confidential Financial Review</h3>
+          <p>A no-judgment conversation to understand your income, priority bills, debts and immediate concerns.</p>
+        </article>
+        <article class="card process-card">
+          <h3>Tailored Action Plan</h3>
+          <p>We recommend the most suitable route and help build a realistic household budget around essential spending.</p>
+        </article>
+        <article class="card process-card">
+          <h3>We Handle Your Creditors</h3>
+          <p>With your permission, we contact creditors, request interest and charge freezes where appropriate, and help reduce collection calls.</p>
+        </article>
+        <article class="card process-card">
+          <h3>One Simple Monthly Payment</h3>
+          <p>You make one affordable payment to us; we distribute it fairly to the creditors included in your arrangement.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="priorities" aria-labelledby="priorities-title" style="background:color-mix(in oklab,var(--navy) 4%,var(--surface))">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Know What Comes First</p>
+        <h2 id="priorities-title" style="font-size:var(--text-2xl)">Priority and non-priority debts are not the same</h2>
+        <p class="muted mt-2">Some missed payments can put your home, utilities or freedom at risk. These normally need to be kept up to date before non-priority debts.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="priority-table">
+          <caption class="visually-hidden">Comparison of priority and non-priority debts</caption>
+          <thead>
+            <tr><th scope="col">Debt type</th><th scope="col">Classification</th><th scope="col">Why it matters</th><th scope="col">Usually included in a debt plan?</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Mortgage or rent arrears</td><td><span class="tag tag-priority">Priority</span></td><td>Your home could be at risk if arrears are not addressed.</td><td>Usually kept separate and paid first</td></tr>
+            <tr><td>Council Tax</td><td><span class="tag tag-priority">Priority</span></td><td>Local authorities can use enforcement action for unpaid arrears.</td><td>Usually kept separate and paid first</td></tr>
+            <tr><td>Gas and electricity arrears</td><td><span class="tag tag-priority">Priority</span></td><td>Supplies may be restricted and energy arrears can escalate.</td><td>Usually kept separate and paid first</td></tr>
+            <tr><td>Court fines</td><td><span class="tag tag-priority">Priority</span></td><td>Non-payment can lead to enforcement action.</td><td>Usually kept separate and paid first</td></tr>
+            <tr><td>Credit cards</td><td><span class="tag tag-nonpriority">Non-priority</span></td><td>Missing payments can harm your credit file and increase charges.</td><td>Often included, subject to suitability</td></tr>
+            <tr><td>Store cards and catalogues</td><td><span class="tag tag-nonpriority">Non-priority</span></td><td>Interest and charges can make balances grow quickly.</td><td>Often included, subject to suitability</td></tr>
+            <tr><td>Payday loans</td><td><span class="tag tag-nonpriority">Non-priority</span></td><td>High-cost short-term borrowing can create a repayment spiral.</td><td>Often included, subject to suitability</td></tr>
+            <tr><td>Personal loans and overdrafts</td><td><span class="tag tag-nonpriority">Non-priority</span></td><td>These unsecured debts may be suitable for consolidation or a repayment plan.</td><td>Often included, subject to suitability</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="xs muted mt-4">If you face eviction, disconnection, court action or bailiff attendance, seek urgent free debt advice. MoneyHelper’s Debt Advice Locator can help you find free, confidential support. [8][14]</p>
+    </div>
+  </section>
+
+  <section class="section" id="stories" aria-labelledby="stories-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Client Stories</p>
+        <h2 id="stories-title" style="font-size:var(--text-2xl)">Realistic progress, without judgment</h2>
+        <p class="muted mt-2">These illustrative examples show how different circumstances can lead to different solutions. They are not guarantees of outcome.</p>
+      </div>
+      <div class="three-col">
+        <article class="card">
+          <span class="card-label">Debt Management Plan</span>
+          <h3>“I could finally see a way forward.”</h3>
+          <p>After a change in working hours, a household with £11,400 across four credit cards built a realistic budget and made one monthly payment through a DMP.</p>
+          <p class="card-note">Illustrative example. Individual outcomes vary.</p>
+        </article>
+        <article class="card">
+          <span class="card-label">IVA</span>
+          <h3>“The plan gave us structure.”</h3>
+          <p>A couple with £28,000 of unsecured debt explored whether an IVA could provide a legally binding framework and a defined route to completion.</p>
+          <p class="card-note">IVAs have eligibility, fees and potential consequences. Advice is essential.</p>
+        </article>
+        <article class="card">
+          <span class="card-label">Breathing Space</span>
+          <h3>“We had time to make a proper plan.”</h3>
+          <p>Following redundancy, a client sought debt advice and was assessed for Breathing Space, which can pause most enforcement action and creditor contact for up to 60 days.</p>
+          <p class="card-note">Available in England and Wales through a debt adviser; ongoing priority bills may still need payment. [1][2]</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faqs" aria-labelledby="faq-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">FAQs</p>
+        <h2 id="faq-title" style="font-size:var(--text-2xl)">Your questions, answered plainly</h2>
+      </div>
+      <div id="faqList"></div>
+    </div>
+  </section>
+
+  <section class="section" id="consultation" aria-labelledby="consultation-title" style="background:linear-gradient(160deg,var(--navy),#123149);color:#EAF2F7">
+    <div class="container">
+      <div class="grid two-col" style="align-items:center">
+        <div>
+          <p class="eyebrow" style="color:#7BD3C4">Free Consultation</p>
+          <h2 id="consultation-title" style="font-size:var(--text-2xl);color:#fff">Request a confidential callback</h2>
+          <p class="mt-4" style="color:#C8D6E1">Tell us the best time to reach you. A member of our team will call to listen, explain the options available and help you decide what to do next. There is no obligation to proceed.</p>
+          <ul class="hero-badges">
+            <li class="trust-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7BD3C4" stroke-width="2" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5Z"/></svg> Confidential</li>
+            <li class="trust-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7BD3C4" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 2"/></svg> No obligation</li>
+            <li class="trust-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7BD3C4" stroke-width="2" aria-hidden="true"><path d="M4 18l5-5 4 3 7-8"/></svg> FCA-regulated firm</li>
+          </ul>
+        </div>
+
+        <div class="form-card">
+          <form id="callbackForm" novalidate>
+            <div class="form-grid">
+              <div>
+                <label for="fullName">Full name</label>
+                <input class="input mt-2" id="fullName" name="fullName" type="text" autocomplete="name" required aria-describedby="nameError">
+                <p class="error mt-2" id="nameError" hidden>Please enter your full name.</p>
+              </div>
+              <div>
+                <label for="phone">Phone number</label>
+                <input class="input mt-2" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required pattern="[0-9 +()-]{7,}" aria-describedby="phoneError">
+                <p class="error mt-2" id="phoneError" hidden>Please enter a valid UK phone number.</p>
+              </div>
+              <div class="form-full">
+                <label for="email">Email address</label>
+                <input class="input mt-2" id="email" name="email" type="email" autocomplete="email" required aria-describedby="emailError">
+                <p class="error mt-2" id="emailError" hidden>Please enter a valid email address.</p>
+              </div>
+              <div>
+                <label for="callTime">Best time to call</label>
+                <select class="select mt-2" id="callTime" name="callTime">
+                  <option value="Morning">Morning</option>
+                  <option value="Afternoon">Afternoon</option>
+                  <option value="Evening">Evening</option>
+                </select>
+              </div>
+              <div>
+                <label for="contactMethod">Preferred contact method</label>
+                <select class="select mt-2" id="contactMethod" name="contactMethod">
+                  <option value="Phone">Phone</option>
+                  <option value="WhatsApp">WhatsApp</option>
+                  <option value="Email">Email</option>
+                </select>
+              </div>
+              <div class="form-full">
+                <button class="btn btn-primary" type="submit" style="inline-size:100%">Request My Free Callback</button>
+              </div>
+            </div>
+            <p class="xs muted mt-4">By submitting this form, you agree to be contacted about your enquiry. We will only use your details to respond to your request.</p>
+          </form>
+
+          <div class="confirmation mt-4" id="formConfirmation" role="status" aria-live="polite">
+            <strong>Thank you—your callback request has been received.</strong>
+            <p class="small mt-2">Your reference is <span class="ref-code" id="referenceNumber">CPD-000000</span>. A member of our team will contact you using your preferred method. If your situation is urgent, call 0800 123 4567.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <p class="footer-title">ClearPath Debt Solutions</p>
+        <p>ClearPath Debt Solutions is a trading name used for illustrative purposes. Registered office: 42 Financial House, Manchester M1 2AB, United Kingdom.</p>
+        <p class="mt-4">FCA firm reference number: <strong>XXXXXXX</strong>. You can check a firm’s authorisation and permissions using the FCA Firm Checker. [10]</p>
+      </div>
+      <nav aria-label="Footer policies">
+        <p class="footer-title">Important information</p>
+        <div class="footer-links">
+          <a href="#privacy">Privacy Policy</a>
+          <a href="#complaints">Complaints Procedure</a>
+          <a href="#fees">Fee Structure Transparency</a>
+          <a href="#faqs">FAQs</a>
+        </div>
+      </nav>
+      <div>
+        <p class="footer-title">Free independent advice</p>
+        <p>You do not have to use a paid debt-management provider. MoneyHelper provides free, impartial money guidance and a Debt Advice Locator for free, confidential debt advice. [6][8][11]</p>
+        <div class="free-advice">
+          <p><strong>MoneyHelper:</strong> 0800 138 7777<br>Visit <a href="https://www.moneyhelper.org.uk/en/money-troubles/dealing-with-debt" rel="noopener">moneyhelper.org.uk</a></p>
+        </div>
+      </div>
+    </div>
+    <div class="legal">
+      <p>ClearPath Debt Solutions is authorised and regulated by the Financial Conduct Authority. The information on this website is for general information and does not constitute financial, legal or insolvency advice. Calculator figures are illustrative and are not quotations or guarantees.</p>
+      <p class="mt-2">© <span id="year"></span> ClearPath Debt Solutions. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<button class="capability-button" id="capabilityButton" aria-expanded="false" aria-controls="capabilityPanel" aria-label="Open platform capabilities">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/></svg>
+</button>
+<aside class="capability-panel" id="capabilityPanel" aria-label="Platform capabilities">
+  <strong>Platform capabilities</strong>
+  <p class="mt-2">This page adapts where your browser supports modern features.</p>
+  <ul class="capability-list" id="capabilityList"></ul>
+</aside>
+
+<script type="module">
+const state = {
+  debt: 12000,
+  creditors: 4,
+  income: 280,
+  theme: 'system'
+};
+
+const storage = {
+  get(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch { return fallback; }
+  },
+  set(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+  },
+  remove(key) {
+    try { localStorage.removeItem(key); } catch {}
+  }
+};
+
+const gbp = new Intl.NumberFormat('en-GB', { style:'currency', currency:'GBP', maximumFractionDigits:0 });
+const referenceChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+const solutions = [
+  { name:'Debt Management Plan (DMP)', who:'People who can make a regular reduced payment but need flexibility.',
+    benefits:['One affordable monthly payment','Requests to freeze interest and charges','Flexible if income changes','Informal arrangement'],
+    considerations:['Creditors do not have to agree','Interest may continue','Can affect your credit file'] },
+  { name:'Individual Voluntary Arrangement (IVA)', who:'People with regular income and more substantial unsecured debt.',
+    benefits:['Legally binding agreement','Interest and most legal action are frozen','Typically lasts 5–6 years','Remaining eligible unsecured debt written off on completion'],
+    considerations:['Requires an insolvency practitioner','Failure to comply can have consequences','May affect your home or assets'] },
+  { name:'Debt Relief Order (DRO)', who:'People on low income with limited assets and relatively low debt.',
+    benefits:['Interest and enforcement are frozen for 12 months','Eligible debts are written off after the period','Low-cost route for qualifying people'],
+    considerations:['Strict eligibility rules','Not available for every debt type','Usually excludes homeowners with significant equity'] },
+  { name:'Debt Consolidation Guidance', who:'People who want to restructure several high-interest debts into one manageable stream.',
+    benefits:['Simplifies multiple payments','May reduce interest costs','Can make budgeting easier'],
+    considerations:['New borrowing may extend the repayment term','Secured consolidation can put assets at risk','Not suitable for everyone'] },
+  { name:'Creditor Negotiation & Breathing Space', who:'People who need immediate space to obtain advice and make a plan.',
+    benefits:['Up to 60 days of protection in England and Wales','Pauses most enforcement action and creditor contact','Freezes most interest and charges on qualifying debts'],
+    considerations:['Available through a debt adviser','One standard Breathing Space per 12 months','Ongoing priority bills may still need payment'] },
+  { name:'Budgeting & Financial Coaching', who:'People who want practical support to regain control and rebuild after debt.',
+    benefits:['Dedicated case manager','Income and expenditure review','Credit-rebuilding roadmap after completion'],
+    considerations:['Requires honest budgeting','Progress depends on ongoing circumstances','Support complements rather than replaces debt solutions'] }
+];
+
+const faqs = [
+  { q:'Will a debt management plan affect my credit score?', a:'A DMP can affect your credit file, particularly if you reduce or stop contractual payments. Creditors may record missed or reduced payments, and this can affect future credit applications. We explain the likely impact before you decide.' },
+  { q:'Can you stop bailiffs and creditor phone calls?', a:'We can contact creditors on your behalf and ask them to direct communication to us. Breathing Space may provide temporary legal protection from most creditor action and contact for up to 60 days in England and Wales, subject to eligibility. It does not remove the underlying debt. [1][2]' },
+  { q:'What fees do you charge, and are there free alternatives like MoneyHelper?', a:'We are transparent about any fees before you commit. Free, independent debt advice is also available through MoneyHelper and its Debt Advice Locator, which can help you find free confidential support. [6][8][11]' },
+  { q:'What happens if my income drops or I have an emergency expense?', a:'Tell us as soon as possible. We review your budget, contact creditors where appropriate and consider whether your arrangement remains affordable. A DMP is informal and can be adjusted; formal solutions have different rules.' },
+  { q:'Will my employer or landlord find out?', a:'We do not routinely contact employers or landlords. Some formal solutions may require disclosure in specific circumstances, and we explain any potential implications before you proceed.' }
+];
+
+const capabilityChecks = [
+  ['View Transitions', () => Boolean(document.startViewTransition), 'Enables smooth visual changes between major views.'],
+  ['Scroll-driven animations', () => CSS.supports('animation-timeline: scroll()'), 'Can link visual effects to page scrolling.'],
+  ['Container queries', () => CSS.supports('container-type: inline-size'), 'Lets cards adapt to the space available around them.'],
+  ['Container style queries', () => CSS.supports('container style queries'), 'Can change presentation based on a component’s custom property.'],
+  ['CSS nesting', () => CSS.supports('selector(&)'), 'Makes component styles easier to organise.'],
+  ['@scope', () => CSS.supports('selector(@scope)'), 'Provides bounded component styling.'],
+  ['Anchor positioning', () => CSS.supports('anchor-name: --x'), 'Positions popovers relative to their trigger.'],
+  ['Popover API', () => Boolean(HTMLElement.prototype.hasOwnProperty?.('popover')), 'Supports lightweight, accessible overlays.'],
+  ['Dialog element', () => Boolean(window.HTMLDialogElement), 'Provides native accessible modal dialogs.'],
+  [':has()', () => CSS.supports('selector(:has(a))'), 'Enables parent styling based on child state.'],
+  ['field-sizing', () => CSS.supports('field-sizing: content'), 'Allows controls to grow with their content.'],
+  ['Trusted Types', () => Boolean(window.trustedTypes), 'Adds safeguards around risky HTML insertion.'],
+  ['Navigation API', () => Boolean(window.navigation), 'Supports modern client-side navigation handling.'],
+  ['Web Animations API', () => Boolean(window.Element.prototype.animate), 'Enables JavaScript-driven interaction motion.'],
+  ['Canvas 2D', () => Boolean(document.createElement('canvas').getContext('2d')), 'Supports procedural visual artwork.'],
+  ['Web Audio', () => Boolean(window.AudioContext || window.webkitAudioContext), 'Enables optional user-initiated sound.'],
+  ['Clipboard API', () => Boolean(navigator.clipboard), 'Supports one-tap copying.'],
+  ['Web Share', () => Boolean(navigator.share), 'Enables native sharing where available.'],
+  ['localStorage', () => storage.get('__test', null) !== undefined || (() => { try { localStorage.setItem('__test','1'); localStorage.removeItem('__test'); return true; } catch { return false; } })(), 'Stores your calculator preferences on this device.']
+];
+
+const solutionCardTemplate = (item) => {
+  const article = document.createElement('article');
+  article.className = 'card reveal';
+  const label = document.createElement('span');
+  label.className = 'card-label';
+  label.textContent = item.name;
+  const heading = document.createElement('h3');
+  heading.textContent = 'Who it’s for';
+  const who = document.createElement('p');
+  who.textContent = item.who;
+  const benefitsTitle = document.createElement('h4');
+  benefitsTitle.className = 'xs mt-4';
+  benefitsTitle.textContent = 'Key benefits';
+  const benefits = document.createElement('ul');
+  item.benefits.forEach(text => {
+    const li = document.createElement('li');
+    const icon = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    icon.setAttribute('width','14'); icon.setAttribute('height','14'); icon.setAttribute('viewBox','0 0 24 24');
+    icon.setAttribute('fill','none'); icon.setAttribute('stroke','currentColor'); icon.setAttribute('stroke-width','2');
+    icon.setAttribute('aria-hidden','true');
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','m5 13 4 4L19 7');
+    icon.append(path); li.append(icon, document.createTextNode(text)); benefits.append(li);
+  });
+  const note = document.createElement('p');
+  note.className = 'card-note';
+  note.textContent = `Important considerations: ${item.considerations.join('; ')}.`;
+  article.append(label, heading, who, benefitsTitle, benefits, note);
+  return article;
+};
+
+const faqTemplate = (item, index) => {
+  const details = document.createElement('details');
+  details.className = 'faq-item';
+  const summary = document.createElement('summary');
+  summary.textContent = item.q;
+  const answer = document.createElement('div');
+  answer.className = 'faq-answer';
+  answer.textContent = item.a;
+  details.append(summary, answer);
+  return details;
+};
+
+const calculate = () => {
+  const debt = state.debt;
+  const creditors = state.creditors;
+  const income = state.income;
+
+  const currentMinimum = Math.max(creditors * 25, debt * 0.03);
+  const managedPayment = Math.max(25, Math.min(income, debt / 36));
+  const saving = Math.max(0, currentMinimum - managedPayment);
+  const debtToAnnualIncome = debt / Math.max(income * 12, 1);
+
+  let solution = 'Debt Management Plan may be worth exploring';
+  if (debt <= 5000 && income <= 100) {
+    solution = 'A Debt Relief Order may be worth discussing';
+  } else if (debtToAnnualIncome > 2.5 || debt >= 30000) {
+    solution = 'An IVA may be worth discussing';
+  } else if (saving <= 0) {
+    solution = 'Budgeting and creditor support may be a first step';
+  }
+
+  return { currentMinimum, managedPayment, saving, solution, debtToAnnualIncome };
+};
+
+const renderCalculator = () => {
+  const result = calculate();
+  document.getElementById('managedPayment').textContent = gbp.format(result.managedPayment);
+  document.getElementById('monthlySaving').textContent = gbp.format(result.saving);
+  document.getElementById('currentMinimum').textContent = gbp.format(result.currentMinimum);
+  document.getElementById('solutionText').textContent = result.solution;
+
+  const max = Math.max(result.currentMinimum, result.managedPayment, 1);
+  document.getElementById('currentBar').style.inlineSize = `${(result.currentMinimum / max) * 100}%`;
+  document.getElementById('managedBar').style.inlineSize = `${(result.managedPayment / max) * 100}%`;
+  document.getElementById('currentBarValue').textContent = gbp.format(result.currentMinimum);
+  document.getElementById('managedBarValue').textContent = gbp.format(result.managedPayment);
+
+  document.getElementById('debtRange').value = state.debt;
+  document.getElementById('debtInput').value = state.debt;
+  document.getElementById('creditorsRange').value = state.creditors;
+  document.getElementById('creditorsInput').value = state.creditors;
+  document.getElementById('incomeRange').value = state.income;
+  document.getElementById('incomeInput').value = state.income;
+
+  storage.set('clearpath-calculator', { debt: state.debt, creditors: state.creditors, income: state.income });
+};
+
+const bindPair = (rangeId, numberId, key) => {
+  const range = document.getElementById(rangeId);
+  const number = document.getElementById(numberId);
+  range.addEventListener('input', () => {
+    state[key] = Number(range.value);
+    renderCalculator();
+  });
+  number.addEventListener('input', () => {
+    const value = Number(number.value);
+    if (Number.isFinite(value)) {
+      state[key] = Math.min(Number(range.max), Math.max(Number(range.min), value));
+      renderCalculator();
+    }
+  });
+};
+
+const initQuickCheck = () => {
+  const form = document.getElementById('quickCheck');
+  const step = document.getElementById('assessmentStep');
+  const status = document.getElementById('quickCheckStatus');
+  const ranges = form.querySelectorAll('input[name="debtRange"]');
+
+  ranges.forEach(input => input.addEventListener('change', () => {
+    step.textContent = 'Step 2 of 2';
+    status.textContent = 'Now select the types of debt included.';
+  }));
+
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const selected = form.querySelector('input[name="debtRange"]:checked');
+    const types = [...form.querySelectorAll('input[name="debtType"]:checked')].map(input => input.value);
+    state.debt = Number(selected.value);
+    state.creditors = Math.max(2, Math.min(15, Math.round(state.debt / 3500)));
+    state.income = Math.max(80, Math.min(1500, Math.round(state.debt / 45)));
+    renderCalculator();
+    status.textContent = `Calculator updated for approximately ${gbp.format(state.debt)} across ${types.length || 1} debt type${types.length === 1 ? '' : 's'}.`;
+    document.getElementById('calculator').scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+
+  document.getElementById('resetQuickCheck').addEventListener('click', () => {
+    form.reset();
+    step.textContent = 'Step 1 of 2';
+    status.textContent = 'Your selection will pre-fill the calculator. It is an indication only and does not constitute debt advice.';
+  });
+};
+
+const initCalculator = () => {
+  const saved = storage.get('clearpath-calculator', null);
+  if (saved && Number.isFinite(saved.debt)) {
+    state.debt = Math.min(100000, Math.max(2000, saved.debt));
+    state.creditors = Math.min(15, Math.max(1, saved.creditors || 4));
+    state.income = Math.min(1500, Math.max(50, saved.income || 280));
+  }
+  bindPair('debtRange','debtInput','debt');
+  bindPair('creditorsRange','creditorsInput','creditors');
+  bindPair('incomeRange','incomeInput','income');
+  document.getElementById('resetCalculator').addEventListener('click', () => {
+    Object.assign(state, { debt:12000, creditors:4, income:280 });
+    renderCalculator();
+    document.getElementById('calculatorDisclaimer').focus?.();
+  });
+  renderCalculator();
+};
+
+const initForm = () => {
+  const form = document.getElementById('callbackForm');
+  const confirmation = document.getElementById('formConfirmation');
+  const fields = [
+    ['fullName','nameError', value => value.trim().length > 1],
+    ['phone','phoneError', value => /^[0-9 +()-]{7,}$/.test(value.trim())],
+    ['email','emailError', value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())]
+  ];
+
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    let valid = true;
+    fields.forEach(([fieldId, errorId, validator]) => {
+      const field = document.getElementById(fieldId);
+      const error = document.getElementById(errorId);
+      const ok = validator(field.value);
+      field.setAttribute('aria-invalid', String(!ok));
+      error.hidden = ok;
+      if (!ok) valid = false;
+    });
+    if (!valid) return;
+
+    const reference = `CPD-${Array.from({length:6}, () => referenceChars[Math.floor(Math.random() * referenceChars.length)]).join('')}`;
+    document.getElementById('referenceNumber').textContent = reference;
+    confirmation.style.display = 'block';
+    form.reset();
+    confirmation.scrollIntoView({ behavior:'smooth', block:'center' });
+  });
+};
+
+const initCapabilities = () => {
+  const button = document.getElementById('capabilityButton');
+  const panel = document.getElementById('capabilityPanel');
+  const list = document.getElementById('capabilityList');
+
+  capabilityChecks.forEach(([label, test, explanation]) => {
+    let active = false;
+    try { active = Boolean(test()); } catch {}
+    const li = document.createElement('li');
+    li.className = 'capability';
+    const name = document.createElement('span');
+    name.textContent = label;
+    const status = document.createElement('span');
+    status.className = active ? 'cap-ok' : 'cap-off';
+    status.textContent = active ? 'Active' : 'Unavailable';
+    li.title = explanation;
+    li.append(name, status);
+    list.append(li);
+  });
+
+  button.addEventListener('click', () => {
+    const open = panel.dataset.open === 'true';
+    panel.dataset.open = String(!open);
+    button.setAttribute('aria-expanded', String(!open));
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && panel.dataset.open === 'true') {
+      panel.dataset.open = 'false';
+      button.setAttribute('aria-expanded','false');
+      button.focus();
+    }
+  });
+};
+
+const initReveal = () => {
+  const items = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    items.forEach(item => item.classList.add('is-visible'));
+    return;
+  }
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin:'0px 0px -10% 0px' });
+  items.forEach(item => observer.observe(item));
+};
+
+const initTheme = () => {
+  const saved = storage.get('clearpath-theme','system');
+  document.documentElement.dataset.theme = saved;
+  const applySystem = () => {
+    if (document.documentElement.dataset.theme === 'system') {
+      document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+  };
+  applySystem();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applySystem);
+};
+
+const init = () => {
+  document.getElementById('year').textContent = new Date().getFullYear();
+  document.getElementById('solutionCards').replaceChildren(...solutions.map(solutionCardTemplate));
+  document.getElementById('faqList').replaceChildren(...faqs.map(faqTemplate));
+  initTheme();
+  initQuickCheck();
+  initCalculator();
+  initForm();
+  initCapabilities();
+  initReveal();
+};
+
+init();
+</script>
+</body>
+</html>
