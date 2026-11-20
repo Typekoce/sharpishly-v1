@@ -10,7 +10,7 @@ class TodoModel extends BaseModel {
             $conditions = [
                 'tbl'   => 'todo',
                 'order' => ['id' => 'DESC'],
-                'limit' => 10
+                // 'limit' => 10
             ];
 
             return $this->db->find($conditions);
