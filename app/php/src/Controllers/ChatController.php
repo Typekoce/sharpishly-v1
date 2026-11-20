@@ -6,7 +6,14 @@ use App\Models\ChatModel;
 use App\Services\ChatService;
 use Throwable;
 
-class ChatController extends BaseController {
+class ChatController extends BaseController
+{
+    public string $tbl = 'messages';
+
+    private function model(): ChatModel
+    {
+        return new ChatModel();
+    }
 
     public function save(): void
     {
@@ -15,20 +22,15 @@ class ChatController extends BaseController {
         $realityId = (int) ($data['reality_id'] ?? 1);
 
         if ($prompt === '') {
-            $this->json([
-                'success' => false,
-                'error'   => 'Prompt is required.'
-            ], 422);
+            $this->json(['success' => false, 'error' => 'Prompt is required.'], 422);
             return;
         }
 
-        $model = new ChatModel();
-
         try {
-            $recordId = $model->createMessage([
+            $recordId = $this->model()->createMessage([
                 'reality_id' => $realityId,
                 'role'       => 'user',
-                'content'    => $prompt
+                'content'    => $prompt,
             ]);
 
             if ($recordId === false) {
@@ -38,16 +40,11 @@ class ChatController extends BaseController {
             $this->json([
                 'success'    => true,
                 'message_id' => $recordId,
-                'prompt'     => $prompt
+                'prompt'     => $prompt,
             ]);
         } catch (Throwable $e) {
             $this->logger->error($e->getMessage());
-
-            $this->json([
-                'success' => false,
-                'error'   => 'Unable to save prompt.'
-            ], 500);
-            return;
+            $this->json(['success' => false, 'error' => 'Unable to save prompt.'], 500);
         }
     }
 
@@ -58,36 +55,27 @@ class ChatController extends BaseController {
         $realityId = (int) ($data['reality_id'] ?? 1);
 
         if ($message === '') {
-            $this->json([
-                'success' => false,
-                'error'   => 'Message cannot be empty.'
-            ], 422);
+            $this->json(['success' => false, 'error' => 'Message cannot be empty.'], 422);
             return;
         }
 
-        $model = new ChatModel();
+        $model = $this->model();
         $service = new ChatService();
 
         try {
-            // 1. Log user message via Model first so it is included in history
             $model->createMessage([
                 'reality_id' => $realityId,
                 'role'       => 'user',
-                'content'    => $message
+                'content'    => $message,
             ]);
 
-            // 2. Gather recent chronological history and construct payload for Python AI service
             $history = $model->getRecentMessages($realityId, 10);
-            $payload = [
+            $aiResult = $service->callPython([
                 'reality_id' => $realityId,
                 'prompt'     => $message,
-                'history'    => $history
-            ];
+                'history'    => $history,
+            ]);
 
-            $aiResult = $service->callPython($payload);
-            $reply = trim((string) ($aiResult['response'] ?? ''));
-
-            // 3. Persist tool output if invoked by Qwen / MCP executor
             if (!empty($aiResult['tool_output'])) {
                 $toolOut = $aiResult['tool_output'];
                 $model->createMessage([
@@ -101,55 +89,64 @@ class ChatController extends BaseController {
                 ]);
             }
 
-            if ($reply === '') {
-                $reply = 'No response generated.';
-            }
+            $reply = trim((string) ($aiResult['response'] ?? '')) ?: 'No response generated.';
 
-            // 4. Log assistant reply via Model
             $model->createMessage([
                 'reality_id' => $realityId,
                 'role'       => 'assistant',
-                'content'    => $reply
+                'content'    => $reply,
             ]);
 
-            $this->json([
-                'success'  => true,
-                'response' => $reply
-            ]);
+            $this->json(['success' => true, 'response' => $reply]);
         } catch (Throwable $e) {
             $this->logger->error($e->getMessage());
-
-            // Persist a failed assistant turn so the conversation state remains complete
             try {
                 $model->createMessage([
                     'reality_id' => $realityId,
                     'role'       => 'assistant',
                     'content'    => 'The assistant could not generate a response. Please try again.',
-                    'status'     => 'failed'
+                    'status'     => 'failed',
                 ]);
             } catch (Throwable $persistError) {
                 $this->logger->error($persistError->getMessage());
             }
-
-            $this->json([
-                'success' => false,
-                'error'   => 'Unable to process chat request.'
-            ], 502);
-            return;
+            $this->json(['success' => false, 'error' => 'Unable to process chat request.'], 502);
         }
     }
 
     public function history(): void
     {
         $realityId = (int) ($_GET['reality_id'] ?? 1);
-        $model = new ChatModel();
-        $records = $model->getRecentMessages($realityId, 50);
-
         $this->json([
             'success'    => true,
             'reality_id' => $realityId,
-            'records'    => $records
+            'records'    => $this->model()->getRecentMessages($realityId, 50),
         ]);
-        return;
+    }
+
+    public function update($id = '1'): void
+    {
+        $data = $this->getPost();
+        $targetId = (int) ($data['id'] ?? $id);
+        $realityId = (int) ($data['reality_id'] ?? 1);
+
+        $fields = [];
+        if (array_key_exists('pref', $data)) {
+            $fields['pref'] = $data['pref'];
+        }
+        if (array_key_exists('content', $data)) {
+            $fields['content'] = $data['content'];
+        }
+        if (!$fields) {
+            $fields = ['pref' => 'foo bar', 'content' => '{}'];
+        }
+
+        $result = $this->model()->updateMessage($targetId, $fields, $realityId);
+        $this->json([
+            'success' => $result !== false,
+            'id'      => $targetId,
+            'result'  => $result,
+            'pref'    => $fields['pref'] ?? null,
+        ]);
     }
 }
