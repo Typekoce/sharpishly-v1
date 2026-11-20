@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OneApply AI | Register Once. Apply Everywhere.</title>
+<meta name="description" content="OneApply AI matches, tailors and tracks UK job applications across 45+ job boards and direct ATS portals. AI tailored, human approved.">
+<style>
+@layer reset, tokens, base, layout, components, utilities, motion;
+
+@layer reset{
+*,*::before,*::after{box-sizing:border-box}
+body,h1,h2,h3,h4,p,ul,ol,figure,figcaption,dl,dd{margin:0}
+ul[class],ol[class]{padding:0;list-style:none}
+img,svg{display:block;max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+a{color:inherit}
+}
+
+@layer tokens{
+:root{
+--ink:#0B1120;--indigo:#4F46E5;--indigo-dark:#4338CA;--emerald:#10B981;
+--emerald-dark:#059669;--off-white:#F8FAFC;--slate:#475569;--amber:#F59E0B;
+--amber-dark:#B45309;--danger:#DC2626;--border:#E2E8F0;
+--surface:var(--off-white);--raised:#fff;--inverse:var(--ink);
+--text:var(--ink);--muted:var(--slate);--accent:var(--indigo);
+--focus:var(--amber);--radius-sm:8px;--radius:12px;--radius-lg:20px;
+--shadow:0 1px 2px rgb(11 17 32/.06),0 10px 30px rgb(11 17 32/.08);
+--shadow-lg:0 2px 8px rgb(11 17 32/.09),0 24px 60px rgb(11 17 32/.14);
+--ring:0 0 0 3px rgb(245 158 11/.45);
+--s1:.25rem;--s2:.5rem;--s3:.75rem;--s4:1rem;--s5:1.5rem;--s6:2rem;--s7:3rem;--s8:4.5rem;
+--font-display:"Plus Jakarta Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+--font-body:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+--xs:clamp(.75rem,.72rem + .08vw,.8125rem);
+--sm:clamp(.875rem,.84rem + .1vw,.9375rem);
+--md:clamp(1rem,.96rem + .12vw,1.0625rem);
+--lg:clamp(1.125rem,1.05rem + .25vw,1.3125rem);
+--xl:clamp(1.375rem,1.15rem + .7vw,1.75rem);
+--xxl:clamp(1.75rem,1.35rem + 1.4vw,2.5rem);
+--xxxl:clamp(2.1rem,1.4rem + 3vw,3.4rem);
+}
+@media(prefers-color-scheme:dark){
+:root{
+--surface:#0B1120;--raised:#111A2E;--inverse:#F8FAFC;--text:#E8EEF7;--muted:#A6B4C6;
+--border:rgb(232 238 247/.14);--accent:#818CF8;--focus:#FBBF24;
+--shadow:0 1px 2px rgb(0 0 0/.35),0 10px 30px rgb(0 0 0/.25);
+--shadow-lg:0 2px 8px rgb(0 0 0/.4),0 24px 60px rgb(0 0 0/.35)
+}}
+:root[data-theme="light"]{--surface:var(--off-white);--raised:#fff;--inverse:var(--ink);--text:var(--ink);--muted:var(--slate);--border:#E2E8F0;--accent:var(--indigo);--focus:var(--amber)}
+:root[data-theme="dark"]{--surface:#0B1120;--raised:#111A2E;--inverse:#F8FAFC;--text:#E8EEF7;--muted:#A6B4C6;--border:rgb(232 238 247/.14);--accent:#818CF8;--focus:#FBBF24}
+}
+
+@layer base{
+html{scroll-behavior:smooth}
+body{background:var(--surface);color:var(--text);font-family:var(--font-body);font-size:var(--md);line-height:1.65;min-height:100dvh;overflow-x:hidden}
+h1,h2,h3,h4{font-family:var(--font-display);line-height:1.14;text-wrap:balance}
+p{text-wrap:pretty}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:none;box-shadow:var(--ring);border-radius:6px}
+:user-invalid{border-color:var(--danger)}
+.skip-link{position:absolute;left:1rem;top:-100px;z-index:100;background:var(--indigo);color:#fff;padding:.75rem 1rem;border-radius:var(--radius-sm)}
+.skip-link:focus{top:1rem}
+::selection{background:rgb(79 70 229/.25)}
+}
+
+@layer layout{
+.container{width:min(1200px,100% - 2.5rem);margin-inline:auto}
+.section{padding-block:clamp(3rem,6vw,5.5rem)}
+.section-head{max-width:58ch;margin-bottom:var(--s6)}
+.eyebrow{display:inline-flex;align-items:center;gap:.45rem;color:var(--accent);font-weight:800;font-size:var(--xs);letter-spacing:.09em;text-transform:uppercase}
+.grid{display:grid;gap:var(--s5)}
+.two{grid-template-columns:1fr}
+.three{grid-template-columns:1fr}
+.four{grid-template-columns:1fr}
+@media(min-width:720px){.two{grid-template-columns:repeat(2,minmax(0,1fr))}.three{grid-template-columns:repeat(2,minmax(0,1fr))}.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1024px){.three{grid-template-columns:repeat(3,minmax(0,1fr))}.four{grid-template-columns:repeat(4,minmax(0,1fr))}}
+}
+
+@layer components{
+.trust-bar{background:var(--ink);color:#DDE6F3;font-size:var(--xs);padding:.6rem 0;text-align:center}
+.trust-bar strong{color:#FCD34D}
+.site-header{position:sticky;top:0;z-index:50;background:color-mix(in oklab,var(--surface) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding-block:.8rem}
+.brand{display:flex;align-items:center;gap:.6rem;font-family:var(--font-display);font-weight:800;font-size:1.05rem;text-decoration:none}
+.brand-mark{inline-size:2.25rem;block-size:2.25rem;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--indigo),#7C3AED);color:#fff}
+.nav-links{display:none;gap:1.1rem;font-size:var(--sm);font-weight:650}
+.nav-links a{text-decoration:none;color:var(--muted);padding:.5rem;border-radius:6px}
+.nav-links a:hover,.nav-links a[aria-current="true"]{color:var(--text);background:color-mix(in oklab,var(--indigo) 10%,transparent)}
+.nav-actions{display:flex;align-items:center;gap:.55rem}
+.sign-in{display:none;text-decoration:none;font-weight:700;padding:.55rem .7rem;border-radius:999px;color:var(--muted)}
+@media(min-width:1000px){.nav-links{display:flex}.sign-in{display:inline-flex}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:44px;padding:.7rem 1.15rem;border-radius:999px;font-weight:750;text-decoration:none;border:1px solid transparent;transition:transform .18s,background .18s,box-shadow .18s}
+.btn-primary{background:var(--indigo);color:#fff;box-shadow:var(--shadow)}
+.btn-primary:hover{background:var(--indigo-dark);transform:translateY(-1px)}
+.btn-ghost{border-color:var(--border);color:var(--text);background:var(--raised)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sm{min-height:40px;padding:.45rem .85rem;font-size:var(--sm)}
+
+.hero{position:relative;overflow:hidden;background:linear-gradient(155deg,var(--ink) 0%,#151E38 55%,#0B1120 100%);color:#E8EEF7;padding-block:clamp(3rem,7vw,6rem)}
+.hero-grid{display:grid;gap:var(--s6);align-items:center;position:relative}
+@media(min-width:1000px){.hero-grid{grid-template-columns:1.05fr .95fr}}
+.hero h1{font-size:var(--xxxl);color:#fff}
+.hero p{color:#C3D0E2;max-width:52ch}
+.hero-actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:var(--s5)}
+.hero-badges{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:var(--s5)}
+.chip{display:inline-flex;align-items:center;gap:.45rem;background:rgb(255 255 255/.08);border:1px solid rgb(255 255 255/.16);padding:.5rem .75rem;border-radius:999px;font-size:var(--xs);font-weight:700}
+.hero-art{position:absolute;inset:0;pointer-events:none;opacity:.55}
+.hero-art circle{animation:pulse 18s ease-in-out infinite alternate}
+@keyframes pulse{from{transform:translateY(0)}to{transform:translateY(-24px)}}
+
+.card{container-type:inline-size;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(1.15rem,3cqi,1.75rem)}
+.card h3{font-size:var(--lg);margin-bottom:.4rem}
+.card p{color:var(--muted);font-size:var(--sm)}
+.card-label{display:inline-flex;align-items:center;gap:.4rem;font-size:var(--xs);font-weight:800;color:var(--indigo);background:color-mix(in oklab,var(--indigo) 10%,transparent);padding:.3rem .6rem;border-radius:999px;margin-bottom:.8rem}
+.card ul{margin-top:.8rem;display:grid;gap:.45rem;font-size:var(--sm);color:var(--muted)}
+.card li{display:flex;gap:.5rem}
+.card li svg{flex:none;margin-top:.2rem;color:var(--emerald)}
+.card-note{margin-top:.9rem;padding-top:.8rem;border-top:1px dashed var(--border);font-size:var(--xs);color:var(--muted)}
+
+.feed-card{background:var(--raised);color:var(--text);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:clamp(1.1rem,3cqi,1.6rem);border:1px solid var(--border)}
+.feed-head{display:flex;justify-content:space-between;align-items:start;gap:1rem}
+.mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:.3rem;background:color-mix(in oklab,var(--slate) 12%,transparent);padding:.25rem;border-radius:999px;font-size:var(--xs);font-weight:750}
+.mode-toggle button{padding:.5rem .65rem;border-radius:999px;color:var(--muted)}
+.mode-toggle button[aria-pressed="true"]{background:var(--indigo);color:#fff}
+.feed-list{display:grid;gap:.65rem;margin-top:1rem}
+.feed-item{display:grid;grid-template-columns:auto 1fr auto;gap:.75rem;align-items:center;border:1px solid var(--border);border-radius:var(--radius);padding:.8rem;background:var(--surface)}
+.portal-tag{font-size:.65rem;font-weight:800;padding:.2rem .45rem;border-radius:999px;background:color-mix(in oklab,var(--indigo) 12%,transparent);color:var(--accent)}
+.match{font-family:var(--font-display);font-weight:850;color:var(--emerald-dark);font-variant-numeric:tabular-nums}
+.status{font-size:var(--xs);font-weight:750;padding:.3rem .55rem;border-radius:999px}
+.status-submitted{background:color-mix(in oklab,var(--emerald) 16%,transparent);color:var(--emerald-dark)}
+.status-review{background:color-mix(in oklab,var(--amber) 20%,transparent);color:var(--amber-dark)}
+.status-generated{background:color-mix(in oklab,var(--indigo) 12%,transparent);color:var(--accent)}
+.feed-note{margin-top:.9rem;font-size:var(--xs);color:var(--muted)}
+
+.simulator{display:grid;gap:var(--s5)}
+@media(min-width:1000px){.simulator{grid-template-columns:1fr 1fr}}
+.field{display:grid;gap:.4rem;margin-bottom:1rem}
+.field label{font-weight:700;font-size:var(--sm)}
+.help{font-size:var(--xs);color:var(--muted)}
+.select,.input,.textarea{inline-size:100%;min-height:48px;padding:.7rem .85rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface)}
+.textarea{min-height:130px;resize:vertical}
+.keyword{display:inline-block;margin:.15rem .2rem 0 0;padding:.2rem .45rem;border-radius:999px;font-size:var(--xs);font-weight:800;background:color-mix(in oklab,var(--emerald) 14%,transparent);color:var(--emerald-dark)}
+.cv-output{border:1px solid var(--border);border-radius:var(--radius);padding:1rem;background:var(--surface);min-height:280px}
+.cv-title{font-family:var(--font-display);font-weight:800;font-size:var(--md)}
+.cv-line{font-size:var(--sm);color:var(--muted);margin-top:.35rem}
+.cv-bullet{display:flex;gap:.5rem;margin-top:.55rem;font-size:var(--sm)}
+.cv-bullet svg{flex:none;margin-top:.2rem;color:var(--emerald)}
+.score-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1rem}
+.score{font-family:var(--font-display);font-weight:850;font-size:var(--xl);font-variant-numeric:tabular-nums}
+.score.good{color:var(--emerald-dark)}
+.score.low{color:var(--amber-dark)}
+.uk-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:var(--xs);font-weight:800;color:var(--emerald-dark);background:color-mix(in oklab,var(--emerald) 12%,transparent);padding:.35rem .6rem;border-radius:999px}
+.view-toggle{display:grid;grid-template-columns:1fr 1fr;gap:.3rem;background:color-mix(in oklab,var(--slate) 10%,transparent);padding:.25rem;border-radius:999px;margin-bottom:1rem}
+.view-toggle button{padding:.5rem;border-radius:999px;font-size:var(--xs);font-weight:800;color:var(--muted)}
+.view-toggle button[aria-pressed="true"]{background:var(--indigo);color:#fff}
+
+.portal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem}
+.portal{display:grid;place-items:center;gap:.35rem;border:1px solid var(--border);border-radius:var(--radius-sm);padding:.85rem .5rem;background:var(--raised);font-size:var(--xs);font-weight:750;text-align:center}
+.portal span{font-size:.65rem;color:var(--muted);font-weight:650}
+.ats-note{margin-top:1rem;font-size:var(--xs);color:var(--muted)}
+
+.slider-row{display:flex;align-items:center;gap:.8rem}
+input[type="range"]{flex:1;accent-color:var(--indigo);min-height:44px}
+.number-box{inline-size:6.5rem;padding:.55rem .65rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-variant-numeric:tabular-nums;font-weight:750}
+.result-grid{display:grid;gap:.7rem}
+.result{display:flex;justify-content:space-between;gap:1rem;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.8rem .9rem}
+.result dt{font-size:var(--xs);color:var(--muted);font-weight:750}
+.result dd{margin:0;font-family:var(--font-display);font-weight:850;font-variant-numeric:tabular-nums;font-size:var(--lg)}
+.days-reclaimed{display:flex;gap:.3rem;margin-top:.75rem}
+.day{inline-size:1.35rem;block-size:1.35rem;border-radius:5px;background:color-mix(in oklab,var(--emerald) 20%,transparent);border:1px solid color-mix(in oklab,var(--emerald) 40%,transparent)}
+.day.empty{background:transparent;border-color:var(--border)}
+.disclaimer{font-size:var(--xs);color:var(--muted);margin-top:1rem}
+
+.process{counter-reset:step}
+.process-card{position:relative;padding-top:2.5rem}
+.process-card::before{counter-increment:step;content:counter(step);position:absolute;top:-1rem;left:1.25rem;inline-size:2.4rem;block-size:2.4rem;border-radius:50%;display:grid;place-items:center;background:var(--indigo);color:#fff;font-weight:850;font-family:var(--font-display)}
+
+.billing-toggle{display:inline-grid;grid-template-columns:1fr 1fr;gap:.3rem;background:color-mix(in oklab,var(--slate) 10%,transparent);padding:.3rem;border-radius:999px;margin-bottom:var(--s5)}
+.billing-toggle button{padding:.55rem 1rem;border-radius:999px;font-size:var(--sm);font-weight:800;color:var(--muted)}
+.billing-toggle button[aria-pressed="true"]{background:var(--indigo);color:#fff}
+.price-card{position:relative;display:grid;align-content:start;gap:.8rem}
+.price-card.featured{border-color:var(--indigo);box-shadow:var(--shadow-lg)}
+.price{font-family:var(--font-display);font-weight:850;font-size:var(--xxl);font-variant-numeric:tabular-nums}
+.price span{font-size:var(--sm);color:var(--muted);font-weight:650}
+.popular{position:absolute;top:-.8rem;left:50%;transform:translateX(-50%);background:var(--indigo);color:#fff;font-size:var(--xs);font-weight:800;padding:.25rem .65rem;border-radius:999px}
+.plan-list{display:grid;gap:.5rem;font-size:var(--sm);color:var(--muted)}
+.plan-list li{display:flex;gap:.5rem}
+.plan-list svg{flex:none;margin-top:.2rem;color:var(--emerald)}
+
+.faq-item{border:1px solid var(--border);border-radius:var(--radius);background:var(--raised);overflow:hidden}
+.faq-item+.faq-item{margin-top:.7rem}
+.faq-item summary{display:flex;justify-content:space-between;align-items:center;gap:1rem;cursor:pointer;padding:1rem 1.15rem;font-weight:750;list-style:none;min-height:44px}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:"+";font-family:var(--font-display);font-size:1.3rem;color:var(--accent);transition:transform .2s}
+.faq-item[open] summary::after{transform:rotate(45deg)}
+.faq-answer{padding:0 1.15rem 1.15rem;color:var(--muted);font-size:var(--sm)}
+
+.cta-banner{background:linear-gradient(120deg,var(--indigo),#7C3AED);color:#fff;border-radius:var(--radius-lg);padding:clamp(1.5rem,5cqi,3rem);text-align:center;box-shadow:var(--shadow-lg)}
+.cta-banner h2{font-size:var(--xxl);color:#fff}
+.cta-banner p{color:rgb(255 255 255/.82);max-width:52ch;margin-inline:auto}
+
+.site-footer{background:var(--ink);color:#C3D0E2;padding-block:var(--s7);font-size:var(--sm)}
+.footer-grid{display:grid;gap:var(--s6)}
+@media(min-width:900px){.footer-grid{grid-template-columns:1.3fr 1fr 1fr}}
+.footer-title{color:#fff;font-family:var(--font-display);font-weight:800;margin-bottom:.7rem}
+.footer-links{display:grid;gap:.5rem}
+.footer-links a{color:#C3D0E2;text-decoration:none}
+.footer-links a:hover{color:#fff;text-decoration:underline}
+.legal{margin-top:var(--s6);padding-top:var(--s5);border-top:1px solid rgb(255 255 255/.14);font-size:var(--xs);color:#9AA9BC}
+
+.capability-button{position:fixed;right:1rem;bottom:1rem;z-index:60;inline-size:3rem;block-size:3rem;border-radius:50%;background:var(--ink);color:#fff;box-shadow:var(--shadow-lg);display:grid;place-items:center}
+.capability-panel{position:fixed;right:1rem;bottom:4.5rem;z-index:60;inline-size:min(22rem,calc(100vw - 2rem));background:var(--raised);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:1rem;font-size:var(--xs);display:none}
+.capability-panel[data-open="true"]{display:block}
+.capability-list{display:grid;gap:.45rem;margin-top:.7rem}
+.capability{display:flex;justify-content:space-between;gap:.6rem}
+.cap-ok{color:var(--emerald-dark);font-weight:800}
+.cap-off{color:var(--danger);font-weight:800}
+}
+
+@layer utilities{
+.visually-hidden{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.mt-2{margin-top:var(--s2)}.mt-4{margin-top:var(--s4)}.muted{color:var(--muted)}.small{font-size:var(--sm)}.xs{font-size:var(--xs)}
+}
+
+@layer motion{
+@media(prefers-reduced-motion:no-preference){
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.8,.2,1)}
+.reveal.is-visible{opacity:1;transform:none}
+.btn:hover{transform:translateY(-1px)}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}html{scroll-behavior:auto}}
+}
+</style>
+</head>
+<body data-theme="system">
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<div class="trust-bar">
+  <p><strong>Aggregating 45+ UK Job Boards &amp; Direct ATS Portals</strong> • UK 2-Page A4 CV Standard • ICO-Aligned Human Review Mode • GDPR Encrypted</p>
+</div>
+
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="#top" aria-label="OneApply AI home">
+      <span class="brand-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/><circle cx="12" cy="12" r="4"/></svg></span>
+      OneApply AI
+    </a>
+    <nav aria-label="Primary">
+      <ul class="nav-links">
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#portals">Supported Portals</a></li>
+        <li><a href="#tailoring">AI CV Tailoring Demo</a></li>
+        <li><a href="#roi">Time &amp; Interview Calculator</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#faqs">FAQs</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <a class="sign-in" href="#sign-in">Sign In</a>
+      <a class="btn btn-primary btn-sm" href="#upload">Upload Master CV Free</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <svg class="hero-art" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <defs><radialGradient id="heroGlow" cx=".7" cy=".2" r=".7"><stop offset="0" stop-color="#4F46E5" stop-opacity=".35"/><stop offset="1" stop-color="#4F46E5" stop-opacity="0"/></radialGradient></defs>
+      <rect width="1200" height="700" fill="url(#heroGlow)"/>
+      <circle cx="990" cy="150" r="180" fill="#4F46E5" opacity=".13"/>
+      <circle cx="180" cy="580" r="220" fill="#10B981" opacity=".1"/>
+    </svg>
+    <div class="container hero-grid">
+      <div>
+        <p class="eyebrow" style="color:#A5B4FC">UK job search, without the repetition</p>
+        <h1 id="hero-title">Register Once. Let AI Match, Tailor Your CV &amp; Apply Across Every Job Portal.</h1>
+        <p class="mt-4">Upload one Master CV and complete your right-to-work and notice-period profile once. OneApply AI continuously scans Reed, Totaljobs, LinkedIn, Indeed, Workday, Greenhouse and employer career pages, then creates a role-specific UK CV and application for every strong match.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#upload">Create Your Universal Profile</a>
+          <a class="btn btn-ghost" style="color:#E8EEF7;border-color:rgb(255 255 255/.25)" href="#tailoring">Test Live AI CV Tailoring</a>
+        </div>
+        <ul class="hero-badges">
+          <li class="chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2" aria-hidden="true"><path d="m12 2 3 6.5 7 .8-5.2 4.7L18.3 21 12 17.3 5.7 21l1.5-7L2 9.3l7-.8Z"/></svg>4.9/5 Trustpilot</li>
+          <li class="chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#A5B4FC" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>45+ Job Boards &amp; ATS Integrated</li>
+          <li class="chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6EE7B7" stroke-width="2" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>3.4x Higher Interview Rate*</li>
+        </ul>
+        <p class="xs mt-2" style="color:#9AA9BC">*Illustrative benchmark based on internal product modelling; individual outcomes vary.</p>
+      </div>
+
+      <section class="feed-card" aria-labelledby="feedTitle">
+        <div class="feed-head">
+          <div>
+            <h2 id="feedTitle" style="font-size:var(--xl)">Live Application Feed</h2>
+            <p class="small muted mt-2">One Master Profile → multiple tailored applications.</p>
+          </div>
+          <div class="mode-toggle" role="group" aria-label="Application mode">
+            <button type="button" id="copilotMode" aria-pressed="true">Co-Pilot</button>
+            <button type="button" id="autopilotMode" aria-pressed="false">Auto-Pilot</button>
+          </div>
+        </div>
+        <ul class="feed-list" id="feedList"></ul>
+        <p class="feed-note" id="feedNote" role="status" aria-live="polite">Co-Pilot Mode is enabled by default: review each tailored CV, cover letter and screening answers before it is sent.</p>
+      </section>
+    </div>
+  </section>
+
+  <section class="section" id="tailoring" aria-labelledby="tailoring-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">AI CV Customiser &amp; ATS Match</p>
+        <h2 id="tailoring-title" style="font-size:var(--xxl)">See how one Master CV becomes role-specific</h2>
+        <p class="muted mt-2">Choose a sample UK advert or paste your own job description. The simulator highlights likely ATS keywords and shows how verified experience can be reframed for the role—without inventing skills or employment history.</p>
+      </div>
+
+      <div class="simulator">
+        <form class="card" id="tailorForm">
+          <div class="field">
+            <label for="jobPreset">Choose a sample UK job advert</label>
+            <select class="select" id="jobPreset">
+              <option value="software">Software Engineer — London, Hybrid</option>
+              <option value="marketing">Marketing Manager — Manchester, Hybrid</option>
+              <option value="project">Project Manager — Birmingham, Hybrid</option>
+              <option value="custom">Paste my own job description</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="jobDescription">Job description</label>
+            <textarea class="textarea" id="jobDescription" placeholder="Paste a job advert or select a sample above."></textarea>
+            <p class="help">The demo analyses visible wording only. It does not access employer systems or submit an application.</p>
+          </div>
+          <div>
+            <span class="help" style="font-weight:700">Detected ATS keywords</span>
+            <div class="mt-2" id="keywordList"></div>
+          </div>
+          <div class="mt-4">
+            <button class="btn btn-primary" type="submit">Generate Tailored CV Preview</button>
+          </div>
+        </form>
+
+        <div class="card">
+          <div class="view-toggle" role="group" aria-label="CV comparison view">
+            <button type="button" id="genericView" aria-pressed="true">Generic Master CV</button>
+            <button type="button" id="tailoredView" aria-pressed="false">OneApply AI Tailored UK CV</button>
+          </div>
+          <div id="cvOutput" class="cv-output" aria-live="polite"></div>
+          <div class="score-row">
+            <div><span class="help">ATS match score</span><div class="score low" id="atsScore">54%</div></div>
+            <span class="uk-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>2 Pages A4 • British Spelling • No Photo/DOB</span>
+          </div>
+          <p class="disclaimer">Demonstration only. ATS scores vary by employer system and cannot guarantee shortlisting.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="portals" aria-labelledby="portals-title" style="background:color-mix(in oklab,var(--indigo) 5%,var(--surface))">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Universal Portal &amp; ATS Ecosystem</p>
+        <h2 id="portals-title" style="font-size:var(--xxl)">One profile. Fewer logins. Less form-filling.</h2>
+        <p class="muted mt-2">OneApply AI is designed to reduce repeated data entry across job boards and direct employer application systems. Portal availability and form behaviour can change; connections are shown as illustrative integrations.</p>
+      </div>
+      <div class="portal-grid" id="portalGrid"></div>
+      <p class="ats-note">For supported direct ATS journeys, OneApply can pre-fill multi-page Workday and Greenhouse forms with your saved employment history, UK right-to-work share code, notice period and preferred working arrangements. You retain control over what is submitted.</p>
+    </div>
+  </section>
+
+  <section class="section" id="features" aria-labelledby="features-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Core AI Platform Features</p>
+        <h2 id="features-title" style="font-size:var(--xxl)">Everything you need to apply smarter</h2>
+      </div>
+      <div class="three-col" id="featureCards"></div>
+    </div>
+  </section>
+
+  <section class="section" id="roi" aria-labelledby="roi-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Time-Saved &amp; Interview ROI Calculator</p>
+        <h2 id="roi-title" style="font-size:var(--xxl)">Calculate the time OneApply could reclaim</h2>
+        <p class="muted mt-2">Move the sliders to model your current manual application workload. Results are illustrative and depend on role type, application quality and employer response rates.</p>
+      </div>
+      <div class="simulator">
+        <form class="card" id="roiForm">
+          <div class="field">
+            <label for="applicationsRange">Target applications per week</label>
+            <div class="slider-row">
+              <input id="applicationsRange" type="range" min="5" max="100" step="1" value="25" aria-describedby="applicationsHelp">
+              <label class="visually-hidden" for="applicationsInput">Target applications per week</label>
+              <input id="applicationsInput" class="number-box" type="number" inputmode="numeric" min="5" max="100" value="25">
+            </div>
+            <p class="help" id="applicationsHelp">5 to 100 applications each week.</p>
+          </div>
+          <div class="field">
+            <label for="minutesRange">Average minutes spent customising CV and filling forms manually</label>
+            <div class="slider-row">
+              <input id="minutesRange" type="range" min="15" max="60" step="1" value="32" aria-describedby="minutesHelp">
+              <label class="visually-hidden" for="minutesInput">Average minutes spent per manual application</label>
+              <input id="minutesInput" class="number-box" type="number" inputmode="numeric" min="15" max="60" value="32">
+            </div>
+            <p class="help" id="minutesHelp">15 to 60 minutes per application.</p>
+          </div>
+          <button class="btn btn-ghost" type="button" id="resetRoi">Restore Defaults</button>
+        </form>
+
+        <div class="card">
+          <h3>Your projected monthly impact</h3>
+          <dl class="result-grid mt-4">
+            <div class="result"><dt>Hours saved per month</dt><dd id="hoursSaved">17.6 hours</dd></div>
+            <div class="result"><dt>Full working days reclaimed</dt><dd id="daysReclaimed">2.2 days</dd></div>
+            <div class="result"><dt>Estimated ATS pass-rate boost</dt><dd id="atsBoost">+68%</dd></div>
+            <div class="result"><dt>Projected monthly interviews</dt><dd id="monthlyInterviews">8 interviews</dd></div>
+          </dl>
+          <div class="days-reclaimed" id="dayVisual" aria-hidden="true"></div>
+          <p class="disclaimer">Interview projection assumes a baseline 8% interview rate, increased by the modelled ATS improvement. This is a planning estimate, not a guarantee.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how-it-works" aria-labelledby="process-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">How It Works</p>
+        <h2 id="process-title" style="font-size:var(--xxl)">From one profile to tracked interviews</h2>
+      </div>
+      <div class="four-col process">
+        <article class="card process-card"><h3>Upload Your Master CV &amp; Preferences</h3><p>Set target roles, minimum £ salary, hybrid/remote radius and UK right-to-work details once.</p></article>
+        <article class="card process-card"><h3>AI Scans 45+ Portals Continuously</h3><p>The engine deduplicates listings and surfaces high-match roles across job boards and direct employer ATS sites.</p></article>
+        <article class="card process-card"><h3>Instant Per-Job Tailoring</h3><p>For each match, AI prepares a role-specific CV, cover letter and screening answers based on your verified Master CV.</p></article>
+        <article class="card process-card"><h3>Approve or Auto-Send &amp; Track Interviews</h3><p>Review packets in Co-Pilot mode or enable Auto-Pilot, then follow every application in one dashboard.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="pricing" aria-labelledby="pricing-title" style="background:color-mix(in oklab,var(--indigo) 5%,var(--surface))">
+    <div class="container">
+      <div class="section-head center" style="margin-inline:auto;text-align:center">
+        <p class="eyebrow">Transparent Pricing</p>
+        <h2 id="pricing-title" style="font-size:var(--xxl)">Choose the level of automation you need</h2>
+        <p class="muted mt-2">All paid plans include UK-based support, encrypted storage and the ability to switch to Co-Pilot review at any time.</p>
+      </div>
+      <div class="center"><div class="billing-toggle" role="group" aria-label="Billing period"><button type="button" id="monthlyBilling" aria-pressed="true">Monthly</button><button type="button" id="quarterlyBilling" aria-pressed="false">Quarterly — Save 25%</button></div></div>
+      <div class="three-col" id="pricingCards"></div>
+      <p class="xs muted center mt-4">Prices shown in £ GBP and exclude VAT where applicable. Plans are illustrative and subject to the applicable terms.</p>
+    </div>
+  </section>
+
+  <section class="section" id="faqs" aria-labelledby="faq-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">FAQs</p>
+        <h2 id="faq-title" style="font-size:var(--xxl)">Clear answers before you apply</h2>
+      </div>
+      <div id="faqList"></div>
+    </div>
+  </section>
+
+  <section class="section" id="upload" aria-labelledby="upload-title">
+    <div class="container">
+      <div class="cta-banner">
+        <p class="eyebrow" style="color:#C7D2FE">Start free</p>
+        <h2 id="upload-title">Stop Filling Out the Same Form 100 Times</h2>
+        <p class="mt-4">Create your universal profile, upload your Master CV and let OneApply AI find, tailor and track your next opportunity.</p>
+        <div class="hero-actions" style="justify-content:center">
+          <a class="btn btn-primary" style="background:#fff;color:var(--indigo)" href="#top">Upload Master CV Free</a>
+          <a class="btn btn-ghost" style="color:#fff;border-color:rgb(255 255 255/.4)" href="#tailoring">Try the CV Tailoring Demo</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <p class="footer-title">OneApply AI</p>
+        <p>OneApply AI Ltd is a trading name used for illustrative purposes. Registered in England &amp; Wales, company number 12345678. Registered office: 18 Innovation Way, London EC2A 4NE, United Kingdom.</p>
+        <p class="mt-4">ICO Data Protection registration: <strong>ZA123456</strong>. Organisations processing personal data generally need to pay the ICO data protection fee unless exempt; fees vary by organisation size and turnover. [16][25]</p>
+      </div>
+      <nav aria-label="Footer policies">
+        <p class="footer-title">Trust &amp; compliance</p>
+        <div class="footer-links">
+          <a href="#privacy">Privacy Policy</a>
+          <a href="#security">GDPR Security Center</a>
+          <a href="#terms">Terms of Service</a>
+          <a href="#faqs">FAQs</a>
+        </div>
+      </nav>
+      <div>
+        <p class="footer-title">Human review</p>
+        <p>Co-Pilot review is enabled by default. You can approve, edit or reject every tailored application before submission. The ICO highlights meaningful human review, reviewer training, manageable workloads and logged override decisions as important controls in AI systems. [27]</p>
+      </div>
+    </div>
+    <div class="legal">
+      <p>OneApply AI provides application-preparation and productivity tools. It does not guarantee employment, interviews, ATS progression or a hiring outcome. CV content is generated only from information you provide and verify; do not submit inaccurate information to employers.</p>
+      <p class="mt-2">© <span id="year"></span> OneApply AI Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<button class="capability-button" id="capabilityButton" aria-expanded="false" aria-controls="capabilityPanel" aria-label="Open platform capabilities">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/></svg>
+</button>
+<aside class="capability-panel" id="capabilityPanel" aria-label="Platform capabilities">
+  <strong>Platform capabilities</strong>
+  <p class="mt-2">This page adapts where your browser supports modern features.</p>
+  <ul class="capability-list" id="capabilityList"></ul>
+</aside>
+
+<script type="module">
+const state={applications:25,minutes:32,billing:'monthly',mode:'copilot',view:'generic',preset:'software'};
+const storage={get(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},remove(k){try{localStorage.removeItem(k)}catch{}}};
+const gbp=new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP',maximumFractionDigits:0});
+
+const feedItems=[
+{role:'Senior Product Manager',company:'Monzo',portal:'Greenhouse ATS',match:96,status:'submitted',label:'CV Tailored & Submitted'},
+{role:'Lead Data Analyst',company:'Lloyds Banking Group',portal:'Workday',match:92,status:'review',label:'Awaiting 1-Click Approval'},
+{role:'Operations Lead',company:'Octopus Energy',portal:'Reed / Direct',match:89,status:'generated',label:'Cover Letter Generated'}
+];
+
+const jobPresets={
+software:{title:'Software Engineer',location:'London, Hybrid',salary:'£65,000–£80,000',keywords:['Agile','CI/CD','TypeScript','AWS','Stakeholder Management','Test Automation','React','Docker'],generic:{summary:'Experienced software professional seeking a challenging engineering role.',bullets:['Worked on software projects','Used modern tools','Collaborated with colleagues','Improved systems']},tailored:{summary:'Software Engineer with verified experience delivering user-focused web products in Agile teams. Experienced in TypeScript, React, CI/CD and AWS-based delivery, with a practical focus on test automation, maintainability and stakeholder communication.',bullets:['Delivered TypeScript and React features within Agile sprint cycles, coordinating with product and design stakeholders.','Improved deployment reliability through CI/CD pipelines, automated tests and Docker-based local environments.','Partnered with product, design and engineering colleagues to translate requirements into maintainable technical solutions.','Used AWS services and observability practices to support resilient, production-ready delivery.']}},
+marketing:{title:'Marketing Manager',location:'Manchester, Hybrid',salary:'£48,000–£58,000',keywords:['ROI','SEO','Campaign Management','Stakeholder Management','Google Analytics','Content Strategy','CRM','Brand'],generic:{summary:'Marketing professional with experience across campaigns and digital channels.',bullets:['Managed marketing campaigns','Used analytics tools','Worked with teams','Created content']},tailored:{summary:'Marketing Manager with verified experience planning integrated campaigns, improving acquisition performance and translating customer insight into practical content strategy. Strong working knowledge of SEO, CRM, Google Analytics and cross-functional stakeholder management.',bullets:['Planned and optimised multi-channel campaigns, using Google Analytics and CRM insight to inform targeting and creative decisions.','Developed content strategies aligned to brand positioning, customer needs and measurable acquisition goals.','Reported campaign ROI and performance to senior stakeholders, recommending practical improvements based on evidence.','Coordinated with product, sales and external partners to deliver consistent customer journeys across channels.']}},
+project:{title:'Project Manager',location:'Birmingham, Hybrid',salary:'£45,000–£58,000',keywords:['Stakeholder Management','Risk Management','Agile','PRINCE2','Budget Management','Reporting','Change Management','Delivery'],generic:{summary:'Project professional with experience managing teams and delivering projects.',bullets:['Managed projects','Reported progress','Worked with stakeholders','Managed risks']},tailored:{summary:'Project Manager with verified experience leading cross-functional delivery, managing competing priorities and maintaining clear stakeholder communication. Experienced in Agile delivery, risk management, budget oversight and structured reporting.',bullets:['Led cross-functional delivery plans, coordinating priorities, dependencies and risks across business and technical teams.','Maintained stakeholder engagement through clear reporting, decision logs and practical escalation routes.','Managed project budgets and change requests, balancing scope, schedule and quality requirements.','Applied Agile practices and structured governance to keep delivery aligned with business outcomes.']}}
+};
+
+const portals=[
+['Reed','Job board'],['Totaljobs','Job board'],['CV-Library','Job board'],['Indeed','Job board'],['LinkedIn','Job board'],['Glassdoor','Job board'],['CWJobs','Job board'],['NHS Jobs','Public sector'],['Civil Service Jobs','Public sector'],['Workday','Direct ATS'],['Greenhouse','Direct ATS'],['Lever','Direct ATS'],['iCIMS','Direct ATS'],['Oracle Taleo','Direct ATS'],['SmartRecruiters','Direct ATS'],['Teamtailor','Direct ATS']
+];
+
+const features=[
+['Register Once, Sync Everywhere','Enter employment history, education, UK right-to-work status and notice period once—never retype a 10-step Workday form again.',['One universal candidate profile','Reusable work history and education','Right-to-work details stored securely']],
+['Semantic AI Job Matching & Deduplication','Aggregates roles across 45+ portals, removes duplicate recruiter reposts and ranks jobs by true skill fit, salary in £ GBP and remote/hybrid rules.',['Cross-portal role discovery','Duplicate repost detection','Salary and work-pattern filters']],
+['Per-Role UK CV & Cover Letter Rewriting','Generates an ATS-optimised, British-English CV and bespoke cover letter tailored to every job description without fabricating experience.',['Role-specific CV versions','British English formatting','Verified-achievement alignment']],
+['Co-Pilot & Auto-Pilot Application Modes','Choose Co-Pilot to review and approve every tailored packet in one click, or Auto-Pilot to apply while you sleep.',['Co-Pilot enabled by default','Clear approval controls','Auto-Pilot opt-in']],
+['Unified Application & Interview Tracker','Replaces messy spreadsheets with one live Kanban pipeline tracking Matched → Tailored → Submitted → Viewed → Interview Booked across every portal.',['Single application timeline','Status and receipt tracking','Interview reminders']],
+['AI Interview Prep & Salary Intelligence','Generates role-specific interview questions based on the exact tailored CV sent, plus UK market salary benchmarks.',['CV-aligned interview questions','UK salary benchmarks','Preparation checklists']]
+];
+
+const plans=[
+{name:'Free Starter',monthly:0,quarterly:0,description:'Explore the platform and apply manually with AI support.',items:['Universal profile','Cross-portal job search & deduplication','5 AI-tailored CVs per month','Co-Pilot applications','Unified application tracker'],cta:'Start Free',featured:false},
+{name:'Career Accelerator',monthly:19,quarterly:14.25,description:'For active job seekers applying across multiple portals.',items:['Unlimited AI CV & cover letter tailoring','150 Co-Pilot or Auto-Pilot applications/month','Workday, Greenhouse and Reed support','ATS keyword scorer','Priority email support'],cta:'Choose Career Accelerator',featured:true},
+{name:'Executive / Unlimited',monthly:39,quarterly:29.25,description:'For senior candidates running a high-volume, multi-channel search.',items:['Unlimited Auto-Pilot applications','Priority direct-ATS submission','AI mock interview coach','LinkedIn profile optimiser','Dedicated onboarding session'],cta:'Choose Executive',featured:false}
+];
+
+const faqs=[
+['Does OneApply AI invent fake skills or experience on my CV?','No. OneApply AI strictly restructures and aligns verified achievements from your Master CV to the language and requirements of a role. It does not create qualifications, employers, dates or experience that you have not provided.'],
+['Can I review applications before they are sent to employers?','Yes. Co-Pilot review mode is enabled by default. You can review the tailored CV, cover letter and screening answers, make edits, and approve or reject each application before it is sent.'],
+['How does it handle Workday, Greenhouse, and multi-stage UK portals?','Where an integration is supported, OneApply pre-fills saved profile fields, employment history, right-to-work information and notice-period details. Complex or employer-specific questions are routed to Co-Pilot review rather than submitted automatically.'],
+['Are my CV and personal details shared with third-party recruiters?','Your data is used to deliver the service you request and is not sold. We apply GDPR-aligned safeguards, encryption in transit and at rest, role-based access and clear retention controls. You can update or delete your Master CV and profile data.'],
+['Does it format CVs for the UK market rather than US resumes?','Yes. The default output follows UK CV conventions: concise two-page A4 formatting, British English spelling, no photograph or date of birth, and achievement-focused bullet points.'],
+['Can Auto-Pilot submit inaccurate information?','No. Auto-Pilot only uses approved profile data and configured application rules. If a required question is unclear, missing or conflicts with your Master CV, the application is held for your review.']
+];
+
+const capabilities=[
+['View Transitions',()=>Boolean(document.startViewTransition),'Smooth visual changes between major views.'],
+['Scroll-driven animations',()=>CSS.supports('animation-timeline: scroll()'),'Scroll-linked visual effects.'],
+['Container queries',()=>CSS.supports('container-type: inline-size'),'Cards adapt to available space.'],
+['Container style queries',()=>CSS.supports('container style queries'),'Presentation can respond to custom properties.'],
+['CSS nesting',()=>CSS.supports('selector(&)'),'Organised component styles.'],
+['@scope',()=>CSS.supports('selector(@scope)'),'Bounded component styling.'],
+['Anchor positioning',()=>CSS.supports('anchor-name: --x'),'Popover positioning relative to triggers.'],
+['Popover API',()=>Boolean(HTMLElement.prototype.hasOwnProperty?.('popover')),'Accessible lightweight overlays.'],
+['Dialog element',()=>Boolean(window.HTMLDialogElement),'Native accessible modal dialogs.'],
+[':has()',()=>CSS.supports('selector(:has(a))'),'Parent-state styling.'],
+['field-sizing',()=>CSS.supports('field-sizing: content'),'Controls can grow with content.'],
+['Trusted Types',()=>Boolean(window.trustedTypes),'Safer HTML insertion controls.'],
+['Navigation API',()=>Boolean(window.navigation),'Modern client-side navigation.'],
+['Web Animations API',()=>Boolean(window.Element.prototype.animate),'JavaScript-driven interaction motion.'],
+['Canvas 2D',()=>Boolean(document.createElement('canvas').getContext('2d')),'Procedural visual artwork.'],
+['Web Audio',()=>Boolean(window.AudioContext||window.webkitAudioContext),'Optional user-initiated sound.'],
+['Clipboard API',()=>Boolean(navigator.clipboard),'One-tap copying.'],
+['Web Share',()=>Boolean(navigator.share),'Native sharing where available.'],
+['localStorage',()=>{try{localStorage.setItem('__oneapply','1');localStorage.removeItem('__oneapply');return true}catch{return false}},'Saves preferences on this device.']
+];
+
+const icon=(d)=>{const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('width','14');svg.setAttribute('height','14');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','2');svg.setAttribute('aria-hidden','true');const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',d);svg.append(p);return svg};
+
+const renderFeed=()=>{
+const list=document.getElementById('feedList');list.replaceChildren();
+feedItems.forEach(item=>{
+const li=document.createElement('li');li.className='feed-item';
+const left=document.createElement('div');
+const portal=document.createElement('span');portal.className='portal-tag';portal.textContent=item.portal;
+const match=document.createElement('div');match.className='match';match.textContent=`${item.match}% AI Match`;
+left.append(portal,match);
+const middle=document.createElement('div');
+const role=document.createElement('strong');role.textContent=`${item.role} @ ${item.company}`;
+const status=document.createElement('div');status.className=`status status-${item.status}`;
+if(state.mode==='copilot'&&item.status!=='submitted')status.textContent='Review Required';else status.textContent=item.label;
+middle.append(role,status);
+const action=document.createElement('button');action.className='btn btn-ghost btn-sm';
+action.textContent=state.mode==='copilot'&&item.status!=='submitted'?'Review':'View Receipt';
+action.addEventListener('click',()=>{
+document.getElementById('feedNote').textContent=state.mode==='copilot'&&item.status!=='submitted'?`Co-Pilot review opened for ${item.role} at ${item.company}. You can approve or edit before submission.`:`Receipt available for ${item.role} at ${item.company}.`;
+});
+li.append(left,middle,action);list.append(li);
+});
+document.getElementById('feedNote').textContent=state.mode==='copilot'?'Co-Pilot Mode is enabled by default: review each tailored CV, cover letter and screening answers before it is sent.':'Auto-Pilot Mode can submit suitable applications automatically. You can switch back to Co-Pilot at any time.';
+};
+
+const renderPortalGrid=()=>{
+const grid=document.getElementById('portalGrid');grid.replaceChildren();
+portals.forEach(([name,type])=>{const div=document.createElement('div');div.className='portal';const strong=document.createElement('strong');strong.textContent=name;const span=document.createElement('span');span.textContent=type;div.append(strong,span);grid.append(div)});
+};
+
+const renderFeatures=()=>{
+const wrap=document.getElementById('featureCards');wrap.replaceChildren();
+features.forEach(([title,description,items])=>{
+const card=document.createElement('article');card.className='card reveal';
+const label=document.createElement('span');label.className='card-label';label.textContent='Platform capability';
+const h3=document.createElement('h3');h3.textContent=title;
+const p=document.createElement('p');p.textContent=description;
+const ul=document.createElement('ul');
+items.forEach(text=>{const li=document.createElement('li');li.append(icon('m5 13 4 4L19 7'),document.createTextNode(text));ul.append(li)});
+card.append(label,h3,p,ul);wrap.append(card);
+});
+};
+
+const renderPricing=()=>{
+const wrap=document.getElementById('pricingCards');wrap.replaceChildren();
+plans.forEach(plan=>{
+const card=document.createElement('article');card.className='card price-card reveal'+(plan.featured?' featured':'');
+if(plan.featured){const badge=document.createElement('span');badge.className='popular';badge.textContent='Most Popular';card.append(badge)}
+const name=document.createElement('h3');name.textContent=plan.name;
+const price=document.createElement('div');price.className='price';
+const amount=state.billing==='monthly'?plan.monthly:plan.quarterly;
+price.textContent=amount===0?'£0':gbp.format(amount);
+const suffix=document.createElement('span');suffix.textContent=state.billing==='monthly'?' /month':' /month, billed quarterly';
+price.append(suffix);
+const desc=document.createElement('p');desc.textContent=plan.description;
+const ul=document.createElement('ul');ul.className='plan-list';
+plan.items.forEach(text=>{const li=document.createElement('li');li.append(icon('m5 13 4 4L19 7'),document.createTextNode(text));ul.append(li)});
+const cta=document.createElement('a');cta.className='btn '+(plan.featured?'btn-primary':'btn-ghost');cta.href='#upload';cta.textContent=plan.cta;
+card.append(name,price,desc,ul,cta);wrap.append(card);
+});
+};
+
+const renderFaq=()=>{
+const wrap=document.getElementById('faqList');wrap.replaceChildren();
+faqs.forEach(([q,a])=>{const details=document.createElement('details');details.className='faq-item';const summary=document.createElement('summary');summary.textContent=q;const answer=document.createElement('div');answer.className='faq-answer';answer.textContent=a;details.append(summary,answer);wrap.append(details)});
+};
+
+const detectKeywords=(text)=>{
+const all=[...new Set(Object.values(jobPresets).flatMap(p=>p.keywords))];
+const lower=text.toLowerCase();
+return all.filter(k=>lower.includes(k.toLowerCase()));
+};
+
+const renderTailor=()=>{
+const preset=state.preset==='custom'?jobPresets.software:jobPresets[state.preset];
+const text=document.getElementById('jobDescription').value.trim()||`${preset.title} role requiring ${preset.keywords.join(', ')}.`;
+const keywords=detectKeywords(text);
+const keywordList=document.getElementById('keywordList');keywordList.replaceChildren();
+if(!keywords.length){const p=document.createElement('p');p.className='help';p.textContent='No preset keywords detected. Add role-specific requirements to see keyword highlighting.';keywordList.append(p)}
+keywords.forEach(k=>{const span=document.createElement('span');span.className='keyword';span.textContent=k;keywordList.append(span)});
+
+const output=document.getElementById('cvOutput');output.replaceChildren();
+const data=state.view==='generic'?preset.generic:preset.tailored;
+const title=document.createElement('div');title.className='cv-title';title.textContent=state.view==='generic'?'Generic Master CV':'OneApply AI Tailored UK CV';
+const line=document.createElement('p');line.className='cv-line';line.textContent=`Target: ${preset.title} • ${preset.location} • ${preset.salary}`;
+const summary=document.createElement('p');summary.className='cv-line';summary.textContent=data.summary;
+output.append(title,line,summary);
+data.bullets.forEach(text=>{const div=document.createElement('div');div.className='cv-bullet';div.append(icon('m5 13 4 4L19 7'),document.createTextNode(text));output.append(div)});
+const score=document.getElementById('atsScore');
+const value=state.view==='generic'?54:95;
+score.textContent=`${value}%`;score.className='score '+(value>=80?'good':'low');
+storage.set('oneapply-tailor',{preset:state.preset,view:state.view});
+};
+
+const calculateRoi=()=>{
+const apps=state.applications,mins=state.minutes;
+const weeklyMinutes=apps*mins;
+const monthlyHours=weeklyMinutes*4.33/60;
+const days=monthlyHours/7.5;
+const boost=68;
+const baselineInterviews=apps*4.33*0.08;
+const interviews=Math.round(baselineInterviews*(1+boost/100));
+return{monthlyHours,days,boost,interviews};
+};
+
+const renderRoi=()=>{
+const result=calculateRoi();
+document.getElementById('hoursSaved').textContent=`${result.monthlyHours.toFixed(1)} hours`;
+document.getElementById('daysReclaimed').textContent=`${result.days.toFixed(1)} days`;
+document.getElementById('atsBoost').textContent=`+${result.boost}%`;
+document.getElementById('monthlyInterviews').textContent=`${result.interviews} interviews`;
+const visual=document.getElementById('dayVisual');visual.replaceChildren();
+const fullDays=Math.floor(result.days);
+for(let i=0;i<7;i++){const day=document.createElement('span');day.className='day'+(i<fullDays?'':' empty');visual.append(day)}
+document.getElementById('applicationsRange').value=state.applications;
+document.getElementById('applicationsInput').value=state.applications;
+document.getElementById('minutesRange').value=state.minutes;
+document.getElementById('minutesInput').value=state.minutes;
+storage.set('oneapply-roi',{applications:state.applications,minutes:state.minutes});
+};
+
+const bindPair=(rangeId,numberId,key)=>{
+const range=document.getElementById(rangeId),number=document.getElementById(numberId);
+range.addEventListener('input',()=>{state[key]=Number(range.value);renderRoi()});
+number.addEventListener('input',()=>{const value=Number(number.value);if(Number.isFinite(value)){state[key]=Math.min(Number(range.max),Math.max(Number(range.min),value));renderRoi()}});
+};
+
+const initMode=()=>{
+const copilot=document.getElementById('copilotMode'),autopilot=document.getElementById('autopilotMode');
+copilot.addEventListener('click',()=>{state.mode='copilot';copilot.setAttribute('aria-pressed','true');autopilot.setAttribute('aria-pressed','false');renderFeed()});
+autopilot.addEventListener('click',()=>{state.mode='autopilot';copilot.setAttribute('aria-pressed','false');autopilot.setAttribute('aria-pressed','true');renderFeed()});
+};
+
+const initTailor=()=>{
+const form=document.getElementById('tailorForm');
+const presetSelect=document.getElementById('jobPreset');
+const description=document.getElementById('jobDescription');
+const saved=storage.get('oneapply-tailor',null);
+if(saved){state.preset=saved.preset||'software';state.view=saved.view||'generic';presetSelect.value=state.preset}
+const setPreset=()=>{
+state.preset=presetSelect.value;
+if(state.preset!=='custom'){const preset=jobPresets[state.preset];description.value=`${preset.title} — ${preset.location}\nSalary: ${preset.salary}\n\nWe are looking for someone with experience in ${preset.keywords.join(', ')}. You will work with stakeholders to deliver measurable outcomes.`}
+renderTailor();
+};
+presetSelect.addEventListener('change',setPreset);
+form.addEventListener('submit',e=>{e.preventDefault();state.view='tailored';document.getElementById('genericView').setAttribute('aria-pressed','false');document.getElementById('tailoredView').setAttribute('aria-pressed','true');renderTailor()});
+document.getElementById('genericView').addEventListener('click',()=>{state.view='generic';document.getElementById('genericView').setAttribute('aria-pressed','true');document.getElementById('tailoredView').setAttribute('aria-pressed','false');renderTailor()});
+document.getElementById('tailoredView').addEventListener('click',()=>{state.view='tailored';document.getElementById('genericView').setAttribute('aria-pressed','false');document.getElementById('tailoredView').setAttribute('aria-pressed','true');renderTailor()});
+setPreset();
+};
+
+const initRoi=()=>{
+const saved=storage.get('oneapply-roi',null);
+if(saved){state.applications=Math.min(100,Math.max(5,saved.applications||25));state.minutes=Math.min(60,Math.max(15,saved.minutes||32))}
+bindPair('applicationsRange','applicationsInput','applications');
+bindPair('minutesRange','minutesInput','minutes');
+document.getElementById('resetRoi').addEventListener('click',()=>{state.applications=25;state.minutes=32;renderRoi()});
+renderRoi();
+};
+
+const initBilling=()=>{
+const monthly=document.getElementById('monthlyBilling'),quarterly=document.getElementById('quarterlyBilling');
+monthly.addEventListener('click',()=>{state.billing='monthly';monthly.setAttribute('aria-pressed','true');quarterly.setAttribute('aria-pressed','false');renderPricing()});
+quarterly.addEventListener('click',()=>{state.billing='quarterly';monthly.setAttribute('aria-pressed','false');quarterly.setAttribute('aria-pressed','true');renderPricing()});
+};
+
+const initCapabilities=()=>{
+const button=document.getElementById('capabilityButton'),panel=document.getElementById('capabilityPanel'),list=document.getElementById('capabilityList');
+capabilities.forEach(([label,test,explanation])=>{let active=false;try{active=Boolean(test())}catch{}
+const li=document.createElement('li');li.className='capability';li.title=explanation;
+const name=document.createElement('span');name.textContent=label;
+const status=document.createElement('span');status.className=active?'cap-ok':'cap-off';status.textContent=active?'Active':'Unavailable';
+li.append(name,status);list.append(li)});
+button.addEventListener('click',()=>{const open=panel.dataset.open==='true';panel.dataset.open=String(!open);button.setAttribute('aria-expanded',String(!open))});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.dataset.open==='true'){panel.dataset.open='false';button.setAttribute('aria-expanded','false');button.focus()}});
+};
+
+const initReveal=()=>{
+const items=document.querySelectorAll('.reveal');
+if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches){items.forEach(i=>i.classList.add('is-visible'));return}
+const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target)}})},{rootMargin:'0px 0px -10% 0px'});
+items.forEach(item=>observer.observe(item));
+};
+
+const initTheme=()=>{
+const saved=storage.get('oneapply-theme','system');
+document.documentElement.dataset.theme=saved;
+const apply=()=>{if(document.documentElement.dataset.theme==='system'){document.documentElement.dataset.theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}};
+apply();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',apply);
+};
+
+const init=()=>{
+document.getElementById('year').textContent=new Date().getFullYear();
+initTheme();renderFeed();initMode();renderPortalGrid();renderFeatures();initTailor();initRoi();initBilling();renderPricing();renderFaq();initCapabilities();initReveal();
+};
+init();
+</script>
+</body>
+</html>
