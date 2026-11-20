@@ -67,4 +67,88 @@ class BaseModel {
         return $data;
     }
 
+    public function create(){
+
+        try {
+            $conditions = [
+                'tbl'   => $this->tbl,
+                'order' => ['id' => 'DESC']
+            ];
+
+            if (!empty($id)) {
+                $conditions['where'] = ['id' => $id];
+            }
+
+            return $this->db->find($conditions);
+        } catch (Throwable $e) {
+            return [
+                'error'   => true,
+                'message' => $e->getMessage()
+            ];
+        }
+
+    }
+
+    public function read($conditions){
+
+        try {
+
+            if (!empty($id)) {
+                $conditions['where'] = ['id' => $id];
+            }
+
+            return $this->db->find($conditions);
+        } catch (Throwable $e) {
+            return [
+                'error'   => true,
+                'message' => $e->getMessage()
+            ];
+        }    
+
+    }
+
+    public function update(){
+
+        try {
+            $conditions = [
+                'tbl'   => $this->tbl,
+                'order' => ['id' => 'DESC']
+            ];
+
+            if (!empty($id)) {
+                $conditions['where'] = ['id' => $id];
+            }
+
+            return $this->db->find($conditions);
+        } catch (Throwable $e) {
+            return [
+                'error'   => true,
+                'message' => $e->getMessage()
+            ];
+        }    
+
+    }
+
+    public function delete(){
+
+        try {
+            $conditions = [
+                'tbl'   => $this->tbl,
+                'order' => ['id' => 'DESC']
+            ];
+
+            if (!empty($id)) {
+                $conditions['where'] = ['id' => $id];
+            }
+
+            return $this->db->find($conditions);
+        } catch (Throwable $e) {
+            return [
+                'error'   => true,
+                'message' => $e->getMessage()
+            ];
+        }    
+
+    }
+
 }
