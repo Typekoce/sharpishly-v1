@@ -53,11 +53,34 @@ class BaseController {
         
         $file = $this->location->baseDir() . 'app/php/src/views/' . $path . '.html';
 
+
         if(file_exists($file)){
-            echo file_get_contents($file);
+
+            $page =  file_get_contents($file);
+
+            $page = $this->css($path,$page);
+
+            echo $page;
+
         } else {
             echo "Opps... page does not exist";
         }
+    }
+
+    public function css($path,$page){
+
+        $file = $this->location->baseDir() . 'app/php/src/views/' . $path . '.css';
+
+        if(file_exists($file)){
+
+            $c = file_get_contents($file);
+            $page = str_replace('<style></style>','<style>' . $c . '</style>',$page);
+
+        } else {
+            //echo "Opps... page does not exist";
+        }
+
+        return $page;
     }
 
 }
