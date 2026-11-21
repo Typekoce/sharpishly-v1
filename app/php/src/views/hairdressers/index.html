@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atelier Vespera — Hair Atelier & Colour Studio</title>
+<meta name="description" content="Atelier Vespera is a modern hair atelier for precision cuts, bespoke colour, curl care and occasion styling.">
+<style>
+@layer reset, tokens, base, layout, components, utilities, motion;
+
+@layer reset {
+  *,*::before,*::after{box-sizing:border-box}
+  *{margin:0}
+  html{-webkit-text-size-adjust:100%}
+  body{min-height:100svh}
+  img,svg,canvas{display:block;max-width:100%}
+  button,input,select,textarea{font:inherit;color:inherit}
+  button{background:none;border:0;cursor:pointer}
+  ul{padding:0;list-style:none}
+  a{color:inherit}
+}
+
+@layer tokens {
+  :root{
+    --ink:oklch(21% 0.012 65);
+    --ink-soft:oklch(34% 0.015 65);
+    --muted:oklch(48% 0.018 65);
+    --paper:oklch(97.5% 0.008 85);
+    --surface:oklch(99% 0.005 85);
+    --raised:oklch(94% 0.012 80);
+    --line:oklch(87% 0.015 80);
+    --brass:oklch(63% 0.105 65);
+    --brass-deep:oklch(49% 0.095 55);
+    --terracotta:oklch(63% 0.115 45);
+    --success:oklch(55% 0.11 150);
+    --danger:oklch(52% 0.16 25);
+    --radius-s:.5rem; --radius-m:.9rem; --radius-l:1.4rem;
+    --shadow:0 18px 45px -25px oklch(25% 0.03 65 / .35);
+    --ring:0 0 0 3px color-mix(in oklab, var(--brass) 38%, transparent);
+    --space-1:.35rem; --space-2:.7rem; --space-3:1.1rem; --space-4:1.7rem; --space-5:2.6rem; --space-6:4rem;
+    --maxw:76rem;
+    --motion:220ms;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  [data-theme="dark"]{
+    --ink:oklch(94% 0.012 85);
+    --ink-soft:oklch(82% 0.015 85);
+    --muted:oklch(70% 0.02 80);
+    --paper:oklch(17% 0.015 65);
+    --surface:oklch(21% 0.018 65);
+    --raised:oklch(25% 0.02 65);
+    --line:oklch(33% 0.02 65);
+    --brass:oklch(76% 0.1 75);
+    --brass-deep:oklch(68% 0.1 70);
+    --shadow:0 20px 50px -25px oklch(0% 0 0 / .55);
+  }
+}
+
+@layer base {
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:var(--sans);font-size:clamp(.98rem,.94rem + .2vw,1.08rem);
+    line-height:1.6;text-wrap:pretty;
+  }
+  h1,h2,h3,.display{font-family:var(--serif);font-weight:600;line-height:1.08;letter-spacing:-.015em;text-wrap:balance}
+  h1{font-size:clamp(2.55rem,1.6rem + 4.5vw,5rem)}
+  h2{font-size:clamp(1.9rem,1.4rem + 2vw,3.1rem)}
+  h3{font-size:clamp(1.15rem,1rem + .5vw,1.45rem)}
+  p{max-width:65ch}
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:none;box-shadow:var(--ring);border-radius:.35rem}
+  ::selection{background:color-mix(in oklab,var(--brass) 30%,transparent)}
+  .skip{position:absolute;left:1rem;top:-4rem;z-index:100;background:var(--ink);color:var(--paper);padding:.75rem 1rem;border-radius:0 0 var(--radius-s) var(--radius-s);transition:top var(--motion)}
+  .skip:focus{top:0}
+  main{scroll-margin-top:6rem}
+  section{scroll-margin-top:6.5rem}
+}
+
+@layer layout {
+  .shell{width:min(100% - 2rem,var(--maxw));margin-inline:auto}
+  .section{padding-block:clamp(3.5rem,7vw,6.5rem)}
+  .section-head{display:grid;gap:var(--space-2);margin-bottom:var(--space-5);max-width:58ch}
+  .eyebrow{font-size:.74rem;font-weight:750;letter-spacing:.16em;text-transform:uppercase;color:var(--brass-deep)}
+  .grid{display:grid;gap:var(--space-3)}
+  .split{display:grid;gap:var(--space-5);align-items:center}
+  @media(min-width:860px){
+    .split{grid-template-columns:1.05fr .95fr;gap:var(--space-6)}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    .grid-4{grid-template-columns:repeat(4,1fr)}
+  }
+  @media(min-width:560px) and (max-width:859px){.grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}}
+  footer{border-top:1px solid var(--line);padding-block:var(--space-5);margin-top:var(--space-5)}
+}
+
+@layer components {
+  .site-header{position:sticky;top:0;z-index:50;background:color-mix(in oklab,var(--paper) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color var(--motion),background var(--motion)}
+  .site-header.scrolled{border-color:var(--line);box-shadow:0 8px 30px -25px var(--ink)}
+  .header-inner{display:flex;align-items:center;gap:var(--space-3);min-height:4.3rem}
+  .brand{display:flex;align-items:center;gap:.6rem;font-family:var(--serif);font-size:1.18rem;font-weight:650;text-decoration:none}
+  .brand-mark{width:2.2rem;height:2.2rem;color:var(--brass)}
+  .nav{display:none;margin-left:auto}
+  .nav a{padding:.55rem .75rem;border-radius:99px;text-decoration:none;font-size:.92rem;font-weight:600;color:var(--ink-soft)}
+  .nav a[aria-current="page"]{color:var(--ink);background:var(--raised)}
+  .nav a:hover{color:var(--ink)}
+  @media(min-width:940px){.nav{display:flex;gap:.15rem}}
+  .header-actions{margin-left:auto;display:flex;gap:.5rem}
+  @media(min-width:940px){.header-actions{margin-left:.5rem}}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:44px;padding:.7rem 1.15rem;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:650;font-size:.94rem;text-decoration:none;transition:transform var(--motion),background var(--motion),border-color var(--motion),color var(--motion)}
+  .btn:hover{transform:translateY(-1px);border-color:color-mix(in oklab,var(--brass) 55%,var(--line))}
+  .btn:active{transform:translateY(0)}
+  .btn-primary{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  .btn-primary:hover{background:color-mix(in oklab,var(--ink) 88%,var(--brass))}
+  .btn-brass{background:var(--brass);border-color:var(--brass);color:oklch(18% 0.02 65)}
+  .btn-ghost{background:transparent}
+  .btn-small{min-height:38px;padding:.42rem .8rem;font-size:.84rem}
+  .icon-btn{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);background:var(--surface)}
+  .menu-btn{display:grid}
+  @media(min-width:940px){.menu-btn{display:none}}
+  .mobile-drawer{position:fixed;inset:0;z-index:80;display:none}
+  .mobile-drawer.open{display:block}
+  .mobile-drawer::before{content:"";position:absolute;inset:0;background:oklch(0% 0 0 / .45)}
+  .drawer-panel{position:absolute;inset-block:0;right:0;width:min(22rem,88vw);background:var(--surface);padding:var(--space-4);display:grid;align-content:start;gap:var(--space-3);box-shadow:var(--shadow)}
+  .drawer-panel a{padding:.85rem;border-radius:var(--radius-s);text-decoration:none;font-weight:650}
+  .drawer-panel a:hover,.drawer-panel a[aria-current="page"]{background:var(--raised)}
+  .hero{position:relative;overflow:hidden;padding-block:clamp(4rem,9vw,8rem)}
+  .hero-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.55;pointer-events:none}
+  .hero-inner{position:relative;display:grid;gap:var(--space-4)}
+  .hero-copy{display:grid;gap:var(--space-3);max-width:44rem}
+  .hero p{font-size:1.08rem;color:var(--ink-soft)}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:.65rem}
+  .hero-badge{display:inline-flex;align-items:center;gap:.55rem;padding:.5rem .85rem;border:1px solid var(--line);border-radius:99px;background:color-mix(in oklab,var(--surface) 80%,transparent);font-size:.82rem;font-weight:650}
+  .hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-2);margin-top:var(--space-2);max-width:35rem}
+  .hero-stat{padding:var(--space-2);border:1px solid var(--line);border-radius:var(--radius-m);background:color-mix(in oklab,var(--surface) 78%,transparent)}
+  .hero-stat strong{display:block;font-family:var(--serif);font-size:1.5rem}
+  .hero-stat span{font-size:.78rem;color:var(--muted)}
+  .toolbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:var(--space-3)}
+  .search{position:relative;flex:1 1 16rem;min-width:12rem}
+  .search input{width:100%;min-height:44px;padding:.7rem .9rem .7rem 2.5rem;border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+  .search svg{position:absolute;left:.85rem;top:50%;translate:0 -50%;color:var(--muted)}
+  .tabs{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.25rem;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{white-space:nowrap;min-height:40px;padding:.45rem .95rem;border:1px solid var(--line);border-radius:99px;background:var(--surface);font-size:.87rem;font-weight:650}
+  .tab[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  .card{container-type:inline-size;position:relative;display:grid;gap:.7rem;padding:var(--space-3);border:1px solid var(--line);border-radius:var(--radius-l);background:var(--surface);box-shadow:0 1px 0 color-mix(in oklab,var(--ink) 5%,transparent)}
+  .service-card{transition:transform var(--motion),box-shadow var(--motion)}
+  .service-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+  .service-top{display:flex;justify-content:space-between;gap:var(--space-2);align-items:start}
+  .service-meta{display:flex;flex-wrap:wrap;gap:.4rem;font-size:.78rem;color:var(--muted)}
+  .pill{padding:.25rem .55rem;border:1px solid var(--line);border-radius:99px;background:var(--raised);font-weight:650}
+  .price{font-family:var(--serif);font-size:1.15rem;font-weight:650;color:var(--brass-deep);white-space:nowrap}
+  .service-note{font-size:.82rem;color:var(--muted)}
+  .card-actions{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:auto}
+  .fav-btn{position:absolute;top:.65rem;right:.65rem;width:38px;height:38px;display:grid;place-items:center;border-radius:50%;color:var(--muted);border:1px solid transparent}
+  .fav-btn[aria-pressed="true"]{color:var(--terracotta);border-color:color-mix(in oklab,var(--terracotta) 40%,transparent)}
+  .stylist-card{text-align:left}
+  .stylist-visual{aspect-ratio:4/3;border-radius:var(--radius-m);overflow:hidden;position:relative}
+  .stylist-visual svg{width:100%;height:100%}
+  .stylist-role{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--brass-deep);font-weight:750}
+  .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,16rem),1fr));gap:var(--space-2)}
+  .gallery-item{position:relative;aspect-ratio:4/5;border:0;padding:0;border-radius:var(--radius-m);overflow:hidden;text-align:left}
+  .gallery-art{position:absolute;inset:0}
+  .gallery-label{position:absolute;inset:auto 0 0 0;padding:var(--space-3);color:#fff;background:linear-gradient(to top,oklch(10% 0 0 / .78),transparent);font-weight:650}
+  .gallery-item:hover .gallery-art{scale:1.04}
+  .gallery-art{transition:scale .5s ease}
+  .review{padding:var(--space-3);border:1px solid var(--line);border-radius:var(--radius-l);background:var(--surface)}
+  .review-stars{color:var(--brass);letter-spacing:.1em}
+  .review-meta{display:flex;justify-content:space-between;gap:.5rem;font-size:.82rem;color:var(--muted)}
+  .accordion{border:1px solid var(--line);border-radius:var(--radius-m);background:var(--surface);overflow:hidden}
+  .accordion + .accordion{margin-top:.65rem}
+  .accordion summary{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1rem 1.1rem;cursor:pointer;font-weight:650;min-height:44px}
+  .accordion summary::after{content:"+";font-size:1.3rem;color:var(--brass-deep);transition:rotate var(--motion)}
+  .accordion[open] summary::after{rotate:45deg}
+  .accordion p{padding:0 1.1rem 1.1rem;color:var(--ink-soft)}
+  .policy-grid{display:grid;gap:var(--space-2)}
+  .policy{padding:var(--space-3);border:1px solid var(--line);border-radius:var(--radius-m);background:var(--surface)}
+  .policy h3{font-size:1.05rem}
+  .booking-dialog{width:min(44rem,94vw);max-height:min(88dvh,50rem);border:0;border-radius:var(--radius-l);padding:0;background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+  .booking-dialog::backdrop{background:oklch(10% 0 0 / .55);backdrop-filter:blur(4px)}
+  .dialog-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--line)}
+  .dialog-body{padding:var(--space-3) var(--space-4) var(--space-4);overflow:auto}
+  .steps{display:flex;gap:.4rem;margin-bottom:var(--space-3)}
+  .step{flex:1;height:.3rem;border-radius:99px;background:var(--line)}
+  .step.active{background:var(--brass)}
+  .field{display:grid;gap:.35rem;margin-bottom:var(--space-2)}
+  .field label{font-size:.85rem;font-weight:700}
+  .field input,.field select,.field textarea{min-height:44px;padding:.7rem .85rem;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--paper);width:100%}
+  .field textarea{min-height:6rem;resize:vertical}
+  .field small{color:var(--muted)}
+  .field :user-invalid{border-color:var(--danger)}
+  .error{color:var(--danger);font-size:.84rem;font-weight:650}
+  .slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(6.5rem,1fr));gap:.5rem}
+  .slot{min-height:44px;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--surface);font-variant-numeric:tabular-nums;font-weight:650}
+  .slot[aria-pressed="true"]{background:var(--brass);border-color:var(--brass);color:oklch(18% 0.02 65)}
+  .slot:disabled{opacity:.35;cursor:not-allowed}
+  .summary{padding:var(--space-3);border:1px dashed color-mix(in oklab,var(--brass) 60%,var(--line));border-radius:var(--radius-m);background:color-mix(in oklab,var(--brass) 7%,var(--surface))}
+  .summary-row{display:flex;justify-content:space-between;gap:1rem;padding-block:.3rem;font-size:.92rem}
+  .summary-row span:last-child{text-align:right;font-weight:650}
+  .booking-nav{display:flex;justify-content:space-between;gap:.7rem;margin-top:var(--space-3)}
+  .confirmation{text-align:center;display:grid;gap:var(--space-2);justify-items:center;padding-block:var(--space-2)}
+  .ref-code{font-family:var(--serif);font-size:2rem;letter-spacing:.08em;color:var(--brass-deep)}
+  .appointment{display:grid;gap:.4rem;padding:var(--space-3);border:1px solid var(--line);border-radius:var(--radius-m);background:var(--surface)}
+  .appointment-top{display:flex;justify-content:space-between;gap:.7rem;align-items:start}
+  .status{font-size:.75rem;font-weight:750;padding:.25rem .55rem;border-radius:99px;background:color-mix(in oklab,var(--success) 18%,var(--surface));color:var(--success)}
+  .status.cancelled{background:color-mix(in oklab,var(--danger) 14%,var(--surface));color:var(--danger)}
+  .empty{padding:var(--space-5);text-align:center;border:1px dashed var(--line);border-radius:var(--radius-l);color:var(--muted)}
+  .settings-panel{display:grid;gap:var(--space-3)}
+  .setting-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:var(--space-2) 0;border-bottom:1px solid var(--line)}
+  .segmented{display:inline-flex;border:1px solid var(--line);border-radius:99px;overflow:hidden}
+  .segmented button{min-height:40px;padding:.4rem .85rem;font-size:.85rem;font-weight:650}
+  .segmented button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+  .cap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.55rem}
+  .cap{display:grid;gap:.15rem;padding:.7rem .8rem;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--surface)}
+  .cap strong{font-size:.88rem}
+  .cap small{color:var(--muted);font-size:.78rem}
+  .cap-status{font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+  .cap-status.active{color:var(--success)}
+  .cap-status.unavailable{color:var(--muted)}
+  .toast{position:fixed;left:50%;bottom:1.2rem;z-index:100;translate:-50% 0;padding:.75rem 1rem;border-radius:99px;background:var(--ink);color:var(--paper);box-shadow:var(--shadow);font-size:.88rem;font-weight:650;opacity:0;pointer-events:none;transition:opacity var(--motion),translate var(--motion)}
+  .toast.show{opacity:1;translate:-50% -0.4rem}
+  .footer-grid{display:grid;gap:var(--space-4)}
+  @media(min-width:860px){.footer-grid{grid-template-columns:1.3fr 1fr 1fr}}
+  .hours{width:100%;border-collapse:collapse;font-size:.9rem}
+  .hours th,.hours td{padding:.45rem 0;border-bottom:1px solid var(--line);text-align:left}
+  .hours td:last-child,.hours th:last-child{text-align:right;font-variant-numeric:tabular-nums}
+  .newsletter{display:flex;gap:.5rem;flex-wrap:wrap}
+  .newsletter input{flex:1 1 12rem;min-height:44px;padding:.65rem .85rem;border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+  .footer-note{margin-top:var(--space-4);padding-top:var(--space-3);border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:.7rem;justify-content:space-between;color:var(--muted);font-size:.82rem}
+  .map{position:relative;min-height:16rem;border-radius:var(--radius-l);overflow:hidden;border:1px solid var(--line)}
+  .map svg{width:100%;height:100%}
+  .map-pin{position:absolute;left:50%;top:48%;translate:-50% -100%;color:var(--terracotta)}
+  .copy-address{position:absolute;right:.7rem;bottom:.7rem}
+}
+
+@layer utilities {
+  .visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .muted{color:var(--muted)}
+  .small{font-size:.85rem}
+  .mt-2{margin-top:var(--space-2)}
+  .mt-3{margin-top:var(--space-3)}
+  .mt-4{margin-top:var(--space-4)}
+}
+
+@layer motion {
+  @media(prefers-reduced-motion:no-preference){
+    .reveal{opacity:0;translate:0 1.2rem;transition:opacity .65s ease,translate .65s ease}
+    .reveal.visible{opacity:1;translate:0}
+    @supports(animation-timeline:view()){
+      .section-head{animation:rise linear both;animation-timeline:view();animation-range:entry 10% cover 32%}
+      @keyframes rise{from{opacity:0;translate:0 1.4rem}to{opacity:1;translate:0}}
+    }
+  }
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  }
+  @starting-style{
+    .booking-dialog[open]{opacity:0;translate:0 1rem}
+  }
+  .booking-dialog{transition:opacity .25s ease,translate .25s ease,display .25s allow-discrete,overlay .25s allow-discrete}
+  @supports(anchor-name:--a){
+    .help-pop{position-anchor:--help-anchor;position-area:block-end;inset-inline-start:anchor-start;margin-block-start:.4rem}
+  }
+}
+
+@scope (.policy) {
+  h3{color:var(--brass-deep)}
+}
+</style>
+</head>
+<body data-theme="light">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header" id="siteHeader">
+  <div class="shell header-inner">
+    <a class="brand" href="#/home" aria-label="Atelier Vespera home">
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3c6 7 10 12 10 19a10 10 0 0 1-20 0C10 15 14 10 20 3Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 14v14M14 21h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Atelier Vespera
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#/home#services">Services</a>
+      <a href="#/home#stylists">Stylists</a>
+      <a href="#/home#gallery">Gallery</a>
+      <a href="#/home#pricing">Pricing</a>
+      <a href="#/home#faq">FAQ</a>
+      <a href="#/appointments">My appointments</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" id="themeToggle" aria-label="Switch colour theme" title="Switch colour theme">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z" fill="currentColor"/></svg>
+      </button>
+      <a class="btn btn-brass" href="#book" id="headerBook">Book appointment</a>
+      <button class="icon-btn menu-btn" id="menuButton" aria-expanded="false" aria-controls="mobileDrawer" aria-label="Open menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer" id="mobileDrawer" role="dialog" aria-modal="true" aria-label="Mobile menu">
+  <div class="drawer-panel">
+    <button class="icon-btn" id="closeDrawer" aria-label="Close menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <a href="#/home#services">Services</a><a href="#/home#stylists">Stylists</a><a href="#/home#gallery">Gallery</a><a href="#/home#pricing">Pricing</a><a href="#/home#faq">FAQ</a><a href="#/appointments">My appointments</a><a href="#/settings">Settings & support</a>
+    <a class="btn btn-brass" href="#book">Book appointment</a>
+  </div>
+</div>
+
+<main id="main">
+  <div id="viewRoot"></div>
+</main>
+
+<footer>
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <h2 class="display" style="font-size:1.5rem">Atelier Vespera</h2>
+        <p class="muted small mt-2">A calm, considered hair atelier in Marylebone. Precision cutting, bespoke colour and texture-led styling.</p>
+        <form class="newsletter mt-3" id="newsletterForm" novalidate>
+          <label class="visually-hidden" for="newsletterEmail">Email address</label>
+          <input id="newsletterEmail" name="email" type="email" required autocomplete="email" placeholder="Join the atelier list">
+          <button class="btn btn-primary" type="submit">Subscribe</button>
+        </form>
+        <p id="newsletterMessage" class="small mt-2" role="status" aria-live="polite"></p>
+      </div>
+      <div>
+        <h3>Visit</h3>
+        <p class="small muted mt-2">18 Vespera Mews<br>Marylebone, London W1U 4QP</p>
+        <button class="btn btn-small btn-ghost mt-2" id="copyAddress">Copy address</button>
+        <table class="hours mt-3" aria-label="Opening hours">
+          <tbody>
+            <tr><th scope="row">Tuesday–Friday</th><td>09:00–19:00</td></tr>
+            <tr><th scope="row">Saturday</th><td>09:00–17:00</td></tr>
+            <tr><th scope="row">Sunday–Monday</th><td>Closed</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3>Atelier</h3>
+        <ul class="mt-2 small">
+          <li><a href="#/home#services">Services</a></li>
+          <li><a href="#/home#stylists">Stylists</a></li>
+          <li><a href="#/home#pricing">Pricing & policies</a></li>
+          <li><a href="#/appointments">My appointments</a></li>
+          <li><a href="#/settings">Settings & platform support</a></li>
+        </ul>
+        <p class="small mt-3">Instagram · Pinterest · Journal</p>
+      </div>
+    </div>
+    <div class="footer-note">
+      <span>© <span id="year"></span> Atelier Vespera. Illustrative demonstration site.</span>
+      <span>Crafted as a zero-dependency browser experience.</span>
+    </div>
+  </div>
+</footer>
+
+<dialog class="booking-dialog" id="bookingDialog" aria-labelledby="bookingTitle">
+  <div class="dialog-head">
+    <div><p class="eyebrow">Appointment</p><h2 id="bookingTitle" style="font-size:1.5rem">Reserve your visit</h2></div>
+    <button class="icon-btn" id="closeBooking" aria-label="Close booking">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="dialog-body">
+    <div class="steps" aria-hidden="true"><span class="step active" data-step="1"></span><span class="step" data-step="2"></span><span class="step" data-step="3"></span></div>
+    <form id="bookingForm" novalidate>
+      <div data-panel="1">
+        <div class="field"><label for="bookingService">Service</label><select id="bookingService" required></select><small>Choose the treatment you would like to reserve.</small></div>
+        <div class="field"><label for="bookingStylist">Stylist</label><select id="bookingStylist"></select><small>Any available stylist is recommended for the widest choice of times.</small></div>
+      </div>
+      <div data-panel="2" hidden>
+        <div class="field"><label for="bookingDate">Preferred date</label><input id="bookingDate" type="date" required></div>
+        <fieldset><legend class="field" style="margin-bottom:.5rem"><span>Available times</span></legend><div class="slot-grid" id="slotGrid"></div></fieldset>
+        <p class="error" id="slotError" hidden>Please select an available time.</p>
+      </div>
+      <div data-panel="3" hidden>
+        <div class="field"><label for="clientName">Full name</label><input id="clientName" required autocomplete="name"></div>
+        <div class="field"><label for="clientEmail">Email</label><input id="clientEmail" type="email" required autocomplete="email"></div>
+        <div class="field"><label for="clientPhone">Phone</label><input id="clientPhone" type="tel" required autocomplete="tel" inputmode="tel"></div>
+        <div class="field"><label for="hairNotes">Hair notes, allergies or patch-test information</label><textarea id="hairNotes" placeholder="For example: fine, shoulder-length; sensitive scalp; colour patch test required."></textarea></div>
+        <div class="summary" id="bookingSummary" aria-live="polite"></div>
+      </div>
+      <div class="booking-nav">
+        <button type="button" class="btn btn-ghost" id="bookingBack" hidden>Back</button>
+        <button type="button" class="btn btn-primary" id="bookingNext">Continue</button>
+        <button type="submit" class="btn btn-brass" id="bookingSubmit" hidden>Confirm booking</button>
+      </div>
+    </form>
+    <div class="confirmation" id="bookingConfirmation" hidden>
+      <p class="eyebrow">Reserved</p>
+      <h3>Your appointment is held</h3>
+      <p class="ref-code" id="bookingRef"></p>
+      <p class="muted small" id="confirmationDetail"></p>
+      <div class="card-actions" style="justify-content:center">
+        <button class="btn btn-primary" id="downloadIcs">Add to calendar</button>
+        <button class="btn btn-ghost" id="viewAppointments">View appointments</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="booking-dialog" id="detailDialog" aria-labelledby="detailTitle">
+  <div class="dialog-head"><h2 id="detailTitle" style="font-size:1.4rem">Details</h2><button class="icon-btn" id="closeDetail" aria-label="Close details"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+  <div class="dialog-body" id="detailBody"></div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const store={key:'atelier-vespera-v1',state:{theme:'light',favourites:[],bookings:[],newsletter:false},listeners:new Set(),
+load(){try{const raw=localStorage.getItem(this.key);if(raw){const parsed=JSON.parse(raw);if(parsed&&typeof parsed==='object')this.state={...this.state,...parsed}}}catch(e){}return this.state},
+save(){try{localStorage.setItem(this.key,JSON.stringify(this.state))}catch(e){}},
+set(patch){this.state={...this.state,...patch};this.save();this.listeners.forEach(fn=>fn(this.state))},
+subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)}};
+const state=store.load();
+
+const services=[
+{id:'precision-cut',name:'Precision Cut & Finish',category:'Cut & Styling',minutes:60,price:'From £78',description:'A structured consultation, precision cut and tailored finish for your natural movement.',note:'Includes wash, cut and finish.'},
+{id:'curl-cut',name:'Curl-Responsive Cut',category:'Cut & Styling',minutes:75,price:'From £92',description:'Dry shaping for waves, curls and coils, with a curl-specific finish and home-care plan.',note:'Arrive with hair in its usual texture.'},
+{id:'blowout',name:'Editorial Blowout',category:'Cut & Styling',minutes:45,price:'£48',description:'A polished, long-lasting blowout with soft volume, smooth ends and a light finish.',note:'Great before events or photography.'},
+{id:'balayage',name:'Bespoke Balayage',category:'Colour & Balayage',minutes:180,price:'From £195',description:'Hand-painted luminosity, soft regrowth and a personalised gloss tailored to your base.',note:'Includes consultation, colour and finish.'},
+{id:'blonde-refinement',name:'Blonde Refinement',category:'Colour & Balayage',minutes:150,price:'From £175',description:'Targeted brightening, tonal correction and bond-focused care for existing blondes.',note:'Patch test required at least 48 hours before.'},
+{id:'gloss',name:'Signature Gloss',category:'Colour & Balayage',minutes:60,price:'£72',description:'A sheer tonal refresh that deepens shine, softens brass and revives faded colour.',note:'No patch test needed for gloss-only visits.'},
+{id:'bond-repair',name:'Bond Repair Ritual',category:'Hair Health & Treatments',minutes:45,price:'£55',description:'A concentrated repair treatment for stressed, porous or heat-affected lengths.',note:'Can be added to most appointments.'},
+{id:'scalp-reset',name:'Scalp Reset',category:'Hair Health & Treatments',minutes:40,price:'£48',description:'A clarifying and conditioning scalp treatment with a calming massage and tailored advice.',note:'Not suitable during an active scalp flare-up.'},
+{id:'hydration-wrap',name:'Deep Hydration Wrap',category:'Hair Health & Treatments',minutes:35,price:'£42',description:'A moisture-rich treatment for dry mid-lengths and ends, sealed with a cool rinse.',note:'Especially helpful after sun or colour.'},
+{id:'bridal-trial',name:'Bridal Styling Trial',category:'Bridal & Events',minutes:120,price:'£165',description:'A relaxed trial to develop your occasion look, including accessory placement and longevity plan.',note:'Bring inspiration images and veil if applicable.'},
+{id:'occasion-updo',name:'Occasion Updo',category:'Bridal & Events',minutes:75,price:'£95',description:'A secure, refined updo designed for celebrations, photography and all-day wear.',note:'Arrive with dry, product-free hair where possible.'},
+{id:'event-style',name:'Event Styling',category:'Bridal & Events',minutes:60,price:'£78',description:'A polished waves, sleek or textured style for a special occasion.',note:'Includes finishing spray and pin check.'},
+{id:'extension-consult',name:'Extension Consultation',category:'Hair Health & Treatments',minutes:30,price:'£25',description:'A colour-matched consultation covering method, maintenance, weight distribution and removal planning.',note:'Redeemable against a future fitting.'},
+{id:'fringe-refresh',name:'Fringe Refresh',category:'Cut & Styling',minutes:20,price:'£18',description:'A quick fringe trim and restyle between full appointments.',note:'Available Tuesday to Friday.'}
+];
+const stylists=[
+{id:'elena',name:'Elena Marchetti',role:'Creative Director',years:16,specialties:['Precision cutting','Face-framing','Editorial finish'],bio:'Elena founded Atelier Vespera after a decade shaping cuts in London and Milan. Her work begins with proportion, growth pattern and how a client actually styles their hair.'},
+{id:'noor',name:'Noor Rahman',role:'Senior Balayage Specialist',years:11,specialties:['Balayage','Blonde refinement','Tonal gloss'],bio:'Noor creates soft, believable dimension with a focus on healthy-looking light and low-maintenance regrowth.'},
+{id:'maya',name:'Maya Okafor',role:'Texture & Curl Specialist',years:9,specialties:['Curl cutting','Coil definition','Scalp care'],bio:'Maya works with waves, curls and coils to create shape that holds its personality between wash days.'},
+{id:'jonah',name:'Jonah Reid',role:'Colour Technician',years:8,specialties:['Corrective colour','Brunette depth','Vivid colour'],bio:'Jonah is known for calm, methodical colour correction and rich, dimensional brunettes.'},
+{id:'sofia',name:'Sofia Bell',role:'Occasion Stylist',years:7,specialties:['Bridal','Updos','Soft waves'],bio:'Sofia designs enduring occasion styles that photograph beautifully without feeling overly set.'},
+{id:'arun',name:'Arun Patel',role:'Senior Stylist',years:12,specialties:['Fine hair','Layering','Men’s cutting'],bio:'Arun builds lightness and movement into fine hair, with an emphasis on easy, repeatable styling.'}
+];
+const gallery=[
+{id:'g1',title:'Sunlit Champagne Balayage',category:'Balayage & Blondes',hair:'Fine, medium-length',technique:'Hand-painted lift with a champagne gloss',maintenance:'Purple-free gloss every 8–10 weeks; heat protection before styling.',colors:['#EAD7BE','#C99B68','#8A5E3B']},
+{id:'g2',title:'Soft Copper Ribbons',category:'Vivid & Brunette',hair:'Thick, long',technique:'Low-lift copper ribbons over a natural base',maintenance:'Colour-safe shampoo and a weekly conditioning mask.',colors:['#B65A33','#E1A173','#5B2E1E']},
+{id:'g3',title:'Feathered Collarbone Layers',category:'Cuts & Layers',hair:'Medium, wavy',technique:'Invisible layering with a soft perimeter',maintenance:'Diffuse on low heat; refresh ends every 10 weeks.',colors:['#7A5644','#C9A98B','#3B2B23']},
+{id:'g4',title:'Sculpted Bob',category:'Cuts & Layers',hair:'Fine, straight',technique:'Blunt perimeter with internal graduation',maintenance:'A light volumising mousse and round-brush finish.',colors:['#4B3A31','#8A6B57','#241B17']},
+{id:'g5',title:'Molten Brunette Gloss',category:'Vivid & Brunette',hair:'Thick, long',technique:'Warm brunette gloss with face-framing lift',maintenance:'Gloss refresh every 6–8 weeks.',colors:['#5C3B2A','#8B5C3D','#2E1E16']},
+{id:'g6',title:'Undone Occasion Waves',category:'Styling & Updos',hair:'Medium, wavy',technique:'Loose directional waves with a brushed-out finish',maintenance:'Set with a flexible mist; avoid brushing while hot.',colors:['#C8A47C','#8A6448','#40291E']},
+{id:'g7',title:'Sculptural Low Chignon',category:'Styling & Updos',hair:'Fine to medium',technique:'Softly polished low chignon with face-framing pieces',maintenance:'Use pins matched to hair colour; refresh with light oil.',colors:['#9A7254','#D2B493','#4A3327']},
+{id:'g8',title:'Cool Pearl Blonde',category:'Balayage & Blondes',hair:'Fine, long',technique:'Full-head fine foils with a pearl toner',maintenance:'Bond treatment every third wash; toner every 6 weeks.',colors:['#E8E2D6','#BFA98F','#7A6A5C']},
+{id:'g9',title:'Defined Coil Shape',category:'Cuts & Layers',hair:'Coily, medium',technique:'Curl-by-curl shaping with weight removal',maintenance:'Refresh with water and leave-in; protect lengths at night.',colors:['#38251D','#7A523C','#B98A66']},
+{id:'g10',title:'Espresso Curtain Layers',category:'Cuts & Layers',hair:'Thick, straight',technique:'Curtain fringe and seamless internal layers',maintenance:'Blow-dry fringe forward, then split; trim every 6 weeks.',colors:['#2F211B','#5B4133','#8B6C55']},
+{id:'g11',title:'Terracotta Colour Melt',category:'Vivid & Brunette',hair:'Medium, textured',technique:'Root melt from deep brunette into terracotta',maintenance:'Use cool water and colour-sealing conditioner.',colors:['#A94E2D','#D98B5A','#4B2B1C']},
+{id:'g12',title:'Bridal Twist & Tendrils',category:'Styling & Updos',hair:'Long, wavy',technique:'Twisted crown with soft, intentional tendrils',maintenance:'Set the night before; avoid heavy oils before styling.',colors:['#D8C2A5','#9C7455','#5A4030']}
+];
+const reviews=[
+{name:'Imogen R.',service:'Bespoke Balayage',rating:5,text:'Noor understood exactly what I meant by “sunlit but not blonde”. My colour still looks expensive six weeks later.'},
+{name:'Daniel M.',service:'Precision Cut & Finish',rating:5,text:'Elena gave me a cut that works when I do nothing to it. The consultation was unusually thorough.'},
+{name:'Priya S.',service:'Curl-Responsive Cut',rating:5,text:'Maya cut my curls dry and explained how to refresh them. First time I have left a salon feeling confident.'},
+{name:'Charlotte W.',service:'Occasion Updo',rating:5,text:'Sofia created an updo that survived a full wedding day, dancing and rain. It looked effortless in every photograph.'},
+{name:'Leo H.',service:'Bond Repair Ritual',rating:4,text:'My lengths felt noticeably smoother. I appreciated that they did not push an unnecessary treatment.'},
+{name:'Amara B.',service:'Blonde Refinement',rating:5,text:'A calm, careful appointment. They explained the patch test and aftercare without making it feel intimidating.'}
+];
+const faqs=[
+['Should I arrive with clean or second-day hair?','For cutting and styling, either is fine. For colour, arrive with dry hair that has not been washed for 24–48 hours where possible; this helps protect the scalp.'],
+['Do colour services require a patch test?','Yes. New colour clients, or anyone returning after a long gap, need a patch test at least 48 hours before a colour service. We can arrange this during a consultation.'],
+['What happens if I am running late?','Please call as soon as possible. Arrivals more than 15 minutes late may need a shortened service or rescheduling so later guests are not delayed.'],
+['Can I have extensions or a treatment during a colour appointment?','Often, yes. Extensions, bond repair and scalp treatments can sometimes be combined, but the stylist will confirm timing and suitability during consultation.'],
+['Is parking available nearby?','There is limited metered parking on surrounding streets. The studio is a seven-minute walk from Baker Street station and has step-free entry.'],
+['How far ahead should I book?','For balayage, blonde refinement and bridal work, we recommend booking two to four weeks ahead. Cuts and treatments are often available sooner.']
+];
+const slots=['09:00','09:45','10:30','11:15','12:00','13:00','13:45','14:30','15:15','16:00','16:45','17:30'];
+const viewRoot=$('#viewRoot'),toast=$('#toast');
+const fmtDate=new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'numeric',month:'short'});
+const fmtTime=new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit'});
+const svgIcon={star:'<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.7 6.3.9-4.5 4.4 1 6-5.5-3-5.5 3 1-6L3 9.6l6.3-.9Z" fill="currentColor"/></svg>'};
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toastMsg(msg){toast.textContent=msg;toast.classList.add('show');clearTimeout(toastMsg.t);toastMsg.t=setTimeout(()=>toast.classList.remove('show'),2600)}
+function transition(update){if(document.startViewTransition&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.startViewTransition(update)}else update()}
+function art(colors,seed=0){const[a,b,c]=colors;return `<svg class="gallery-art" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="g${seed}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset=".55" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></linearGradient></defs><rect width="400" height="500" fill="url(#g${seed})"/><path d="M0 380C90 320 150 420 240 350s100-90 160-60v210H0Z" fill="rgba(255,255,255,.12)"/><path d="M0 430C100 370 180 460 270 390s90-70 130-45v155H0Z" fill="rgba(0,0,0,.18)"/><circle cx="300" cy="110" r="70" fill="rgba(255,255,255,.14)"/></svg>`}
+function serviceCard(s){const fav=state.favourites.includes(s.id);return `<article class="card service-card" data-id="${s.id}"><button class="fav-btn" data-fav="${s.id}" aria-pressed="${fav}" aria-label="${fav?'Remove':'Save'} ${esc(s.name)} to favourites"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.6-7-9.6A4.4 4.4 0 0 1 12 7a4.4 4.4 0 0 1 7 3.4C19 15.4 12 20 12 20Z" fill="${fav?'currentColor':'none'}" stroke="currentColor" stroke-width="1.7"/></svg></button><div class="service-top"><div><span class="pill">${esc(s.category)}</span><h3 class="mt-2">${esc(s.name)}</h3></div><span class="price">${esc(s.price)}</span></div><p class="small muted">${esc(s.description)}</p><div class="service-meta"><span class="pill">${s.minutes} min</span><span class="service-note">${esc(s.note)}</span></div><div class="card-actions"><button class="btn btn-primary btn-small" data-book-service="${s.id}">Book this service</button><button class="btn btn-ghost btn-small" data-detail="${s.id}">Details</button></div></article>`}
+function stylistCard(p){return `<article class="card stylist-card"><div class="stylist-visual"><svg viewBox="0 0 400 300" role="img" aria-label="Illustrated portrait of ${esc(p.name)}"><defs><linearGradient id="p${p.id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="oklch(85% .07 80)"/><stop offset="1" stop-color="oklch(65% .09 60)"/></linearGradient></defs><rect width="400" height="300" fill="url(#p${p.id})"/><circle cx="200" cy="125" r="55" fill="oklch(28% .03 65)"/><path d="M110 300c8-70 48-105 90-105s82 35 90 105Z" fill="oklch(24% .03 65)"/></svg></div><span class="stylist-role">${esc(p.role)}</span><h3>${esc(p.name)}</h3><p class="small muted">${esc(p.bio)}</p><div class="service-meta"><span class="pill">${p.years} yrs</span>${p.specialties.map(x=>`<span class="pill">${esc(x)}</span>`).join('')}</div><div class="card-actions"><button class="btn btn-primary btn-small" data-book-stylist="${p.id}">Book with ${esc(p.name.split(' ')[0])}</button></div></article>`}
+function galleryCard(g,i){return `<button class="gallery-item" data-gallery="${g.id}" aria-label="View ${esc(g.title)}">${art(g.colors,i)}<span class="gallery-label">${esc(g.title)}<br><span class="small" style="opacity:.8">${esc(g.category)}</span></span></button>`}
+function homeView(){
+ const cats=['All',...new Set(services.map(s=>s.category))];
+ return `<section class="hero" id="top"><canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas><div class="shell hero-inner"><div class="hero-copy"><span class="hero-badge"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Open today until 19:00 · Marylebone</span><h1>Hair considered as<br>a daily work of art.</h1><p>Atelier Vespera is a calm London studio for precision cuts, bespoke colour, curl care and occasion styling—designed around your texture, routine and the way you want to feel.</p><div class="hero-actions"><button class="btn btn-brass" data-open-booking>Book an appointment</button><a class="btn btn-ghost" href="#services">Explore services</a></div><div class="hero-stats"><div class="hero-stat"><strong>4.9★</strong><span>340+ client reviews</span></div><div class="hero-stat"><strong>18 yrs</strong><span>Combined atelier practice</span></div><div class="hero-stat"><strong>6</strong><span>Specialist stylists</span></div></div></div></div></section>
+ <section class="section" id="services"><div class="shell"><div class="section-head"><p class="eyebrow">Services</p><h2>Choose the work your hair needs</h2><p class="muted">Every appointment begins with a consultation. Prices are indicative and confirmed before your stylist begins.</p></div><div class="toolbar"><div class="search"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><label class="visually-hidden" for="serviceSearch">Search services</label><input id="serviceSearch" type="search" placeholder="Search balayage, curls, gloss…"></div></div><div class="tabs" role="group" aria-label="Filter services">${cats.map((c,i)=>`<button class="tab" data-cat="${esc(c)}" aria-pressed="${i===0}">${esc(c)}</button>`).join('')}</div><div class="grid grid-3 mt-3" id="serviceGrid">${services.map(serviceCard).join('')}</div><p class="small muted mt-3" id="serviceCount" aria-live="polite"></p></div></section>
+ <section class="section" id="stylists" style="background:var(--raised)"><div class="shell"><div class="section-head"><p class="eyebrow">The atelier</p><h2>Stylists with a point of view</h2><p class="muted">Choose a specialist, or select “Any available stylist” when booking and we will match you with the right expertise.</p></div><div class="grid grid-3">${stylists.map(stylistCard).join('')}</div></div></section>
+ <section class="section" id="gallery"><div class="shell"><div class="section-head"><p class="eyebrow">Lookbook</p><h2>Transformations & technique</h2><p class="muted">A small selection of illustrative atelier work. Select a look for technique and maintenance notes.</p></div><div class="tabs" role="group" aria-label="Filter gallery">${['All','Balayage & Blondes','Cuts & Layers','Vivid & Brunette','Styling & Updos'].map((c,i)=>`<button class="tab" data-gallery-cat="${esc(c)}" aria-pressed="${i===0}">${esc(c)}</button>`).join('')}</div><div class="gallery-grid mt-3" id="galleryGrid">${gallery.map(galleryCard).join('')}</div></div></section>
+ <section class="section" id="pricing" style="background:var(--raised)"><div class="shell"><div class="section-head"><p class="eyebrow">Pricing & policies</p><h2>Clear before you arrive</h2></div><div class="split"><div><table class="hours" aria-label="Service price list"><thead><tr><th scope="col">Service</th><th scope="col">Time</th><th scope="col">From</th></tr></thead><tbody>${services.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.minutes} min</td><td>${esc(s.price)}</td></tr>`).join('')}</tbody></table></div><div class="policy-grid">${[['Consultations','Every colour and major restyle begins with a consultation. We agree the plan, timing and investment before booking.'],['Patch tests','A patch test is required at least 48 hours before a first colour service or after a long break from colour.'],['Changes & cancellations','Reschedule or cancel up to 48 hours before your appointment. Later changes may incur 50% of the service price.'],['Deposits','Bridal, extension and corrective-colour bookings require a redeemable deposit to secure the appointment.']].map(([h,p])=>`<div class="policy"><h3>${h}</h3><p class="small muted mt-2">${p}</p></div>`).join('')}</div></div></div></section>
+ <section class="section" id="reviews"><div class="shell"><div class="section-head"><p class="eyebrow">Client words</p><h2>4.9★ from 340+ clients</h2></div><div class="grid grid-3">${reviews.map(r=>`<article class="review"><div class="review-stars" aria-label="${r.rating} out of 5 stars">${svgIcon.star.repeat(r.rating)}</div><p class="mt-2">“${esc(r.text)}”</p><div class="review-meta mt-2"><strong>${esc(r.name)}</strong><span>${esc(r.service)}</span></div></article>`).join('')}</div></div></section>
+ <section class="section" id="faq" style="background:var(--raised)"><div class="shell"><div class="section-head"><p class="eyebrow">Good to know</p><h2>Frequently asked</h2></div><div>${faqs.map(([q,a])=>`<details class="accordion"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div></div></section>
+ <section class="section" id="visit"><div class="shell"><div class="section-head"><p class="eyebrow">Visit</p><h2>Find the atelier</h2></div><div class="split"><div class="map" role="img" aria-label="Stylised map showing Atelier Vespera in Marylebone, London"><svg viewBox="0 0 600 400" aria-hidden="true"><rect width="600" height="400" fill="oklch(92% .02 85)"/><path d="M0 120h600M0 250h600M150 0v400M380 0v400" stroke="oklch(80% .02 85)" stroke-width="18"/><path d="M0 190h600" stroke="oklch(75% .03 80)" stroke-width="8"/><circle cx="300" cy="190" r="10" fill="oklch(63% .115 45)"/></svg><svg class="map-pin" width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-8 7-13a7 7 0 1 0-14 0c0 5 7 13 7 13Z" fill="currentColor"/><circle cx="12" cy="9" r="2.6" fill="oklch(97% .008 85)"/></svg><button class="btn btn-small copy-address" id="copyAddress2">Copy address</button></div><div><h3>18 Vespera Mews, Marylebone</h3><p class="muted mt-2">A quiet mews studio with step-free access, close to Baker Street station. Complimentary tea and filtered water are available during every appointment.</p><div class="hero-actions mt-3"><button class="btn btn-primary" data-open-booking>Book an appointment</button><button class="btn btn-ghost" id="shareStudio">Share studio</button></div></div></div></div></section>`}
+function appointmentsView(){const bookings=state.bookings.slice().sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));return `<section class="section"><div class="shell"><div class="section-head"><p class="eyebrow">Your visits</p><h2>My appointments</h2><p class="muted">Bookings are stored privately in this browser. You can cancel a future appointment or export your atelier data.</p></div>${bookings.length?`<div class="grid grid-3">${bookings.map(b=>`<article class="appointment"><div class="appointment-top"><div><span class="eyebrow">${esc(fmtDate.format(new Date(b.date+'T00:00:00')))}</span><h3>${esc(b.serviceName)}</h3></div><span class="status ${b.status==='cancelled'?'cancelled':''}">${esc(b.status)}</span></div><p class="small muted">${esc(b.stylistName)} · ${esc(b.time)} · ${esc(b.ref)}</p><p class="small muted">${esc(b.notes||'No additional notes')}</p><div class="card-actions">${b.status==='confirmed'?`<button class="btn btn-ghost btn-small" data-cancel="${b.ref}">Cancel</button><button class="btn btn-ghost btn-small" data-ics="${b.ref}">Add to calendar</button>`:''}</div></article>`).join('')}</div>`:`<div class="empty"><h3>No appointments yet</h3><p class="mt-2">When you reserve a visit, it will appear here with its reference, stylist and calendar download.</p><button class="btn btn-brass mt-3" data-open-booking>Book your first visit</button></div>`}<div class="card mt-4"><h3>Export your atelier data</h3><p class="small muted mt-2">Download a JSON copy of your preferences, saved services and appointments.</p><div class="card-actions mt-2"><button class="btn btn-primary btn-small" id="exportData">Export JSON</button><button class="btn btn-ghost btn-small" id="clearData">Clear local data</button></div></div></div></section>`}
+function settingsView(){const caps=[['View Transitions API',!!document.startViewTransition,'Animated route and detail changes.'],['Scroll-driven animations',CSS.supports('animation-timeline: scroll()'),'Section reveals linked to scroll.'],['Container queries',CSS.supports('container-type: inline-size'),'Cards adapt to their own width.'],['Container style queries',CSS.supports('container-style: size'),'Optional density-aware components.'],['CSS nesting',CSS.supports('selector(&)','& {}'),'Readable component-scoped styles.'],['@scope',CSS.supports('@scope (.a) to (.b)'),'Bounded style scope for policy cards.'],['Anchor positioning',CSS.supports('anchor-name: --a'),'Contextual placement for popovers.'],['Popover API','showPopover' in HTMLElement.prototype,'Light-dismiss interface elements.'],['<dialog>',!!window.HTMLDialogElement,'Accessible booking and detail overlays.'],[':has()',CSS.supports('selector(:has(a))'),'Parent-state styling.'],['field-sizing',CSS.supports('field-sizing: content'),'Inputs can grow with content.'],['Trusted Types',!!window.trustedTypes,'Additional DOM-injection protection.'],['Navigation API',!!window.navigation,'Native SPA navigation handling.'],['Web Animations API',!!window.Element.prototype.animate,'Interactive motion and feedback.'],['Canvas 2D',!!document.createElement('canvas').getContext,'Hero strand visual.'],['Web Audio',!!window.AudioContext,'Optional sound capabilities.'],['Clipboard API',!!navigator.clipboard,'Copy address and references.'],['Web Share API',!!navigator.share,'Share the studio where supported.'],['localStorage',(()=>{try{localStorage.setItem('__t','1');localStorage.removeItem('__t');return true}catch(e){return false}})(),'Remembers preferences and bookings.']];return `<section class="section"><div class="shell settings-panel"><div class="section-head"><p class="eyebrow">Settings & support</p><h2>Make the atelier yours</h2><p class="muted">Preferences are stored only on this device. No account, external service or network request is required.</p></div><div class="card"><div class="setting-row"><div><strong>Colour mode</strong><p class="small muted">Choose a light, dark or system-matched interface.</p></div><div class="segmented" role="group" aria-label="Colour mode">${['light','dark','system'].map(m=>`<button data-theme-mode="${m}" aria-pressed="${state.theme===m}">${m[0].toUpperCase()+m.slice(1)}</button>`).join('')}</div></div><div class="setting-row"><div><strong>Reduced motion</strong><p class="small muted">Follows your operating-system preference; the interface remains fully usable either way.</p></div><span class="pill">${matchMedia('(prefers-reduced-motion: reduce)').matches?'Reduced':'Standard'}</span></div></div><div class="card"><h3>Platform capabilities</h3><p class="small muted mt-2">This panel shows which browser features enhance the experience. Missing features fall back to simpler, accessible behaviour.</p><div class="cap-grid mt-3">${caps.map(([n,ok,why])=>`<div class="cap"><span class="cap-status ${ok?'active':'unavailable'}">${ok?'Active':'Unavailable'}</span><strong>${n}</strong><small>${why}</small></div>`).join('')}</div></div></div></section>`}
+let activeServiceCat='All',activeGalleryCat='All',serviceQuery='';
+function renderServices(){const q=serviceQuery.trim().toLowerCase();const list=services.filter(s=>(activeServiceCat==='All'||s.category===activeServiceCat)&&(!q||[s.name,s.description,s.category,s.specialtiesNote||''].join(' ').toLowerCase().includes(q)));$('#serviceGrid').innerHTML=list.map(serviceCard).join('');$('#serviceCount').textContent=`${list.length} service${list.length===1?'':'s'} available`}
+function renderGallery(){const list=gallery.filter(g=>activeGalleryCat==='All'||g.category===activeGalleryCat);$('#galleryGrid').innerHTML=list.map(galleryCard).join('')}
+function applyTheme(){const mode=state.theme;const dark=mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.body.dataset.theme=dark?'dark':'light';$$('[data-theme-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.themeMode===mode)))}
+function route(){const hash=location.hash||'#/home';const[path,anchor]=hash.slice(1).split('#');const view=path||'home';const html=view==='appointments'?appointmentsView():view==='settings'?settingsView():homeView();transition(()=>{viewRoot.innerHTML=html;document.title={home:'Atelier Vespera — Hair Atelier & Colour Studio',appointments:'My appointments — Atelier Vespera',settings:'Settings — Atelier Vespera'}[view]||'Atelier Vespera';if(view==='home'){renderServices();renderGallery();initHeroCanvas()}if(anchor){const target=document.getElementById(anchor);if(target)target.scrollIntoView({behavior:'smooth',block:'start'})}else window.scrollTo({top:0,behavior:'instant'});$$('.reveal').forEach(el=>el.classList.add('visible'));initReveal()});$$('.nav a, .drawer-panel a').forEach(a=>{const href=a.getAttribute('href');a.toggleAttribute('aria-current',href===`#/${view}`||href===`#/${view}#${anchor}`)})}
+function initReveal(){const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}})},{threshold:.12});$$('.reveal').forEach(el=>io.observe(el))}
+let heroCtx,heroRaf,heroVisible=true,heroTime=0;
+function initHeroCanvas(){const canvas=$('#heroCanvas');if(!canvas)return;const ctx=canvas.getContext('2d');if(!ctx)return;heroCtx=ctx;const resize=()=>{const dpr=Math.min(devicePixelRatio||1,2);const r=canvas.getBoundingClientRect();canvas.width=Math.max(1,r.width*dpr);canvas.height=Math.max(1,r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)};resize();new ResizeObserver(resize).observe(canvas);new IntersectionObserver(entries=>{heroVisible=entries[0].isIntersecting},{threshold:.05}).observe(canvas);const draw=()=>{heroRaf=requestAnimationFrame(draw);if(!heroVisible||document.hidden)return;heroTime+=.006;const w=canvas.clientWidth,h=canvas.clientHeight;ctx.clearRect(0,0,w,h);const strands=18;for(let i=0;i<strands;i++){const y=h*(.16+i/strands*.7);ctx.beginPath();for(let x=0;x<=w;x+=12){const wave=Math.sin(x*.006+heroTime+i*.35)*26+Math.sin(x*.013-heroTime*1.3+i)*10;const yy=y+wave;x===0?ctx.moveTo(x,yy):ctx.lineTo(x,yy)}ctx.strokeStyle=`oklch(63% .105 65 / ${.07+ (i%4)*.03})`;ctx.lineWidth=1+i%3;ctx.stroke()}};cancelAnimationFrame(heroRaf);draw()}
+function openBooking(serviceId,stylistId){const dialog=$('#bookingDialog');dialog.showModal();resetBooking();if(serviceId)$('#bookingService').value=serviceId;if(stylistId)$('#bookingStylist').value=stylistId;updateSummary()}
+function resetBooking(){$('#bookingForm').reset();$('#bookingForm').dataset.step='1';$$('#bookingForm [data-panel]').forEach((p,i)=>p.hidden=i!==0);$$('.step').forEach((s,i)=>s.classList.toggle('active',i===0));$('#bookingBack').hidden=true;$('#bookingNext').hidden=false;$('#bookingSubmit').hidden=true;$('#bookingConfirmation').hidden=true;$('#bookingForm').hidden=false;$('#slotError').hidden=true}
+function fillBookingOptions(){$('#bookingService').innerHTML=services.map(s=>`<option value="${s.id}">${esc(s.name)} — ${esc(s.price)}</option>`).join('');$('#bookingStylist').innerHTML=`<option value="any">Any available stylist</option>`+stylists.map(p=>`<option value="${p.id}">${esc(p.name)} — ${esc(p.role)}</option>`).join('')}
+function selectedService(){return services.find(s=>s.id===$('#bookingService').value)}
+function selectedStylist(){const id=$('#bookingStylist').value;return id==='any'?{id:'any',name:'Any available stylist'}:stylists.find(p=>p.id===id)}
+function updateSummary(){const s=selectedService(),p=selectedStylist();if(!s||!p)return;$('#bookingSummary').innerHTML=`<div class="summary-row"><span>Service</span><span>${esc(s.name)}</span></div><div class="summary-row"><span>Stylist</span><span>${esc(p.name)}</span></div><div class="summary-row"><span>Duration</span><span>${s.minutes} minutes</span></div><div class="summary-row"><span>Investment</span><span>${esc(s.price)}</span></div>`}
+function renderSlots(){const date=$('#bookingDate').value;const grid=$('#slotGrid');if(!date){grid.innerHTML='<p class="small muted">Choose a date to see available times.</p>';return}const booked=new Set(state.bookings.filter(b=>b.date===date&&b.status==='confirmed').map(b=>b.time));grid.innerHTML=slots.map(t=>{const disabled=booked.has(t);return `<button type="button" class="slot" data-slot="${t}" ${disabled?'disabled':''} aria-pressed="false">${t}${disabled?' · booked':''}</button>`}).join('')}
+function validateStep(step){if(step===2&&!$('#bookingDate').value){$('#slotError').textContent='Please choose a date.';$('#slotError').hidden=false;return false}if(step===2&&!$('#bookingForm').dataset.slot){$('#slotError').textContent='Please select an available time.';$('#slotError').hidden=false;return false}if(step===3){const name=$('#clientName'),email=$('#clientEmail'),phone=$('#clientPhone');let ok=true;[name,email,phone].forEach(f=>{if(!f.checkValidity()){f.setAttribute('aria-invalid','true');ok=false}else f.removeAttribute('aria-invalid')});return ok}return true}
+function makeIcs(b){const start=new Date(`${b.date}T${b.time}:00`);const end=new Date(start.getTime()+b.minutes*60000);const fmt=d=>d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Atelier Vespera//Booking//EN','BEGIN:VEVENT',`UID:${b.ref}@atelier-vespera`,`DTSTAMP:${fmt(new Date())}`,`DTSTART:${fmt(start)}`,`DTEND:${fmt(end)}`,`SUMMARY:${b.serviceName} — Atelier Vespera`,`DESCRIPTION:Stylist: ${b.stylistName}. Reference ${b.ref}.`,`LOCATION:18 Vespera Mews\\, Marylebone\\, London W1U 4QP`,'END:VEVENT','END:VCALENDAR'].join('\r\n');const blob=new Blob([ics],{type:'text/calendar'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`atelier-vespera-${b.ref}.ics`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function detailFor(id){const s=services.find(x=>x.id===id);if(!s)return;$('#detailTitle').textContent=s.name;$('#detailBody').innerHTML=`<p class="eyebrow">${esc(s.category)}</p><p class="muted mt-2">${esc(s.description)}</p><div class="summary mt-3"><div class="summary-row"><span>Duration</span><span>${s.minutes} minutes</span></div><div class="summary-row"><span>Investment</span><span>${esc(s.price)}</span></div><div class="summary-row"><span>Preparation</span><span>${esc(s.note)}</span></div></div><div class="card-actions mt-3"><button class="btn btn-primary" data-book-service="${s.id}">Book this service</button></div>`;$('#detailDialog').showModal()}
+document.addEventListener('click',e=>{const t=e.target.closest('button,a');if(!t)return;
+if(t.dataset.openBooking!==undefined){e.preventDefault();openBooking();return}
+if(t.dataset.bookService){e.preventDefault();openBooking(t.dataset.bookService);return}
+if(t.dataset.bookStylist){e.preventDefault();openBooking('',t.dataset.bookStylist);return}
+if(t.dataset.fav){const id=t.dataset.fav;const set=new Set(state.favourites);set.has(id)?set.delete(id):set.add(id);store.set({favourites:[...set]});t.setAttribute('aria-pressed',String(set.has(id)));toastMsg(set.has(id)?'Saved to favourites':'Removed from favourites');return}
+if(t.dataset.detail){detailFor(t.dataset.detail);return}
+if(t.dataset.gallery){const g=gallery.find(x=>x.id===t.dataset.gallery);$('#detailTitle').textContent=g.title;$('#detailBody').innerHTML=`${art(g.colors,99)}<p class="eyebrow mt-3">${esc(g.category)}</p><p class="muted mt-2">Hair: ${esc(g.hair)}<br>Technique: ${esc(g.technique)}</p><div class="summary mt-3"><div class="summary-row"><span>Maintenance</span><span>${esc(g.maintenance)}</span></div></div><div class="card-actions mt-3"><button class="btn btn-primary" data-open-booking>Book a consultation</button></div>`;$('#detailDialog').showModal();return}
+if(t.dataset.cancel){const ref=t.dataset.cancel;const bookings=state.bookings.map(b=>b.ref===ref?{...b,status:'cancelled'}:b);store.set({bookings});toastMsg('Appointment cancelled');route();return}
+if(t.dataset.ics){const b=state.bookings.find(x=>x.ref===t.dataset.ics);if(b)makeIcs(b);return}
+if(t.dataset.cat){activeServiceCat=t.dataset.cat;$$('[data-cat]').forEach(b=>b.setAttribute('aria-pressed',String(b===t)));renderServices();return}
+if(t.dataset.galleryCat){activeGalleryCat=t.dataset.galleryCat;$$('[data-gallery-cat]').forEach(b=>b.setAttribute('aria-pressed',String(b===t)));renderGallery();return}
+if(t.dataset.themeMode){store.set({theme:t.dataset.themeMode});applyTheme();toastMsg(`Colour mode set to ${t.dataset.themeMode}`);return}
+if(t.id==='themeToggle'){const next=document.body.dataset.theme==='dark'?'light':'dark';store.set({theme:next});applyTheme();return}
+if(t.id==='menuButton'){$('#mobileDrawer').classList.add('open');$('#menuButton').setAttribute('aria-expanded','true');$('#closeDrawer').focus();return}
+if(t.id==='closeDrawer'||t.closest('#mobileDrawer a')){$('#mobileDrawer').classList.remove('open');$('#menuButton').setAttribute('aria-expanded','false');return}
+if(t.id==='copyAddress'||t.id==='copyAddress2'){const addr='18 Vespera Mews, Marylebone, London W1U 4QP';if(navigator.clipboard)navigator.clipboard.writeText(addr).then(()=>toastMsg('Address copied')).catch(()=>toastMsg('Copy unavailable'));else toastMsg('Copy unavailable');return}
+if(t.id==='shareStudio'&&navigator.share){navigator.share({title:'Atelier Vespera',text:'A modern hair atelier in Marylebone.',url:location.href}).catch(()=>{});return}
+if(t.id==='exportData'){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='atelier-vespera-data.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return}
+if(t.id==='clearData'){if(confirm('Clear saved preferences, favourites and appointments from this browser?')){store.set({favourites:[],bookings:[],newsletter:false});toastMsg('Local data cleared');route()}return}
+if(t.id==='downloadIcs'){const ref=$('#bookingRef').textContent;const b=state.bookings.find(x=>x.ref===ref);if(b)makeIcs(b);return}
+if(t.id==='viewAppointments'){$('#bookingDialog').close();location.hash='#/appointments';return}});
+document.addEventListener('input',e=>{if(e.target.id==='serviceSearch'){serviceQuery=e.target.value;renderServices()}});
+document.addEventListener('change',e=>{if(e.target.id==='bookingDate'){renderSlots()}if(['bookingService','bookingStylist'].includes(e.target.id))updateSummary()});
+$('#bookingForm').addEventListener('click',e=>{const slot=e.target.closest('.slot');if(!slot||slot.disabled)return;$$('.slot').forEach(s=>s.setAttribute('aria-pressed','false'));slot.setAttribute('aria-pressed','true');$('#bookingForm').dataset.slot=slot.dataset.slot;$('#slotError').hidden=true});
+$('#bookingNext').addEventListener('click',()=>{const step=Number($('#bookingForm').dataset.step);if(!validateStep(step))return;const next=Math.min(3,step+1);$('#bookingForm').dataset.step=String(next);$$('#bookingForm [data-panel]').forEach((p,i)=>p.hidden=i!==next-1);$$('.step').forEach((s,i)=>s.classList.toggle('active',i<next));$('#bookingBack').hidden=next===1;$('#bookingNext').hidden=next===3;$('#bookingSubmit').hidden=next!==3;if(next===3)updateSummary()});
+$('#bookingBack').addEventListener('click',()=>{const step=Math.max(1,Number($('#bookingForm').dataset.step)-1);$('#bookingForm').dataset.step=String(step);$$('#bookingForm [data-panel]').forEach((p,i)=>p.hidden=i!==step-1);$$('.step').forEach((s,i)=>s.classList.toggle('active',i<step));$('#bookingBack').hidden=step===1;$('#bookingNext').hidden=false;$('#bookingSubmit').hidden=true});
+$('#bookingForm').addEventListener('submit',e=>{e.preventDefault();if(!validateStep(3))return;const s=selectedService(),p=selectedStylist(),date=$('#bookingDate').value,time=$('#bookingForm').dataset.slot;const ref='AV-'+Math.random().toString(36).slice(2,7).toUpperCase();const booking={ref,serviceId:s.id,serviceName:s.name,stylistId:p.id,stylistName:p.name,date,time,minutes:s.minutes,price:s.price,notes:$('#hairNotes').value.trim(),status:'confirmed',created:new Date().toISOString()};store.set({bookings:[...state.bookings,booking]});$('#bookingForm').hidden=true;$('#bookingConfirmation').hidden=false;$('#bookingRef').textContent=ref;$('#confirmationDetail').textContent=`${s.name} with ${p.name} on ${fmtDate.format(new Date(date+'T00:00:00'))} at ${time}.`;toastMsg('Appointment confirmed')});
+$('#newsletterForm').addEventListener('submit',e=>{e.preventDefault();const input=$('#newsletterEmail');if(!input.checkValidity()){$('#newsletterMessage').textContent='Please enter a valid email address.';return}store.set({newsletter:true});$('#newsletterMessage').textContent='Thank you—your atelier updates will arrive soon.';input.value=''});
+window.addEventListener('hashchange',route);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(state.theme==='system')applyTheme()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#mobileDrawer').classList.remove('open');$('#menuButton').setAttribute('aria-expanded','false')}});
+window.addEventListener('scroll',()=>{$('#siteHeader').classList.toggle('scrolled',window.scrollY>10)},{passive:true});
+$('#year').textContent=new Date().getFullYear();
+fillBookingOptions();applyTheme();route();
+</script>
+</body>
+</html>

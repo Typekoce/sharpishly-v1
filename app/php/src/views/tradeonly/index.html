@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vanguard Trade Hub — MVC Trade Portal</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --card: #ffffff;
+      --workspace: #f8fafc;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --warm: #d97706;
+      --ok: #16a34a;
+      --warn: #ca8a04;
+      --err: #dc2626;
+      --radius: 8px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--sans); background: var(--workspace); color: var(--text); line-height: 1.45; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+    /* Layout */
+    .shell { display: grid; grid-template-columns: 230px 1fr; grid-template-rows: 56px 1fr; min-height: 100vh; }
+    .topbar {
+      grid-column: 1 / -1; background: var(--bg); color: #f8fafc;
+      display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid #334155;
+    }
+    .brand { font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .search { flex: 1; max-width: 380px; }
+    .search input {
+      width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid #334155;
+      background: #1e293b; color: #f8fafc;
+    }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .pill-btn {
+      padding: 6px 12px; border-radius: 6px; border: 1px solid #334155;
+      background: #1e293b; color: #f8fafc; font-size: 0.85rem; font-weight: 500;
+    }
+    .pill-btn.b2b { border-color: #38bdf8; color: #38bdf8; }
+    .pill-btn.b2c { border-color: #fbbf24; color: #fbbf24; }
+    .pill-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+    .sidebar { background: var(--surface); color: #cbd5e1; padding: 14px 10px; display: flex; flex-direction: column; gap: 4px; }
+    .nav-group { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; padding: 10px 10px 4px; font-weight: 700; }
+    .nav-item {
+      display: block; padding: 8px 10px; border-radius: 6px; color: #cbd5e1;
+      text-decoration: none; font-size: 0.9rem; font-weight: 500;
+    }
+    .nav-item:hover { background: #334155; color: #fff; }
+    .nav-item.active { background: var(--accent); color: #fff; }
+
+    .main { padding: 24px; max-width: 1440px; width: 100%; }
+    .page-head { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+    .page-title { font-size: 1.4rem; font-weight: 700; }
+    .page-sub { font-size: 0.875rem; color: var(--muted); }
+
+    /* Reusable Components */
+    .grid-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 18px; }
+    .card-head { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .card-title { font-size: 0.95rem; font-weight: 600; }
+    .card-body { padding: 16px; }
+    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+    .kpi-lbl { font-size: 0.72rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.04em; font-weight: 600; }
+    .kpi-val { font-size: 1.5rem; font-weight: 700; margin: 4px 0; }
+    .kpi-note { font-size: 0.78rem; color: var(--ok); }
+    .kpi-note.warn { color: var(--err); }
+
+    .btn { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: #fff; color: var(--text); font-size: 0.85rem; font-weight: 500; }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-dark); color: #fff; }
+    .btn-sm { padding: 4px 8px; font-size: 0.78rem; }
+
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+    .b-ok { background: #dcfce7; color: #166534; }
+    .b-warn { background: #fef9c3; color: #854d0e; }
+    .b-err { background: #fee2e2; color: #991b1b; }
+    .b-info { background: #e0f2fe; color: #075985; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { text-align: left; padding: 10px 12px; background: #f1f5f9; color: var(--muted); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:hover td { background: #f8fafc; }
+
+    .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+    .prod-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .prod-actions { display: flex; gap: 6px; margin-top: auto; padding-top: 8px; }
+
+    .kanban { display: grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); gap: 12px; }
+    .k-col { background: #f1f5f9; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; }
+    .k-head { font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .k-card { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-bottom: 8px; font-size: 0.84rem; }
+
+    .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .tab { padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border); background: #fff; font-size: 0.82rem; }
+    .tab.active { background: var(--bg); color: #fff; border-color: var(--bg); }
+
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+    .field label { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+    .field input, .field select { padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
+
+    /* Drawer & Dialog */
+    .drawer-bg { position: fixed; inset: 0; background: rgba(15,23,42,.45); display: none; z-index: 40; }
+    .drawer-bg.open { display: block; }
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; width: min(400px, 95vw); background: #fff;
+      border-left: 1px solid var(--border); z-index: 50; display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform .18s ease;
+    }
+    .drawer.open { transform: translateX(0); }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 16px; }
+    .drawer-foot { padding: 14px 16px; border-top: 1px solid var(--border); background: #f8fafc; }
+
+    dialog { border: 1px solid var(--border); border-radius: var(--radius); padding: 0; width: min(520px, 94vw); margin: auto; }
+    dialog::backdrop { background: rgba(15,23,42,.5); }
+
+    .bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 150px; padding-top: 16px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+    .bar-pair { display: flex; gap: 4px; align-items: flex-end; width: 100%; justify-content: center; flex: 1; }
+    .bar { width: 14px; border-radius: 3px 3px 0 0; }
+    .toast {
+      position: fixed; bottom: 16px; right: 16px; background: var(--bg); color: #fff;
+      padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; z-index: 60; display: none;
+    }
+    .toast.show { display: block; }
+
+    @media (max-width: 820px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { flex-direction: row; overflow-x: auto; padding: 8px; }
+      .nav-group { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">◆ Vanguard Trade Hub</div>
+      <div class="search">
+        <input type="search" id="globalSearch" placeholder="Filter SKU, supplier, customer, invoice..." />
+      </div>
+      <div class="topbar-right">
+        <button type="button" id="modeBtn" class="pill-btn b2b">B2B Trade</button>
+        <select id="roleSelect" class="pill-btn" aria-label="Stakeholder role">
+          <option value="executive">Executive</option>
+          <option value="procurement">Procurement</option>
+          <option value="decorator">Decorator</option>
+          <option value="merchandiser">Merchandiser</option>
+          <option value="sales">Sales</option>
+          <option value="finance">Finance</option>
+        </select>
+        <button type="button" id="cartOpenBtn" class="pill-btn primary">Order / RFQ (<span id="cartBadge">0</span>)</button>
+      </div>
+    </header>
+
+    <nav class="sidebar" id="navMenu"></nav>
+    <main class="main" id="appRoot"></main>
+  </div>
+
+  <div class="drawer-bg" id="drawerBg"></div>
+  <aside class="drawer" id="cartDrawer">
+    <div class="card-head">
+      <span class="card-title">Order &amp; RFQ Builder</span>
+      <button type="button" class="btn btn-sm" id="cartCloseBtn">Close</button>
+    </div>
+    <div class="drawer-body" id="cartBody"></div>
+    <div class="drawer-foot" id="cartFoot"></div>
+  </aside>
+
+  <dialog id="modal">
+    <div class="card-head">
+      <span class="card-title" id="modalTitle">Modal</span>
+      <button type="button" class="btn btn-sm" id="modalCloseBtn">✕</button>
+    </div>
+    <div class="card-body" id="modalBody"></div>
+  </dialog>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // =========================================================================
+    // 1. GLOBAL APPLICATION DATA STORE (App.data)
+    // =========================================================================
+    const App = {
+      STORAGE_KEY: 'vanguard_mvc_v1',
+      data: {
+        pricingMode: 'b2b', // 'b2b' | 'b2c'
+        role: 'executive',
+        search: '',
+        cart: [],
+        products: [
+          { id: 'SKU-TEE-001', name: 'Performance Work Tee', category: 'Apparel & Workwear', stock: 1840, moq: 50, cost: 4.20, wholesale: [6.80, 6.10, 5.40], retail: 14.99, decos: ['Screen Print', 'Embroidery', 'DTG'] },
+          { id: 'SKU-HDY-014', name: 'Heavyweight Fleece Hoodie', category: 'Apparel & Workwear', stock: 620, moq: 24, cost: 14.50, wholesale: [22.00, 19.50, 17.20], retail: 49.00, decos: ['Screen Print', 'Embroidery'] },
+          { id: 'SKU-POL-022', name: 'Piqué Corporate Polo', category: 'Apparel & Workwear', stock: 980, moq: 36, cost: 8.10, wholesale: [12.40, 11.20, 9.90], retail: 28.50, decos: ['Embroidery'] },
+          { id: 'SKU-JCK-041', name: 'All-Weather Softshell', category: 'Apparel & Workwear', stock: 210, moq: 12, cost: 28.00, wholesale: [42.00, 38.00, 34.00], retail: 89.00, decos: ['Embroidery'] },
+          { id: 'SKU-CAP-077', name: 'Structured 6-Panel Cap', category: 'Apparel & Workwear', stock: 740, moq: 48, cost: 5.60, wholesale: [8.90, 7.80, 6.90], retail: 22.00, decos: ['Embroidery'] },
+          { id: 'SKU-MUG-101', name: 'Ceramic Camp Mug 12oz', category: 'Hard Goods & Drinkware', stock: 2400, moq: 72, cost: 2.80, wholesale: [4.50, 3.90, 3.40], retail: 12.00, decos: ['Screen Print', 'Laser Engrave'] },
+          { id: 'SKU-TUM-088', name: 'Vacuum Tumbler 20oz', category: 'Hard Goods & Drinkware', stock: 1150, moq: 48, cost: 6.40, wholesale: [9.80, 8.60, 7.50], retail: 24.00, decos: ['Laser Engrave', 'Screen Print'] },
+          { id: 'SKU-BTL-066', name: 'Steel Hydration Bottle', category: 'Hard Goods & Drinkware', stock: 980, moq: 36, cost: 7.20, wholesale: [11.50, 10.20, 9.00], retail: 28.00, decos: ['Laser Engrave'] },
+          { id: 'SKU-PEN-009', name: 'Anodized Alloy Pen', category: 'Hard Goods & Drinkware', stock: 5600, moq: 250, cost: 0.65, wholesale: [1.20, 0.95, 0.80], retail: 4.00, decos: ['Laser Engrave'] },
+          { id: 'SKU-BAG-055', name: 'Heavy Cotton Tote', category: 'Packaging & POS', stock: 3200, moq: 100, cost: 1.90, wholesale: [3.20, 2.70, 2.30], retail: 8.50, decos: ['Screen Print', 'DTG'] },
+          { id: 'SKU-BOX-033', name: 'Kraft Mailer Box', category: 'Packaging & POS', stock: 890, moq: 200, cost: 0.95, wholesale: [1.60, 1.35, 1.15], retail: 3.50, decos: ['Screen Print'] },
+          { id: 'SKU-FAB-210', name: 'Ring-Spun Jersey Roll', category: 'Raw Materials', stock: 4500, moq: 50, cost: 3.10, wholesale: [4.80, 4.20, 3.70], retail: 11.00, decos: ['DTG', 'Screen Print'] }
+        ],
+        suppliers: [
+          { id: 'SUP-01', name: 'Northline Textiles', leadDays: 12, score: 94, iso: 'ISO 9001', categories: 'Apparel, Raw Materials' },
+          { id: 'SUP-02', name: 'Forge Drinkware Co.', leadDays: 18, score: 91, iso: 'ISO 14001', categories: 'Drinkware' },
+          { id: 'SUP-03', name: 'ParcelKraft Packaging', leadDays: 8, score: 88, iso: 'FSC Cert', categories: 'Packaging & POS' },
+          { id: 'SUP-04', name: 'Alpine Blank Mills', leadDays: 21, score: 96, iso: 'OEKO-TEX', categories: 'Raw Materials' },
+          { id: 'SUP-05', name: 'Vector Promo Parts', leadDays: 14, score: 85, iso: 'Pending', categories: 'Hard Goods' }
+        ],
+        purchaseOrders: [
+          { id: 'PO-2401', supplier: 'Northline Textiles', sku: 'SKU-TEE-001', qty: 1500, status: 'In Transit', total: 6300, eta: '2026-11-28' },
+          { id: 'PO-2402', supplier: 'Forge Drinkware Co.', sku: 'SKU-TUM-088', qty: 800, status: 'Confirmed', total: 5120, eta: '2026-12-05' },
+          { id: 'PO-2398', supplier: 'Alpine Blank Mills', sku: 'SKU-FAB-210', qty: 2000, status: 'Received', total: 6200, eta: '2026-11-12' }
+        ],
+        jobs: [
+          { id: 'JOB-881', sku: 'SKU-TEE-001', client: 'Acme Industrial', method: 'Screen Print', qty: 500, colors: 3, stage: 'Artwork Proofing', due: '2026-11-25' },
+          { id: 'JOB-882', sku: 'SKU-HDY-014', client: 'Summit Outfitters', method: 'Embroidery', qty: 120, colors: 2, stage: 'Screen/Plate Setup', due: '2026-11-27' },
+          { id: 'JOB-883', sku: 'SKU-MUG-101', client: 'Metro Civic', method: 'Screen Print', qty: 800, colors: 1, stage: 'In Production', due: '2026-11-24' },
+          { id: 'JOB-884', sku: 'SKU-CAP-077', client: 'Trail Run UK', method: 'Embroidery', qty: 300, colors: 1, stage: 'QC & Packing', due: '2026-11-22' },
+          { id: 'JOB-885', sku: 'SKU-TUM-088', client: 'TechConf Ltd', method: 'Laser Engrave', qty: 450, colors: 1, stage: 'Ready for Dispatch', due: '2026-11-21' },
+          { id: 'JOB-886', sku: 'SKU-POL-022', client: 'Northwind Hotels', method: 'Embroidery', qty: 200, colors: 2, stage: 'In Production', due: '2026-11-29' }
+        ],
+        customers: [
+          { id: 'CUS-B01', channel: 'b2b', name: 'Acme Industrial Supply', tier: 'Gold', manager: 'R. Hale', credit: 75000, used: 31200, vatExempt: true },
+          { id: 'CUS-B02', channel: 'b2b', name: 'Summit Outfitters', tier: 'Silver', manager: 'J. Ortega', credit: 40000, used: 18500, vatExempt: false },
+          { id: 'CUS-B03', channel: 'b2b', name: 'Harbor Logistics Group', tier: 'Bronze', manager: 'R. Hale', credit: 15000, used: 4200, vatExempt: false },
+          { id: 'CUS-B04', channel: 'b2b', name: 'Northwind Hospitality', tier: 'Gold', manager: 'S. Kim', credit: 90000, used: 54000, vatExempt: true },
+          { id: 'CUS-C01', channel: 'b2c', name: 'Elena Voss', tier: 'Retail VIP', manager: 'Direct', credit: 0, used: 0, orders: 7, points: 1240 },
+          { id: 'CUS-C02', channel: 'b2c', name: 'Marcus Chen', tier: 'Retail', manager: 'Direct', credit: 0, used: 0, orders: 3, points: 380 }
+        ],
+        invoices: [
+          { id: 'INV-9101', customer: 'Acme Industrial Supply', amount: 12840, status: 'Paid', due: '2026-10-30', terms: 'Net-30' },
+          { id: 'INV-9102', customer: 'Summit Outfitters', amount: 6720, status: 'Net-30 Pending', due: '2026-11-25', terms: 'Net-30' },
+          { id: 'INV-9103', customer: 'Harbor Logistics Group', amount: 2150, status: 'Overdue', due: '2026-11-05', terms: 'Net-30' },
+          { id: 'INV-9104', customer: 'Northwind Hospitality', amount: 18900, status: 'Net-60', due: '2026-12-15', terms: 'Net-60' },
+          { id: 'INV-9105', customer: 'Acme Industrial Supply', amount: 9400, status: 'Net-30 Pending', due: '2026-12-01', terms: 'Net-30' },
+          { id: 'INV-9106', customer: 'Elena Voss', amount: 148.50, status: 'Paid', due: '2026-11-10', terms: 'Card' },
+          { id: 'INV-9107', customer: 'Marcus Chen', amount: 89.00, status: 'Paid', due: '2026-11-14', terms: 'Card' },
+          { id: 'INV-9108', customer: 'Summit Outfitters', amount: 4100, status: 'Overdue', due: '2026-11-12', terms: 'Net-30' }
+        ],
+        planogram: ['SKU-TEE-001', 'SKU-HDY-014', 'SKU-POL-022', 'SKU-JCK-041', 'SKU-MUG-101', 'SKU-TUM-088', 'SKU-BAG-055', 'SKU-CAP-077'],
+        channelMonthly: [
+          { month: 'Jun', b2b: 62, b2c: 18 }, { month: 'Jul', b2b: 71, b2c: 22 },
+          { month: 'Aug', b2b: 68, b2c: 25 }, { month: 'Sep', b2b: 84, b2c: 28 },
+          { month: 'Oct', b2b: 91, b2c: 31 }, { month: 'Nov', b2b: 98, b2c: 34 }
+        ]
+      },
+      defaultSnapshot: null,
+      load() {
+        this.defaultSnapshot = JSON.stringify(this.data);
+        try {
+          const saved = localStorage.getItem(this.STORAGE_KEY);
+          if (saved) Object.assign(this.data, JSON.parse(saved));
+        } catch (e) {}
+      },
+      save() {
+        try { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.data)); } catch (e) {}
+      },
+      reset() {
+        this.data = JSON.parse(this.defaultSnapshot);
+        this.save();
+      }
+    };
+
+    // =========================================================================
+    // 2. BASE MODEL (Single Persistence & Query Abstraction)
+    // =========================================================================
+    class BaseModel {
+      constructor(collectionKey) {
+        this.key = collectionKey;
+      }
+      all() {
+        return App.data[this.key] || [];
+      }
+      find(id) {
+        return this.all().find(item => item.id === id) || null;
+      }
+      where(predicate) {
+        return this.all().filter(predicate);
+      }
+      search(term) {
+        if (!term) return this.all();
+        const q = term.toLowerCase();
+        return this.all().filter(item =>
+          Object.values(item).some(v => String(v).toLowerCase().includes(q))
+        );
+      }
+      insert(record) {
+        App.data[this.key].unshift(record);
+        App.save();
+        return record;
+      }
+      update(id, patch) {
+        const item = this.find(id);
+        if (!item) return null;
+        Object.assign(item, patch);
+        App.save();
+        return item;
+      }
+      remove(id) {
+        App.data[this.key] = this.all().filter(item => item.id !== id);
+        App.save();
+      }
+    }
+
+    // Domain Models extending BaseModel
+    class ProductModel extends BaseModel {
+      constructor() { super('products'); }
+      unitPrice(product, qty, mode = App.data.pricingMode) {
+        if (mode === 'b2c') return product.retail;
+        if (qty >= 250) return product.wholesale[2];
+        if (qty >= 50) return product.wholesale[1];
+        return product.wholesale[0];
+      }
+      stockStatus(stock) {
+        if (stock <= 0) return { cls: 'b-err', text: 'Out of Stock' };
+        if (stock < 300) return { cls: 'b-warn', text: 'Low Stock' };
+        return { cls: 'b-ok', text: 'In Stock' };
+      }
+    }
+
+    class SupplierModel extends BaseModel {
+      constructor() { super('suppliers'); }
+    }
+
+    class PurchaseOrderModel extends BaseModel {
+      constructor() { super('purchaseOrders'); }
+      createOrder(supplierName, sku, qty, unitCost) {
+        const po = {
+          id: 'PO-' + (2400 + this.all().length + 1),
+          supplier: supplierName,
+          sku,
+          qty: Number(qty),
+          status: 'Confirmed',
+          total: Number(qty) * Number(unitCost),
+          eta: '2026-12-12'
+        };
+        return this.insert(po);
+      }
+    }
+
+    class DecorationJobModel extends BaseModel {
+      constructor() { super('jobs'); }
+      static STAGES = ['Artwork Proofing', 'Screen/Plate Setup', 'In Production', 'QC & Packing', 'Ready for Dispatch'];
+      advance(id) {
+        const job = this.find(id);
+        if (!job) return;
+        const idx = DecorationJobModel.STAGES.indexOf(job.stage);
+        if (idx < DecorationJobModel.STAGES.length - 1) {
+          this.update(id, { stage: DecorationJobModel.STAGES[idx + 1] });
+        }
+      }
+      estimateQuote(method, qty, colors) {
+        const setupMap = { 'Screen Print': 45, 'Embroidery': 60, 'Laser Engrave': 35, 'DTG': 20 };
+        const runMap = { 'Screen Print': 0.85, 'Embroidery': 1.40, 'Laser Engrave': 1.10, 'DTG': 2.25 };
+        const setup = (setupMap[method] || 40) * Math.max(1, Number(colors));
+        const unitRun = (runMap[method] || 1) + (Math.max(1, Number(colors)) - 1) * 0.35;
+        return { setup, unitRun, total: setup + unitRun * Number(qty) };
+      }
+    }
+
+    class CustomerModel extends BaseModel {
+      constructor() { super('customers'); }
+      byChannel(channel) { return this.where(c => c.channel === channel); }
+    }
+
+    class InvoiceModel extends BaseModel {
+      constructor() { super('invoices'); }
+      openReceivables() {
+        return this.where(i => i.status !== 'Paid').reduce((sum, i) => sum + i.amount, 0);
+      }
+      toCSV() {
+        const lines = ['Invoice,Customer,Amount,Status,Due,Terms'];
+        this.all().forEach(i => lines.push(`${i.id},"${i.customer}",${i.amount.toFixed(2)},${i.status},${i.due},${i.terms}`));
+        return lines.join('
+');
+      }
+    }
+
+    class CartModel extends BaseModel {
+      constructor() { super('cart'); }
+      add(sku, qty, deco = null) {
+        const existing = this.all().find(i => i.sku === sku && i.deco === deco);
+        if (existing) existing.qty += Number(qty);
+        else App.data.cart.push({ id: sku + (deco || ''), sku, qty: Number(qty), deco });
+        App.save();
+      }
+      updateQty(index, delta) {
+        const item = App.data.cart[index];
+        if (!item) return;
+        item.qty += delta;
+        if (item.qty <= 0) App.data.cart.splice(index, 1);
+        App.save();
+      }
+      clear() {
+        App.data.cart = [];
+        App.save();
+      }
+      totalUnits() {
+        return this.all().reduce((s, i) => s + i.qty, 0);
+      }
+    }
+
+    // =========================================================================
+    // 3. SHARED VIEW RENDERER (DRY UI Helpers)
+    // =========================================================================
+    const View = {
+      fmt: (n) => new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(n),
+      el(tag, attrs = {}, children = []) {
+        const node = document.createElement(tag);
+        for (const [k, v] of Object.entries(attrs)) {
+          if (k === 'class') node.className = v;
+          else if (k === 'text') node.textContent = v;
+          else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2).toLowerCase(), v);
+          else if (v != null) node.setAttribute(k, v);
+        }
+        [].concat(children).forEach(c => {
+          if (c != null) node.append(typeof c === 'string' ? document.createTextNode(c) : c);
+        });
+        return node;
+      },
+      pageHeader(title, subtitle, actionBtn = null) {
+        return this.el('div', { class: 'page-head' }, [
+          this.el('div', {}, [
+            this.el('h1', { class: 'page-title', text: title }),
+            this.el('div', { class: 'page-sub', text: subtitle })
+          ]),
+          actionBtn
+        ]);
+      },
+      kpiGrid(items) {
+        return this.el('div', { class: 'grid-kpi' }, items.map(k =>
+          this.el('div', { class: 'kpi' }, [
+            this.el('div', { class: 'kpi-lbl', text: k.label }),
+            this.el('div', { class: 'kpi-val mono', text: k.value }),
+            this.el('div', { class: 'kpi-note' + (k.warn ? ' warn' : ''), text: k.note || '' })
+          ])
+        ));
+      },
+      card(title, bodyNodes, headerAction = null) {
+        return this.el('div', { class: 'card' }, [
+          this.el('div', { class: 'card-head' }, [
+            this.el('span', { class: 'card-title', text: title }),
+            headerAction
+          ]),
+          this.el('div', { class: 'card-body' }, bodyNodes)
+        ]);
+      },
+      table(headers, rows) {
+        const tbl = this.el('table', {}, [
+          this.el('thead', {}, [this.el('tr', {}, headers.map(h => this.el('th', { text: h })))]),
+          this.el('tbody', {}, rows.map(r => this.el('tr', {}, r.map(cell =>
+            cell instanceof Node ? this.el('td', {}, [cell]) : this.el('td', { text: String(cell) })
+          ))))
+        ]);
+        return this.el('div', { style: 'overflow-x:auto' }, [tbl]);
+      },
+      badge(text, cls = 'b-info') {
+        return this.el('span', { class: `badge ${cls}`, text });
+      },
+      toast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => t.classList.remove('show'), 2400);
+      },
+      openModal(title, contentNodes) {
+        document.getElementById('modalTitle').textContent = title;
+        const body = document.getElementById('modalBody');
+        body.replaceChildren(...[].concat(contentNodes));
+        document.getElementById('modal').showModal();
+      },
+      closeModal() {
+        document.getElementById('modal').close();
+      }
+    };
+
+    // =========================================================================
+    // 4. BASE CONTROLLER (Routing, Lifecycle, Shared Actions)
+    // =========================================================================
+    class BaseController {
+      constructor() {
+        this.products = new ProductModel();
+        this.suppliers = new SupplierModel();
+        this.pos = new PurchaseOrderModel();
+        this.jobs = new DecorationJobModel();
+        this.customers = new CustomerModel();
+        this.invoices = new InvoiceModel();
+        this.cart = new CartModel();
+      }
+      render(node) {
+        document.getElementById('appRoot').replaceChildren(node);
+      }
+      refresh() {
+        Router.dispatch();
+      }
+      index() {
+        throw new Error('Controller must implement index()');
+      }
+    }
+
+    // =========================================================================
+    // 5. STAKEHOLDER CONTROLLERS
+    // =========================================================================
+    class OverviewController extends BaseController {
+      index() {
+        const mode = App.data.pricingMode;
+        const gmv = mode === 'b2b' ? 428600 : 89200;
+        const openPOs = this.pos.where(p => p.status !== 'Received').length;
+        const activeJobs = this.jobs.where(j => j.stage !== 'Ready for Dispatch').length;
+        const openAR = this.invoices.openReceivables();
+        const overdueCount = this.invoices.where(i => i.status === 'Overdue').length;
+
+        const chartBars = View.el('div', { class: 'bar-chart' }, App.data.channelMonthly.map(m =>
+          View.el('div', { class: 'bar-col' }, [
+            View.el('div', { class: 'bar-pair' }, [
+              View.el('div', { class: 'bar', style: `height:${m.b2b}%;background:var(--accent)`, title: `B2B: £${m.b2b}k` }),
+              View.el('div', { class: 'bar', style: `height:${m.b2c}%;background:var(--warm)`, title: `B2C: £${m.b2c}k` })
+            ]),
+            View.el('span', { class: 'mono', style: 'font-size:0.72rem;color:var(--muted)', text: m.month })
+          ])
+        ));
+
+        const shortcuts = View.el('div', { style: 'display:flex;flex-wrap:wrap;gap:8px' }, [
+          ['Browse Wholesale Catalog', 'catalog'],
+          ['Raise Supplier PO', 'suppliers'],
+          ['Decoration Production Queue', 'decorators'],
+          ['Planogram & Margins', 'merchandisers'],
+          ['Trade Credit & Invoices', 'financials']
+        ].map(([label, route]) => View.el('button', {
+          class: 'btn', type: 'button', text: label, onClick: () => Router.go(route)
+        })));
+
+        const root = View.el('div', {}, [
+          View.pageHeader(
+            'Executive Command Center',
+            `Channel: ${mode === 'b2b' ? 'B2B Trade Wholesale' : 'B2C Direct Retail'} · Active Role: ${App.data.role.toUpperCase()}`
+          ),
+          View.kpiGrid([
+            { label: 'Gross Merchandise Value', value: View.fmt(gmv), note: '+12.4% vs last period' },
+            { label: 'Open Purchase Orders', value: String(openPOs), note: 'Supply inbound' },
+            { label: 'Active Decoration Jobs', value: String(activeJobs), note: `${this.jobs.all().length} total in pipeline` },
+            { label: 'Open Receivables', value: View.fmt(openAR), note: `${overdueCount} overdue invoices`, warn: overdueCount > 0 }
+          ]),
+          View.card('Channel Performance (Blue = B2B £k, Amber = B2C £k)', [chartBars]),
+          View.card('Stakeholder Workflows', [shortcuts])
+        ]);
+        this.render(root);
+      }
+    }
+
+    class CatalogController extends BaseController {
+      constructor() {
+        super();
+        this.selectedCategory = 'All';
+      }
+      index() {
+        const mode = App.data.pricingMode;
+        const categories = ['All', 'Apparel & Workwear', 'Hard Goods & Drinkware', 'Packaging & POS', 'Raw Materials'];
+        const filtered = this.products.search(App.data.search).filter(p =>
+          this.selectedCategory === 'All' || p.category === this.selectedCategory
+        );
+
+        const tabs = View.el('div', { class: 'tabs' }, categories.map(cat =>
+          View.el('button', {
+            class: 'tab' + (this.selectedCategory === cat ? ' active' : ''),
+            type: 'button',
+            text: cat,
+            onClick: () => { this.selectedCategory = cat; this.refresh(); }
+          })
+        ));
+
+        const cards = View.el('div', { class: 'catalog-grid' }, filtered.map(p => {
+          const minQty = mode === 'b2b' ? p.moq : 1;
+          const price = this.products.unitPrice(p, minQty, mode);
+          const st = this.products.stockStatus(p.stock);
+          return View.el('div', { class: 'prod-card' }, [
+            View.el('div', { style: 'display:flex;justify-content:space-between;align-items:center' }, [
+              View.el('span', { class: 'mono', style: 'font-size:0.75rem;color:var(--muted)', text: p.id }),
+              View.badge(st.text, st.cls)
+            ]),
+            View.el('strong', { text: p.name }),
+            View.el('div', { style: 'font-size:0.8rem;color:var(--muted)', text: `${p.category} · Stock: ${p.stock}` }),
+            View.el('div', { class: 'mono', style: 'font-size:1.15rem;font-weight:700', text: `${View.fmt(price)} / unit` }),
+            View.el('div', { style: 'font-size:0.76rem;color:var(--muted)', text: mode === 'b2b'
+              ? `MOQ ${p.moq} · Tiers: ${p.wholesale.map(v => View.fmt(v)).join(' / ')}`
+              : `Direct Retail · No MOQ` }),
+            View.el('div', { style: 'font-size:0.74rem;color:var(--accent-dark)', text: `Deco: ${p.decos.join(', ')}` }),
+            View.el('div', { class: 'prod-actions' }, [
+              View.el('button', {
+                class: 'btn btn-primary btn-sm', type: 'button', text: `Add (${minQty})`,
+                onClick: () => {
+                  this.cart.add(p.id, minQty);
+                  Chrome.sync();
+                  View.toast(`Added ${minQty} × ${p.id}`);
+                }
+              }),
+              View.el('button', {
+                class: 'btn btn-sm', type: 'button', text: 'Configure Deco',
+                onClick: () => this.openConfigurator(p)
+              })
+            ])
+          ]);
+        }));
+
+        this.render(View.el('div', {}, [
+          View.pageHeader('Wholesale & B2C Product Catalog', `Showing ${filtered.length} SKUs in ${mode.toUpperCase()} pricing mode`),
+          tabs,
+          cards
+        ]));
+      }
+      openConfigurator(product) {
+        const methodSel = View.el('select', {}, product.decos.map(d => View.el('option', { value: d, text: d })));
+        const locSel = View.el('select', {}, ['Left Chest', 'Full Front', 'Full Back', 'Wrap'].map(l => View.el('option', { value: l, text: l })));
+        const qtyIn = View.el('input', { type: 'number', value: String(App.data.pricingMode === 'b2b' ? product.moq : 1), min: '1' });
+        const colorIn = View.el('input', { type: 'number', value: '1', min: '1', max: '6' });
+        const summary = View.el('div', { class: 'mono', style: 'padding:10px;background:#f1f5f9;border-radius:6px;margin:10px 0;font-weight:600' });
+
+        const recalc = () => {
+          const q = Math.max(1, Number(qtyIn.value));
+          const c = Math.max(1, Number(colorIn.value));
+          const blankUnit = this.products.unitPrice(product, q);
+          const est = this.jobs.estimateQuote(methodSel.value, q, c);
+          const grand = blankUnit * q + est.total;
+          summary.textContent = `Blanks: ${View.fmt(blankUnit * q)} + Deco Setup ${View.fmt(est.setup)} + Run ${View.fmt(est.unitRun * q)} = ${View.fmt(grand)}`;
+        };
+        [methodSel, qtyIn, colorIn].forEach(el => el.addEventListener('input', recalc));
+        recalc();
+
+        View.openModal(`Decoration Configurator — ${product.name}`, [
+          View.el('div', { class: 'form-grid' }, [
+            View.el('div', { class: 'field' }, [View.el('label', { text: 'Method' }), methodSel]),
+            View.el('div', { class: 'field' }, [View.el('label', { text: 'Placement' }), locSel]),
+            View.el('div', { class: 'field' }, [View.el('label', { text: 'Quantity' }), qtyIn]),
+            View.el('div', { class: 'field' }, [View.el('label', { text: 'Ink/Thread Colors' }), colorIn])
+          ]),
+          summary,
+          View.el('button', {
+            class: 'btn btn-primary', type: 'button', text: 'Add Decorated Line to Order',
+            onClick: () => {
+              const q = Math.max(1, Number(qtyIn.value));
+              this.cart.add(product.id, q, `${methodSel.value} (${locSel.value}, ${colorIn.value}c)`);
+              Chrome.sync();
+              View.closeModal();
+              View.toast(`Added decorated ${product.id} to order`);
+            }
+          })
+        ]);
+      }
+    }
+
+    class SuppliersController extends BaseController {
+      index() {
+        const supList = this.suppliers.search(App.data.search);
+        const poList = this.pos.search(App.data.search);
+
+        const newPoBtn = View.el('button', {
+          class: 'btn btn-primary', type: 'button', text: '+ Raise Purchase Order',
+          onClick: () => this.openCreatePOModal()
+        });
+
+        const supTable = View.table(
+          ['ID', 'Supplier', 'Lead Time', 'SLA Score', 'Compliance', 'Categories'],
+          supList.map(s => [s.id, s.name, `${s.leadDays} days`, `${s.score}%`, View.badge(s.iso, s.iso === 'Pending' ? 'b-warn' : 'b-ok'), s.categories])
+        );
+
+        const poTable = View.table(
+          ['PO #', 'Supplier', 'SKU', 'Qty', 'Total Cost', 'ETA', 'Status', 'Action'],
+          poList.map(p => [
+            p.id, p.supplier, p.sku, p.qty, View.fmt(p.total), p.eta,
+            View.badge(p.status, p.status === 'Received' ? 'b-ok' : 'b-info'),
+            p.status !== 'Received'
+              ? View.el('button', {
+                  class: 'btn btn-sm', type: 'button', text: 'Mark Received',
+                  onClick: () => {
+                    this.pos.update(p.id, { status: 'Received' });
+                    const prod = this.products.find(p.sku);
+                    if (prod) this.products.update(prod.id, { stock: prod.stock + p.qty });
+                    View.toast(`${p.id} received — stock updated`);
+                    this.refresh();
+                  }
+                })
+              : '—'
+          ])
+        );
+
+        this.render(View.el('div', {}, [
+          View.pageHeader('Suppliers & Procurement', 'Approved blank manufacturers, SLA scorecards, and inbound PO intake', newPoBtn),
+          View.card('Approved Vendor Directory', [supTable]),
+          View.card('Purchase Orders & ASN Intake', [poTable])
+        ]));
+      }
+      openCreatePOModal() {
+        const supSel = View.el('select', {}, this.suppliers.all().map(s => View.el('option', { value: s.name, text: s.name })));
+        const skuSel = View.el('select', {}, this.products.all().map(p => View.el('option', { value: p.id, text: `${p.id} — ${p.name}` })));
+        const qtyIn = View.el('input', { type: 'number', value: '500', min: '10' });
+
+        View.openModal('Raise Supplier Purchase Order', [
+          View.el('div', { class: 'field' }, [View.el('label', { text: 'Supplier' }), supSel]),
+          View.el('div', { class: 'field' }, [View.el('label', { text: 'Blank SKU' }), skuSel]),
+          View.el('div', { class: 'field' }, [View.el('label', { text: 'Order Quantity' }), qtyIn]),
+          View.el('button', {
+            class: 'btn btn-primary', type: 'button', text: 'Issue PO',
+            onClick: () => {
+              const prod = this.products.find(skuSel.value);
+              const po = this.pos.createOrder(supSel.value, skuSel.value, qtyIn.value, prod ? prod.cost : 5);
+              View.closeModal();
+              View.toast(`Issued ${po.id}`);
+              this.refresh();
+            }
+          })
+        ]);
+      }
+    }
+
+    class DecoratorsController extends BaseController {
+      index() {
+        const jobs = this.jobs.search(App.data.search);
+        const board = View.el('div', { class: 'kanban' }, DecorationJobModel.STAGES.map(stage => {
+          const stageJobs = jobs.filter(j => j.stage === stage);
+          return View.el('div', { class: 'k-col' }, [
+            View.el('div', { class: 'k-head' }, [
+              View.el('span', { text: stage }),
+              View.badge(String(stageJobs.length), 'b-info')
+            ]),
+            ...stageJobs.map(j => View.el('div', { class: 'k-card' }, [
+              View.el('div', { class: 'mono', style: 'font-size:0.74rem;color:var(--muted)', text: `${j.id} · ${j.sku}` }),
+              View.el('strong', { text: j.client }),
+              View.el('div', { style: 'font-size:0.8rem;margin:4px 0', text: `${j.method} · ${j.qty} pcs (${j.colors}c)` }),
+              View.el('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-top:6px' }, [
+                View.el('span', { style: 'font-size:0.74rem;color:var(--muted)', text: `Due ${j.due}` }),
+                stage !== 'Ready for Dispatch'
+                  ? View.el('button', {
+                      class: 'btn btn-sm', type: 'button', text: 'Advance →',
+                      onClick: () => { this.jobs.advance(j.id); View.toast(`${j.id} advanced`); this.refresh(); }
+                    })
+                  : View.badge('Done', 'b-ok')
+              ])
+            ]))
+          ]);
+        }));
+
+        this.render(View.el('div', {}, [
+          View.pageHeader('Decorators & Print Production Queue', 'Live workshop routing across proofing, setup, print/embroidery, and QC'),
+          board
+        ]));
+      }
+    }
+
+    class MerchandisersController extends BaseController {
+      index() {
+        const prodSel = View.el('select', {}, this.products.all().map(p => View.el('option', { value: p.id, text: `${p.id} — ${p.name}` })));
+        const costIn = View.el('input', { type: 'number', step: '0.01' });
+        const tradeIn = View.el('input', { type: 'number', step: '0.01' });
+        const rrpIn = View.el('input', { type: 'number', step: '0.01' });
+        const out = View.el('div', { class: 'mono', style: 'font-weight:700;padding:10px;background:#f1f5f9;border-radius:6px' });
+
+        const loadSku = () => {
+          const p = this.products.find(prodSel.value);
+          if (!p) return;
+          costIn.value = p.cost.toFixed(2);
+          tradeIn.value = p.wholesale[0].toFixed(2);
+          rrpIn.value = p.retail.toFixed(2);
+          calc();
+        };
+        const calc = () => {
+          const c = Number(costIn.value) || 0;
+          const t = Number(tradeIn.value) || 0;
+          const r = Number(rrpIn.value) || 0;
+          const tradeMargin = t > 0 ? (((t - c) / t) * 100).toFixed(1) : '0.0';
+          const retailMargin = r > 0 ? (((r - c) / r) * 100).toFixed(1) : '0.0';
+          out.textContent = `Trade Gross Margin: ${tradeMargin}%  |  B2C Retail Gross Margin: ${retailMargin}%`;
+        };
+        prodSel.addEventListener('change', loadSku);
+        [costIn, tradeIn, rrpIn].forEach(i => i.addEventListener('input', calc));
+        loadSku();
+
+        const planogramGrid = View.el('div', { class: 'catalog-grid' }, App.data.planogram.map((sku, slotIdx) => {
+          const p = this.products.find(sku);
+          const picker = View.el('select', {
+            style: 'margin-top:6px;padding:4px;font-size:0.78rem',
+            onChange: (e) => {
+              App.data.planogram[slotIdx] = e.target.value;
+              App.save();
+              this.refresh();
+            }
+          }, this.products.all().map(opt => View.el('option', { value: opt.id, text: opt.id, selected: opt.id === sku ? 'selected' : null })));
+
+          return View.el('div', { class: 'prod-card' }, [
+            View.el('span', { class: 'mono', style: 'font-size:0.72rem;color:var(--muted)', text: `BAY SLOT #${slotIdx + 1}` }),
+            View.el('strong', { text: p ? p.name : sku }),
+            View.el('span', { style: 'font-size:0.8rem;color:var(--muted)', text: p ? `RRP ${View.fmt(p.retail)} · Trade ${View.fmt(p.wholesale[0])}` : '' }),
+            picker
+          ]);
+        }));
+
+        this.render(View.el('div', {}, [
+          View.pageHeader('Merchandisers & Planogram Studio', 'Channel margin modeling and showroom assortment allocation'),
+          View.card('Channel Margin & Markup Simulator', [
+            View.el('div', { class: 'form-grid' }, [
+              View.el('div', { class: 'field' }, [View.el('label', { text: 'Select SKU' }), prodSel]),
+              View.el('div', { class: 'field' }, [View.el('label', { text: 'Landed Cost (£)' }), costIn]),
+              View.el('div', { class: 'field' }, [View.el('label', { text: 'B2B Trade Price (£)' }), tradeIn]),
+              View.el('div', { class: 'field' }, [View.el('label', { text: 'B2C RRP (£)' }), rrpIn])
+            ]),
+            out
+          ]),
+          View.card('Showroom & Retail Bay Planogram', [planogramGrid])
+        ]));
+      }
+    }
+
+    class CustomersController extends BaseController {
+      index() {
+        const b2b = this.customers.byChannel('b2b');
+        const b2c = this.customers.byChannel('b2c');
+
+        const applyBtn = View.el('button', {
+          class: 'btn btn-primary', type: 'button', text: '+ Onboard Trade Account',
+          onClick: () => this.openOnboardingModal()
+        });
+
+        const b2bTable = View.table(
+          ['ID', 'Company', 'Tier', 'Account Mgr', 'Credit Limit', 'Utilized', 'VAT Status'],
+          b2b.map(c => [
+            c.id, c.name, View.badge(c.tier, 'b-info'), c.manager,
+            View.fmt(c.credit), View.fmt(c.used),
+            View.badge(c.vatExempt ? 'Zero-Rated / Reverse' : 'Standard 20%', c.vatExempt ? 'b-ok' : 'b-warn')
+          ])
+        );
+
+        const b2cTable = View.table(
+          ['ID', 'Customer', 'Segment', 'Completed Orders', 'Loyalty Balance'],
+          b2c.map(c => [c.id, c.name, c.tier, c.orders, `${c.points} pts`])
+        );
+
+        this.render(View.el('div', {}, [
+          View.pageHeader('Customers (B2B Trade & B2C Retail)', 'Segmented trade credit accounts and direct-to-consumer buyers', applyBtn),
+          View.card('B2B Trade Accounts', [b2bTable]),
+          View.card('B2C End Customers', [b2cTable])
+        ]));
+      }
+      openOnboardingModal() {
+        const nameIn = View.el('input', { type: 'text', placeholder: 'e.g. Northern Workwear Ltd' });
+        const tierSel = View.el('select', {}, ['Bronze', 'Silver', 'Gold'].map(t => View.el('option', { value: t, text: t })));
+        const creditIn = View.el('input', { type: 'number', value: '20000' });
+        View.openModal('New B2B Trade Account', [
+          View.el('div', { class: 'field' }, [View.el('label', { text: 'Registered Company Name' }), nameIn]),
+          View.el('div', { class: 'field' }, [View.el('label', { text: 'Trade Tier' }), tierSel]),
+          View.el('div', { class: 'field' }, [View.el('label', { text: 'Approved Credit Line (£)' }), creditIn]),
+          View.el('button', {
+            class: 'btn btn-primary', type: 'button', text: 'Activate Trade Account',
+            onClick: () => {
+              if (!nameIn.value.trim()) return;
+              this.customers.insert({
+                id: 'CUS-B0' + (this.customers.all().length + 1),
+                channel: 'b2b',
+                name: nameIn.value.trim(),
+                tier: tierSel.value,
+                manager: 'R. Hale',
+                credit: Number(creditIn.value) || 10000,
+                used: 0,
+                vatExempt: false
+              });
+              View.closeModal();
+              View.toast('Trade account activated');
+              this.refresh();
+            }
+          })
+        ]);
+      }
+    }
+
+    class FinancialsController extends BaseController {
+      index() {
+        const list = this.invoices.search(App.data.search);
+        const totalAR = this.invoices.openReceivables();
+        const overdue = this.invoices.where(i => i.status === 'Overdue').reduce((s, i) => s + i.amount, 0);
+        const settled = this.invoices.where(i => i.status === 'Paid').reduce((s, i) => s + i.amount, 0);
+
+        const csvBtn = View.el('button', {
+          class: 'btn btn-primary', type: 'button', text: 'Download CSV Statement',
+          onClick: () => {
+            const blob = new Blob([this.invoices.toCSV()], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'vanguard-ar-ledger.csv';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            View.toast('Statement downloaded');
+          }
+        });
+
+        const invTable = View.table(
+          ['Invoice', 'Account', 'Amount', 'Terms', 'Due Date', 'Status', 'Action'],
+          list.map(i => {
+            const cls = i.status === 'Paid' ? 'b-ok' : (i.status === 'Overdue' ? 'b-err' : 'b-warn');
+            return [
+              i.id, i.customer, View.fmt(i.amount), i.terms, i.due, View.badge(i.status, cls),
+              i.status !== 'Paid'
+                ? View.el('button', {
+                    class: 'btn btn-sm', type: 'button', text: 'Record Payment',
+                    onClick: () => { this.invoices.update(i.id, { status: 'Paid' }); View.toast(`${i.id} settled`); this.refresh(); }
+                  })
+                : '—'
+            ];
+          })
+        );
+
+        this.render(View.el('div', {}, [
+          View.pageHeader('Financials, Credit & Invoicing Ledger', 'Accounts receivable, Net-30/60 terms, and statement export', csvBtn),
+          View.kpiGrid([
+            { label: 'Settled Revenue', value: View.fmt(settled), note: 'Cleared funds' },
+            { label: 'Open Receivables', value: View.fmt(totalAR), note: 'Awaiting settlement' },
+            { label: 'Overdue Balance', value: View.fmt(overdue), note: 'Requires credit chase', warn: overdue > 0 }
+          ]),
+          View.card('Accounts Receivable Ledger', [invTable])
+        ]));
+      }
+    }
+
+    class AccountController extends BaseController {
+      index() {
+        const resetBtn = View.el('button', {
+          class: 'btn', type: 'button', text: 'Reset Seed Data',
+          onClick: () => {
+            App.reset();
+            Chrome.sync();
+            View.toast('Demo dataset restored');
+            this.refresh();
+          }
+        });
+        const exportBtn = View.el('button', {
+          class: 'btn btn-primary', type: 'button', text: 'Export App.data JSON',
+          onClick: () => {
+            const blob = new Blob([JSON.stringify(App.data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'vanguard-state.json';
+            a.click();
+            URL.revokeObjectURL(a.href);
+          }
+        });
+
+        this.render(View.el('div', {}, [
+          View.pageHeader('System & Data Controls', 'Inspect or reset client-side state persisted in localStorage'),
+          View.card('State Management', [
+            View.el('p', { style: 'margin-bottom:12px;color:var(--muted);font-size:0.9rem', text: 'All catalog stock, purchase orders, decoration jobs, trade accounts, and ledger changes persist locally.' }),
+            View.el('div', { style: 'display:flex;gap:10px' }, [exportBtn, resetBtn])
+          ])
+        ]));
+      }
+    }
+
+    // =========================================================================
+    // 6. CART / RFQ DRAWER CONTROLLER
+    // =========================================================================
+    class CartDrawerController extends BaseController {
+      open() {
+        document.getElementById('cartDrawer').classList.add('open');
+        document.getElementById('drawerBg').classList.add('open');
+        this.renderDrawer();
+      }
+      close() {
+        document.getElementById('cartDrawer').classList.remove('open');
+        document.getElementById('drawerBg').classList.remove('open');
+      }
+      renderDrawer() {
+        const body = document.getElementById('cartBody');
+        const foot = document.getElementById('cartFoot');
+        const items = this.cart.all();
+        const mode = App.data.pricingMode;
+
+        if (!items.length) {
+          body.replaceChildren(View.el('p', { style: 'color:var(--muted);text-align:center;margin-top:40px', text: 'No lines in order or RFQ yet.' }));
+          foot.replaceChildren();
+          return;
+        }
+
+        let subtotal = 0;
+        const rows = items.map((line, idx) => {
+          const prod = this.products.find(line.sku);
+          const unit = prod ? this.products.unitPrice(prod, line.qty, mode) : 0;
+          const lineTotal = unit * line.qty;
+          subtotal += lineTotal;
+
+          return View.el('div', { style: 'padding:10px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:8px' }, [
+            View.el('div', {}, [
+              View.el('strong', { text: prod ? prod.name : line.sku }),
+              View.el('div', { class: 'mono', style: 'font-size:0.76rem;color:var(--muted)', text: `${line.sku} · ${View.fmt(unit)} ea` }),
+              line.deco ? View.el('div', { style: 'font-size:0.75rem;color:var(--accent-dark)', text: line.deco }) : null
+            ]),
+            View.el('div', { style: 'text-align:right' }, [
+              View.el('div', { class: 'mono', style: 'font-weight:700', text: View.fmt(lineTotal) }),
+              View.el('div', { style: 'display:flex;gap:4px;justify-content:flex-end;margin-top:4px' }, [
+                View.el('button', { class: 'btn btn-sm', type: 'button', text: '−', onClick: () => { this.cart.updateQty(idx, -1); Chrome.sync(); this.renderDrawer(); } }),
+                View.el('span', { class: 'mono', style: 'padding:2px 6px', text: String(line.qty) }),
+                View.el('button', { class: 'btn btn-sm', type: 'button', text: '+', onClick: () => { this.cart.updateQty(idx, 1); Chrome.sync(); this.renderDrawer(); } })
+              ])
+            ])
+          ]);
+        });
+
+        const vat = mode === 'b2b' ? 0 : subtotal * 0.20;
+        const grand = subtotal + vat;
+
+        body.replaceChildren(...rows);
+        foot.replaceChildren(
+          View.el('div', { style: 'display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px' }, [
+            View.el('span', { text: 'Subtotal' }), View.el('span', { class: 'mono', text: View.fmt(subtotal) })
+          ]),
+          View.el('div', { style: 'display:flex;justify-content:space-between;font-size:0.82rem;color:var(--muted);margin-bottom:8px' }, [
+            View.el('span', { text: mode === 'b2b' ? 'VAT (Trade Zero/Reverse)' : 'VAT (20% Retail)' }),
+            View.el('span', { class: 'mono', text: View.fmt(vat) })
+          ]),
+          View.el('div', { style: 'display:flex;justify-content:space-between;font-weight:700;margin-bottom:12px' }, [
+            View.el('span', { text: 'Total' }), View.el('span', { class: 'mono', text: View.fmt(grand) })
+          ]),
+          View.el('button', {
+            class: 'btn btn-primary', style: 'width:100%', type: 'button',
+            text: mode === 'b2b' ? 'Submit Formal Trade RFQ & Invoice' : 'Complete Retail Checkout',
+            onClick: () => {
+              this.invoices.insert({
+                id: 'INV-' + (9100 + this.invoices.all().length + 1),
+                customer: mode === 'b2b' ? 'Acme Industrial Supply' : 'Direct Web Buyer',
+                amount: grand,
+                status: mode === 'b2b' ? 'Net-30 Pending' : 'Paid',
+                due: '2026-12-21',
+                terms: mode === 'b2b' ? 'Net-30' : 'Card'
+              });
+              this.cart.clear();
+              Chrome.sync();
+              this.close();
+              View.toast(mode === 'b2b' ? 'Trade RFQ converted to Net-30 invoice' : 'Retail order paid');
+              Router.dispatch();
+            }
+          })
+        );
+      }
+    }
+
+    // =========================================================================
+    // 7. ROUTER & APPLICATION BOOTSTRAP
+    // =========================================================================
+    const Router = {
+      routes: {
+        overview:      { label: 'Overview',         group: 'Command',      ctrl: new OverviewController() },
+        catalog:       { label: 'Product Catalog',  group: 'Command',      ctrl: new CatalogController() },
+        suppliers:     { label: 'Suppliers & POs',  group: 'Supply Chain', ctrl: new SuppliersController() },
+        decorators:    { label: 'Decorators Queue', group: 'Supply Chain', ctrl: new DecoratorsController() },
+        merchandisers: { label: 'Merchandisers',    group: 'Supply Chain', ctrl: new MerchandisersController() },
+        customers:     { label: 'Customers',        group: 'Accounts',     ctrl: new CustomersController() },
+        financials:    { label: 'Financials',       group: 'Accounts',     ctrl: new FinancialsController() },
+        account:       { label: 'System & Data',    group: 'System',       ctrl: new AccountController() }
+      },
+      current() {
+        const key = (location.hash || '#overview').replace('#', '');
+        return this.routes[key] ? key : 'overview';
+      },
+      go(route) {
+        location.hash = route;
+      },
+      dispatch() {
+        const key = this.current();
+        document.querySelectorAll('.nav-item').forEach(a => a.classList.toggle('active', a.dataset.route === key));
+        this.routes[key].ctrl.index();
+      }
+    };
+
+    const Chrome = {
+      drawer: new CartDrawerController(),
+      init() {
+        const nav = document.getElementById('navMenu');
+        let lastGroup = '';
+        for (const [key, cfg] of Object.entries(Router.routes)) {
+          if (cfg.group !== lastGroup) {
+            nav.append(View.el('div', { class: 'nav-group', text: cfg.group }));
+            lastGroup = cfg.group;
+          }
+          nav.append(View.el('a', { href: `#${key}`, class: 'nav-item', 'data-route': key, text: cfg.label }));
+        }
+
+        document.getElementById('modeBtn').addEventListener('click', () => {
+          App.data.pricingMode = App.data.pricingMode === 'b2b' ? 'b2c' : 'b2b';
+          App.save();
+          this.sync();
+          Router.dispatch();
+        });
+
+        document.getElementById('roleSelect').addEventListener('change', (e) => {
+          App.data.role = e.target.value;
+          App.save();
+          Router.dispatch();
+        });
+
+        document.getElementById('globalSearch').addEventListener('input', (e) => {
+          App.data.search = e.target.value.trim();
+          Router.dispatch();
+        });
+
+        document.getElementById('cartOpenBtn').addEventListener('click', () => this.drawer.open());
+        document.getElementById('cartCloseBtn').addEventListener('click', () => this.drawer.close());
+        document.getElementById('drawerBg').addEventListener('click', () => this.drawer.close());
+        document.getElementById('modalCloseBtn').addEventListener('click', () => View.closeModal());
+
+        window.addEventListener('hashchange', () => Router.dispatch());
+        this.sync();
+        Router.dispatch();
+      },
+      sync() {
+        const isB2B = App.data.pricingMode === 'b2b';
+        const btn = document.getElementById('modeBtn');
+        btn.textContent = isB2B ? 'B2B Trade' : 'B2C Retail';
+        btn.className = 'pill-btn ' + (isB2B ? 'b2b' : 'b2c');
+        document.getElementById('roleSelect').value = App.data.role;
+        document.getElementById('cartBadge').textContent = String(this.drawer.cart.totalUnits());
+      }
+    };
+
+    App.load();
+    Chrome.init();
+  </script>
+</body>
+</html>
