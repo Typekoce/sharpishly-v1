@@ -1,7 +1,11 @@
 const RenderController = {
     async index(page, url) {
+        app.dBug('RenderController', 'index() start', { page, url });
         const container = app.getDom(page);
-        if (!container) return;
+        if (!container) {
+            app.dBug('RenderController', 'index() container not found', page);
+            return;
+        }
 
         const wrapper = app.item('div', page + '-records');
         container.appendChild(wrapper);
@@ -14,6 +18,7 @@ const RenderController = {
         wrapper.innerHTML = ''; // Clear spinner
 
         const records = result?.records || result?.data || [];
+        app.dBug('RenderController', 'index() records fetched', { count: records.length, url });
 
         if (records.length === 0) {
             this.renderEmpty(wrapper);
@@ -23,27 +28,82 @@ const RenderController = {
     },
 
     renderEmpty(container) {
+        app.dBug('RenderController', 'renderEmpty()');
         this.menu(container);
         container.appendChild(app.item('p', 'text-muted', 'No records found.'));
     },
 
+    createValueElement(record) {
+        const text = String(record.description || JSON.stringify(record)).trim();
+        const isUrl = /^https?:\/\/\S+$/i.test(text);
+
+        app.dBug('RenderController', 'createValueElement()', {
+            id: record?.id,
+            description: record?.description,
+            text,
+            isUrl
+        });
+
+        if (isUrl) {
+            const link = app.item('a', 'metric-value', text);
+            link.href = text;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+
+            link.addEventListener('click', (event) => {
+                app.dBug('RenderController', 'link clicked', {
+                    href: link.href,
+                    attrHref: link.getAttribute('href'),
+                    defaultPrevented: event.defaultPrevented,
+                    target: event.target?.tagName
+                });
+            });
+
+            app.dBug('RenderController', 'created anchor element', {
+                tagName: link.tagName,
+                href: link.href,
+                attrHref: link.getAttribute('href')
+            });
+
+            return link;
+        }
+
+        const span = app.item('span', 'metric-value', text);
+        span.addEventListener('click', () => {
+            app.dBug('RenderController', 'span clicked (not treated as URL)', { text });
+        });
+
+        return span;
+    },
+
     renderRecords(container, records) {
-
+        app.dBug('RenderController', 'renderRecords()', { count: records.length });
         this.createForm(container);
-
         this.menu(container);
 
-        records.forEach(record => {
+        records.forEach((record, index) => {
             const metricItem = app.item('div', 'metric-item');
-            metricItem.onclick = function() { alert('foo'); };
-            
+
             const labelSpan = app.item('span', 'metric-label', 'Framework');
-            const valueSpan = app.item('span', 'metric-value', record.title || JSON.stringify(record));
-            
+
+            labelSpan.onclick = function() {
+                app.dBug('RenderController', 'labelSpan clicked', { index, id: record?.id });
+                // TODO: Display details page
+            };
+
+            const valueEl = this.createValueElement(record);
+
             metricItem.appendChild(labelSpan);
-            metricItem.appendChild(valueSpan);
-            
+            metricItem.appendChild(valueEl);
+
             container.appendChild(metricItem);
+
+            app.dBug('RenderController', 'appended metricItem', {
+                index,
+                childCount: metricItem.children.length,
+                valueTag: valueEl.tagName,
+                valueHref: valueEl.href || null
+            });
         });
     },
 
@@ -148,7 +208,7 @@ const RenderController = {
         try {
             const result = await app.post('todo/create', payload);
 
-            app.dBug('create Todo',result?.success);
+            app.dBug('create Todo', result?.success);
 
             if (result?.success) {
                 form.querySelector('[name="title"]').value = '';
