@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="CYBERDECK // ARCHITECTURAL INTERFACE — Tactical HUD engineering workbench for portable cyberdeck design, bus topology, PCB inspection, and field bring-up." />
+  <title>CYBERDECK // ARCHITECTURAL INTERFACE</title>
+  <style>
+    @layer reset, tokens, base, layout, components, utilities, motion;
+
+    @layer reset {
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+      body { min-height: 100dvh; line-height: 1.5; }
+      img, canvas, svg { display: block; max-width: 100%; }
+      button, input, select, textarea { font: inherit; color: inherit; }
+      button { cursor: pointer; border: none; background: none; }
+      a { color: inherit; text-decoration: none; }
+      :focus { outline: none; }
+      :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      dialog { border: none; padding: 0; background: transparent; }
+      dialog::backdrop { background: oklch(0.12 0.02 250 / 0.75); }
+    }
+
+    @layer tokens {
+      :root {
+        color-scheme: dark;
+        --bg: oklch(0.12 0.015 250);
+        --bg-elev: oklch(0.16 0.02 250);
+        --bg-panel: oklch(0.14 0.018 250);
+        --surface: oklch(0.18 0.022 250);
+        --border: oklch(0.32 0.03 250);
+        --border-strong: oklch(0.45 0.04 250);
+        --text: oklch(0.93 0.02 220);
+        --text-muted: oklch(0.72 0.03 220);
+        --text-dim: oklch(0.55 0.03 220);
+        --accent: oklch(0.82 0.16 195);          /* electric cyan */
+        --accent-dim: oklch(0.65 0.12 195);
+        --matrix: oklch(0.78 0.22 145);          /* matrix green */
+        --amber: oklch(0.8 0.16 75);             /* hazard amber */
+        --danger: oklch(0.65 0.2 25);
+        --success: oklch(0.75 0.18 145);
+        --warning: oklch(0.82 0.15 85);
+        --radius-sm: 4px;
+        --radius: 8px;
+        --radius-lg: 12px;
+        --shadow: 0 0 0 1px oklch(0.3 0.04 195 / 0.4), 0 8px 32px oklch(0.05 0.02 250 / 0.6);
+        --glow: 0 0 20px oklch(0.7 0.15 195 / 0.25);
+        --font-mono: ui-monospace, "Cascadia Code", "SF Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+        --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --space-1: 0.25rem;
+        --space-2: 0.5rem;
+        --space-3: 0.75rem;
+        --space-4: 1rem;
+        --space-5: 1.5rem;
+        --space-6: 2rem;
+        --space-8: 3rem;
+        --header-h: 56px;
+        --hud-h: 120px;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        --scanline-opacity: 0.06;
+        --motion: 1;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        :root { --motion: 0; }
+      }
+
+      [data-theme="amber"] {
+        --accent: oklch(0.82 0.16 75);
+        --accent-dim: oklch(0.68 0.13 75);
+        --matrix: oklch(0.8 0.15 85);
+      }
+      [data-theme="matrix"] {
+        --accent: oklch(0.78 0.22 145);
+        --accent-dim: oklch(0.62 0.16 145);
+      }
+    }
+
+    @layer base {
+      body {
+        font-family: var(--font-sans);
+        background: var(--bg);
+        color: var(--text);
+        overflow-x: hidden;
+      }
+      body.scanlines::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 9999;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          oklch(0 0 0 / var(--scanline-opacity)) 2px,
+          oklch(0 0 0 / var(--scanline-opacity)) 4px
+        );
+      }
+      h1, h2, h3, h4 { font-weight: 600; letter-spacing: 0.02em; text-wrap: balance; }
+      code, .mono { font-family: var(--font-mono); font-size: 0.9em; }
+      .sr-only {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+      }
+    }
+
+    @layer layout {
+      .app {
+        display: grid;
+        grid-template-rows: auto auto 1fr auto;
+        min-height: 100dvh;
+      }
+      .topbar {
+        position: sticky; top: 0; z-index: 100;
+        display: flex; align-items: center; gap: var(--space-4);
+        padding: var(--space-2) var(--space-4);
+        background: oklch(0.11 0.015 250 / 0.92);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        height: var(--header-h);
+      }
+      .logo {
+        font-family: var(--font-mono);
+        font-weight: 700;
+        font-size: clamp(0.85rem, 2vw, 1.05rem);
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        text-shadow: 0 0 12px oklch(0.7 0.15 195 / 0.5);
+        white-space: nowrap;
+      }
+      .logo span { color: var(--text-muted); font-weight: 400; }
+      .nav {
+        display: flex; gap: var(--space-1); flex: 1; overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav a {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        color: var(--text-muted);
+        transition: color 0.15s, background 0.15s;
+        white-space: nowrap;
+      }
+      .nav a:hover, .nav a[aria-current="page"] {
+        color: var(--accent);
+        background: oklch(0.2 0.03 195 / 0.25);
+      }
+      .topbar-actions {
+        display: flex; align-items: center; gap: var(--space-2);
+      }
+      .icon-btn {
+        width: 36px; height: 36px;
+        display: grid; place-items: center;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        transition: border-color 0.15s, color 0.15s, background 0.15s;
+      }
+      .icon-btn:hover, .icon-btn[aria-pressed="true"] {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: oklch(0.2 0.03 195 / 0.2);
+      }
+      .hud-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: var(--space-2);
+        padding: var(--space-2) var(--space-4);
+        background: var(--bg-panel);
+        border-bottom: 1px solid var(--border);
+      }
+      .hud-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: var(--space-2);
+        min-height: 100px;
+        position: relative;
+        overflow: hidden;
+      }
+      .hud-card h3 {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        margin-bottom: var(--space-1);
+      }
+      .hud-card canvas {
+        width: 100%;
+        height: 64px;
+        image-rendering: pixelated;
+      }
+      .main {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0;
+        min-height: 0;
+      }
+      @media (min-width: 1100px) {
+        .main { grid-template-columns: 240px 1fr; }
+      }
+      .sidebar {
+        display: none;
+        background: var(--bg-panel);
+        border-right: 1px solid var(--border);
+        padding: var(--space-4);
+        overflow-y: auto;
+      }
+      @media (min-width: 1100px) {
+        .sidebar { display: block; }
+      }
+      .content {
+        padding: var(--space-4);
+        overflow-y: auto;
+        min-height: 0;
+      }
+      .section {
+        display: none;
+        animation: fadeIn calc(0.25s * var(--motion)) var(--ease);
+      }
+      .section.active { display: block; }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: none; }
+      }
+      .footer {
+        padding: var(--space-3) var(--space-4);
+        border-top: 1px solid var(--border);
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2);
+      }
+    }
+
+    @layer components {
+      .panel {
+        background: var(--bg-elev);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        box-shadow: var(--shadow);
+      }
+      .panel + .panel { margin-top: var(--space-4); }
+      .panel-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: var(--space-4);
+        gap: var(--space-3);
+        flex-wrap: wrap;
+      }
+      .panel-title {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+      .grid-2 {
+        display: grid;
+        gap: var(--space-4);
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 768px) {
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+      }
+      .grid-3 {
+        display: grid;
+        gap: var(--space-3);
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+      .btn {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: var(--space-2) var(--space-4);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        transition: border-color 0.15s, background 0.15s, color 0.15s, box-shadow 0.15s;
+      }
+      .btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        box-shadow: var(--glow);
+      }
+      .btn-primary {
+        background: oklch(0.25 0.05 195);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .btn-primary:hover {
+        background: oklch(0.3 0.07 195);
+      }
+      .btn-sm { padding: var(--space-1) var(--space-3); font-size: 0.68rem; }
+      .tag {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        letter-spacing: 0.05em;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+      }
+      .tag-accent { border-color: var(--accent-dim); color: var(--accent); }
+      .tag-matrix { border-color: var(--matrix); color: var(--matrix); }
+      .tag-amber { border-color: var(--amber); color: var(--amber); }
+      .metric {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+      }
+      .metric-value {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--accent);
+      }
+      .metric-label {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .blueprint-stage {
+        perspective: 1200px;
+        min-height: 360px;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(ellipse at 50% 30%, oklch(0.2 0.04 195 / 0.3), transparent 60%),
+          linear-gradient(oklch(0.1 0.02 250), oklch(0.08 0.015 250));
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+      .chassis {
+        width: min(420px, 90%);
+        aspect-ratio: 16 / 10;
+        transform-style: preserve-3d;
+        transition: transform 0.15s ease-out;
+        position: relative;
+      }
+      .chassis-face {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(145deg, oklch(0.22 0.03 250), oklch(0.16 0.025 250));
+        border: 2px solid var(--border-strong);
+        border-radius: 12px;
+        box-shadow: inset 0 0 40px oklch(0 0 0 / 0.4), var(--glow);
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        grid-template-rows: 1fr 0.7fr;
+        gap: 8px;
+        padding: 12px;
+      }
+      .subsys {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: oklch(0.14 0.02 250);
+        display: grid;
+        place-items: center;
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: border-color 0.15s, background 0.15s, color 0.15s, box-shadow 0.15s;
+        text-align: center;
+        padding: 4px;
+        position: relative;
+      }
+      .subsys:hover, .subsys[aria-pressed="true"] {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: oklch(0.2 0.04 195 / 0.3);
+        box-shadow: 0 0 16px oklch(0.6 0.12 195 / 0.3);
+      }
+      .subsys.display { grid-column: 1; grid-row: 1 / 3; }
+      .subsys.compute { grid-column: 2; grid-row: 1; }
+      .subsys.keyboard { grid-column: 1; grid-row: 2; }
+      .subsys.radio { grid-column: 2; grid-row: 2; }
+      .subsys.power {
+        position: absolute;
+        bottom: -28px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 22px;
+        font-size: 0.6rem;
+      }
+      .spec-panel {
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        line-height: 1.6;
+      }
+      .spec-panel dt {
+        color: var(--text-dim);
+        font-size: 0.7rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .spec-panel dd {
+        margin-bottom: var(--space-2);
+        color: var(--text);
+      }
+      .canvas-wrap {
+        position: relative;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: oklch(0.1 0.015 250);
+        overflow: hidden;
+        touch-action: none;
+      }
+      .canvas-wrap canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+        cursor: grab;
+      }
+      .canvas-wrap canvas:active { cursor: grabbing; }
+      .canvas-toolbar {
+        position: absolute;
+        top: 8px; right: 8px;
+        display: flex; gap: 4px;
+        z-index: 5;
+      }
+      .layer-toggles {
+        display: flex; flex-wrap: wrap; gap: var(--space-2);
+        margin-bottom: var(--space-3);
+      }
+      .layer-toggles label {
+        display: flex; align-items: center; gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        cursor: pointer;
+        padding: 4px 10px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        transition: border-color 0.15s, background 0.15s;
+      }
+      .layer-toggles label:has(input:checked) {
+        border-color: var(--accent);
+        background: oklch(0.2 0.03 195 / 0.2);
+        color: var(--accent);
+      }
+      .layer-toggles input { accent-color: var(--accent); }
+      .calc-grid {
+        display: grid;
+        gap: var(--space-3);
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .field label {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+      }
+      .field input, .field select {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 8px 10px;
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+      }
+      .field input:focus, .field select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px oklch(0.5 0.1 195 / 0.25);
+      }
+      .checklist {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+      .checklist li {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-3);
+        padding: var(--space-3);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        transition: border-color 0.15s;
+      }
+      .checklist li:has(input:checked) {
+        border-color: var(--matrix);
+        background: oklch(0.18 0.04 145 / 0.15);
+      }
+      .checklist input { margin-top: 3px; accent-color: var(--matrix); width: 18px; height: 18px; }
+      .checklist .phase {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        color: var(--amber);
+        letter-spacing: 0.08em;
+      }
+      .terminal {
+        background: oklch(0.08 0.01 250);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        height: 320px;
+        display: flex;
+        flex-direction: column;
+      }
+      .terminal-out {
+        flex: 1;
+        overflow-y: auto;
+        padding: var(--space-3);
+        color: var(--matrix);
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .terminal-out .cmd { color: var(--accent); }
+      .terminal-out .err { color: var(--danger); }
+      .terminal-out .info { color: var(--text-muted); }
+      .terminal-in {
+        display: flex;
+        border-top: 1px solid var(--border);
+        align-items: center;
+      }
+      .terminal-in span {
+        padding: 0 var(--space-2);
+        color: var(--accent);
+      }
+      .terminal-in input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 10px 0;
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+      }
+      .card-grid {
+        display: grid;
+        gap: var(--space-3);
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      }
+      .item-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: var(--space-3);
+        cursor: pointer;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .item-card:hover, .item-card[aria-selected="true"] {
+        border-color: var(--accent);
+        box-shadow: var(--glow);
+      }
+      .item-card h4 {
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+      }
+      .item-card p {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-bottom: var(--space-2);
+      }
+      .item-meta {
+        display: flex; flex-wrap: wrap; gap: 4px;
+      }
+      .search-bar {
+        display: flex; gap: var(--space-2); margin-bottom: var(--space-4); flex-wrap: wrap;
+      }
+      .search-bar input {
+        flex: 1;
+        min-width: 160px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 8px 12px;
+        color: var(--text);
+        font-family: var(--font-mono);
+      }
+      .caps-grid {
+        display: grid;
+        gap: var(--space-2);
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
+      .cap-item {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-2);
+        padding: var(--space-2);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        font-size: 0.75rem;
+      }
+      .cap-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        margin-top: 4px;
+        flex-shrink: 0;
+      }
+      .cap-dot.ok { background: var(--success); box-shadow: 0 0 6px var(--success); }
+      .cap-dot.no { background: var(--danger); }
+      .cap-dot.deg { background: var(--warning); }
+      .status-bar {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        display: flex; gap: var(--space-4); flex-wrap: wrap;
+      }
+      .live-dot {
+        display: inline-block;
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--matrix);
+        box-shadow: 0 0 6px var(--matrix);
+        animation: pulse 1.5s ease-in-out infinite;
+        margin-right: 4px;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .live-dot { animation: none; }
+      }
+    }
+
+    @layer utilities {
+      .mt-2 { margin-top: var(--space-2); }
+      .mt-3 { margin-top: var(--space-3); }
+      .mt-4 { margin-top: var(--space-4); }
+      .mb-2 { margin-bottom: var(--space-2); }
+      .mb-3 { margin-bottom: var(--space-3); }
+      .flex { display: flex; }
+      .gap-2 { gap: var(--space-2); }
+      .gap-3 { gap: var(--space-3); }
+      .items-center { align-items: center; }
+      .justify-between { justify-content: space-between; }
+      .text-muted { color: var(--text-muted); }
+      .text-dim { color: var(--text-dim); }
+      .text-accent { color: var(--accent); }
+      .text-matrix { color: var(--matrix); }
+      .text-amber { color: var(--amber); }
+      .hidden { display: none !important; }
+    }
+
+    @layer motion {
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+      @supports (animation-timeline: scroll()) {
+        .progress-bar {
+          height: 2px;
+          background: var(--accent);
+          transform-origin: left;
+          animation: progress linear;
+          animation-timeline: scroll();
+        }
+        @keyframes progress {
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
+        }
+      }
+    }
+
+    /* View Transition names */
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: calc(0.3s * var(--motion));
+    }
+  </style>
+</head>
+<body class="scanlines">
+  <a class="sr-only" href="#main">Skip to content</a>
+  <div class="app" id="app">
+    <header class="topbar">
+      <div class="logo">CYBERDECK <span>// ARCHITECT</span></div>
+      <nav class="nav" aria-label="Primary">
+        <a href="#overview" data-route="overview">Overview</a>
+        <a href="#blueprint" data-route="blueprint">Blueprint</a>
+        <a href="#topology" data-route="topology">Bus Topology</a>
+        <a href="#pcb" data-route="pcb">PCB Lab</a>
+        <a href="#fabricate" data-route="fabricate">Fabrication</a>
+        <a href="#archive" data-route="archive">Component Archive</a>
+        <a href="#system" data-route="system">System</a>
+      </nav>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="btn-scanlines" aria-pressed="true" title="Toggle CRT scanlines" aria-label="Toggle scanlines">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-audio" aria-pressed="false" title="Toggle synth feedback" aria-label="Toggle audio">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-theme" title="Cycle accent theme" aria-label="Cycle theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="hud-strip" aria-label="Live telemetry">
+      <div class="hud-card">
+        <h3>RF SDR Oscilloscope</h3>
+        <canvas id="c-scope" width="280" height="64" aria-label="Live RF oscilloscope waveform"></canvas>
+      </div>
+      <div class="hud-card">
+        <h3>Thermal Array Scanner</h3>
+        <canvas id="c-thermal" width="280" height="64" aria-label="Thermal heatmap scan"></canvas>
+      </div>
+      <div class="hud-card">
+        <h3>Kernel Entropy Bitstream</h3>
+        <canvas id="c-entropy" width="280" height="64" aria-label="Entropy bit stream visualization"></canvas>
+      </div>
+      <div class="hud-card" style="display:flex;flex-direction:column;justify-content:center;">
+        <h3>Field Status</h3>
+        <div class="status-bar">
+          <span><span class="live-dot"></span>TELEMETRY LIVE</span>
+          <span id="hud-time" class="metric">--:--:--</span>
+          <span id="hud-batt" class="metric">BAT 100%</span>
+        </div>
+        <div class="mt-2" style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-dim);">
+          UPTIME <span id="hud-uptime" class="metric">0:00:00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <aside class="sidebar" aria-label="Quick metrics">
+        <div class="metric mb-3">
+          <div class="metric-label">Active Subsystem</div>
+          <div class="metric-value" id="side-subsys" style="font-size:1rem;">—</div>
+        </div>
+        <div class="metric mb-3">
+          <div class="metric-label">Est. Runtime</div>
+          <div class="metric-value" id="side-runtime" style="font-size:1.1rem;">—</div>
+        </div>
+        <div class="metric mb-3">
+          <div class="metric-label">Bus Packets</div>
+          <div class="metric-value" id="side-packets" style="font-size:1.1rem;">0</div>
+        </div>
+        <div class="metric mb-3">
+          <div class="metric-label">Fab Progress</div>
+          <div class="metric-value" id="side-fab" style="font-size:1.1rem;">0%</div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--border);margin:var(--space-4) 0;" />
+        <p class="text-dim" style="font-size:0.72rem;line-height:1.5;">
+          Zero-dependency tactical interface for cyberdeck architecture, power budget, and field bring-up diagnostics.
+        </p>
+      </aside>
+
+      <main class="content" id="main">
+        <!-- OVERVIEW -->
+        <section class="section active" id="sec-overview" data-section="overview">
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">01 // Mission Brief</h2>
+              <span class="tag tag-accent">TACTICAL HUD v1.0</span>
+            </div>
+            <p style="max-width:65ch;margin-bottom:var(--space-4);color:var(--text-muted);">
+              This workbench is a field-portable engineering console for designing, inspecting, and bringing up custom cyberdeck platforms.
+              Explore interactive chassis blueprints, power/data bus topology, multi-layer PCB traces, LiFePO<sub>4</sub> runtime budgets, and a simulated Linux hardware diagnostic shell — all offline, zero external dependencies.
+            </p>
+            <div class="grid-3">
+              <div class="item-card" data-goto="blueprint">
+                <h4>3D Blueprint Explorer</h4>
+                <p>Mouse-tilt chassis schematic. Select subsystems to inspect electrical specs and field design rules.</p>
+                <div class="item-meta"><span class="tag">DISPLAY</span><span class="tag">COMPUTE</span><span class="tag">POWER</span></div>
+              </div>
+              <div class="item-card" data-goto="topology">
+                <h4>Hardware & Bus Node Tree</h4>
+                <p>Pan/zoom topology map of power rails and data/RF buses with animated packet flow.</p>
+                <div class="item-meta"><span class="tag">I2C</span><span class="tag">SPI</span><span class="tag">USB</span><span class="tag">LoRa</span></div>
+              </div>
+              <div class="item-card" data-goto="pcb">
+                <h4>PCB & Electronics Lab</h4>
+                <p>4-layer Gerber visualizer with layer toggles, SMD hotspots, and live battery runtime calculator.</p>
+                <div class="item-meta"><span class="tag">F.Cu</span><span class="tag">B.Cu</span><span class="tag">MASK</span></div>
+              </div>
+              <div class="item-card" data-goto="fabricate">
+                <h4>Fabrication Pipeline</h4>
+                <p>Four-phase mechanical/electrical build checklist paired with interactive Linux diagnostic terminal.</p>
+                <div class="item-meta"><span class="tag">lsusb</span><span class="tag">i2cdetect</span><span class="tag">sensors</span></div>
+              </div>
+              <div class="item-card" data-goto="archive">
+                <h4>Component Archive</h4>
+                <p>Searchable catalog of modules, radios, power cells, and input devices with favorites.</p>
+                <div class="item-meta"><span class="tag">12+ PARTS</span></div>
+              </div>
+              <div class="item-card" data-goto="system">
+                <h4>Platform Capabilities</h4>
+                <p>Feature detection for View Transitions, Container Queries, Anchor Positioning, Web Audio, and more.</p>
+                <div class="item-meta"><span class="tag">DIAGNOSTICS</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- BLUEPRINT -->
+        <section class="section" id="sec-blueprint" data-section="blueprint">
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">02 // Methodology & 3D Blueprint</h2>
+              <div class="flex gap-2">
+                <button class="btn btn-sm" id="bp-reset">Reset View</button>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div>
+                <div class="blueprint-stage" id="bp-stage">
+                  <div class="chassis" id="chassis" aria-label="Interactive cyberdeck chassis schematic">
+                    <div class="chassis-face">
+                      <button class="subsys display" data-id="display" aria-pressed="false">TRANSFLECTIVE<br>DISPLAY</button>
+                      <button class="subsys compute" data-id="compute" aria-pressed="false">COMPUTE<br>CORE</button>
+                      <button class="subsys keyboard" data-id="keyboard" aria-pressed="false">ORTHOLINEAR<br>MATRIX</button>
+                      <button class="subsys radio" data-id="radio" aria-pressed="false">SDR / LoRa<br>BAY</button>
+                      <button class="subsys power" data-id="power" aria-pressed="false">4S LiFePO₄ POWER BUS</button>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-dim mt-2" style="font-size:0.75rem;text-align:center;">Move pointer over stage to tilt · Click subsystem for specs</p>
+              </div>
+              <div>
+                <div class="spec-panel" id="spec-panel">
+                  <p class="text-muted">Select a subsystem on the chassis to inspect electrical characteristics, pin budgets, and field design rules.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TOPOLOGY -->
+        <section class="section" id="sec-topology" data-section="topology">
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">03 // Hardware & Bus Node Tree</h2>
+              <div class="flex gap-2">
+                <button class="btn btn-sm" id="topo-reset">Reset View</button>
+                <button class="btn btn-sm" id="topo-filter-all" aria-pressed="true">All Buses</button>
+                <button class="btn btn-sm" id="topo-filter-power">Power</button>
+                <button class="btn btn-sm" id="topo-filter-data">Data/RF</button>
+              </div>
+            </div>
+            <div class="canvas-wrap" style="height:420px;" id="topo-wrap">
+              <div class="canvas-toolbar">
+                <button class="btn btn-sm" id="topo-zoom-in" title="Zoom in">+</button>
+                <button class="btn btn-sm" id="topo-zoom-out" title="Zoom out">−</button>
+              </div>
+              <canvas id="c-topo" width="800" height="420" aria-label="Interactive bus topology map"></canvas>
+            </div>
+            <div class="mt-3 flex gap-3 flex-wrap" id="pinout-panel">
+              <span class="text-dim" style="font-size:0.8rem;">Click a node for pinout inspection</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- PCB LAB -->
+        <section class="section" id="sec-pcb" data-section="pcb">
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">04 // PCB & Electronics Lab</h2>
+            </div>
+            <div class="layer-toggles" role="group" aria-label="Gerber layer visibility">
+              <label><input type="checkbox" data-layer="fcu" checked /> F.Cu (Top Copper)</label>
+              <label><input type="checkbox" data-layer="bcu" checked /> B.Cu (Bottom Copper)</label>
+              <label><input type="checkbox" data-layer="mask" checked /> Solder Mask</label>
+              <label><input type="checkbox" data-layer="silk" checked /> Silkscreen</label>
+            </div>
+            <div class="canvas-wrap" style="height:340px;" id="pcb-wrap">
+              <canvas id="c-pcb" width="720" height="340" aria-label="4-layer Gerber visualizer"></canvas>
+            </div>
+            <div class="mt-3" id="ic-info">
+              <span class="text-dim" style="font-size:0.8rem;">Click an SMD IC hotspot for part details</span>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">LiFePO₄ Field Runtime Calculator</h2>
+            </div>
+            <div class="calc-grid">
+              <div class="field">
+                <label for="batt-cap">Pack Capacity (Ah)</label>
+                <input type="number" id="batt-cap" value="10.5" min="1" max="50" step="0.1" />
+              </div>
+              <div class="field">
+                <label for="batt-cells">Series Cells</label>
+                <select id="batt-cells">
+                  <option value="4" selected>4S (12.8 V nominal)</option>
+                  <option value="3">3S (9.6 V)</option>
+                  <option value="2">2S (6.4 V)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="batt-load">Avg Load (W)</label>
+                <input type="number" id="batt-load" value="8.5" min="0.5" max="60" step="0.1" />
+              </div>
+              <div class="field">
+                <label for="batt-eff">Converter Eff. (%)</label>
+                <input type="number" id="batt-eff" value="92" min="70" max="98" step="1" />
+              </div>
+            </div>
+            <div class="mt-4 grid-3">
+              <div class="metric">
+                <div class="metric-label">Nominal Runtime</div>
+                <div class="metric-value" id="calc-runtime">—</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Energy (Wh)</div>
+                <div class="metric-value" id="calc-wh">—</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Current Draw (A)</div>
+                <div class="metric-value" id="calc-amps">—</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- FABRICATION -->
+        <section class="section" id="sec-fabricate" data-section="fabricate">
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">05 // Fabrication Pipeline</h2>
+              <span class="tag tag-amber" id="fab-pct">0% COMPLETE</span>
+            </div>
+            <ul class="checklist" id="fab-list">
+              <li>
+                <input type="checkbox" id="fab-1" data-phase="1" />
+                <div>
+                  <div class="phase">PHASE 01 — MECHANICAL</div>
+                  <strong>Chassis & enclosure</strong>
+                  <p class="text-muted" style="font-size:0.8rem;">Print or machine body, verify display cutout, mount ortholinear plate, install rubber feet.</p>
+                </div>
+              </li>
+              <li>
+                <input type="checkbox" id="fab-2" data-phase="1" />
+                <div>
+                  <div class="phase">PHASE 01 — MECHANICAL</div>
+                  <strong>Thermal interface</strong>
+                  <p class="text-muted" style="font-size:0.8rem;">Apply thermal pads to SoC and PMIC; verify clearance under heatsink or vapor chamber.</p>
+                </div>
+              </li>
+              <li>
+                <input type="checkbox" id="fab-3" data-phase="2" />
+                <div>
+                  <div class="phase">PHASE 02 — POWER</div>
+                  <strong>4S LiFePO₄ harness</strong>
+                  <p class="text-muted" style="font-size:0.8rem;">Assemble balance leads, fuse, BMS connection, and main power switch. Verify polarity.</p>
+                </div>
+              </li>
+              <li>
+                <input type="checkbox" id="fab-4" data-phase="2" />
+                <div>
+                  <div class="phase">PHASE 02 — POWER</div>
+                  <strong>Buck / boost bring-up</strong>
+                  <p class="text-muted" style="font-size:0.8rem;">Power rails at 5 V / 3.3 V under no-load; check ripple with scope probe.</p>
+                </div>
+              </li>
+              <li>
+                <input type="checkbox" id="fab-5" data-phase="3" />
+                <div>
+                  <div class="phase">PHASE 03 — COMPUTE & IO</div>
+                  <strong>SBC / module seating</strong>
+                  <p class="text-muted" style="font-size:0.8rem;">Seat compute module, connect eMMC/SD, HDMI/DSI, USB hub, and GPIO header.</p>
+                </div>
+              </li>
+              <li>
+                <input type="checkbox" id="fab-6" data-phase="3" />
+                <div>
+                  <div class="phase">PHASE 03 — COMPUTE & IO</div>
+                  <strong>Keyboard matrix & encoder</strong>
+                  <p class="text-muted" style="font-size:0.8rem;">Flash QMK/ZMK, verify matrix scan, rotary encoder, and status LEDs.</p>
+                </div>
+              </li>
+              <li>
+                <input type="checkbox" id="fab-7" data-phase="4" />
+                <div>
+                  <div class="phase">PHASE 04 — RF & VALIDATION</div>
+                  <strong>SDR / LoRa bay</strong>
+                  <p class="text-muted" style="font-size:0.8rem;">Install radio module, antenna, run mesh-ping and spectrum check. Confirm isolation from power rails.</p>
+                </div>
+              </li>
+              <li>
+                <input type="checkbox" id="fab-8" data-phase="4" />
+                <div>
+                  <div class="phase">PHASE 04 — RF & VALIDATION</div>
+                  <strong>Full system soak</strong>
+                  <p class="text-muted" style="font-size:0.8rem;">2-hour load test at target brightness and radio duty cycle; log temps and voltage sag.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">Linux Hardware Diagnostic Terminal</h2>
+              <span class="tag tag-matrix">SIMULATED SHELL</span>
+            </div>
+            <div class="terminal" id="terminal">
+              <div class="terminal-out" id="term-out" role="log" aria-live="polite" aria-relevant="additions"></div>
+              <div class="terminal-in">
+                <span>root@cyberdeck:~#</span>
+                <input type="text" id="term-in" autocomplete="off" spellcheck="false" aria-label="Terminal command input" />
+              </div>
+            </div>
+            <p class="text-dim mt-2" style="font-size:0.72rem;">
+              Supported: <code>help</code> · <code>lsusb</code> · <code>i2cdetect</code> · <code>sensors</code> · <code>powerstat</code> · <code>mesh-ping</code> · <code>clear</code> · <code>uname</code>
+            </p>
+          </div>
+        </section>
+
+        <!-- ARCHIVE -->
+        <section class="section" id="sec-archive" data-section="archive">
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">06 // Component Archive</h2>
+              <span class="tag" id="archive-count">0 items</span>
+            </div>
+            <div class="search-bar">
+              <input type="search" id="archive-q" placeholder="Search modules, radios, power…" aria-label="Search components" />
+              <select id="archive-cat" aria-label="Filter by category">
+                <option value="">All Categories</option>
+                <option value="compute">Compute</option>
+                <option value="display">Display</option>
+                <option value="input">Input</option>
+                <option value="radio">Radio / RF</option>
+                <option value="power">Power</option>
+                <option value="interface">Interface</option>
+              </select>
+              <button class="btn btn-sm" id="archive-favs" aria-pressed="false">Favorites</button>
+            </div>
+            <div class="card-grid" id="archive-grid"></div>
+          </div>
+        </section>
+
+        <!-- SYSTEM -->
+        <section class="section" id="sec-system" data-section="system">
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">07 // Platform Capabilities</h2>
+            </div>
+            <div class="caps-grid" id="caps-grid"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">Preferences & Data</h2>
+            </div>
+            <div class="flex gap-3 flex-wrap">
+              <button class="btn" id="btn-export">Export JSON</button>
+              <button class="btn" id="btn-import">Import JSON</button>
+              <input type="file" id="import-file" accept="application/json" class="hidden" />
+              <button class="btn" id="btn-reset-data">Reset Local Data</button>
+            </div>
+            <p class="text-dim mt-3" style="font-size:0.78rem;max-width:60ch;">
+              Preferences and favorites are stored in <code>localStorage</code>. No data leaves the browser.
+              Export produces a versioned JSON snapshot for backup or migration.
+            </p>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">About</h2>
+            </div>
+            <p style="max-width:65ch;color:var(--text-muted);font-size:0.9rem;">
+              CYBERDECK // ARCHITECTURAL INTERFACE is a zero-dependency SPA demonstrating modern browser platform features
+              (View Transitions, Container Queries, CSS Anchor-ready patterns, Canvas telemetry, Web Audio, Popover/Dialog readiness)
+              inside a cohesive cyberdeck engineering theme. All visuals are procedural or inline SVG. No external assets or CDNs.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="footer">
+      <span>CYBERDECK // ARCHITECT · ZERO-DEPENDENCY SPA</span>
+      <span id="footer-route">#overview</span>
+      <span>LOCAL · OFFLINE CAPABLE</span>
+    </footer>
+  </div>
+
+  <!-- Detail dialog -->
+  <dialog id="detail-dialog">
+    <div class="panel" style="min-width:min(420px,90vw);max-width:520px;">
+      <div class="panel-header">
+        <h2 class="panel-title" id="dlg-title">Detail</h2>
+        <button class="btn btn-sm" id="dlg-close" type="button">Close</button>
+      </div>
+      <div id="dlg-body" style="font-size:0.9rem;line-height:1.55;"></div>
+    </div>
+  </dialog>
+
+  <div class="sr-only" aria-live="polite" id="live-region"></div>
+
+  <script type="module">
+    /* ============================================================
+       CYBERDECK // ARCHITECTURAL INTERFACE
+       Zero-dependency SPA — single-file ES module
+       ============================================================ */
+
+    // ---------- Constants & Data ----------
+    const STORAGE_KEY = 'cyberdeck-architect-v1';
+    const THEMES = ['cyan', 'amber', 'matrix'];
+
+    const SUBSYSTEMS = {
+      display: {
+        name: 'Transflective Display',
+        specs: {
+          'Panel': '7.0" IPS / transflective hybrid',
+          'Resolution': '1280 × 800 @ 60 Hz',
+          'Interface': 'MIPI DSI / HDMI fallback',
+          'Brightness': '400–800 nits (auto)',
+          'Power': '1.8–2.4 W typical',
+          'Field Rule': 'Optical bonding preferred; avoid direct sun glare on glossy stackups.'
+        }
+      },
+      compute: {
+        name: 'Compute Core',
+        specs: {
+          'Module': 'Raspberry Pi CM5 / Rockchip RK3588S class',
+          'RAM': '8 GB LPDDR4x',
+          'Storage': '32–128 GB eMMC + microSD',
+          'GPIO': '40-pin compatible header',
+          'Power': '3.5–7 W sustained',
+          'Field Rule': 'Provide ≥2 mm clearance and thermal pad path to chassis.'
+        }
+      },
+      keyboard: {
+        name: 'Ortholinear Matrix',
+        specs: {
+          'Layout': '4×12 / 5×12 ortholinear',
+          'Switches': 'Kailh Choc / MX hot-swap',
+          'Controller': 'RP2040 / ATmega32U4 (QMK)',
+          'Extras': 'Rotary encoder + OLED status',
+          'Power': '0.15–0.4 W',
+          'Field Rule': 'Isolate USB D+/D− from RF section; use shielded cable if external.'
+        }
+      },
+      radio: {
+        name: 'SDR / LoRa Bay',
+        specs: {
+          'SDR': 'RTL-SDR / HackRF-class USB',
+          'LoRa': 'SX1262 868/915 MHz, 22 dBm',
+          'Interface': 'USB serial + UART',
+          'Antenna': 'External SMA preferred',
+          'Power': '0.3–1.2 W TX peak',
+          'Field Rule': 'Keep antenna ≥50 mm from high-current traces; add ferrite on USB.'
+        }
+      },
+      power: {
+        name: '4S LiFePO₄ Power Bus',
+        specs: {
+          'Chemistry': 'LiFePO₄ 4S (12.8 V nominal)',
+          'Capacity': '8–15 Ah typical field pack',
+          'BMS': 'With balance + low-voltage cut-off',
+          'Rails': '5 V / 3.3 V synchronous bucks',
+          'Protection': 'PTC + series fuse',
+          'Field Rule': 'Size continuous discharge ≥2× peak system load; derate for cold.'
+        }
+      }
+    };
+
+    const COMPONENTS = [
+      { id: 'cm5', name: 'Compute Module 5', cat: 'compute', tags: ['SBC', '8GB', 'eMMC'], power: 5.5, desc: 'Broadcom BCM2712 class module with dual HDMI and PCIe.' },
+      { id: 'rk3588', name: 'RK3588S Module', cat: 'compute', tags: ['SBC', 'NPU', '8K'], power: 7.0, desc: 'Rockchip octa-core with strong ISP and NPU for edge vision.' },
+      { id: 'disp7', name: '7" Transflective IPS', cat: 'display', tags: ['1280x800', 'DSI'], power: 2.1, desc: 'Hybrid panel readable in sunlight with capacitive touch option.' },
+      { id: 'disp10', name: '10.1" IPS Touch', cat: 'display', tags: ['1920x1200', 'HDMI'], power: 3.8, desc: 'Larger field display for map and telemetry work.' },
+      { id: 'planck', name: 'Planck Ortho Kit', cat: 'input', tags: ['4x12', 'QMK', 'hot-swap'], power: 0.25, desc: 'Classic ortholinear footprint ideal for tight cyberdeck shells.' },
+      { id: 'preonic', name: 'Preonic 50%', cat: 'input', tags: ['5x12', 'QMK'], power: 0.3, desc: 'Extra number row reduces layer dependence in the field.' },
+      { id: 'choc', name: 'Kailh Choc Low-Profile', cat: 'input', tags: ['low-profile', 'hot-swap'], power: 0.2, desc: '3 mm travel switches for thin chassis designs.' },
+      { id: 'sx1262', name: 'Ebyte E22-900T22D', cat: 'radio', tags: ['LoRa', '22dBm', 'SX1262'], power: 0.9, desc: 'High-power LoRa module for mesh and off-grid telemetry.' },
+      { id: 'rtlsdr', name: 'RTL-SDR Blog V4', cat: 'radio', tags: ['SDR', 'USB'], power: 0.45, desc: 'Software-defined radio dongle for spectrum awareness.' },
+      { id: 'lifepo4', name: '4S LiFePO₄ 10.5 Ah', cat: 'power', tags: ['12.8V', 'BMS'], power: 0, desc: 'Field pack with integrated BMS and balance leads.' },
+      { id: 'buck5', name: '5 V 5 A Buck', cat: 'power', tags: ['sync', '95%'], power: 0.1, desc: 'Synchronous buck for main 5 V rail with low ripple.' },
+      { id: 'npf', name: 'NP-F970 Style Pack', cat: 'power', tags: ['USB-C', 'swap'], power: 0, desc: 'Hot-swappable cinema-style battery option for modular decks.' },
+      { id: 'usbhub', name: 'USB 3 Hub 4-port', cat: 'interface', tags: ['USB3', 'powered'], power: 0.6, desc: 'Internal hub for radio, storage, and debug dongles.' },
+      { id: 'stemma', name: 'STEMMA QT Hub', cat: 'interface', tags: ['I2C', 'Qwiic'], power: 0.05, desc: 'I2C expansion for sensors and status OLED.' },
+      { id: 'encoder', name: 'EC11 Rotary + Switch', cat: 'input', tags: ['encoder'], power: 0.02, desc: 'Volume / brightness / menu control with push action.' },
+      { id: 'gpio', name: '40-pin GPIO Extender', cat: 'interface', tags: ['GPIO', 'level-shift'], power: 0.05, desc: 'Breakout with level shifting for 3.3 V / 5 V peripherals.' }
+    ];
+
+    const NODES = [
+      { id: 'batt', label: '4S LiFePO₄', x: 80, y: 200, type: 'power', pins: ['P+', 'P−', 'B1–B4', 'NTC'] },
+      { id: 'bms', label: 'BMS', x: 180, y: 200, type: 'power', pins: ['P+', 'P−', 'C+', 'C−'] },
+      { id: 'buck5', label: '5V Buck', x: 280, y: 140, type: 'power', pins: ['VIN', 'GND', 'VOUT', 'EN'] },
+      { id: 'buck33', label: '3.3V Buck', x: 280, y: 260, type: 'power', pins: ['VIN', 'GND', 'VOUT'] },
+      { id: 'sbc', label: 'Compute Core', x: 420, y: 140, type: 'data', pins: ['5V', '3V3', 'GND', 'USB', 'I2C', 'SPI', 'GPIO'] },
+      { id: 'kb', label: 'Ortho Matrix', x: 420, y: 260, type: 'data', pins: ['VCC', 'GND', 'D+', 'D−', 'ROW/COL'] },
+      { id: 'disp', label: 'Display', x: 560, y: 100, type: 'data', pins: ['VCC', 'GND', 'DSI', 'I2C BL'] },
+      { id: 'lora', label: 'LoRa SX1262', x: 560, y: 220, type: 'rf', pins: ['VCC', 'GND', 'TX', 'RX', 'ANT'] },
+      { id: 'sdr', label: 'SDR Dongle', x: 560, y: 320, type: 'rf', pins: ['5V', 'GND', 'D+', 'D−'] },
+      { id: 'hub', label: 'USB Hub', x: 420, y: 40, type: 'data', pins: ['VBUS', 'GND', 'DP', 'DM'] }
+    ];
+
+    const EDGES = [
+      { from: 'batt', to: 'bms', bus: 'power' },
+      { from: 'bms', to: 'buck5', bus: 'power' },
+      { from: 'bms', to: 'buck33', bus: 'power' },
+      { from: 'buck5', to: 'sbc', bus: 'power' },
+      { from: 'buck5', to: 'hub', bus: 'power' },
+      { from: 'buck33', to: 'kb', bus: 'power' },
+      { from: 'buck33', to: 'lora', bus: 'power' },
+      { from: 'sbc', to: 'disp', bus: 'data' },
+      { from: 'sbc', to: 'kb', bus: 'data' },
+      { from: 'sbc', to: 'hub', bus: 'data' },
+      { from: 'hub', to: 'sdr', bus: 'data' },
+      { from: 'sbc', to: 'lora', bus: 'rf' }
+    ];
+
+    // ---------- State ----------
+    const state = {
+      route: 'overview',
+      theme: 'cyan',
+      scanlines: true,
+      audio: false,
+      favorites: new Set(),
+      fabChecks: {},
+      selectedSubsys: null,
+      topoFilter: 'all',
+      topoScale: 1,
+      topoOffset: { x: 0, y: 0 },
+      packets: 0,
+      startTime: Date.now(),
+      layers: { fcu: true, bcu: true, mask: true, silk: true }
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (data.v !== 1) return;
+        state.theme = data.theme || 'cyan';
+        state.scanlines = data.scanlines !== false;
+        state.favorites = new Set(data.favorites || []);
+        state.fabChecks = data.fabChecks || {};
+      } catch (e) { /* privacy mode / quota */ }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          v: 1,
+          theme: state.theme,
+          scanlines: state.scanlines,
+          favorites: [...state.favorites],
+          fabChecks: state.fabChecks
+        }));
+      } catch (e) { /* ignore */ }
+    }
+
+    // ---------- Audio (Web Audio, muted by default) ----------
+    let audioCtx = null;
+    function ensureAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    function beep(freq = 880, dur = 0.05, type = 'square', gain = 0.03) {
+      if (!state.audio || !audioCtx) return;
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      g.gain.value = gain;
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      o.stop(audioCtx.currentTime + dur);
+    }
+
+    // ---------- Routing ----------
+    function setRoute(name, push = true) {
+      if (!document.getElementById('sec-' + name)) name = 'overview';
+      const prev = state.route;
+      state.route = name;
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById('sec-' + name)?.classList.add('active');
+      document.querySelectorAll('.nav a').forEach(a => {
+        a.setAttribute('aria-current', a.dataset.route === name ? 'page' : 'false');
+      });
+      document.getElementById('footer-route').textContent = '#' + name;
+      document.title = `CYBERDECK // ${name.toUpperCase()}`;
+      if (push) history.pushState({ route: name }, '', '#' + name);
+      announce(`Navigated to ${name}`);
+      if (name === 'topology') resizeTopo();
+      if (name === 'pcb') resizePcb();
+      if (name === 'archive') renderArchive();
+      if (name === 'system') renderCaps();
+    }
+
+    function handleHash() {
+      const hash = (location.hash || '#overview').slice(1) || 'overview';
+      setRoute(hash, false);
+    }
+
+    // ---------- Live region ----------
+    function announce(msg) {
+      const el = document.getElementById('live-region');
+      el.textContent = '';
+      requestAnimationFrame(() => { el.textContent = msg; });
+    }
+
+    // ---------- Telemetry canvases ----------
+    const scopeCanvas = document.getElementById('c-scope');
+    const thermalCanvas = document.getElementById('c-thermal');
+    const entropyCanvas = document.getElementById('c-entropy');
+    let animId = null;
+    let phase = 0;
+
+    function drawScope(ctx, w, h, t) {
+      ctx.fillStyle = 'oklch(0.1 0.02 250)';
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = 'oklch(0.75 0.15 195 / 0.9)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let x = 0; x < w; x++) {
+        const y = h / 2 + Math.sin(x * 0.08 + t * 0.08) * 18
+          + Math.sin(x * 0.03 + t * 0.05) * 8
+          + (Math.random() - 0.5) * 3;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.strokeStyle = 'oklch(0.5 0.1 195 / 0.3)';
+      ctx.beginPath();
+      ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2);
+      ctx.stroke();
+    }
+
+    function drawThermal(ctx, w, h, t) {
+      const cols = 28, rows = 8;
+      const cw = w / cols, ch = h / rows;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const v = 0.4 + 0.3 * Math.sin(c * 0.3 + t * 0.04) * Math.cos(r * 0.5 + t * 0.03)
+            + 0.15 * Math.sin(t * 0.1 + c + r);
+          const hue = 250 - v * 120;
+          ctx.fillStyle = `oklch(${0.35 + v * 0.4} ${0.12 + v * 0.1} ${hue})`;
+          ctx.fillRect(c * cw, r * ch, cw + 0.5, ch + 0.5);
+        }
+      }
+    }
+
+    function drawEntropy(ctx, w, h, t) {
+      ctx.fillStyle = 'oklch(0.1 0.015 250)';
+      ctx.fillRect(0, 0, w, h);
+      const bits = 48;
+      const bw = w / bits;
+      for (let i = 0; i < bits; i++) {
+        const bit = Math.sin(t * 0.2 + i * 1.7) > 0 ? 1 : 0;
+        ctx.fillStyle = bit ? 'oklch(0.75 0.2 145)' : 'oklch(0.25 0.04 145)';
+        ctx.fillRect(i * bw, bit ? h * 0.25 : h * 0.55, bw - 1, h * 0.2);
+      }
+    }
+
+    function telemetryLoop(ts) {
+      phase = ts * 0.001;
+      const dpr = devicePixelRatio || 1;
+      [scopeCanvas, thermalCanvas, entropyCanvas].forEach(c => {
+        const rect = c.getBoundingClientRect();
+        const w = Math.max(1, Math.floor(rect.width * dpr));
+        const h = Math.max(1, Math.floor(rect.height * dpr));
+        if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+      });
+      drawScope(scopeCanvas.getContext('2d'), scopeCanvas.width, scopeCanvas.height, phase * 60);
+      drawThermal(thermalCanvas.getContext('2d'), thermalCanvas.width, thermalCanvas.height, phase * 60);
+      drawEntropy(entropyCanvas.getContext('2d'), entropyCanvas.width, entropyCanvas.height, phase * 60);
+
+      // HUD clocks
+      const now = new Date();
+      document.getElementById('hud-time').textContent = now.toTimeString().slice(0, 8);
+      const up = Math.floor((Date.now() - state.startTime) / 1000);
+      const hh = String(Math.floor(up / 3600)).padStart(2, '0');
+      const mm = String(Math.floor((up % 3600) / 60)).padStart(2, '0');
+      const ss = String(up % 60).padStart(2, '0');
+      document.getElementById('hud-uptime').textContent = `${hh}:${mm}:${ss}`;
+      const batt = Math.max(0, 100 - up / 360); // slow drain visual
+      document.getElementById('hud-batt').textContent = `BAT ${batt.toFixed(0)}%`;
+
+      animId = requestAnimationFrame(telemetryLoop);
+    }
+
+    // ---------- Blueprint 3D tilt ----------
+    const stage = document.getElementById('bp-stage');
+    const chassis = document.getElementById('chassis');
+    stage.addEventListener('pointermove', e => {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const r = stage.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      chassis.style.transform = `rotateY(${x * 18}deg) rotateX(${-y * 12}deg)`;
+    });
+    stage.addEventListener('pointerleave', () => {
+      chassis.style.transform = 'rotateY(0) rotateX(0)';
+    });
+
+    document.querySelectorAll('.subsys').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.subsys').forEach(b => b.setAttribute('aria-pressed', 'false'));
+        btn.setAttribute('aria-pressed', 'true');
+        const id = btn.dataset.id;
+        state.selectedSubsys = id;
+        const sub = SUBSYSTEMS[id];
+        document.getElementById('side-subsys').textContent = sub.name;
+        const panel = document.getElementById('spec-panel');
+        panel.innerHTML = '';
+        const h = document.createElement('h3');
+        h.textContent = sub.name;
+        h.style.color = 'var(--accent)';
+        h.style.marginBottom = '0.75rem';
+        panel.appendChild(h);
+        const dl = document.createElement('dl');
+        for (const [k, v] of Object.entries(sub.specs)) {
+          const dt = document.createElement('dt');
+          dt.textContent = k;
+          const dd = document.createElement('dd');
+          dd.textContent = v;
+          dl.append(dt, dd);
+        }
+        panel.appendChild(dl);
+        beep(660, 0.04);
+        announce(`Selected ${sub.name}`);
+      });
+    });
+    document.getElementById('bp-reset').addEventListener('click', () => {
+      chassis.style.transform = '';
+      document.querySelectorAll('.subsys').forEach(b => b.setAttribute('aria-pressed', 'false'));
+      document.getElementById('spec-panel').innerHTML = '<p class="text-muted">Select a subsystem on the chassis to inspect electrical characteristics, pin budgets, and field design rules.</p>';
+      document.getElementById('side-subsys').textContent = '—';
+    });
+
+    // ---------- Topology canvas ----------
+    const topoCanvas = document.getElementById('c-topo');
+    const topoCtx = topoCanvas.getContext('2d');
+    let topoDrag = null;
+    let packetPhase = 0;
+
+    function resizeTopo() {
+      const wrap = document.getElementById('topo-wrap');
+      const dpr = devicePixelRatio || 1;
+      const w = wrap.clientWidth;
+      const h = wrap.clientHeight;
+      topoCanvas.width = w * dpr;
+      topoCanvas.height = h * dpr;
+      topoCanvas.style.width = w + 'px';
+      topoCanvas.style.height = h + 'px';
+      topoCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      drawTopo();
+    }
+
+    function drawTopo() {
+      const w = topoCanvas.clientWidth;
+      const h = topoCanvas.clientHeight;
+      topoCtx.fillStyle = 'oklch(0.09 0.015 250)';
+      topoCtx.fillRect(0, 0, w, h);
+
+      // grid
+      topoCtx.strokeStyle = 'oklch(0.2 0.02 250 / 0.5)';
+      topoCtx.lineWidth = 1;
+      for (let x = 0; x < w; x += 40) {
+        topoCtx.beginPath(); topoCtx.moveTo(x, 0); topoCtx.lineTo(x, h); topoCtx.stroke();
+      }
+      for (let y = 0; y < h; y += 40) {
+        topoCtx.beginPath(); topoCtx.moveTo(0, y); topoCtx.lineTo(w, y); topoCtx.stroke();
+      }
+
+      const sc = state.topoScale;
+      const ox = state.topoOffset.x;
+      const oy = state.topoOffset.y;
+      const filter = state.topoFilter;
+
+      // edges + packets
+      EDGES.forEach(e => {
+        if (filter === 'power' && e.bus !== 'power') return;
+        if (filter === 'data' && e.bus === 'power') return;
+        const a = NODES.find(n => n.id === e.from);
+        const b = NODES.find(n => n.id === e.to);
+        if (!a || !b) return;
+        const x1 = a.x * sc + ox, y1 = a.y * sc + oy;
+        const x2 = b.x * sc + ox, y2 = b.y * sc + oy;
+        topoCtx.strokeStyle = e.bus === 'power' ? 'oklch(0.7 0.14 75 / 0.7)' :
+          e.bus === 'rf' ? 'oklch(0.7 0.18 145 / 0.7)' : 'oklch(0.7 0.12 195 / 0.7)';
+        topoCtx.lineWidth = 2;
+        topoCtx.beginPath();
+        topoCtx.moveTo(x1, y1);
+        topoCtx.lineTo(x2, y2);
+        topoCtx.stroke();
+
+        // packet pulse
+        const t = (packetPhase + (a.x + b.x) * 0.01) % 1;
+        const px = x1 + (x2 - x1) * t;
+        const py = y1 + (y2 - y1) * t;
+        topoCtx.fillStyle = topoCtx.strokeStyle;
+        topoCtx.beginPath();
+        topoCtx.arc(px, py, 3.5, 0, Math.PI * 2);
+        topoCtx.fill();
+      });
+
+      // nodes
+      NODES.forEach(n => {
+        if (filter === 'power' && n.type !== 'power') return;
+        if (filter === 'data' && n.type === 'power') return;
+        const x = n.x * sc + ox, y = n.y * sc + oy;
+        const col = n.type === 'power' ? 'oklch(0.8 0.15 75)' :
+          n.type === 'rf' ? 'oklch(0.75 0.2 145)' : 'oklch(0.8 0.14 195)';
+        topoCtx.fillStyle = 'oklch(0.15 0.02 250)';
+        topoCtx.strokeStyle = col;
+        topoCtx.lineWidth = 2;
+        const rw = 70 * sc, rh = 28 * sc;
+        topoCtx.beginPath();
+        topoCtx.roundRect(x - rw / 2, y - rh / 2, rw, rh, 6);
+        topoCtx.fill();
+        topoCtx.stroke();
+        topoCtx.fillStyle = col;
+        topoCtx.font = `${11 * Math.min(sc, 1.2)}px ui-monospace, monospace`;
+        topoCtx.textAlign = 'center';
+        topoCtx.textBaseline = 'middle';
+        topoCtx.fillText(n.label, x, y);
+      });
+    }
+
+    function topoLoop() {
+      packetPhase += 0.008;
+      state.packets = Math.floor(packetPhase * 12) % 10000;
+      document.getElementById('side-packets').textContent = state.packets;
+      if (state.route === 'topology') drawTopo();
+      requestAnimationFrame(topoLoop);
+    }
+
+    topoCanvas.addEventListener('pointerdown', e => {
+      topoDrag = { x: e.clientX, y: e.clientY, ox: state.topoOffset.x, oy: state.topoOffset.y };
+      topoCanvas.setPointerCapture(e.pointerId);
+    });
+    topoCanvas.addEventListener('pointermove', e => {
+      if (!topoDrag) return;
+      state.topoOffset.x = topoDrag.ox + (e.clientX - topoDrag.x);
+      state.topoOffset.y = topoDrag.oy + (e.clientY - topoDrag.y);
+      drawTopo();
+    });
+    topoCanvas.addEventListener('pointerup', () => { topoDrag = null; });
+    topoCanvas.addEventListener('pointerleave', () => { topoDrag = null; });
+
+    topoCanvas.addEventListener('click', e => {
+      const rect = topoCanvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const sc = state.topoScale;
+      const hit = NODES.find(n => {
+        const x = n.x * sc + state.topoOffset.x;
+        const y = n.y * sc + state.topoOffset.y;
+        return Math.abs(mx - x) < 40 * sc && Math.abs(my - y) < 18 * sc;
+      });
+      const panel = document.getElementById('pinout-panel');
+      if (hit) {
+        panel.innerHTML = '';
+        const title = document.createElement('strong');
+        title.className = 'text-accent';
+        title.textContent = hit.label + ' pinout: ';
+        panel.appendChild(title);
+        hit.pins.forEach(p => {
+          const t = document.createElement('span');
+          t.className = 'tag';
+          t.textContent = p;
+          panel.appendChild(t);
+        });
+        beep(520, 0.03);
+        announce(`Pinout for ${hit.label}`);
+      }
+    });
+
+    document.getElementById('topo-reset').addEventListener('click', () => {
+      state.topoScale = 1;
+      state.topoOffset = { x: 40, y: 20 };
+      drawTopo();
+    });
+    document.getElementById('topo-zoom-in').addEventListener('click', () => {
+      state.topoScale = Math.min(2, state.topoScale + 0.15);
+      drawTopo();
+    });
+    document.getElementById('topo-zoom-out').addEventListener('click', () => {
+      state.topoScale = Math.max(0.5, state.topoScale - 0.15);
+      drawTopo();
+    });
+    ['all', 'power', 'data'].forEach(f => {
+      const btn = document.getElementById('topo-filter-' + (f === 'all' ? 'all' : f));
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        state.topoFilter = f;
+        document.querySelectorAll('[id^=topo-filter]').forEach(b => b.setAttribute('aria-pressed', 'false'));
+        btn.setAttribute('aria-pressed', 'true');
+        drawTopo();
+      });
+    });
+
+    // ---------- PCB canvas ----------
+    const pcbCanvas = document.getElementById('c-pcb');
+    const pcbCtx = pcbCanvas.getContext('2d');
+
+    const ICS = [
+      { x: 0.22, y: 0.35, w: 0.12, h: 0.18, name: 'U1 SoC / Module', detail: 'Main compute footprint. Keep return path under high-speed lines.' },
+      { x: 0.55, y: 0.25, w: 0.1, h: 0.12, name: 'U3 Power PMIC', detail: 'Buck controller. Place input caps close; star-ground to pack sense.' },
+      { x: 0.7, y: 0.55, w: 0.08, h: 0.1, name: 'U5 LoRa', detail: 'SX1262. Keep RF path short; avoid digital crosstalk under antenna matching.' },
+      { x: 0.4, y: 0.65, w: 0.09, h: 0.1, name: 'U7 USB Hub', detail: 'High-speed USB. Differential pairs length-matched; ESD diodes near connector.' }
+    ];
+
+    function resizePcb() {
+      const wrap = document.getElementById('pcb-wrap');
+      const dpr = devicePixelRatio || 1;
+      const w = wrap.clientWidth;
+      const h = wrap.clientHeight;
+      pcbCanvas.width = w * dpr;
+      pcbCanvas.height = h * dpr;
+      pcbCanvas.style.width = w + 'px';
+      pcbCanvas.style.height = h + 'px';
+      pcbCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      drawPcb();
+    }
+
+    function drawPcb() {
+      const w = pcbCanvas.clientWidth;
+      const h = pcbCanvas.clientHeight;
+      pcbCtx.fillStyle = 'oklch(0.12 0.02 145)';
+      pcbCtx.fillRect(0, 0, w, h);
+
+      // board outline
+      const m = 24;
+      pcbCtx.strokeStyle = 'oklch(0.5 0.05 145)';
+      pcbCtx.lineWidth = 2;
+      pcbCtx.strokeRect(m, m, w - m * 2, h - m * 2);
+
+      if (state.layers.mask) {
+        pcbCtx.fillStyle = 'oklch(0.25 0.08 145 / 0.85)';
+        pcbCtx.fillRect(m + 2, m + 2, w - m * 2 - 4, h - m * 2 - 4);
+      }
+
+      // copper traces (simplified)
+      if (state.layers.fcu) {
+        pcbCtx.strokeStyle = 'oklch(0.7 0.12 85 / 0.9)';
+        pcbCtx.lineWidth = 2;
+        const traces = [
+          [[0.15, 0.3], [0.35, 0.3], [0.35, 0.5], [0.55, 0.5]],
+          [[0.25, 0.2], [0.25, 0.7], [0.6, 0.7]],
+          [[0.45, 0.25], [0.7, 0.25], [0.7, 0.5]],
+          [[0.2, 0.55], [0.4, 0.55], [0.4, 0.75]]
+        ];
+        traces.forEach(path => {
+          pcbCtx.beginPath();
+          path.forEach(([px, py], i) => {
+            const x = m + px * (w - m * 2);
+            const y = m + py * (h - m * 2);
+            i === 0 ? pcbCtx.moveTo(x, y) : pcbCtx.lineTo(x, y);
+          });
+          pcbCtx.stroke();
+        });
+      }
+
+      if (state.layers.bcu) {
+        pcbCtx.strokeStyle = 'oklch(0.55 0.1 220 / 0.7)';
+        pcbCtx.lineWidth = 1.5;
+        pcbCtx.setLineDash([4, 4]);
+        pcbCtx.beginPath();
+        pcbCtx.moveTo(m + 40, h - m - 20);
+        pcbCtx.lineTo(w - m - 40, h - m - 20);
+        pcbCtx.lineTo(w - m - 40, m + 40);
+        pcbCtx.stroke();
+        pcbCtx.setLineDash([]);
+      }
+
+      // pads / ICs
+      ICS.forEach(ic => {
+        const x = m + ic.x * (w - m * 2);
+        const y = m + ic.y * (h - m * 2);
+        const iw = ic.w * (w - m * 2);
+        const ih = ic.h * (h - m * 2);
+        pcbCtx.fillStyle = 'oklch(0.2 0.02 250)';
+        pcbCtx.fillRect(x, y, iw, ih);
+        pcbCtx.strokeStyle = 'oklch(0.75 0.1 195)';
+        pcbCtx.lineWidth = 1;
+        pcbCtx.strokeRect(x, y, iw, ih);
+        // pins
+        for (let i = 0; i < 4; i++) {
+          pcbCtx.fillStyle = 'oklch(0.75 0.1 85)';
+          pcbCtx.fillRect(x - 3, y + 4 + i * (ih / 5), 3, 3);
+          pcbCtx.fillRect(x + iw, y + 4 + i * (ih / 5), 3, 3);
+        }
+      });
+
+      if (state.layers.silk) {
+        pcbCtx.fillStyle = 'oklch(0.9 0.02 100 / 0.85)';
+        pcbCtx.font = '10px ui-monospace, monospace';
+        ICS.forEach(ic => {
+          const x = m + ic.x * (w - m * 2);
+          const y = m + ic.y * (h - m * 2);
+          pcbCtx.fillText(ic.name.split(' ')[0], x + 4, y - 4);
+        });
+        pcbCtx.fillText('CYBERDECK MAINBOARD Rev A', m + 12, h - m - 8);
+      }
+    }
+
+    document.querySelectorAll('.layer-toggles input').forEach(inp => {
+      inp.addEventListener('change', () => {
+        state.layers[inp.dataset.layer] = inp.checked;
+        drawPcb();
+      });
+    });
+
+    pcbCanvas.addEventListener('click', e => {
+      const rect = pcbCanvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) / rect.width;
+      const my = (e.clientY - rect.top) / rect.height;
+      const m = 24 / rect.width;
+      const hit = ICS.find(ic => {
+        const x = (24 + ic.x * (rect.width - 48)) / rect.width;
+        const y = (24 + ic.y * (rect.height - 48)) / rect.height;
+        const w = ic.w * (rect.width - 48) / rect.width;
+        const h = ic.h * (rect.height - 48) / rect.height;
+        return mx >= x && mx <= x + w && my >= y && my <= y + h;
+      });
+      const info = document.getElementById('ic-info');
+      if (hit) {
+        info.innerHTML = `<strong class="text-accent">${hit.name}</strong> — <span class="text-muted">${hit.detail}</span>`;
+        beep(440, 0.04);
+      } else {
+        info.innerHTML = '<span class="text-dim" style="font-size:0.8rem;">Click an SMD IC hotspot for part details</span>';
+      }
+    });
+
+    // ---------- Runtime calculator ----------
+    function updateCalc() {
+      const ah = parseFloat(document.getElementById('batt-cap').value) || 0;
+      const cells = parseInt(document.getElementById('batt-cells').value, 10) || 4;
+      const load = parseFloat(document.getElementById('batt-load').value) || 1;
+      const eff = (parseFloat(document.getElementById('batt-eff').value) || 90) / 100;
+      const vnom = cells * 3.2;
+      const wh = ah * vnom;
+      const amps = load / (vnom * eff);
+      const hours = wh * eff / load;
+      document.getElementById('calc-wh').textContent = wh.toFixed(1) + ' Wh';
+      document.getElementById('calc-amps').textContent = amps.toFixed(2) + ' A';
+      const h = Math.floor(hours);
+      const m = Math.round((hours - h) * 60);
+      document.getElementById('calc-runtime').textContent = `${h}h ${m}m`;
+      document.getElementById('side-runtime').textContent = `${h}h ${m}m`;
+    }
+    ['batt-cap', 'batt-cells', 'batt-load', 'batt-eff'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateCalc);
+    });
+
+    // ---------- Fabrication checklist ----------
+    function updateFab() {
+      const boxes = document.querySelectorAll('#fab-list input[type=checkbox]');
+      let done = 0;
+      boxes.forEach(b => {
+        if (state.fabChecks[b.id]) b.checked = true;
+        if (b.checked) done++;
+        b.addEventListener('change', () => {
+          state.fabChecks[b.id] = b.checked;
+          saveState();
+          updateFab();
+          beep(b.checked ? 720 : 320, 0.04);
+        });
+      });
+      // re-bind avoided by using once flag conceptually; simple recount
+      done = [...boxes].filter(b => b.checked).length;
+      const pct = Math.round((done / boxes.length) * 100);
+      document.getElementById('fab-pct').textContent = pct + '% COMPLETE';
+      document.getElementById('side-fab').textContent = pct + '%';
+    }
+
+    // ---------- Terminal ----------
+    const termOut = document.getElementById('term-out');
+    const termIn = document.getElementById('term-in');
+
+    const TERM_CMDS = {
+      help: () => `Available commands:\n  lsusb       — list USB devices\n  i2cdetect   — scan I2C bus\n  sensors     — thermal / voltage sensors\n  powerstat   — power rail summary\n  mesh-ping   — LoRa mesh reachability\n  uname       — kernel / board info\n  clear       — clear terminal\n  help        — this message`,
+      lsusb: () => `Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub\nBus 001 Device 003: ID 0bda:2838 Realtek Semiconductor Corp. RTL2838 DVB-T\nBus 001 Device 004: ID 1a86:7523 QinHeng Electronics CH340 serial (LoRa)\nBus 001 Device 005: ID 239a:80f4 Adafruit STEMMA QT Hub`,
+      i2cdetect: () => `     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n00:          -- -- -- -- -- -- -- -- -- -- -- -- --\n10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n30: -- -- -- -- -- -- -- -- 38 -- -- -- -- -- -- --\n40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n70: -- -- -- -- -- -- -- --\n\n0x38: SSD1306 OLED`,
+      sensors: () => `cpu_thermal-virtual-0\nAdapter: Virtual device\ntemp1:        +48.2°C  (crit = +95.0°C)\n\nbattery-virtual-0\nin0:          13.05 V\ncurr1:         0.68 A  (avg load)\n\npwic-i2c-1-48\nin1:           5.02 V  (5V rail)\nin2:           3.31 V  (3V3 rail)`,
+      powerstat: () => `Rail     Voltage   Current   Power\n-----    -------   -------   -----\nPACK     13.05 V   0.68 A    8.87 W\n5V       5.02 V    1.12 A    5.62 W\n3V3      3.31 V    0.41 A    1.36 W\n\nEst. remaining: ~11.4 h @ current load`,
+      'mesh-ping': () => `PING mesh node 0xA3 via SX1262...\n64 bytes from 0xA3: rssi=-87 dBm snr=7.5 time=142 ms\n64 bytes from 0xA3: rssi=-89 dBm snr=6.8 time=138 ms\n64 bytes from 0xA3: rssi=-86 dBm snr=8.1 time=145 ms\n\n--- mesh ping stats ---\n3 packets transmitted, 3 received, 0% loss`,
+      uname: () => `Linux cyberdeck 6.6.0-field #1 SMP PREEMPT aarch64 GNU/Linux\nBoard: custom CM5 / RK3588 cyberdeck rev-A`,
+      clear: () => { termOut.textContent = ''; return null; }
+    };
+
+    function termPrint(text, cls = '') {
+      if (text === null) return;
+      const line = document.createElement('div');
+      if (cls) line.className = cls;
+      line.textContent = text;
+      termOut.appendChild(line);
+      termOut.scrollTop = termOut.scrollHeight;
+    }
+
+    termPrint('CYBERDECK field diagnostic shell 1.0\nType "help" for commands.\n', 'info');
+
+    termIn.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const cmd = termIn.value.trim().toLowerCase();
+      termIn.value = '';
+      termPrint('root@cyberdeck:~# ' + cmd, 'cmd');
+      if (!cmd) return;
+      const fn = TERM_CMDS[cmd];
+      if (fn) {
+        const out = fn();
+        if (out) termPrint(out);
+      } else {
+        termPrint(`command not found: ${cmd}`, 'err');
+      }
+      beep(380, 0.03);
+    });
+
+    // ---------- Archive ----------
+    function renderArchive() {
+      const q = (document.getElementById('archive-q').value || '').toLowerCase();
+      const cat = document.getElementById('archive-cat').value;
+      const favOnly = document.getElementById('archive-favs').getAttribute('aria-pressed') === 'true';
+      let list = COMPONENTS.filter(c => {
+        if (cat && c.cat !== cat) return false;
+        if (favOnly && !state.favorites.has(c.id)) return false;
+        if (q && !(`${c.name} ${c.desc} ${c.tags.join(' ')}`).toLowerCase().includes(q)) return false;
+        return true;
+      });
+      document.getElementById('archive-count').textContent = list.length + ' items';
+      const grid = document.getElementById('archive-grid');
+      grid.replaceChildren();
+      list.forEach(c => {
+        const card = document.createElement('article');
+        card.className = 'item-card';
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        const fav = state.favorites.has(c.id);
+        card.innerHTML = `
+          <div class="flex justify-between items-center mb-2">
+            <h4>${c.name}</h4>
+            <button class="icon-btn" data-fav="${c.id}" aria-pressed="${fav}" aria-label="Toggle favorite" style="width:28px;height:28px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="${fav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </button>
+          </div>
+          <p>${c.desc}</p>
+          <div class="item-meta">
+            <span class="tag tag-accent">${c.cat}</span>
+            ${c.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+            ${c.power ? `<span class="tag tag-amber">${c.power} W</span>` : ''}
+          </div>`;
+        card.querySelector('[data-fav]').addEventListener('click', e => {
+          e.stopPropagation();
+          if (state.favorites.has(c.id)) state.favorites.delete(c.id);
+          else state.favorites.add(c.id);
+          saveState();
+          renderArchive();
+          beep(600, 0.03);
+        });
+        card.addEventListener('click', () => openDetail(c));
+        card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(c); } });
+        grid.appendChild(card);
+      });
+    }
+
+    function openDetail(c) {
+      const dlg = document.getElementById('detail-dialog');
+      document.getElementById('dlg-title').textContent = c.name;
+      document.getElementById('dlg-body').innerHTML = `
+        <p class="mb-3">${c.desc}</p>
+        <dl class="spec-panel">
+          <dt>Category</dt><dd>${c.cat}</dd>
+          <dt>Tags</dt><dd>${c.tags.join(', ')}</dd>
+          <dt>Typical Power</dt><dd>${c.power ? c.power + ' W' : 'N/A (passive / pack)'}</dd>
+        </dl>`;
+      dlg.showModal();
+      beep(500, 0.03);
+    }
+    document.getElementById('dlg-close').addEventListener('click', () => document.getElementById('detail-dialog').close());
+    document.getElementById('detail-dialog').addEventListener('click', e => {
+      if (e.target === e.currentTarget) e.currentTarget.close();
+    });
+
+    document.getElementById('archive-q').addEventListener('input', () => renderArchive());
+    document.getElementById('archive-cat').addEventListener('change', () => renderArchive());
+    document.getElementById('archive-favs').addEventListener('click', function () {
+      const pressed = this.getAttribute('aria-pressed') === 'true';
+      this.setAttribute('aria-pressed', String(!pressed));
+      renderArchive();
+    });
+
+    // ---------- Capabilities ----------
+    function detectCaps() {
+      const checks = [
+        { label: 'View Transitions API', ok: typeof document.startViewTransition === 'function', note: 'Smooth route morphs' },
+        { label: 'Scroll-driven Animations', ok: CSS.supports('animation-timeline', 'scroll()'), note: 'Progress / reveal effects' },
+        { label: 'Container Queries', ok: CSS.supports('container-type', 'inline-size'), note: 'Component-level responsiveness' },
+        { label: 'Container Style Queries', ok: CSS.supports('container-type', 'inline-size') && CSS.supports('style(--x: 1)'), note: 'Style-based adaptation' },
+        { label: 'CSS Nesting', ok: CSS.supports('selector', '& .x'), note: 'Maintainable component CSS' },
+        { label: '@scope', ok: CSS.supports('at-rule', '@scope'), note: 'Scoped component styles' },
+        { label: 'Anchor Positioning', ok: CSS.supports('anchor-name', '--a'), note: 'Popover / tooltip placement' },
+        { label: 'Popover API', ok: HTMLElement.prototype.hasOwnProperty('popover'), note: 'Light-dismiss overlays' },
+        { label: '<dialog>', ok: typeof HTMLDialogElement === 'function', note: 'Modal focus management' },
+        { label: ':has()', ok: CSS.supports('selector', ':has(a)'), note: 'Parent-state styling' },
+        { label: 'field-sizing', ok: CSS.supports('field-sizing', 'content'), note: 'Auto-growing inputs' },
+        { label: 'Trusted Types', ok: typeof window.trustedTypes !== 'undefined', note: 'XSS hardening' },
+        { label: 'Navigation API', ok: typeof window.navigation !== 'undefined', note: 'App-style routing' },
+        { label: 'Web Animations API', ok: typeof Element.prototype.animate === 'function', note: 'JS-driven motion' },
+        { label: 'Canvas 2D', ok: !!document.createElement('canvas').getContext('2d'), note: 'Telemetry & topology' },
+        { label: 'Web Audio', ok: typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined', note: 'Synth feedback' },
+        { label: 'Clipboard API', ok: !!navigator.clipboard?.writeText, note: 'Copy actions' },
+        { label: 'Web Share API', ok: !!navigator.share, note: 'Native share sheet' },
+        { label: 'localStorage', ok: (() => { try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); return true; } catch { return false; } })(), note: 'Preferences & favorites' }
+      ];
+      return checks;
+    }
+
+    function renderCaps() {
+      const grid = document.getElementById('caps-grid');
+      grid.replaceChildren();
+      detectCaps().forEach(c => {
+        const el = document.createElement('div');
+        el.className = 'cap-item';
+        el.innerHTML = `
+          <span class="cap-dot ${c.ok ? 'ok' : 'no'}"></span>
+          <div>
+            <strong>${c.label}</strong>
+            <div class="text-dim">${c.ok ? 'Active' : 'Unavailable'} — ${c.note}</div>
+          </div>`;
+        grid.appendChild(el);
+      });
+    }
+
+    // ---------- Topbar actions ----------
+    document.getElementById('btn-scanlines').addEventListener('click', function () {
+      state.scanlines = !state.scanlines;
+      this.setAttribute('aria-pressed', String(state.scanlines));
+      document.body.classList.toggle('scanlines', state.scanlines);
+      saveState();
+    });
+    document.getElementById('btn-audio').addEventListener('click', function () {
+      state.audio = !state.audio;
+      this.setAttribute('aria-pressed', String(state.audio));
+      if (state.audio) { ensureAudio(); beep(880, 0.06); }
+    });
+    document.getElementById('btn-theme').addEventListener('click', () => {
+      const i = THEMES.indexOf(state.theme);
+      state.theme = THEMES[(i + 1) % THEMES.length];
+      document.documentElement.dataset.theme = state.theme === 'cyan' ? '' : state.theme;
+      saveState();
+      beep(500, 0.04);
+    });
+
+    // ---------- Export / Import ----------
+    document.getElementById('btn-export').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify({
+        v: 1,
+        exported: new Date().toISOString(),
+        theme: state.theme,
+        favorites: [...state.favorites],
+        fabChecks: state.fabChecks
+      }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'cyberdeck-architect-export.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      announce('Export downloaded');
+    });
+    document.getElementById('btn-import').addEventListener('click', () => document.getElementById('import-file').click());
+    document.getElementById('import-file').addEventListener('change', async e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        if (data.v !== 1) throw new Error('Unsupported version');
+        if (data.favorites) state.favorites = new Set(data.favorites);
+        if (data.fabChecks) state.fabChecks = data.fabChecks;
+        if (data.theme) {
+          state.theme = data.theme;
+          document.documentElement.dataset.theme = state.theme === 'cyan' ? '' : state.theme;
+        }
+        saveState();
+        updateFab();
+        renderArchive();
+        announce('Import successful');
+      } catch (err) {
+        announce('Import failed: invalid file');
+      }
+      e.target.value = '';
+    });
+    document.getElementById('btn-reset-data').addEventListener('click', () => {
+      if (!confirm('Clear all local preferences and favorites?')) return;
+      state.favorites.clear();
+      state.fabChecks = {};
+      saveState();
+      updateFab();
+      renderArchive();
+      announce('Local data reset');
+    });
+
+    // ---------- Nav links & cards ----------
+    document.querySelectorAll('.nav a').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const name = a.dataset.route;
+        if (document.startViewTransition) {
+          document.startViewTransition(() => setRoute(name));
+        } else {
+          setRoute(name);
+        }
+      });
+    });
+    document.querySelectorAll('[data-goto]').forEach(el => {
+      el.addEventListener('click', () => {
+        const name = el.dataset.goto;
+        if (document.startViewTransition) {
+          document.startViewTransition(() => setRoute(name));
+        } else setRoute(name);
+      });
+    });
+
+    window.addEventListener('popstate', handleHash);
+    window.addEventListener('hashchange', handleHash);
+
+    // ---------- Resize observers ----------
+    const ro = new ResizeObserver(() => {
+      if (state.route === 'topology') resizeTopo();
+      if (state.route === 'pcb') resizePcb();
+    });
+    ro.observe(document.getElementById('topo-wrap'));
+    ro.observe(document.getElementById('pcb-wrap'));
+
+    // ---------- Init ----------
+    loadState();
+    document.body.classList.toggle('scanlines', state.scanlines);
+    document.getElementById('btn-scanlines').setAttribute('aria-pressed', String(state.scanlines));
+    if (state.theme !== 'cyan') document.documentElement.dataset.theme = state.theme;
+    document.querySelectorAll('#fab-list input').forEach(b => {
+      if (state.fabChecks[b.id]) b.checked = true;
+    });
+    updateFab();
+    updateCalc();
+    handleHash();
+    requestAnimationFrame(telemetryLoop);
+    requestAnimationFrame(topoLoop);
+    state.topoOffset = { x: 40, y: 20 };
+    // initial draw when visible
+    setTimeout(() => { resizeTopo(); resizePcb(); }, 100);
+
+    // Pause heavy work when tab hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (animId) cancelAnimationFrame(animId);
+      } else {
+        animId = requestAnimationFrame(telemetryLoop);
+      }
+    });
+  </script>
+</body>
+</html>

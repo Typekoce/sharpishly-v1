@@ -1,0 +1,2369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYBERDECK // SOVEREIGN COMPUTING ARCHITECTURE</title>
+  <!-- Google Fonts for Tactical Monospace & Geometric Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,800;1,400&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. CSS CUSTOM PROPERTIES & OBSIDIAN NOIR DESIGN TOKENS
+       ========================================================================== */
+    :root {
+      --bg-void: #05070a;
+      --bg-panel: rgba(10, 15, 24, 0.78);
+      --bg-panel-solid: #0a0f18;
+      --bg-elevated: rgba(16, 24, 38, 0.88);
+      
+      --cyan: #00f3ff;
+      --cyan-dim: rgba(0, 243, 255, 0.16);
+      --cyan-glow: rgba(0, 243, 255, 0.45);
+      
+      --green: #00ff66;
+      --green-dim: rgba(0, 255, 102, 0.14);
+      --green-glow: rgba(0, 255, 102, 0.45);
+      
+      --amber: #ff9e00;
+      --amber-dim: rgba(255, 158, 0, 0.16);
+      --amber-glow: rgba(255, 158, 0, 0.45);
+
+      --danger: #ff2a55;
+      --text-primary: #e4f1fe;
+      --text-secondary: #8ba3be;
+      --text-muted: #4c627a;
+
+      --border-subtle: rgba(0, 243, 255, 0.18);
+      --border-strong: rgba(0, 243, 255, 0.55);
+
+      --font-display: 'Orbitron', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --transition-fast: 160ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-med: 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ==========================================================================
+       2. GLOBAL RESET, SCROLLBARS & BACKGROUND MATRIX
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+      background-color: var(--bg-void);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      selection-background-color: var(--cyan);
+    }
+
+    ::selection {
+      background: var(--cyan);
+      color: var(--bg-void);
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-void);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 243, 255, 0.3);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--cyan);
+    }
+
+    /* Micro-grid background */
+    .cyber-grid-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image:
+        radial-gradient(circle at 18% 15%, rgba(0, 243, 255, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(0, 255, 102, 0.06) 0%, transparent 45%),
+        linear-gradient(rgba(0, 243, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       3. CRT SCANLINE & VIGNETTE OVERLAY (TOGGLEABLE)
+       ========================================================================== */
+    .crt-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%),
+        linear-gradient(90deg, rgba(255, 0, 0, 0.025), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.025));
+      background-size: 100% 3px, 6px 100%;
+      box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.75);
+      opacity: 0.78;
+      transition: opacity 0.3s ease;
+    }
+
+    body.crt-disabled .crt-overlay {
+      opacity: 0;
+    }
+
+    /* ==========================================================================
+       4. TACTICAL HUD PANELS, CORNER BRACKETS & ANIMATIONS
+       ========================================================================== */
+    .hud-panel {
+      position: relative;
+      background: var(--bg-panel);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 0 20px rgba(0, 243, 255, 0.03);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .hud-panel:hover {
+      border-color: rgba(0, 243, 255, 0.38);
+    }
+
+    /* Corner Brackets */
+    .hud-panel::before,
+    .hud-panel::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+      transition: all var(--transition-fast);
+    }
+    .hud-panel::before {
+      top: -1px;
+      left: -1px;
+      border-top: 2px solid var(--cyan);
+      border-left: 2px solid var(--cyan);
+      border-top-left-radius: 4px;
+    }
+    .hud-panel::after {
+      bottom: -1px;
+      right: -1px;
+      border-bottom: 2px solid var(--cyan);
+      border-right: 2px solid var(--cyan);
+      border-bottom-right-radius: 4px;
+    }
+
+    .hud-panel.amber-accent::before,
+    .hud-panel.amber-accent::after {
+      border-color: var(--amber);
+    }
+    .hud-panel.green-accent::before,
+    .hud-panel.green-accent::after {
+      border-color: var(--green);
+    }
+
+    /* Glitch Typography Effect */
+    .glitch-title {
+      position: relative;
+      font-family: var(--font-display);
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      text-shadow: 0 0 14px var(--cyan-glow);
+    }
+
+    .glitch-title::before,
+    .glitch-title::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.75;
+    }
+
+    .glitch-title::before {
+      color: var(--cyan);
+      z-index: -1;
+      animation: glitch-shift-1 4.5s infinite linear alternate-reverse;
+    }
+
+    .glitch-title::after {
+      color: var(--amber);
+      z-index: -2;
+      animation: glitch-shift-2 3.7s infinite linear alternate-reverse;
+    }
+
+    @keyframes glitch-shift-1 {
+      0%, 92%, 100% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
+      93% { transform: translate(-2px, 1px); clip-path: inset(15% 0 60% 0); }
+      95% { transform: translate(2px, -1px); clip-path: inset(55% 0 15% 0); }
+      97% { transform: translate(-1px, 0); clip-path: inset(30% 0 40% 0); }
+    }
+
+    @keyframes glitch-shift-2 {
+      0%, 90%, 100% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
+      91% { transform: translate(2px, 1px); clip-path: inset(60% 0 10% 0); }
+      94% { transform: translate(-2px, -1px); clip-path: inset(10% 0 70% 0); }
+      96% { transform: translate(1px, 1px); clip-path: inset(40% 0 30% 0); }
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.8); }
+    }
+
+    @keyframes dash-flow {
+      to { stroke-dashoffset: -40; }
+    }
+
+    /* ==========================================================================
+       5. TOP NAVIGATION & LIVE TELEMETRY HEADER
+       ========================================================================== */
+    .top-hud {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(5, 7, 10, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.65rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+    }
+
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-emblem {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--cyan);
+      border-radius: var(--radius-sm);
+      display: grid;
+      place-items: center;
+      background: var(--cyan-dim);
+      box-shadow: 0 0 12px var(--cyan-dim);
+    }
+
+    .brand-text h1 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+      line-height: 1.1;
+    }
+
+    .brand-text span {
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.14em;
+    }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .nav-btn {
+      background: rgba(16, 24, 38, 0.6);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 0.5rem 0.85rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      letter-spacing: 0.06em;
+      transition: all var(--transition-fast);
+    }
+
+    .nav-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--cyan);
+      background: var(--cyan-dim);
+    }
+
+    .nav-btn.active {
+      color: var(--bg-void);
+      background: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: 0 0 16px var(--cyan-glow);
+    }
+
+    .nav-btn .idx {
+      opacity: 0.75;
+      font-size: 0.68rem;
+    }
+
+    /* Telemetry Status Bar */
+    .telemetry-cluster {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.72rem;
+    }
+
+    .telem-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.65rem;
+      background: rgba(10, 15, 24, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse-dot 1.8s infinite ease-in-out;
+    }
+
+    .hud-toggle-btn {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--cyan);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 0.38rem 0.65rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .hud-toggle-btn:hover,
+    .hud-toggle-btn.active {
+      background: var(--cyan-dim);
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan-dim);
+    }
+
+    .hud-toggle-btn.muted {
+      color: var(--text-muted);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* ==========================================================================
+       6. HERO TELEMETRY STRIP (PROCEDURAL ANIMATED SPRITE LOOPS)
+       ========================================================================== */
+    .app-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+
+    .live-telemetry-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .sprite-card {
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .sprite-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .sprite-badge {
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.62rem;
+      font-weight: 700;
+    }
+    .badge-cyan { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(0, 243, 255, 0.3); }
+    .badge-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0, 255, 102, 0.3); }
+    .badge-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(255, 158, 0, 0.3); }
+
+    .sprite-canvas {
+      width: 100%;
+      height: 64px;
+      background: #030508;
+      border: 1px solid rgba(0, 243, 255, 0.15);
+      border-radius: var(--radius-sm);
+      display: block;
+    }
+
+    /* ==========================================================================
+       7. SPA VIEW CONTAINERS & TRANSITIONS
+       ========================================================================== */
+    .spa-view {
+      display: none;
+      animation: viewFadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .spa-view.active {
+      display: block;
+    }
+
+    @keyframes viewFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+
+    .section-tag {
+      font-size: 0.72rem;
+      color: var(--cyan);
+      letter-spacing: 0.18em;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .section-header h2 {
+      font-size: clamp(1.35rem, 2.5vw, 2rem);
+    }
+
+    .section-subtitle {
+      color: var(--text-secondary);
+      max-width: 680px;
+      font-size: 0.85rem;
+    }
+
+    /* ==========================================================================
+       8. MODULE 01: METHODOLOGY & 3D-TILTING BLUEPRINT EXPLORER
+       ========================================================================== */
+    .methodology-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 980px) {
+      .methodology-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 3D Perspective Stage */
+    .blueprint-stage {
+      perspective: 1200px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 460px;
+    }
+
+    .tilt-card-3d {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      transform-style: preserve-3d;
+      transition: transform 0.12s ease-out;
+      border-radius: var(--radius-md);
+      background: radial-gradient(circle at center, rgba(0, 243, 255, 0.08), rgba(5, 7, 10, 0.95));
+      border: 1px solid rgba(0, 243, 255, 0.25);
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .cyberdeck-svg-blueprint {
+      width: 100%;
+      max-width: 620px;
+      height: auto;
+      filter: drop-shadow(0 0 18px rgba(0, 243, 255, 0.18));
+    }
+
+    .subsystem-zone {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .subsystem-zone:hover rect,
+    .subsystem-zone:hover polygon,
+    .subsystem-zone.selected rect,
+    .subsystem-zone.selected polygon {
+      fill: rgba(0, 243, 255, 0.22);
+      stroke: var(--cyan);
+      stroke-width: 2.2;
+    }
+
+    .subsystem-zone.selected .zone-pulse {
+      animation: pulse-dot 1.2s infinite;
+    }
+
+    .spec-inspector {
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .spec-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .spec-kv {
+      background: rgba(5, 7, 10, 0.7);
+      border: 1px solid rgba(0, 243, 255, 0.14);
+      padding: 0.65rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .spec-kv .k {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .spec-kv .v {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--cyan);
+      margin-top: 0.15rem;
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .pillar-card {
+      padding: 1.25rem;
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease-out, border-color 0.2s ease;
+    }
+
+    .pillar-num {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      color: var(--amber);
+      letter-spacing: 0.14em;
+      margin-bottom: 0.4rem;
+    }
+
+    .pillar-card h3 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      margin-bottom: 0.55rem;
+      color: var(--text-primary);
+    }
+
+    .pillar-card p {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    /* ==========================================================================
+       9. MODULE 02: INTERACTIVE HARDWARE & BUS NODE TREE
+       ========================================================================== */
+    .node-workspace {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 1024px) {
+      .node-workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .node-canvas-wrapper {
+      position: relative;
+      height: 540px;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #09111e 0%, #040609 100%);
+    }
+
+    #node-tree-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+
+    #node-tree-canvas:active {
+      cursor: grabbing;
+    }
+
+    .node-toolbar {
+      position: absolute;
+      top: 0.85rem;
+      left: 0.85rem;
+      right: 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+
+    .node-toolbar-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      pointer-events: auto;
+    }
+
+    .tactical-btn {
+      background: rgba(10, 15, 24, 0.9);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.42rem 0.72rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .tactical-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .tactical-btn.active {
+      background: var(--cyan-dim);
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-dim);
+    }
+
+    .bus-legend {
+      position: absolute;
+      bottom: 0.85rem;
+      left: 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      background: rgba(5, 7, 10, 0.86);
+      border: 1px solid var(--border-subtle);
+      padding: 0.45rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.68rem;
+      pointer-events: none;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-swatch {
+      width: 12px;
+      height: 3px;
+      border-radius: 2px;
+    }
+
+    .node-inspector-panel {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.95rem;
+    }
+
+    .pinout-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.74rem;
+    }
+
+    .pinout-table th,
+    .pinout-table td {
+      text-align: left;
+      padding: 0.42rem 0.5rem;
+      border-bottom: 1px solid rgba(0, 243, 255, 0.12);
+    }
+
+    .pinout-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.64rem;
+    }
+
+    /* ==========================================================================
+       10. MODULE 03: PCB & ELECTRONICS GERBER INSPECTOR + POWER CALCULATOR
+       ========================================================================== */
+    .pcb-layout {
+      display: grid;
+      grid-template-columns: 1.3fr 0.85fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 1024px) {
+      .pcb-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pcb-viewer-panel {
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .layer-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .layer-toggles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .pcb-board-frame {
+      position: relative;
+      background: #03060a;
+      border: 1px solid rgba(0, 255, 102, 0.25);
+      border-radius: var(--radius-md);
+      padding: 0.75rem;
+      overflow: hidden;
+    }
+
+    .pcb-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .pcb-trace-anim {
+      stroke-dasharray: 10 10;
+      animation: dash-flow 1.4s linear infinite;
+    }
+
+    .smd-hotspot {
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .smd-hotspot:hover {
+      filter: drop-shadow(0 0 8px var(--amber));
+    }
+
+    /* Power Budget Calculator */
+    .power-calc-panel {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.76rem;
+    }
+
+    .slider-header span:last-child {
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    input[type="range"].cyber-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: rgba(0, 243, 255, 0.16);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    input[type="range"].cyber-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      background: var(--cyan);
+      border: 2px solid var(--bg-void);
+      box-shadow: 0 0 10px var(--cyan);
+      cursor: pointer;
+    }
+
+    .runtime-readout {
+      background: linear-gradient(135deg, rgba(0, 255, 102, 0.12), rgba(0, 243, 255, 0.08));
+      border: 1px solid rgba(0, 255, 102, 0.35);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .runtime-big {
+      font-family: var(--font-display);
+      font-size: 2.1rem;
+      font-weight: 900;
+      color: var(--green);
+      text-shadow: 0 0 16px var(--green-glow);
+      line-height: 1.15;
+    }
+
+    .runtime-sub {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
+    /* ==========================================================================
+       11. MODULE 04: FABRICATION PIPELINE & LIVE LINUX DIAGNOSTIC TERMINAL
+       ========================================================================== */
+    .fab-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 1024px) {
+      .fab-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pipeline-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .step-card {
+      padding: 1rem 1.15rem;
+      cursor: pointer;
+      border-left: 3px solid var(--border-subtle);
+      transition: all var(--transition-fast);
+    }
+
+    .step-card:hover,
+    .step-card.active {
+      border-left-color: var(--cyan);
+      background: rgba(16, 26, 42, 0.92);
+    }
+
+    .step-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.35rem;
+    }
+
+    .step-phase {
+      font-size: 0.7rem;
+      color: var(--cyan);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+    }
+
+    .step-card h3 {
+      font-family: var(--font-display);
+      font-size: 0.96rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .step-card p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .step-checklist {
+      margin-top: 0.65rem;
+      padding-top: 0.65rem;
+      border-top: 1px dashed rgba(0, 243, 255, 0.2);
+      display: none;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-size: 0.76rem;
+      color: var(--green);
+    }
+
+    .step-card.active .step-checklist {
+      display: flex;
+    }
+
+    /* Interactive Terminal */
+    .terminal-panel {
+      display: flex;
+      flex-direction: column;
+      height: 520px;
+      overflow: hidden;
+      background: #030508;
+      border: 1px solid rgba(0, 255, 102, 0.35);
+    }
+
+    .terminal-bar {
+      background: #0b121c;
+      padding: 0.55rem 0.9rem;
+      border-bottom: 1px solid rgba(0, 255, 102, 0.22);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+    }
+
+    .term-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .term-dots span {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .terminal-output {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      font-size: 0.78rem;
+      line-height: 1.55;
+      color: #c8f7dc;
+      white-space: pre-wrap;
+    }
+
+    .term-cmd-bar {
+      padding: 0.5rem 0.85rem;
+      background: rgba(0, 255, 102, 0.05);
+      border-top: 1px solid rgba(0, 255, 102, 0.18);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .quick-cmd {
+      background: rgba(0, 255, 102, 0.1);
+      border: 1px solid rgba(0, 255, 102, 0.3);
+      color: var(--green);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .quick-cmd:hover {
+      background: var(--green);
+      color: var(--bg-void);
+    }
+
+    .terminal-input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 0.9rem;
+      background: #060a10;
+      border-top: 1px solid rgba(0, 255, 102, 0.25);
+    }
+
+    .term-prompt {
+      color: var(--green);
+      font-weight: 700;
+      font-size: 0.78rem;
+    }
+
+    #terminal-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    /* Footer */
+    .hud-footer {
+      margin-top: 2.5rem;
+      padding: 1.25rem;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Tactical Grid & CRT Scanline Overlay -->
+  <div class="cyber-grid-bg"></div>
+  <div class="crt-overlay" id="crt-overlay"></div>
+
+  <!-- ========================================================================
+       TOP HUD BAR (NAVIGATION, LIVE CLOCK, VOLTAGE TELEMETRY, SYSTEM TOGGLES)
+       ======================================================================== -->
+  <header class="top-hud">
+    <div class="brand-cluster">
+      <div class="brand-emblem" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f3ff" stroke-width="2">
+          <rect x="3" y="4" width="18" height="12" rx="2" />
+          <path d="M2 20h20M7 16v4M17 16v4M7 8h4M7 12h10" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>DECK//OS_ARCHITECT</h1>
+        <span>FIELD-DEPLOYABLE SOVEREIGN COMPUTING</span>
+      </div>
+    </div>
+
+    <nav class="nav-tabs" aria-label="Primary Cyberdeck Modules">
+      <button class="nav-btn active" data-tab="methodology">
+        <span class="idx">01 //</span> METHODOLOGY
+      </button>
+      <button class="nav-btn" data-tab="nodetree">
+        <span class="idx">02 //</span> NODE TREE
+      </button>
+      <button class="nav-btn" data-tab="pcb">
+        <span class="idx">03 //</span> PCB &amp; POWER
+      </button>
+      <button class="nav-btn" data-tab="fabrication">
+        <span class="idx">04 //</span> FABRICATION
+      </button>
+    </nav>
+
+    <div class="telemetry-cluster">
+      <div class="telem-pill" title="LiFePO4 4S Pack Telemetry">
+        <span class="status-dot"></span>
+        <span id="hud-voltage">13.28V // 94%</span>
+      </div>
+      <div class="telem-pill" title="UTC System Clock">
+        <span id="hud-clock">00:00:00 UTC</span>
+      </div>
+      <button class="hud-toggle-btn active" id="toggle-crt" title="Toggle CRT Scanlines">CRT: ON</button>
+      <button class="hud-toggle-btn" id="toggle-audio" title="Toggle Synth Feedback">SFX: ON</button>
+    </div>
+  </header>
+
+  <main class="app-container">
+    <!-- ======================================================================
+         PROCEDURAL ANIMATED SPRITE TELEMETRY STRIP (OSCILLOSCOPE, THERMAL, BOOT)
+         ====================================================================== -->
+    <section class="live-telemetry-strip" aria-label="Live Hardware Telemetry">
+      <div class="hud-panel sprite-card">
+        <div class="sprite-header">
+          <span>RF // SDR IQ OSCILLOSCOPE</span>
+          <span class="sprite-badge badge-cyan" id="osc-freq">915.0 MHz</span>
+        </div>
+        <canvas id="canvas-oscilloscope" class="sprite-canvas"></canvas>
+      </div>
+
+      <div class="hud-panel sprite-card green-accent">
+        <div class="sprite-header">
+          <span>THERMAL // SO-DIMM &amp; VRM ARRAY</span>
+          <span class="sprite-badge badge-green" id="thermal-peak">PEAK 44.2°C</span>
+        </div>
+        <canvas id="canvas-thermal" class="sprite-canvas"></canvas>
+      </div>
+
+      <div class="hud-panel sprite-card amber-accent">
+        <div class="sprite-header">
+          <span>KERNEL // ENTROPY &amp; BUS MATRIX</span>
+          <span class="sprite-badge badge-amber">ECC SYNC OK</span>
+        </div>
+        <canvas id="canvas-matrix" class="sprite-canvas"></canvas>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         MODULE 01: METHODOLOGY (PHILOSOPHY & 3D CYBERDECK BLUEPRINT EXPLORER)
+         ====================================================================== -->
+    <section id="view-methodology" class="spa-view active">
+      <div class="section-header">
+        <div>
+          <span class="section-tag">MODULE 01 // ETHOS &amp; SYSTEMS ARCHITECTURE</span>
+          <h2 class="glitch-title" data-text="SOVEREIGN OFF-GRID COMPUTING">SOVEREIGN OFF-GRID COMPUTING</h2>
+        </div>
+        <p class="section-subtitle">
+          A cyberdeck is not a consumer laptop—it is a self-contained, field-serviceable, electromagnetic-hardened computing instrument engineered to operate independently of cloud infrastructure and fragile commercial ecosystems.
+        </p>
+      </div>
+
+      <div class="methodology-grid">
+        <!-- Interactive 3D Tilting Blueprint -->
+        <div class="hud-panel blueprint-stage" id="tilt-stage">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <span style="font-size:0.74rem; color:var(--cyan); letter-spacing:0.12em;">INTERACTIVE CHASSIS SCHEMATIC // CLICK SUBSYSTEM</span>
+            <span style="font-size:0.68rem; color:var(--text-muted);">3D GYRO TILT ENABLED</span>
+          </div>
+
+          <div class="tilt-card-3d" id="tilt-card">
+            <svg class="cyberdeck-svg-blueprint" viewBox="0 0 640 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Outer Pelican / CNC Chassis Frame -->
+              <rect x="20" y="18" width="600" height="324" rx="14" stroke="#00f3ff" stroke-width="2" stroke-opacity="0.6" fill="rgba(5, 10, 18, 0.85)" />
+              <rect x="30" y="28" width="580" height="304" rx="10" stroke="#00f3ff" stroke-width="1" stroke-dasharray="6 4" stroke-opacity="0.35" />
+
+              <!-- Corner Mounting Bolts -->
+              <circle cx="42" cy="40" r="4" fill="#00f3ff" fill-opacity="0.5" />
+              <circle cx="598" cy="40" r="4" fill="#00f3ff" fill-opacity="0.5" />
+              <circle cx="42" cy="320" r="4" fill="#00f3ff" fill-opacity="0.5" />
+              <circle cx="598" cy="320" r="4" fill="#00f3ff" fill-opacity="0.5" />
+
+              <!-- SUBSYSTEM 1: Sunlight-Readable Display -->
+              <g class="subsystem-zone selected" data-subsystem="display">
+                <rect x="52" y="42" width="350" height="125" rx="6" fill="rgba(0, 243, 255, 0.08)" stroke="#00f3ff" stroke-width="1.5" />
+                <rect x="62" y="52" width="330" height="96" rx="3" fill="rgba(0, 243, 255, 0.04)" stroke="#00f3ff" stroke-opacity="0.4" />
+                <text x="74" y="75" fill="#00f3ff" font-family="JetBrains Mono" font-size="11" font-weight="700">[01] 10.1" TRANSFLECTIVE IPS // 1000 NITS</text>
+                <text x="74" y="95" fill="#8ba3be" font-family="JetBrains Mono" font-size="9.5">EDP 4-LANE + CAPACITIVE DIGITIZER + ANTI-GLARE AR GLASS</text>
+                <line x1="74" y1="112" x2="360" y2="112" stroke="#00f3ff" stroke-opacity="0.3" />
+                <text x="74" y="130" fill="#00ff66" font-family="JetBrains Mono" font-size="9">STATUS: SUNLIGHT READABLE // PWM-FREE DC DIMMING</text>
+              </g>
+
+              <!-- SUBSYSTEM 2: Compute SBC & NVMe -->
+              <g class="subsystem-zone" data-subsystem="compute">
+                <rect x="422" y="42" width="170" height="125" rx="6" fill="rgba(0, 255, 102, 0.07)" stroke="#00ff66" stroke-width="1.5" />
+                <rect x="442" y="64" width="62" height="62" rx="4" fill="rgba(0, 255, 102, 0.14)" stroke="#00ff66" />
+                <text x="451" y="99" fill="#00ff66" font-family="JetBrains Mono" font-size="10" font-weight="700">ARM64/x86</text>
+                <rect x="516" y="64" width="60" height="26" rx="3" stroke="#00ff66" stroke-opacity="0.7" />
+                <text x="522" y="80" fill="#8ba3be" font-family="JetBrains Mono" font-size="8">NVMe 2TB</text>
+                <rect x="516" y="100" width="60" height="26" rx="3" stroke="#00ff66" stroke-opacity="0.7" />
+                <text x="522" y="116" fill="#8ba3be" font-family="JetBrains Mono" font-size="8">NPU 16T</text>
+                <text x="434" y="152" fill="#00ff66" font-family="JetBrains Mono" font-size="9.5" font-weight="700">[02] COMPUTE CORE + M.2</text>
+              </g>
+
+              <!-- SUBSYSTEM 3: Ortholinear Mechanical Keyboard -->
+              <g class="subsystem-zone" data-subsystem="keyboard">
+                <rect x="52" y="185" width="350" height="128" rx="6" fill="rgba(0, 243, 255, 0.06)" stroke="#00f3ff" stroke-width="1.5" />
+                <text x="66" y="206" fill="#00f3ff" font-family="JetBrains Mono" font-size="10.5" font-weight="700">[03] 48-KEY ORTHOLINEAR HOT-SWAP MATRIX (QMK/ZMK)</text>
+                <!-- Keycap Grid -->
+                <g fill="rgba(0, 243, 255, 0.12)" stroke="#00f3ff" stroke-opacity="0.55">
+                  <rect x="66" y="218" width="24" height="20" rx="2" /><rect x="94" y="218" width="24" height="20" rx="2" /><rect x="122" y="218" width="24" height="20" rx="2" /><rect x="150" y="218" width="24" height="20" rx="2" /><rect x="178" y="218" width="24" height="20" rx="2" /><rect x="206" y="218" width="24" height="20" rx="2" /><rect x="234" y="218" width="24" height="20" rx="2" /><rect x="262" y="218" width="24" height="20" rx="2" /><rect x="290" y="218" width="24" height="20" rx="2" /><rect x="318" y="218" width="24" height="20" rx="2" /><rect x="346" y="218" width="40" height="20" rx="2" />
+                  <rect x="66" y="244" width="24" height="20" rx="2" /><rect x="94" y="244" width="24" height="20" rx="2" /><rect x="122" y="244" width="24" height="20" rx="2" /><rect x="150" y="244" width="24" height="20" rx="2" /><rect x="178" y="244" width="24" height="20" rx="2" /><rect x="206" y="244" width="24" height="20" rx="2" /><rect x="234" y="244" width="24" height="20" rx="2" /><rect x="262" y="244" width="24" height="20" rx="2" /><rect x="290" y="244" width="24" height="20" rx="2" /><rect x="318" y="244" width="24" height="20" rx="2" /><rect x="346" y="244" width="40" height="20" rx="2" />
+                  <rect x="66" y="270" width="36" height="20" rx="2" /><rect x="106" y="270" width="36" height="20" rx="2" /><rect x="146" y="270" width="110" height="20" rx="2" /><rect x="260" y="270" width="36" height="20" rx="2" /><rect x="300" y="270" width="86" height="20" rx="2" />
+                </g>
+              </g>
+
+              <!-- SUBSYSTEM 4: LoRa / SDR RF Bay -->
+              <g class="subsystem-zone" data-subsystem="rf">
+                <rect x="422" y="185" width="170" height="58" rx="6" fill="rgba(255, 158, 0, 0.08)" stroke="#ff9e00" stroke-width="1.5" />
+                <text x="434" y="206" fill="#ff9e00" font-family="JetBrains Mono" font-size="10" font-weight="700">[04] SDR + LORA MESH</text>
+                <text x="434" y="225" fill="#8ba3be" font-family="JetBrains Mono" font-size="8.5">1MHz-6GHz // SMA BULKHEAD</text>
+              </g>
+
+              <!-- SUBSYSTEM 5: LiFePO4 Power Bus & BMS -->
+              <g class="subsystem-zone" data-subsystem="power">
+                <rect x="422" y="255" width="170" height="58" rx="6" fill="rgba(0, 255, 102, 0.08)" stroke="#00ff66" stroke-width="1.5" />
+                <text x="434" y="276" fill="#00ff66" font-family="JetBrains Mono" font-size="10" font-weight="700">[05] 4S LiFePO4 + BMS</text>
+                <text x="434" y="295" fill="#8ba3be" font-family="JetBrains Mono" font-size="8.5">99.8Wh // USB-C PD 100W IN/OUT</text>
+              </g>
+
+              <!-- Internal Bus Traces -->
+              <path d="M402 105 H422 M402 245 H422 M507 167 V185 M507 243 V255" stroke="#00f3ff" stroke-width="2" stroke-dasharray="4 3" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Subsystem Telemetry & Spec Inspector -->
+        <div class="hud-panel spec-inspector amber-accent" id="subsystem-spec-panel">
+          <div>
+            <span class="section-tag" id="spec-tag">SUBSYSTEM // [01] OPTICAL INTERFACE</span>
+            <h3 id="spec-title" style="font-family:var(--font-display); font-size:1.25rem; color:var(--cyan); margin-bottom:0.5rem;">
+              10.1" Transflective Sunlight Display
+            </h3>
+            <p id="spec-desc" style="font-size:0.84rem; color:var(--text-secondary);">
+              Standard OLED panels wash out under direct solar radiation and suffer burn-in with static terminal HUDs. A high-nit optical-bonded IPS display with hardware backlight kill-switch ensures zero-glare legibility in field deployments while preserving night-vision stealth.
+            </p>
+          </div>
+
+          <div class="spec-meta-grid" id="spec-kv-grid">
+            <div class="spec-kv"><div class="k">INTERFACE BUS</div><div class="v">eDP 1.4 (4-Lane)</div></div>
+            <div class="spec-kv"><div class="k">LUMINANCE</div><div class="v">1000 cd/m²</div></div>
+            <div class="spec-kv"><div class="k">POWER DRAW</div><div class="v">3.2W Nominal</div></div>
+            <div class="spec-kv"><div class="k">PROTECTION</div><div class="v">2mm Gorilla Glass</div></div>
+          </div>
+
+          <div style="background:rgba(0, 243, 255, 0.06); border:1px solid rgba(0, 243, 255, 0.2); padding:0.75rem; border-radius:4px; font-size:0.76rem;">
+            <strong style="color:var(--cyan);">FIELD DESIGN RULE:</strong>
+            <span id="spec-rule" style="color:var(--text-secondary);">Always include a physical hardware toggle switch on the backlight boost driver for dark-adapted tactical operation.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Four Core Pillars of Cyberdeck Methodology -->
+      <div class="pillars-grid">
+        <article class="hud-panel pillar-card">
+          <div class="pillar-num">AXIOM // 01</div>
+          <h3>Air-Gapped Sovereignty</h3>
+          <p>Zero mandatory telemetry, cloud accounts, or proprietary firmware blobs. Local LLMs, offline Wikipedia/OSM vector tiles, and cryptographic keyrings live on encrypted NVMe storage.</p>
+        </article>
+        <article class="hud-panel pillar-card">
+          <div class="pillar-num">AXIOM // 02</div>
+          <h3>Modular Repairability</h3>
+          <p>No glued batteries or soldered storage. Every subsystem connects via standardized JST-GH harnesses, M.2 slots, and panel-mount Neutrik/SMA bulkheads serviceable with a single hex driver.</p>
+        </article>
+        <article class="hud-panel pillar-card">
+          <div class="pillar-num">AXIOM // 03</div>
+          <h3>Safe Chemistry &amp; Power</h3>
+          <p>LiFePO4 (Lithium Iron Phosphate) cells deliver 3,000+ charge cycles without thermal runaway risk, paired with wide-input buck-boost converters (9V–36V DC) for solar or vehicle charging.</p>
+        </article>
+        <article class="hud-panel pillar-card">
+          <div class="pillar-num">AXIOM // 04</div>
+          <h3>RF &amp; Sensor Integration</h3>
+          <p>Integrated Software-Defined Radio (SDR), 915/868MHz LoRa mesh transceivers, hardware GPIO headers, and isolated CAN/RS-485 interfaces turn the deck into a universal physical-layer multi-tool.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         MODULE 02: NODE TREE (INTERACTIVE HARDWARE & BUS TOPOLOGY)
+         ====================================================================== -->
+    <section id="view-nodetree" class="spa-view">
+      <div class="section-header">
+        <div>
+          <span class="section-tag">MODULE 02 // INTERCONNECT &amp; BUS TOPOLOGY</span>
+          <h2 class="glitch-title" data-text="HARDWARE & SIGNAL NODE TREE">HARDWARE &amp; SIGNAL NODE TREE</h2>
+        </div>
+        <p class="section-subtitle">
+          Drag nodes to reorganize the internal harness layout, scroll or use zoom controls, filter power vs. high-speed data buses, and click any node to inspect voltage tolerances and pinouts.
+        </p>
+      </div>
+
+      <div class="node-workspace">
+        <div class="hud-panel node-canvas-wrapper">
+          <canvas id="node-tree-canvas"></canvas>
+
+          <div class="node-toolbar">
+            <div class="node-toolbar-group">
+              <button class="tactical-btn active" data-bus-filter="ALL">ALL BUSES</button>
+              <button class="tactical-btn" data-bus-filter="POWER">POWER RAILS</button>
+              <button class="tactical-btn" data-bus-filter="DATA">DATA / RF BUSES</button>
+              <button class="tactical-btn" id="toggle-packets">PACKETS: FLOWING</button>
+            </div>
+            <div class="node-toolbar-group">
+              <button class="tactical-btn" id="zoom-in" title="Zoom In">+</button>
+              <button class="tactical-btn" id="zoom-out" title="Zoom Out">-</button>
+              <button class="tactical-btn" id="reset-graph">RESET VIEW</button>
+            </div>
+          </div>
+
+          <div class="bus-legend">
+            <div class="legend-item"><span class="legend-swatch" style="background:#00ff66;"></span> 12V/5V/3.3V Power</div>
+            <div class="legend-item"><span class="legend-swatch" style="background:#00f3ff;"></span> PCIe / USB3 / eDP</div>
+            <div class="legend-item"><span class="legend-swatch" style="background:#ff9e00;"></span> SPI / I2C / UART</div>
+          </div>
+        </div>
+
+        <!-- Selected Node Pinout & Electrical Inspector -->
+        <aside class="hud-panel node-inspector-panel">
+          <div>
+            <span class="section-tag" id="node-category">COMPUTE // ROOT NODE</span>
+            <h3 id="node-name" style="font-family:var(--font-display); font-size:1.15rem; color:var(--cyan);">
+              SBC Compute Module (CM5 / x86)
+            </h3>
+            <p id="node-summary" style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.35rem;">
+              Central processing unit hosting Linux kernel, PCIe Gen3 switch, dual USB 3.2 controllers, and 40-pin low-speed peripheral header.
+            </p>
+          </div>
+
+          <div class="spec-meta-grid">
+            <div class="spec-kv"><div class="k">RAIL INPUT</div><div class="v" id="node-voltage">5.1V ±3% DC</div></div>
+            <div class="spec-kv"><div class="k">PEAK CURRENT</div><div class="v" id="node-current">3.8A (19.4W)</div></div>
+          </div>
+
+          <div>
+            <div style="font-size:0.7rem; color:var(--text-muted); letter-spacing:0.1em; margin-bottom:0.4rem;">HARNESS PINOUT &amp; BUS ALLOCATION</div>
+            <table class="pinout-table">
+              <thead>
+                <tr><th>PIN / BUS</th><th>SIGNAL</th><th>PROTOCOL</th></tr>
+              </thead>
+              <tbody id="node-pinout-body">
+                <tr><td>J1.1-4</td><td>+5V_SYS</td><td>High-Current Rail</td></tr>
+                <tr><td>PCIE_0</td><td>TX/RX Diff</td><td>PCIe Gen3 x1 (8GT/s)</td></tr>
+                <tr><td>SPI0_CS0</td><td>MOSI/MISO/CLK</td><td>LoRa SX1262 (10MHz)</td></tr>
+                <tr><td>I2C_1</td><td>SDA / SCL</td><td>INA219 + BQ25792</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         MODULE 03: PCB & ELECTRONICS (GERBER LAYER INSPECTOR + POWER CALCULATOR)
+         ====================================================================== -->
+    <section id="view-pcb" class="spa-view">
+      <div class="section-header">
+        <div>
+          <span class="section-tag">MODULE 03 // CUSTOM CARRIER PCB &amp; POWER BUDGET</span>
+          <h2 class="glitch-title" data-text="MULTI-LAYER GERBER & POWER LAB">MULTI-LAYER GERBER &amp; POWER LAB</h2>
+        </div>
+        <p class="section-subtitle">
+          Toggle copper, solder mask, and silkscreen layers on the custom 4-layer Cyberdeck Power &amp; I/O Carrier PCB, inspect SMD protection circuitry, and model off-grid battery endurance.
+        </p>
+      </div>
+
+      <div class="pcb-layout">
+        <!-- Interactive PCB Gerber Visualizer -->
+        <div class="hud-panel pcb-viewer-panel">
+          <div class="layer-controls">
+            <div class="layer-toggles">
+              <button class="tactical-btn active" data-pcb-layer="layer-mask">SOLDER MASK</button>
+              <button class="tactical-btn active" data-pcb-layer="layer-top-copper">TOP COPPER (F.Cu)</button>
+              <button class="tactical-btn active" data-pcb-layer="layer-bottom-copper">GND/PWR PLANE (B.Cu)</button>
+              <button class="tactical-btn active" data-pcb-layer="layer-silk">SILKSCREEN</button>
+            </div>
+            <span style="font-size:0.68rem; color:var(--green);">4-LAYER FR4 // 2OZ CU // ENIG</span>
+          </div>
+
+          <div class="pcb-board-frame">
+            <svg class="pcb-svg" viewBox="0 0 680 390" xmlns="http://www.w3.org/2000/svg">
+              <!-- Board Substrate -->
+              <rect x="16" y="16" width="648" height="358" rx="12" fill="#071210" stroke="#00ff66" stroke-width="2" />
+
+              <!-- Layer: Solder Mask Grid -->
+              <g id="layer-mask" opacity="0.9">
+                <defs>
+                  <pattern id="pcb-hatch" width="16" height="16" patternUnits="userSpaceOnUse">
+                    <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(0, 255, 102, 0.08)" stroke-width="1"/>
+                  </pattern>
+                </defs>
+                <rect x="22" y="22" width="636" height="346" rx="8" fill="url(#pcb-hatch)" />
+              </g>
+
+              <!-- Layer: Bottom Ground & Power Plane -->
+              <g id="layer-bottom-copper" opacity="0.55">
+                <path d="M60 310 H620 M60 80 H620 M140 40 V350 M520 40 V350" stroke="#0088ff" stroke-width="5" stroke-linecap="round" opacity="0.45" />
+                <circle cx="140" cy="80" r="7" fill="none" stroke="#0088ff" stroke-width="2" />
+                <circle cx="520" cy="310" r="7" fill="none" stroke="#0088ff" stroke-width="2" />
+              </g>
+
+              <!-- Layer: Top Copper Traces (Animated Current Flow) -->
+              <g id="layer-top-copper">
+                <!-- High-Current 12V to 5V Buck Trace -->
+                <path d="M95 110 H210 L240 140 H330" stroke="#ff9e00" stroke-width="4" fill="none" />
+                <path d="M95 110 H210 L240 140 H330" stroke="#fff3d1" stroke-width="2" fill="none" class="pcb-trace-anim" />
+
+                <!-- 5V Regulated Bus to SBC Header -->
+                <path d="M390 140 H480 L510 110 H595" stroke="#00ff66" stroke-width="4" fill="none" />
+                <path d="M390 140 H480 L510 110 H595" stroke="#ffffff" stroke-width="1.5" fill="none" class="pcb-trace-anim" />
+
+                <!-- Differential USB-C / PCIe Pairs -->
+                <path d="M95 250 H220 L250 220 H430 L460 250 H595" stroke="#00f3ff" stroke-width="2.5" fill="none" />
+                <path d="M95 260 H224 L254 230 H426 L456 260 H595" stroke="#00f3ff" stroke-width="2.5" fill="none" />
+                <path d="M95 250 H220 L250 220 H430 L460 250 H595" stroke="#ffffff" stroke-width="1.2" fill="none" class="pcb-trace-anim" />
+
+                <!-- Vias -->
+                <g fill="#05070a" stroke="#ff9e00" stroke-width="2">
+                  <circle cx="210" cy="110" r="4" /><circle cx="330" cy="140" r="4" />
+                  <circle cx="480" cy="140" r="4" /><circle cx="250" cy="220" r="4" />
+                  <circle cx="430" cy="220" r="4" />
+                </g>
+              </g>
+
+              <!-- SMD Components (Interactive Hotspots) -->
+              <g class="smd-hotspot" data-smd="usb_pd">
+                <rect x="44" y="84" width="52" height="54" rx="4" fill="#121c29" stroke="#ff9e00" stroke-width="2" />
+                <text x="52" y="114" fill="#ff9e00" font-family="JetBrains Mono" font-size="9" font-weight="700">USB-C PD</text>
+              </g>
+
+              <g class="smd-hotspot" data-smd="bms_ic">
+                <rect x="165" y="155" width="68" height="46" rx="4" fill="#121c29" stroke="#00ff66" stroke-width="2" />
+                <text x="174" y="182" fill="#00ff66" font-family="JetBrains Mono" font-size="9" font-weight="700">BQ25792</text>
+              </g>
+
+              <g class="smd-hotspot" data-smd="buck_5v">
+                <rect x="325" y="112" width="70" height="56" rx="4" fill="#121c29" stroke="#00ff66" stroke-width="2" />
+                <text x="334" y="144" fill="#00ff66" font-family="JetBrains Mono" font-size="9" font-weight="700">TPS54560</text>
+              </g>
+
+              <g class="smd-hotspot" data-smd="esd_array">
+                <rect x="295" y="205" width="76" height="44" rx="4" fill="#121c29" stroke="#00f3ff" stroke-width="2" />
+                <text x="304" y="231" fill="#00f3ff" font-family="JetBrains Mono" font-size="9" font-weight="700">TVS/ESD</text>
+              </g>
+
+              <g class="smd-hotspot" data-smd="mcu_ec">
+                <rect x="495" y="150" width="74" height="64" rx="4" fill="#121c29" stroke="#00f3ff" stroke-width="2" />
+                <text x="506" y="185" fill="#00f3ff" font-family="JetBrains Mono" font-size="9" font-weight="700">RP2040 EC</text>
+              </g>
+
+              <!-- Layer: Silkscreen Designators -->
+              <g id="layer-silk" fill="#e4f1fe" font-family="JetBrains Mono" font-size="9" opacity="0.85">
+                <text x="44" y="76">J1 // USB4_PD_100W</text>
+                <text x="165" y="148">U1 // 4S_BMS_CHARGER</text>
+                <text x="325" y="104">U2 // 5.1V_6A_SYNC_BUCK</text>
+                <text x="295" y="198">D1-D4 // USBLC6_ESD</text>
+                <text x="495" y="142">U3 // EMBEDDED_CTRL</text>
+                <text x="44" y="346" fill="#00ff66">REV 4.2 // IMPEDANCE CONTROLLED 90 OHM DIFF // CLICK IC TO INSPECT</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Selected SMD Component Detail Strip -->
+          <div style="background:rgba(5, 7, 10, 0.85); border:1px solid var(--border-subtle); border-radius:4px; padding:0.75rem; display:flex; flex-wrap:wrap; justify-content:space-between; gap:0.5rem;">
+            <div>
+              <span style="font-size:0.68rem; color:var(--amber); letter-spacing:0.1em;">SELECTED IC // </span>
+              <strong id="smd-title" style="color:var(--text-primary); font-size:0.84rem;">TPS54560 60V 5A Step-Down DC-DC Converter</strong>
+              <p id="smd-desc" style="font-size:0.76rem; color:var(--text-secondary); margin-top:0.2rem;">
+                High-efficiency synchronous buck regulator stepping 12.8V LiFePO4 battery voltage down to clean 5.10V (±1.5% ripple) for the SBC core under transient load spikes.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Power Budget & Field Runtime Calculator -->
+        <aside class="hud-panel power-calc-panel green-accent">
+          <div>
+            <span class="section-tag" style="color:var(--green);">TELEMETRY SIMULATOR // ENDURANCE</span>
+            <h3 style="font-family:var(--font-display); font-size:1.1rem;">Field Power &amp; Runtime Model</h3>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>LiFePO4 Battery Capacity</span>
+              <span id="val-wh">99.8 Wh (FAA Limit)</span>
+            </div>
+            <input type="range" class="cyber-slider" id="slider-wh" min="40" max="200" step="2" value="99.8">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Compute Core TDP Load</span>
+              <span id="val-tdp">8.5 W</span>
+            </div>
+            <input type="range" class="cyber-slider" id="slider-tdp" min="2" max="28" step="0.5" value="8.5">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Display Backlight (Nits)</span>
+              <span id="val-disp">3.2 W (700 nits)</span>
+            </div>
+            <input type="range" class="cyber-slider" id="slider-disp" min="0" max="7" step="0.2" value="3.2">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>SDR / LoRa TX Duty Cycle</span>
+              <span id="val-rf">1.8 W (Active RX/Mesh)</span>
+            </div>
+            <input type="range" class="cyber-slider" id="slider-rf" min="0" max="8" step="0.2" value="1.8">
+          </div>
+
+          <div class="runtime-readout">
+            <div style="font-size:0.68rem; color:var(--text-secondary); letter-spacing:0.12em;">ESTIMATED CONTINUOUS FIELD RUNTIME</div>
+            <div class="runtime-big" id="runtime-hours">6.65 HRS</div>
+            <div class="runtime-sub" id="runtime-stats">TOTAL DRAW: 13.50 W // CURRENT: 1.05 A @ 12.8V // 90% DoD</div>
+          </div>
+
+          <div style="font-size:0.74rem; color:var(--text-secondary); background:rgba(0,0,0,0.4); padding:0.65rem; border-radius:4px; border-left:2px solid var(--green);">
+            <strong>AVIATION COMPLIANCE:</strong> Packs under <span style="color:var(--green);">100 Wh</span> are carry-on legal worldwide without special airline hazardous-materials permits.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         MODULE 04: FABRICATION & PRACTICE (BUILD PIPELINE + LIVE LINUX TERMINAL)
+         ====================================================================== -->
+    <section id="view-fabrication" class="spa-view">
+      <div class="section-header">
+        <div>
+          <span class="section-tag">MODULE 04 // MECHANICAL FABRICATION &amp; OS HARDENING</span>
+          <h2 class="glitch-title" data-text="BUILD PIPELINE & FIELD DIAGNOSTICS">BUILD PIPELINE &amp; FIELD DIAGNOSTICS</h2>
+        </div>
+        <p class="section-subtitle">
+          Click each fabrication phase to inspect mechanical and electrical verification checkpoints, and test live hardware bring-up commands inside the embedded Linux diagnostic shell.
+        </p>
+      </div>
+
+      <div class="fab-grid">
+        <!-- 4-Stage Build Workflow -->
+        <div class="pipeline-steps">
+          <div class="hud-panel step-card active" data-step="1">
+            <div class="step-head">
+              <span class="step-phase">PHASE 01 // CAD &amp; ENCLOSURE</span>
+              <span class="sprite-badge badge-cyan">IP67 / CNC</span>
+            </div>
+            <h3>Parametric Chassis &amp; Bezel Milling</h3>
+            <p>Model internal standoffs in FreeCAD/OpenSCAD around a waterproof Pelican-style hardcase or CNC 6061-T6 aluminum frame with brass heat-set M2.5 inserts.</p>
+            <div class="step-checklist">
+              <span>[✓] Verify 2.5mm minimum wall thickness around SMA &amp; Neutrik cutouts</span>
+              <span>[✓] Isolate high-noise buck inductors 25mm away from SDR coaxial pigtails</span>
+              <span>[✓] Apply conductive copper EMI shielding tape inside 3D-printed ASA bezels</span>
+            </div>
+          </div>
+
+          <div class="hud-panel step-card" data-step="2">
+            <div class="step-head">
+              <span class="step-phase">PHASE 02 // HARNESS &amp; CRIMPING</span>
+              <span class="sprite-badge badge-amber">SILICONE AWG</span>
+            </div>
+            <h3>Point-to-Point Silicone Harnessing</h3>
+            <p>Fabricate custom-length harnesses using high-strand silicone-insulated wire, JST-GH locking connectors, and adhesive-lined dual-wall heatshrink for vibration immunity.</p>
+            <div class="step-checklist">
+              <span>[✓] Use 18 AWG silicone wire for 5V/12V main power trunks (&lt;15mV drop)</span>
+              <span>[✓] Twist differential USB/CAN data pairs at 1.2 twists per centimeter</span>
+              <span>[✓] Continuity &amp; short-circuit smoke-stopper test prior to mating SBC</span>
+            </div>
+          </div>
+
+          <div class="hud-panel step-card" data-step="3">
+            <div class="step-head">
+              <span class="step-phase">PHASE 03 // THERMAL PATH</span>
+              <span class="sprite-badge badge-green">PASSIVE + PWM</span>
+            </div>
+            <h3>Copper Heat-Spreader &amp; Vapor Ducting</h3>
+            <p>Couple SoC and NVMe controllers to a 3mm copper cold-plate bonded to the aluminum chassis exterior, supplemented by a 5V MagLev blower triggered above 55°C.</p>
+            <div class="step-checklist">
+              <span>[✓] Apply PTM7950 phase-change thermal pad on SoC die</span>
+              <span>[✓] Configure device-tree PWM fan curve for silent 0 RPM idle operation</span>
+            </div>
+          </div>
+
+          <div class="hud-panel step-card" data-step="4">
+            <div class="step-head">
+              <span class="step-phase">PHASE 04 // HARDENED LINUX</span>
+              <span class="sprite-badge badge-cyan">LUKS2 + WIRE</span>
+            </div>
+            <h3>Minimal Kernel, SDR &amp; Mesh Stack</h3>
+            <p>Deploy a stripped Debian/NixOS image with full-disk LUKS2 encryption, tmux/sway tiling compositor, GNU Radio, Meshtastic daemon, and offline Ollama inference.</p>
+            <div class="step-checklist">
+              <span>[✓] Enable read-only root overlayfs option to survive sudden power loss</span>
+              <span>[✓] Bind hardware kill-switches to rfkill and webcam/mic GPIO lines</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Live Linux Diagnostic Terminal -->
+        <div class="hud-panel terminal-panel green-accent">
+          <div class="terminal-bar">
+            <div class="term-dots">
+              <span style="background:#ff5f56;"></span>
+              <span style="background:#ffbd2e;"></span>
+              <span style="background:#27c93f;"></span>
+            </div>
+            <span style="color:var(--green); font-weight:700;">root@cyberdeck-01:~# HARDWARE BRING-UP SHELL</span>
+            <span style="color:var(--text-muted);">TTY1 // 115200 BAUD</span>
+          </div>
+
+          <div class="terminal-output" id="terminal-output">DECK//OS v4.2.0-sovereign-arm64 (tty1)
+Kernel 6.11.4-rt-cyberdeck #1 SMP PREEMPT_RT
+[  0.412] bq25792 1-006b: LiFePO4 4S pack detected (13.28V, 99.8Wh)
+[  0.688] sx1262 spi0.0: LoRa transceiver initialized @ 915.0 MHz
+[  0.904] rtl_sdr 1-1.2: R820T2 tuner locked // Bias-T OFF
+Type 'help' or click a diagnostic command below to inspect hardware buses.
+</div>
+
+          <div class="term-cmd-bar">
+            <button class="quick-cmd" data-cmd="help">help</button>
+            <button class="quick-cmd" data-cmd="lsusb">lsusb</button>
+            <button class="quick-cmd" data-cmd="i2cdetect">i2cdetect -y 1</button>
+            <button class="quick-cmd" data-cmd="sensors">sensors</button>
+            <button class="quick-cmd" data-cmd="powerstat">powerstat</button>
+            <button class="quick-cmd" data-cmd="mesh-ping">mesh-ping</button>
+            <button class="quick-cmd" data-cmd="clear">clear</button>
+          </div>
+
+          <form class="terminal-input-row" id="terminal-form">
+            <span class="term-prompt">deck@field-node:~$</span>
+            <input type="text" id="terminal-input" placeholder="Enter diagnostic command (e.g., sensors, lsusb, mesh-ping)..." autocomplete="off" spellcheck="false">
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- HUD Footer -->
+    <footer class="hud-footer">
+      <div>CYBERDECK ARCHITECTURAL MANUAL // ZERO-DEPENDENCY TACTICAL INTERFACE</div>
+      <div>ALL SCHEMATICS, BUS TOPOLOGIES &amp; TELEMETRY RUNNING LOCALLY IN BROWSER</div>
+    </footer>
+  </main>
+
+  <!-- ========================================================================
+       VANILLA JAVASCRIPT ENGINE (AUDIO SYNTH, TELEMETRY CANVAS, 3D TILT,
+       INTERACTIVE NODE GRAPH, PCB INSPECTOR, POWER CALCULATOR & TERMINAL)
+       ======================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ----------------------------------------------------------------------
+         1. WEB AUDIO API PROCEDURAL TACTICAL SYNTH (CLICK / BEEP FEEDBACK)
+         ---------------------------------------------------------------------- */
+      let audioEnabled = true;
+      let audioCtx = null;
+
+      function playTacBeep(freq = 880, duration = 0.045, type = 'sine', gainVal = 0.04) {
+        if (!audioEnabled) return;
+        try {
+          if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+          }
+          if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        } catch (e) {
+          // Audio blocked or unsupported
+        }
+      }
+
+      /* ----------------------------------------------------------------------
+         2. TOP HUD CLOCK, VOLTAGE DRIFT & CRT / AUDIO TOGGLES
+         ---------------------------------------------------------------------- */
+      const clockEl = document.getElementById('hud-clock');
+      const voltEl = document.getElementById('hud-voltage');
+      const crtBtn = document.getElementById('toggle-crt');
+      const audioBtn = document.getElementById('toggle-audio');
+
+      function updateHudTelemetry() {
+        const now = new Date();
+        const iso = now.toISOString().split('T')[1].split('.')[0];
+        clockEl.textContent = `${iso} UTC`;
+
+        // Subtle realistic LiFePO4 voltage micro-ripple
+        const ripple = (Math.sin(Date.now() / 1800) * 0.02 + (Math.random() - 0.5) * 0.01);
+        const v = (13.28 + ripple).toFixed(2);
+        voltEl.textContent = `${v}V // 94%`;
+      }
+      setInterval(updateHudTelemetry, 1000);
+      updateHudTelemetry();
+
+      crtBtn.addEventListener('click', () => {
+        document.body.classList.toggle('crt-disabled');
+        const isOff = document.body.classList.contains('crt-disabled');
+        crtBtn.textContent = isOff ? 'CRT: OFF' : 'CRT: ON';
+        crtBtn.classList.toggle('active', !isOff);
+        crtBtn.classList.toggle('muted', isOff);
+        playTacBeep(isOff ? 420 : 760, 0.05);
+      });
+
+      audioBtn.addEventListener('click', () => {
+        audioEnabled = !audioEnabled;
+        audioBtn.textContent = audioEnabled ? 'SFX: ON' : 'SFX: OFF';
+        audioBtn.classList.toggle('muted', !audioEnabled);
+        if (audioEnabled) playTacBeep(980, 0.06);
+      });
+
+      /* ----------------------------------------------------------------------
+         3. SPA HASH ROUTER & TAB NAVIGATION
+         ---------------------------------------------------------------------- */
+      const navBtns = document.querySelectorAll('.nav-btn');
+      const views = document.querySelectorAll('.spa-view');
+
+      function switchTab(tabId, updateHash = true) {
+        navBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.tab === tabId);
+        });
+        views.forEach(view => {
+          view.classList.toggle('active', view.id === `view-${tabId}`);
+        });
+        if (updateHash) {
+          history.replaceState(null, '', `#${tabId}`);
+        }
+        if (tabId === 'nodetree') {
+          resizeNodeCanvas();
+        }
+      }
+
+      navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          playTacBeep(720, 0.045, 'triangle');
+          switchTab(btn.dataset.tab);
+        });
+      });
+
+      // Handle initial URL hash
+      const initialHash = window.location.hash.replace('#', '');
+      if (['methodology', 'nodetree', 'pcb', 'fabrication'].includes(initialHash)) {
+        switchTab(initialHash, false);
+      }
+
+      /* ----------------------------------------------------------------------
+         4. PROCEDURAL ANIMATED TELEMETRY CANVASES (OSCILLOSCOPE, THERMAL, MATRIX)
+         ---------------------------------------------------------------------- */
+      function setupHiDPICanvas(canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+        canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        return { ctx, w: rect.width, h: rect.height };
+      }
+
+      const oscCanvas = document.getElementById('canvas-oscilloscope');
+      const thermCanvas = document.getElementById('canvas-thermal');
+      const matCanvas = document.getElementById('canvas-matrix');
+
+      let oscState = setupHiDPICanvas(oscCanvas);
+      let thermState = setupHiDPICanvas(thermCanvas);
+      let matState = setupHiDPICanvas(matCanvas);
+
+      window.addEventListener('resize', () => {
+        oscState = setupHiDPICanvas(oscCanvas);
+        thermState = setupHiDPICanvas(thermCanvas);
+        matState = setupHiDPICanvas(matCanvas);
+      });
+
+      let frameTick = 0;
+      function animateTelemetrySprites() {
+        frameTick += 0.06;
+
+        // A. RF SDR IQ Oscilloscope
+        {
+          const { ctx, w, h } = oscState;
+          ctx.fillStyle = 'rgba(3, 5, 8, 0.35)';
+          ctx.fillRect(0, 0, w, h);
+
+          // Center hairline
+          ctx.strokeStyle = 'rgba(0, 243, 255, 0.14)';
+          ctx.beginPath();
+          ctx.moveTo(0, h / 2);
+          ctx.lineTo(w, h / 2);
+          ctx.stroke();
+
+          // Primary modulated carrier
+          ctx.strokeStyle = '#00f3ff';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          for (let x = 0; x < w; x += 2) {
+            const env = Math.sin(x * 0.03 + frameTick * 0.8);
+            const carrier = Math.sin(x * 0.18 - frameTick * 3.2) * (h * 0.32) * env;
+            const noise = (Math.random() - 0.5) * 3;
+            const y = h / 2 + carrier + noise;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+
+        // B. Thermal Spectrum Bar Scanner
+        {
+          const { ctx, w, h } = thermState;
+          ctx.clearRect(0, 0, w, h);
+          const cols = 28;
+          const barW = w / cols;
+          for (let i = 0; i < cols; i++) {
+            const val = 0.35 + 0.45 * Math.abs(Math.sin(i * 0.25 + frameTick * 0.5)) + Math.random() * 0.1;
+            const barH = val * (h - 8);
+            const color = val > 0.72 ? '#ff9e00' : '#00ff66';
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.8;
+            ctx.fillRect(i * barW + 1, h - barH - 4, barW - 2.5, barH);
+          }
+          ctx.globalAlpha = 1;
+        }
+
+        // C. Kernel Entropy / Hex Bitstream Matrix
+        {
+          const { ctx, w, h } = matState;
+          ctx.fillStyle = 'rgba(3, 5, 8, 0.28)';
+          ctx.fillRect(0, 0, w, h);
+          ctx.font = '10px JetBrains Mono';
+          const cols = Math.floor(w / 18);
+          for (let c = 0; c < cols; c++) {
+            const y = ((frameTick * 18 + c * 23) % (h + 14));
+            const hex = ((c * 17 + Math.floor(frameTick * 4)) & 0xff).toString(16).toUpperCase().padStart(2, '0');
+            ctx.fillStyle = c % 5 === 0 ? '#ff9e00' : '#00f3ff';
+            ctx.fillText(hex, c * 18 + 4, y);
+          }
+        }
+
+        requestAnimationFrame(animateTelemetrySprites);
+      }
+      requestAnimationFrame(animateTelemetrySprites);
+
+      /* ----------------------------------------------------------------------
+         5. MODULE 01: 3D PERSPECTIVE TILT & BLUEPRINT SUBSYSTEM INSPECTOR
+         ---------------------------------------------------------------------- */
+      const tiltStage = document.getElementById('tilt-stage');
+      const tiltCard = document.getElementById('tilt-card');
+
+      tiltStage.addEventListener('mousemove', (e) => {
+        const rect = tiltStage.getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width - 0.5;
+        const ny = (e.clientY - rect.top) / rect.height - 0.5;
+        const rotateY = nx * 12;
+        const rotateX = -ny * 12;
+        tiltCard.style.transform = `rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg)`;
+      });
+
+      tiltStage.addEventListener('mouseleave', () => {
+        tiltCard.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      });
+
+      const subsystemData = {
+        display: {
+          tag: 'SUBSYSTEM // [01] OPTICAL INTERFACE',
+          title: '10.1" Transflective Sunlight Display',
+          desc: 'Standard OLED panels wash out under direct solar radiation and suffer burn-in with static terminal HUDs. A high-nit optical-bonded IPS display with hardware backlight kill-switch ensures zero-glare legibility in field deployments while preserving night-vision stealth.',
+          kv: [
+            ['INTERFACE BUS', 'eDP 1.4 (4-Lane)'],
+            ['LUMINANCE', '1000 cd/m²'],
+            ['POWER DRAW', '3.2W Nominal'],
+            ['PROTECTION', '2mm Gorilla Glass']
+          ],
+          rule: 'Always include a physical hardware toggle switch on the backlight boost driver for dark-adapted tactical operation.'
+        },
+        compute: {
+          tag: 'SUBSYSTEM // [02] SOVEREIGN PROCESSING CORE',
+          title: 'Modular Compute Core + Dual M.2 NVMe',
+          desc: 'Built on an industrial-temperature System-on-Module (CM5 / RISC-V / low-TDP x86) with ECC LPDDR5 RAM, 2TB encrypted NVMe storage for offline datasets, and a dedicated 16-TOPS NPU for air-gapped local LLM inference.',
+          kv: [
+            ['ARCHITECTURE', 'ARM64 / RISC-V'],
+            ['STORAGE BUS', 'PCIe Gen3 x2 NVMe'],
+            ['IDLE / PEAK TDP', '2.8W / 18.0W'],
+            ['LOCAL AI', '16 TOPS NPU']
+          ],
+          rule: 'Avoid soldered eMMC boot media; always isolate the OS onto a removable M.2 NVMe drive for rapid field cloning.'
+        },
+        keyboard: {
+          tag: 'SUBSYSTEM // [03] TACTILE HUMAN-MACHINE INTERFACE',
+          title: '48-Key Ortholinear Hot-Swap Matrix',
+          desc: 'Compact grid-aligned mechanical keyswitches driven by an open-source RP2040 microcontroller running QMK/ZMK firmware. Features programmable layers, thumb-cluster modifiers, and an integrated Hall-effect trackpoint.',
+          kv: [
+            ['FIRMWARE', 'QMK / ZMK Open'],
+            ['SWITCHES', 'Kailh Choc Low-Pro'],
+            ['INTERFACE', 'Internal USB HID'],
+            ['POINTING', 'Hall Trackpoint']
+          ],
+          rule: 'Ortholinear layouts reduce lateral finger travel by 30%, allowing comfortable lap or handheld typing in cramped field conditions.'
+        },
+        rf: {
+          tag: 'SUBSYSTEM // [04] ELECTROMAGNETIC TRANSCEIVER BAY',
+          title: 'Wideband SDR + 915MHz LoRa Mesh Radio',
+          desc: 'Internal shielded RF bay housing an SX1262 LoRa transceiver for long-range off-grid encrypted text telemetry and a 1MHz–6GHz Software-Defined Radio routed to shock-mounted SMA bulkhead connectors.',
+          kv: [
+            ['MESH RANGE', '15+ km Line-of-Sight'],
+            ['SDR BANDWIDTH', '20 MHz Real-Time'],
+            ['CONNECTORS', 'Panel SMA Female'],
+            ['SHIELDING', 'Mu-Metal RF Can']
+          ],
+          rule: 'Never transmit on an SDR or LoRa SMA port without a tuned 50-ohm antenna attached, or reflected VSWR will damage the PA stage.'
+        },
+        power: {
+          tag: 'SUBSYSTEM // [05] ENERGY STORAGE & BMS',
+          title: '4S LiFePO4 Pack + 100W USB-C PD',
+          desc: 'Four 32700 LiFePO4 cells configured in 4S1P (12.8V nominal, 99.8Wh) managed by an active cell-balancing BMS and bidirectional USB-C Power Delivery controller capable of charging from solar panels or 12V/24V vehicle aux ports.',
+          kv: [
+            ['CHEMISTRY', 'LiFePO4 (3000 Cyc)'],
+            ['CAPACITY', '99.8 Wh (7.8 Ah)'],
+            ['CHARGING', 'USB-C PD 100W / Solar'],
+            ['SAFETY', 'Zero Thermal Runaway']
+          ],
+          rule: 'LiFePO4 maintains a flat 12.8V–13.2V discharge curve across 85% of its capacity, maximizing buck regulator efficiency.'
+        }
+      };
+
+      const zones = document.querySelectorAll('.subsystem-zone');
+      zones.forEach(zone => {
+        zone.addEventListener('click', () => {
+          zones.forEach(z => z.classList.remove('selected'));
+          zone.classList.add('selected');
+          const key = zone.dataset.subsystem;
+          const data = subsystemData[key];
+          if (!data) return;
+
+          playTacBeep(920, 0.05, 'sine');
+          document.getElementById('spec-tag').textContent = data.tag;
+          document.getElementById('spec-title').textContent = data.title;
+          document.getElementById('spec-desc').textContent = data.desc;
+          document.getElementById('spec-rule').textContent = data.rule;
+
+          const kvGrid = document.getElementById('spec-kv-grid');
+          kvGrid.innerHTML = data.kv.map(([k, v]) => `
+            <div class="spec-kv"><div class="k">${k}</div><div class="v">${v}</div></div>
+          `).join('');
+        });
+      });
+
+      /* ----------------------------------------------------------------------
+         6. MODULE 02: INTERACTIVE HARDWARE & BUS NODE TREE (CANVAS)
+         ---------------------------------------------------------------------- */
+      const nodeCanvas = document.getElementById('node-tree-canvas');
+      const nodeCtx = nodeCanvas.getContext('2d');
+
+      const nodes = [
+        {
+          id: 'bat', label: '4S LiFePO4 PACK', sub: '12.8V // 99.8Wh', x: 110, y: 120, color: '#00ff66',
+          cat: 'ENERGY // PRIMARY SOURCE', voltage: '12.8V Nominal (10.0–14.6V)', current: '8.0A Max Continuous',
+          summary: 'High-cycle Lithium Iron Phosphate battery pack with integrated hardware over-current and cell-balancing protection.',
+          pins: [['B+/B-', '12.8V_RAW', 'XT30 Power Trunk'], ['NTC', '10k Thermistor', 'BMS Temp Sense'], ['BAL1-3', 'Cell Taps', 'Active Balance']]
+        },
+        {
+          id: 'bms', label: 'PD / BUCK PMIC', sub: '5.1V & 3.3V RAILS', x: 110, y: 310, color: '#00ff66',
+          cat: 'POWER // REGULATION BUS', voltage: '5.10V / 3.30V Regulated', current: '6.0A @ 5V Rail',
+          summary: 'Bidirectional USB-C PD 3.1 controller paired with synchronous buck regulators supplying isolated clean rails.',
+          pins: [['VBUS', '5V–20V PD', 'USB-C Input/Output'], ['OUT1', '+5.1V_SBC', 'High-Efficiency Buck'], ['I2C_PM', 'SDA / SCL', 'Telemetry to SBC']]
+        },
+        {
+          id: 'sbc', label: 'COMPUTE SBC CORE', sub: 'ARM64 // PCIe + USB3', x: 350, y: 215, color: '#00f3ff',
+          cat: 'COMPUTE // ROOT NODE', voltage: '5.1V ±3% DC', current: '3.8A (19.4W Peak)',
+          summary: 'Central processing unit hosting hardened Linux kernel, PCIe Gen3 switch, dual USB 3.2 controllers, and 40-pin GPIO.',
+          pins: [['J1.1-4', '+5V_SYS', 'Main Supply Rail'], ['PCIE_0', 'TX/RX Diff', 'PCIe Gen3 x1 (8GT/s)'], ['SPI0', 'MOSI/MISO/CLK', 'LoRa SX1262 (10MHz)'], ['I2C_1', 'SDA / SCL', 'PMIC & INA219']]
+        },
+        {
+          id: 'nvme', label: 'NVMe + AI NPU', sub: 'PCIe GEN3 x2', x: 350, y: 70, color: '#00f3ff',
+          cat: 'STORAGE // HIGH-SPEED BUS', voltage: '3.3V ±2% DC', current: '1.4A (4.6W Peak)',
+          summary: 'LUKS2-encrypted 2TB solid-state storage and neural coprocessor for offline LLM inference and vector maps.',
+          pins: [['PETp/n', 'PCIe Lane 0-1', '16 Gbps Duplex'], ['3V3_M2', '+3.3V_AUX', 'Dedicated LDO'], ['CLKREQ#', 'Ref Clock', '100MHz HCSL']]
+        },
+        {
+          id: 'disp', label: '10.1" IPS DISPLAY', sub: 'eDP 4-LANE + TOUCH', x: 600, y: 95, color: '#00f3ff',
+          cat: 'OPTICAL // VIDEO BUS', voltage: '12V Backlight / 3.3V Logic', current: '0.45A (5.4W)',
+          summary: '1000-nit sunlight-readable transflective panel driven via shielded micro-coaxial eDP harness.',
+          pins: [['EDP_0-3', 'Main Link', '2.7 Gbps/lane'], ['AUX_CH', 'EDID / DPCD', '1 Mbps Aux'], ['BL_EN', 'PWM / Kill-Sw', 'Hardware Cutoff']]
+        },
+        {
+          id: 'sdr', label: 'SDR + LORA MESH', sub: 'USB 3.0 + SPI0', x: 600, y: 250, color: '#ff9e00',
+          cat: 'RF // TRANSCEIVER ARRAY', voltage: '5.0V LDO Filtered', current: '0.85A (TX Burst)',
+          summary: 'Wideband Software-Defined Radio and 915MHz LoRa mesh transceiver with ultra-low-noise LDO power isolation.',
+          pins: [['USB3_SS', 'IQ Stream', '5 Gbps SuperSpeed'], ['SPI0_CS0', 'SX1262 Control', '10 MHz SPI'], ['DIO1', 'RX/TX IRQ', '3.3V CMOS Interrupt']]
+        },
+        {
+          id: 'kbd', label: 'QMK MATRIX + EC', sub: 'USB HID + UART', x: 470, y: 395, color: '#ff9e00',
+          cat: 'HMI // EMBEDDED CONTROLLER', voltage: '3.3V Always-On', current: '0.12A (0.4W)',
+          summary: 'RP2040 mechanical keyboard matrix controller & hardware watchdog managing power sequencing and kill-switches.',
+          pins: [['USB_D+/D-', 'Full-Speed HID', '12 Mbps Differential'], ['UART0', 'TX / RX Console', '115200 8N1 Serial'], ['GPIO_KS', 'RF/Mic Cutoff', 'Hardware Interlock']]
+        }
+      ];
+
+      const edges = [
+        { from: 'bat', to: 'bms', type: 'POWER', label: '12.8V TRUNK', color: '#00ff66' },
+        { from: 'bms', to: 'sbc', type: 'POWER', label: '5.1V / 6A', color: '#00ff66' },
+        { from: 'bms', to: 'disp', type: 'POWER', label: '12V BL', color: '#00ff66' },
+        { from: 'bms', to: 'kbd', type: 'POWER', label: '3.3V AON', color: '#00ff66' },
+        { from: 'sbc', to: 'nvme', type: 'DATA', label: 'PCIe Gen3', color: '#00f3ff' },
+        { from: 'sbc', to: 'disp', type: 'DATA', label: 'eDP 4-Lane', color: '#00f3ff' },
+        { from: 'sbc', to: 'sdr', type: 'DATA', label: 'USB3 + SPI', color: '#ff9e00' },
+        { from: 'sbc', to: 'kbd', type: 'DATA', label: 'HID + UART', color: '#ff9e00' }
+      ];
+
+      let busFilter = 'ALL';
+      let packetsFlowing = true;
+      let selectedNode = nodes[2]; // SBC default
+      let draggingNode = null;
+      let camZoom = 1;
+      let camOffset = { x: 0, y: 0 };
+      let isPanning = false;
+      let panStart = { x: 0, y: 0 };
+
+      function resizeNodeCanvas() {
+        const rect = nodeCanvas.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        nodeCanvas.width = rect.width * dpr;
+        nodeCanvas.height = rect.height * dpr;
+        nodeCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      window.addEventListener('resize', resizeNodeCanvas);
+      resizeNodeCanvas();
+
+      function selectNode(node) {
+        selectedNode = node;
+        document.getElementById('node-category').textContent = node.cat;
+        document.getElementById('node-name').textContent = node.label;
+        document.getElementById('node-name').style.color = node.color;
+        document.getElementById('node-summary').textContent = node.summary;
+        document.getElementById('node-voltage').textContent = node.voltage;
+        document.getElementById('node-current').textContent = node.current;
+
+        const tbody = document.getElementById('node-pinout-body');
+        tbody.innerHTML = node.pins.map(p => `<tr><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td></tr>`).join('');
+      }
+
+      function screenToWorld(clientX, clientY) {
+        const rect = nodeCanvas.getBoundingClientRect();
+        return {
+          x: (clientX - rect.left - camOffset.x) / camZoom,
+          y: (clientY - rect.top - camOffset.y) / camZoom
+        };
+      }
+
+      nodeCanvas.addEventListener('mousedown', (e) => {
+        const pt = screenToWorld(e.clientX, e.clientY);
+        const hit = nodes.find(n => Math.abs(pt.x - n.x) < 72 && Math.abs(pt.y - n.y) < 30);
+        if (hit) {
+          draggingNode = hit;
+          selectNode(hit);
+          playTacBeep(860, 0.04);
+        } else {
+          isPanning = true;
+          panStart = { x: e.clientX - camOffset.x, y: e.clientY - camOffset.y };
+        }
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (draggingNode) {
+          const pt = screenToWorld(e.clientX, e.clientY);
+          draggingNode.x = pt.x;
+          draggingNode.y = pt.y;
+        } else if (isPanning) {
+          camOffset.x = e.clientX - panStart.x;
+          camOffset.y = e.clientY - panStart.y;
+        }
+      });
+
+      window.addEventListener('mouseup', () => {
+        draggingNode = null;
+        isPanning = false;
+      });
+
+      nodeCanvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.08 : 0.92;
+        camZoom = Math.min(1.8, Math.max(0.6, camZoom * factor));
+      }, { passive: false });
+
+      // Toolbar controls
+      document.querySelectorAll('[data-bus-filter]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-bus-filter]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          busFilter = btn.dataset.busFilter;
+          playTacBeep(780, 0.04);
+        });
+      });
+
+      document.getElementById('toggle-packets').addEventListener('click', (e) => {
+        packetsFlowing = !packetsFlowing;
+        e.target.textContent = packetsFlowing ? 'PACKETS: FLOWING' : 'PACKETS: PAUSED';
+        e.target.classList.toggle('active', packetsFlowing);
+        playTacBeep(680, 0.04);
+      });
+
+      document.getElementById('zoom-in').addEventListener('click', () => { camZoom = Math.min(1.8, camZoom * 1.15); });
+      document.getElementById('zoom-out').addEventListener('click', () => { camZoom = Math.max(0.6, camZoom * 0.85); });
+      document.getElementById('reset-graph').addEventListener('click', () => {
+        camZoom = 1;
+        camOffset = { x: 0, y: 0 };
+        playTacBeep(640, 0.04);
+      });
+
+      let packetPhase = 0;
+      function renderNodeTree() {
+        const w = nodeCanvas.clientWidth;
+        const h = nodeCanvas.clientHeight;
+        nodeCtx.clearRect(0, 0, w, h);
+
+        nodeCtx.save();
+        nodeCtx.translate(camOffset.x, camOffset.y);
+        nodeCtx.scale(camZoom, camZoom);
+
+        if (packetsFlowing) packetPhase = (packetPhase + 0.008) % 1;
+
+        // Draw Edges
+        edges.forEach((edge, idx) => {
+          if (busFilter !== 'ALL' && edge.type !== busFilter) return;
+          const a = nodes.find(n => n.id === edge.from);
+          const b = nodes.find(n => n.id === edge.to);
+          if (!a || !b) return;
+
+          nodeCtx.strokeStyle = edge.color;
+          nodeCtx.globalAlpha = 0.42;
+          nodeCtx.lineWidth = edge.type === 'POWER' ? 2.6 : 1.8;
+          nodeCtx.beginPath();
+          nodeCtx.moveTo(a.x, a.y);
+          nodeCtx.lineTo(b.x, b.y);
+          nodeCtx.stroke();
+          nodeCtx.globalAlpha = 1;
+
+          // Edge Label
+          const mx = (a.x + b.x) / 2;
+          const my = (a.y + b.y) / 2;
+          nodeCtx.fillStyle = '#05070a';
+          nodeCtx.fillRect(mx - 34, my - 8, 68, 15);
+          nodeCtx.fillStyle = edge.color;
+          nodeCtx.font = '9px JetBrains Mono';
+          nodeCtx.textAlign = 'center';
+          nodeCtx.fillText(edge.label, mx, my + 3);
+
+          // Animated Signal Packet Pulse
+          if (packetsFlowing) {
+            const t = (packetPhase + idx * 0.17) % 1;
+            const px = a.x + (b.x - a.x) * t;
+            const py = a.y + (b.y - a.y) * t;
+            nodeCtx.fillStyle = '#ffffff';
+            nodeCtx.shadowColor = edge.color;
+            nodeCtx.shadowBlur = 10;
+            nodeCtx.beginPath();
+            nodeCtx.arc(px, py, 3.6, 0, Math.PI * 2);
+            nodeCtx.fill();
+            nodeCtx.shadowBlur = 0;
+          }
+        });
+
+        // Draw Nodes
+        nodes.forEach(node => {
+          const isSelected = selectedNode && selectedNode.id === node.id;
+          const nw = 144;
+          const nh = 56;
+          const x = node.x - nw / 2;
+          const y = node.y - nh / 2;
+
+          nodeCtx.fillStyle = isSelected ? 'rgba(16, 30, 48, 0.96)' : 'rgba(9, 14, 22, 0.92)';
+          nodeCtx.strokeStyle = node.color;
+          nodeCtx.lineWidth = isSelected ? 2.5 : 1.3;
+          if (isSelected) {
+            nodeCtx.shadowColor = node.color;
+            nodeCtx.shadowBlur = 14;
+          }
+
+          nodeCtx.beginPath();
+          nodeCtx.roundRect(x, y, nw, nh, 6);
+          nodeCtx.fill();
+          nodeCtx.stroke();
+          nodeCtx.shadowBlur = 0;
+
+          // Status LED
+          nodeCtx.fillStyle = node.color;
+          nodeCtx.beginPath();
+          nodeCtx.arc(x + 12, y + 15, 3.5, 0, Math.PI * 2);
+          nodeCtx.fill();
+
+          nodeCtx.fillStyle = '#e4f1fe';
+          nodeCtx.font = 'bold 10.5px JetBrains Mono';
+          nodeCtx.textAlign = 'left';
+          nodeCtx.fillText(node.label, x + 22, y + 19);
+
+          nodeCtx.fillStyle = '#8ba3be';
+          nodeCtx.font = '9px JetBrains Mono';
+          nodeCtx.fillText(node.sub, x + 12, y + 39);
+        });
+
+        nodeCtx.restore();
+        requestAnimationFrame(renderNodeTree);
+      }
+      requestAnimationFrame(renderNodeTree);
+
+      /* ----------------------------------------------------------------------
+         7. MODULE 03: PCB GERBER LAYER TOGGLES, SMD INSPECTOR & POWER MODEL
+         ---------------------------------------------------------------------- */
+      document.querySelectorAll('[data-pcb-layer]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('active');
+          const layerEl = document.getElementById(btn.dataset.pcbLayer);
+          if (layerEl) {
+            layerEl.style.display = btn.classList.contains('active') ? 'inline' : 'none';
+          }
+          playTacBeep(800, 0.04);
+        });
+      });
+
+      const smdDetails = {
+        usb_pd: {
+          title: 'CYPD3177 USB-C Power Delivery 3.0 Sink/Source Controller',
+          desc: 'Negotiates 20V/5A (100W) input profiles with hardware-strapped resistors—requiring zero firmware flashing to safely accept solar MPPT or laptop USB-C chargers.'
+        },
+        bms_ic: {
+          title: 'TI BQ25792 I2C Buck-Boost 4-Cell Battery Charger',
+          desc: 'Supports wide 3.6V–24V input voltage with integrated MPPT solar tracking, precision CC/CV LiFePO4 termination, and seamless power-path switchover.'
+        },
+        buck_5v: {
+          title: 'TPS54560 60V 5A Step-Down DC-DC Converter',
+          desc: 'High-efficiency synchronous buck regulator stepping 12.8V LiFePO4 battery voltage down to clean 5.10V (±1.5% ripple) for the SBC core under transient load spikes.'
+        },
+        esd_array: {
+          title: 'USBLC6-2SC6 Ultra-Low Capacitance TVS / ESD Array',
+          desc: 'Protects exposed bulkhead USB and differential data lines against ±15kV IEC 61000-4-2 electrostatic discharge events during wet or dusty field patching.'
+        },
+        mcu_ec: {
+          title: 'RP2040 Embedded System Controller & Hardware Watchdog',
+          desc: 'Monitors INA219 shunt current sensors, controls PWM cooling blowers, and executes hardware power-rail sequencing independently of the main Linux OS.'
+        }
+      };
+
+      document.querySelectorAll('.smd-hotspot').forEach(hs => {
+        hs.addEventListener('click', () => {
+          const info = smdDetails[hs.dataset.smd];
+          if (!info) return;
+          document.getElementById('smd-title').textContent = info.title;
+          document.getElementById('smd-desc').textContent = info.desc;
+          playTacBeep(960, 0.05);
+        });
+      });
+
+      // Interactive Power Budget Calculator
+      const sWh = document.getElementById('slider-wh');
+      const sTdp = document.getElementById('slider-tdp');
+      const sDisp = document.getElementById('slider-disp');
+      const sRf = document.getElementById('slider-rf');
+
+      function updatePowerCalculator() {
+        const wh = parseFloat(sWh.value);
+        const tdp = parseFloat(sTdp.value);
+        const disp = parseFloat(sDisp.value);
+        const rf = parseFloat(sRf.value);
+
+        document.getElementById('val-wh').textContent = wh <= 100 ? `${wh.toFixed(1)} Wh (FAA Legal)` : `${wh.toFixed(1)} Wh (Expedition)`;
+        document.getElementById('val-tdp').textContent = `${tdp.toFixed(1)} W`;
+        document.getElementById('val-disp').textContent = disp === 0 ? '0.0 W (Headless)' : `${disp.toFixed(1)} W (${Math.round(disp * 220)} nits)`;
+        document.getElementById('val-rf').textContent = rf === 0 ? '0.0 W (RF Kill)' : `${rf.toFixed(1)} W (Active RX/TX)`;
+
+        const totalWatts = tdp + disp + rf;
+        const usableWh = wh * 0.90; // 90% Depth of Discharge for LiFePO4 longevity
+        const hours = usableWh / Math.max(0.5, totalWatts);
+        const amps = totalWatts / 12.8;
+
+        document.getElementById('runtime-hours').textContent = `${hours.toFixed(2)} HRS`;
+        document.getElementById('runtime-stats').textContent =
+          `TOTAL DRAW: ${totalWatts.toFixed(2)} W // CURRENT: ${amps.toFixed(2)} A @ 12.8V // 90% DoD`;
+      }
+
+      [sWh, sTdp, sDisp, sRf].forEach(sl => sl.addEventListener('input', updatePowerCalculator));
+      updatePowerCalculator();
+
+      /* ----------------------------------------------------------------------
+         8. MODULE 04: BUILD STEP ACCORDION & LIVE LINUX DIAGNOSTIC TERMINAL
+         ---------------------------------------------------------------------- */
+      const stepCards = document.querySelectorAll('.step-card');
+      stepCards.forEach(card => {
+        card.addEventListener('click', () => {
+          stepCards.forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          playTacBeep(740, 0.04);
+        });
+      });
+
+      const termOutput = document.getElementById('terminal-output');
+      const termForm = document.getElementById('terminal-form');
+      const termInput = document.getElementById('terminal-input');
+
+      const commandResponses = {
+        help: `AVAILABLE HARDWARE DIAGNOSTICS:
+  lsusb          - Enumerate internal USB3/HID peripherals & SDR
+  i2cdetect -y 1 - Scan PMIC, INA219 power monitors & RTC on I2C bus 1
+  sensors        - Read SoC, NVMe, VRM & LiFePO4 pack thermals
+  powerstat      - Real-time rail voltage, amperage & battery runtime
+  mesh-ping      - Transmit 915MHz LoRa mesh telemetry beacon
+  clear          - Clear terminal buffer`,
+        lsusb: `Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 002 Device 002: ID 0bda:2838 Realtek RTL2832U Wideband SDR [1MHz-1.7GHz]
+Bus 001 Device 003: ID 1209:4801 QMK Ortholinear 48-Key Matrix + Trackpoint
+Bus 001 Device 004: ID 0403:6015 FTDI Isolated RS-485 / CAN Field Adapter`,
+        'i2cdetect -y 1': `     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:                         -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: 40 41 -- -- -- -- -- -- -- -- -- -- -- -- -- --  [INA219 Shunt Monitors]
+60: -- -- -- -- -- -- -- -- UU -- -- 6b -- -- -- --  [RTC + BQ25792 BMS]`,
+        i2cdetect: `     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+40: 40 41 -- -- -- -- -- -- -- -- -- -- -- -- -- --  [INA219 Power Sensors]
+60: -- -- -- -- -- -- -- -- UU -- -- 6b -- -- -- --  [DS3231 RTC + BQ25792]`,
+        sensors: `soc_thermal-virtual-0
+  CPU Die:      +44.2°C  (crit = +95.0°C)
+nvme-pci-0100
+  Composite:    +38.5°C  (high = +70.0°C)
+bq25792_charger-i2c-1-6b
+  LiFePO4 Pack: +27.1°C  (safe range: -10°C to +55°C)
+  PWM Blower:   0 RPM    (passive copper heatspreader active)`,
+        powerstat: `[RAIL TELEMETRY // INA219 @ 100Hz]
+  BAT_PACK (4S LiFePO4): 13.28 V | +0.94 A | 12.48 W (Discharging)
+  RAIL_5V1 (SBC Core):    5.10 V | +1.62 A |  8.26 W
+  RAIL_3V3 (RF/Logic):    3.31 V | +0.41 A |  1.35 W
+  ESTIMATED REMAINING:    7h 12m (94.2% SoC // 94.0 Wh available)`,
+        'mesh-ping': `[LORA SX1262 // CH-0 915.000 MHz // SF11 BW125kHz]
+  > TX Beacon #0042: "DECK-01 GRID-IO83 // BAT 13.28V // SNR +9.5dB"
+  < ACK from RELAY-NORTH (4.8 km) | RSSI: -89 dBm | SNR: +7.2 dB
+  < ACK from PEAK-NODE-04 (14.2 km) | RSSI: -104 dBm | SNR: +2.0 dB`
+      };
+
+      function executeTerminalCommand(rawCmd) {
+        const cmd = rawCmd.trim();
+        if (!cmd) return;
+
+        if (cmd.toLowerCase() === 'clear') {
+          termOutput.textContent = '';
+          playTacBeep(520, 0.04);
+          return;
+        }
+
+        const reply = commandResponses[cmd] || commandResponses[cmd.toLowerCase()] ||
+          `bash: ${cmd}: command not found (type 'help' for hardware diagnostic suite)`;
+
+        termOutput.textContent += `\ndeck@field-node:~$ ${cmd}\n${reply}\n`;
+        termOutput.scrollTop = termOutput.scrollHeight;
+        playTacBeep(840, 0.045, 'square', 0.03);
+      }
+
+      termForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        executeTerminalCommand(termInput.value);
+        termInput.value = '';
+      });
+
+      document.querySelectorAll('.quick-cmd').forEach(btn => {
+        btn.addEventListener('click', () => {
+          executeTerminalCommand(btn.dataset.cmd);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
