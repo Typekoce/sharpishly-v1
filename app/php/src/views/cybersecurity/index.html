@@ -1,0 +1,1125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Aegis Command — Cybersecurity Operations Platform</title>
+<style>
+@layer reset, tokens, base, layout, components, utilities, motion;
+
+@layer reset {
+  *,*::before,*::after{box-sizing:border-box}
+  *{margin:0}
+  html{color-scheme:dark;scroll-behavior:smooth}
+  body{min-height:100dvh;-webkit-text-size-adjust:100%}
+  img,svg,canvas,video{display:block;max-width:100%}
+  button,input,select,textarea{font:inherit;color:inherit}
+  button{background:none;border:0;cursor:pointer}
+  a{color:inherit}
+  ul,ol{padding:0;list-style:none}
+  table{border-collapse:collapse;width:100%}
+}
+
+@layer tokens {
+  :root{
+    --canvas:#060913;
+    --surface:#0f172a;
+    --surface-2:#111c31;
+    --line:color-mix(in oklab,#00f0ff 18%,#0f172a);
+    --text:#e8f2fb;
+    --muted:#9fb0c6;
+    --cyan:#00f0ff;
+    --emerald:#10b981;
+    --crimson:#f43f5e;
+    --amber:#fbbf24;
+    --radius:16px;
+    --radius-sm:10px;
+    --shadow:0 18px 50px rgb(0 0 0 / .38);
+    --ring:0 0 0 3px color-mix(in oklab,var(--cyan) 45%,transparent);
+    --space-1:.35rem; --space-2:.65rem; --space-3:1rem; --space-4:1.5rem; --space-5:2.25rem;
+    --font:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --max:1500px;
+  }
+  @media (prefers-contrast:more){
+    :root{--text:#fff;--muted:#d8e4f2;--line:#7c8ba3}
+  }
+}
+
+@layer base {
+  body{
+    background:
+      radial-gradient(1100px 620px at 82% -8%,rgb(0 240 255 / .09),transparent),
+      radial-gradient(900px 500px at 8% 100%,rgb(16 185 129 / .08),transparent),
+      var(--canvas);
+    color:var(--text);
+    font-family:var(--font);
+    line-height:1.55;
+    font-size:clamp(.94rem,.88rem + .18vw,1.03rem);
+  }
+  h1,h2,h3,h4{text-wrap:balance;line-height:1.15;letter-spacing:-.015em}
+  h1{font-size:clamp(2rem,1.35rem + 3vw,3.5rem)}
+  h2{font-size:clamp(1.45rem,1.15rem + 1.3vw,2.1rem)}
+  h3{font-size:clamp(1.1rem,1rem + .5vw,1.35rem)}
+  p{text-wrap:pretty}
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:none;box-shadow:var(--ring)}
+  :user-invalid{border-color:var(--crimson)!important}
+  code,kbd,pre{font-family:var(--mono);font-size:.88em}
+  kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:.1em .38em;background:#0a1120}
+  .num{font-variant-numeric:tabular-nums}
+}
+
+@layer layout {
+  .shell{width:min(100% - 2rem,var(--max));margin-inline:auto}
+  .topbar{
+    position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:var(--space-3);
+    padding:.7rem 0;background:color-mix(in oklab,var(--canvas) 88%,transparent);
+    backdrop-filter:blur(14px);border-bottom:1px solid var(--line)
+  }
+  .brand{display:flex;align-items:center;gap:.65rem;font-weight:800;letter-spacing:-.03em}
+  .brand svg{width:34px;height:34px}
+  .nav{display:flex;gap:.2rem;margin-left:auto;overflow:auto;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav a{
+    display:grid;place-items:center;min-height:44px;padding:.45rem .75rem;border-radius:999px;
+    color:var(--muted);text-decoration:none;white-space:nowrap;border:1px solid transparent
+  }
+  .nav a:hover{color:var(--text);background:#0b1425}
+  .nav a[aria-current="page"]{color:#04121a;background:var(--cyan);font-weight:750}
+  .mode{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+  .mode button{min-height:44px;padding:.4rem .8rem;color:var(--muted)}
+  .mode button[aria-pressed="true"]{background:color-mix(in oklab,var(--cyan) 18%,#0b1425);color:var(--text)}
+  main{padding-block:var(--space-5) 5rem;min-height:70dvh}
+  .grid{display:grid;gap:var(--space-3)}
+  .cols-2{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))}
+  .cols-3{grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr))}
+  .section{margin-top:var(--space-5)}
+  .page-head{max-width:72ch;margin-bottom:var(--space-4)}
+  .eyebrow{color:var(--cyan);font:750 .72rem/1 var(--mono);text-transform:uppercase;letter-spacing:.16em}
+  .hero{display:grid;gap:var(--space-4);grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:center}
+  .hero-copy{max-width:60ch}
+  .actions{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:var(--space-3)}
+  .footer{border-top:1px solid var(--line);padding:var(--space-4) 0;color:var(--muted);font-size:.85rem}
+  @media (max-width:920px){.hero{grid-template-columns:1fr}.nav{width:100%;order:3}}
+  @media (max-width:620px){
+    .topbar{flex-wrap:wrap}
+    .mode{order:2;margin-left:auto}
+    .nav{order:3;width:100%}
+  }
+}
+
+@layer components {
+  .card{
+    container-type:inline-size;
+    background:linear-gradient(145deg,color-mix(in oklab,var(--surface) 94%,#fff 6%),var(--surface));
+    border:1px solid var(--line);border-radius:var(--radius);padding:var(--space-4);box-shadow:var(--shadow)
+  }
+  .card.tight{padding:var(--space-3)}
+  .card h3{margin-bottom:.4rem}
+  .metric{display:grid;gap:.2rem}
+  .metric b{font-size:clamp(1.5rem,1.2rem + 1vw,2.1rem);color:var(--cyan)}
+  .badge{
+    display:inline-flex;align-items:center;gap:.35rem;padding:.22rem .55rem;border-radius:999px;
+    border:1px solid var(--line);font:700 .7rem/1.2 var(--mono);text-transform:uppercase
+  }
+  .badge.critical{color:#ffe4e9;background:color-mix(in oklab,var(--crimson) 22%,transparent);border-color:var(--crimson)}
+  .badge.high{color:#fff4d6;background:color-mix(in oklab,var(--amber) 20%,transparent);border-color:var(--amber)}
+  .badge.medium{color:#d9fff5;background:color-mix(in oklab,var(--emerald) 18%,transparent);border-color:var(--emerald)}
+  .badge.info{color:#d8fbff;background:color-mix(in oklab,var(--cyan) 14%,transparent);border-color:var(--cyan)}
+  .btn{
+    display:inline-grid;place-items:center;min-height:44px;padding:.6rem 1rem;border-radius:999px;
+    border:1px solid var(--line);background:#0b1425;color:var(--text);text-decoration:none;font-weight:650
+  }
+  .btn:hover{background:#12203a}
+  .btn.primary{background:var(--cyan);border-color:transparent;color:#04121a}
+  .btn.primary:hover{background:color-mix(in oklab,var(--cyan) 82%,#fff)}
+  .btn.danger{border-color:var(--crimson);color:#ffdbe2}
+  .btn.small{min-height:36px;padding:.35rem .7rem;font-size:.85rem}
+  .field{display:grid;gap:.35rem;margin-bottom:var(--space-3)}
+  .field label{font-size:.85rem;font-weight:700}
+  .field small{color:var(--muted)}
+  input,select,textarea{
+    width:100%;min-height:44px;padding:.65rem .8rem;border-radius:var(--radius-sm);
+    border:1px solid var(--line);background:#0a1120;color:var(--text)
+  }
+  textarea{min-height:110px;resize:vertical}
+  .toolbar{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center;margin-bottom:var(--space-3)}
+  .toolbar input,.toolbar select{width:auto;min-width:150px}
+  .chip{
+    min-height:36px;padding:.3rem .7rem;border-radius:999px;border:1px solid var(--line);
+    background:#0a1120;color:var(--muted);font-size:.82rem
+  }
+  .chip[aria-pressed="true"]{color:#04121a;background:var(--cyan);border-color:transparent}
+  .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:var(--radius-sm)}
+  table{min-width:640px}
+  th,td{padding:.7rem .8rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{position:sticky;top:0;background:#0b1425;color:var(--cyan);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em}
+  tbody tr:hover{background:#0c1729}
+  .list{display:grid;gap:.55rem}
+  .list li{display:flex;gap:.6rem;align-items:flex-start}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);margin-top:.45rem;flex:none}
+  .dot.green{background:var(--emerald)}
+  .dot.red{background:var(--crimson)}
+  .dot.amber{background:var(--amber)}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:.35rem .8rem;font-size:.9rem}
+  .kv dt{color:var(--muted)}
+  .muted{color:var(--muted)}
+  .mono{font-family:var(--mono)}
+  .code{
+    background:#050a14;border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:.8rem;overflow:auto;white-space:pre-wrap;font-family:var(--mono);font-size:.82rem
+  }
+  .viz{position:relative;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:#04070f}
+  .viz canvas{width:100%;height:min(48vh,430px)}
+  .viz-label{position:absolute;left:1rem;top:1rem;font:700 .72rem/1 var(--mono);color:var(--cyan);text-transform:uppercase}
+  .gauge{display:grid;place-items:center;gap:.4rem}
+  .gauge svg{width:min(100%,230px)}
+  .thread{border:1px solid var(--line);border-radius:var(--radius-sm);padding:var(--space-3);background:#0a1120}
+  .thread + .thread{margin-top:.7rem}
+  .thread-head{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between}
+  .reply{margin:.7rem 0 0 1.2rem;border-left:2px solid var(--line);padding-left:.8rem}
+  .dialog{width:min(92vw,760px);border:1px solid var(--line);border-radius:var(--radius);padding:var(--space-4);background:var(--surface);color:var(--text)}
+  .dialog::backdrop{background:rgb(2 4 10 / .72);backdrop-filter:blur(4px)}
+  .dialog-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:var(--space-3)}
+  .popover{
+    position:fixed;inset:auto auto 1rem 1rem;z-index:80;width:min(92vw,430px);margin:0;
+    border:1px solid var(--line);border-radius:var(--radius);padding:var(--space-3);
+    background:var(--surface);color:var(--text);box-shadow:var(--shadow)
+  }
+  .popover::backdrop{background:transparent}
+  .capability{display:grid;grid-template-columns:auto 1fr;gap:.3rem .7rem;font-size:.85rem}
+  .capability b{color:var(--cyan)}
+  .score-ring{width:min(100%,210px)}
+  .empty{padding:var(--space-4);text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:var(--radius-sm)}
+  .skip{position:absolute;left:-9999px;top:0;z-index:100;background:var(--cyan);color:#04121a;padding:.7rem 1rem;border-radius:0 0 10px 0}
+  .skip:focus{left:0}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+}
+
+@layer utilities {
+  .mt-1{margin-top:var(--space-1)}.mt-2{margin-top:var(--space-2)}.mt-3{margin-top:var(--space-3)}
+  .mb-2{margin-bottom:var(--space-2)}.mb-3{margin-bottom:var(--space-3)}
+  .flex{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+  .between{justify-content:space-between}
+  .right{margin-left:auto}
+  .hidden{display:none!important}
+  .wrap-anywhere{overflow-wrap:anywhere}
+}
+
+@layer motion {
+  @media (prefers-reduced-motion:no-preference){
+    .card,.btn,.chip,.thread{transition:transform .18s ease,background .18s ease,border-color .18s ease}
+    .btn:hover{transform:translateY(-1px)}
+    .card:hover{border-color:color-mix(in oklab,var(--cyan) 40%,var(--line))}
+    @keyframes pulse{50%{opacity:.35}}
+    .pulse{animation:pulse 2.2s ease-in-out infinite}
+    @starting-style{.dialog{opacity:0;transform:translateY(14px)}}
+    .dialog{transition:opacity .2s ease,transform .2s ease,overlay .2s allow-discrete,display .2s allow-discrete}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  }
+  @supports (animation-timeline:scroll()){
+    .progress{position:fixed;top:0;left:0;height:3px;width:100%;transform-origin:0 50%;background:linear-gradient(90deg,var(--cyan),var(--emerald));z-index:60;animation:grow linear both;animation-timeline:scroll()}
+    @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  }
+  @supports not (animation-timeline:scroll()){
+    .progress{display:none}
+  }
+}
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to main content</a>
+
+<header class="topbar shell">
+  <a class="brand" href="#/command" aria-label="Aegis Command home">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3 34 9v11c0 9-6 15-14 17C12 35 6 29 6 20V9Z" fill="none" stroke="#00f0ff" stroke-width="2.4"/><path d="m13 20 5 5 9-10" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round"/></svg>
+    <span>Aegis Command</span>
+  </a>
+  <div class="mode" role="group" aria-label="Audience mode">
+    <button type="button" id="mode-b2b" aria-pressed="true">B2B Enterprise</button>
+    <button type="button" id="mode-b2c" aria-pressed="false">B2C Personal</button>
+  </div>
+  <nav class="nav" aria-label="Primary">
+    <a href="#/command">Command</a>
+    <a href="#/threats">Threats</a>
+    <a href="#/protocols">Protocols</a>
+    <a href="#/governance">Governance</a>
+    <a href="#/forum">Threat Exchange</a>
+    <a href="#/toolkit">Toolkit</a>
+    <a href="#/settings">Settings</a>
+  </nav>
+</header>
+
+<main id="main" class="shell" tabindex="-1">
+  <div id="view" aria-live="polite"></div>
+</main>
+
+<footer class="footer">
+  <div class="shell flex between">
+    <span>© 2026 Aegis Command · Educational security operations interface. No live telemetry or external requests.</span>
+    <button class="btn small" id="capabilities-btn" popovertarget="capabilities">Platform capabilities</button>
+  </div>
+</footer>
+
+<div id="capabilities" class="popover" popover>
+  <div class="flex between mb-2"><h3>Platform capabilities</h3><button class="btn small" popovertarget="capabilities" popovertargetaction="hide">Close</button></div>
+  <div id="capability-list" class="capability"></div>
+</div>
+
+<dialog id="detail" class="dialog" aria-labelledby="detail-title">
+  <div class="dialog-head">
+    <div><p class="eyebrow" id="detail-kind">Detail</p><h2 id="detail-title"></h2></div>
+    <button class="btn small" id="detail-close">Close</button>
+  </div>
+  <div id="detail-body"></div>
+</dialog>
+
+<dialog id="booking" class="dialog" aria-labelledby="booking-title">
+  <div class="dialog-head">
+    <div><p class="eyebrow">Engagement</p><h2 id="booking-title">Request security support</h2></div>
+    <button class="btn small" id="booking-close">Close</button>
+  </div>
+  <form id="booking-form" novalidate>
+    <div class="field"><label for="bk-service">Service</label><select id="bk-service" required></select></div>
+    <div class="field"><label for="bk-org">Organization or household</label><input id="bk-org" required autocomplete="organization"></div>
+    <div class="field"><label for="bk-email">Contact email</label><input id="bk-email" type="email" required autocomplete="email" inputmode="email"></div>
+    <div class="field" id="bk-team-field"><label for="bk-team">Team size</label><select id="bk-team"><option>1–25</option><option>26–250</option><option>251–2,000</option><option>2,000+</option></select></div>
+    <div class="field" id="bk-compliance-field"><label for="bk-compliance">Primary compliance target</label><select id="bk-compliance"><option>SOC 2 Type II</option><option>ISO/IEC 27001</option><option>HIPAA</option><option>GDPR</option><option>None yet</option></select></div>
+    <div class="field"><label for="bk-context">Context</label><textarea id="bk-context" required placeholder="Describe the environment, concern, or incident. Do not include credentials, private keys, or sensitive production data."></textarea></div>
+    <p id="booking-error" class="badge critical hidden" role="alert"></p>
+    <div class="flex mt-3"><button class="btn primary" type="submit">Submit request</button><button class="btn" type="button" id="booking-reset">Reset</button></div>
+  </form>
+</dialog>
+
+<script type="module">
+'use strict';
+
+/* ============================== Utilities ============================== */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const el=(tag,props={},children=[])=>{
+  const n=document.createElement(tag);
+  for(const[k,v]of Object.entries(props)){
+    if(k==='class')n.className=v;
+    else if(k==='text')n.textContent=v;
+    else if(k==='html')throw new Error('innerHTML is prohibited for untrusted content');
+    else if(k.startsWith('on')&&typeof v==='function')n.addEventListener(k.slice(2),v);
+    else if(v!==false&&v!=null)n.setAttribute(k,v===true?'':String(v));
+  }
+  for(const c of [].concat(children))if(c!=null)n.append(c);
+  return n;
+};
+const debounce=(fn,ms=180)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}};
+const storage={
+  get(k,fallback){try{const v=localStorage.getItem(k);return v?JSON.parse(v):fallback}catch{return fallback}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}},
+  remove(k){try{localStorage.removeItem(k)}catch{}}
+};
+const copy=async text=>{
+  try{await navigator.clipboard.writeText(text);return true}
+  catch{
+    const ta=el('textarea',{readonly:true});ta.value=text;document.body.append(ta);ta.select();
+    const ok=document.execCommand('copy');ta.remove();return ok;
+  }
+};
+const fmt=new Intl.NumberFormat();
+const relTime=ts=>{
+  const rtf=new Intl.RelativeTimeFormat(undefined,{numeric:'auto'});
+  const diff=(ts-Date.now())/1000,units=[['year',31536000],['month',2592000],['day',86400],['hour',3600],['minute',60]];
+  for(const[u,s]of units)if(Math.abs(diff)>=s)return rtf.format(Math.round(diff/s),u);
+  return rtf.format(Math.round(diff),'second');
+};
+
+/* ============================== State ============================== */
+const State=(()=>{
+  const listeners=new Set();
+  let state={
+    mode:storage.get('aegis.mode','b2b'),
+    savedThreats:storage.get('aegis.saved',[]),
+    savedProtocols:storage.get('aegis.protocols',[]),
+    threads:storage.get('aegis.threads',null),
+    readiness:storage.get('aegis.readiness',{}),
+    route:location.hash||'#/command'
+  };
+  const persist=()=>{
+    storage.set('aegis.mode',state.mode);
+    storage.set('aegis.saved',state.savedThreats);
+    storage.set('aegis.protocols',state.savedProtocols);
+    storage.set('aegis.threads',state.threads);
+    storage.set('aegis.readiness',state.readiness);
+  };
+  return{
+    get:s=>structuredClone(state[s]),
+    set(patch,save=true){
+      state={...state,...patch};
+      if(save)persist();
+      listeners.forEach(fn=>fn(state));
+    },
+    subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn)}
+  };
+})();
+
+/* ============================== Domain data ============================== */
+const ThreatData={
+  attacks:[
+    {id:'ransomware',name:'Ransomware',category:'Ransomware',severity:'critical',killChain:'Initial access, privilege escalation, lateral movement, data staging, encryption, extortion.',mechanics:'An adversary gains a foothold through exposed remote access, stolen credentials, or an exploited internet-facing service; escalates privileges; disables protections; exfiltrates data; then deploys encryptors across reachable systems.',iocs:['New scheduled tasks or services invoking binaries from user-writable paths','Mass file-extension changes and ransom notes','SMB/Admin share access outside change windows','Outbound transfers to unfamiliar storage endpoints'],b2b:['Segment networks and restrict lateral SMB/RDP access','Maintain immutable, tested offline backups','Enforce phishing-resistant MFA and privileged-access management','Use EDR containment, MDR escalation, and incident-response retainers'],b2c:['Keep automatic OS and application updates enabled','Maintain an offline copy of important files','Never pay or call numbers in a ransom note; report to local authorities','Use a reputable backup service with version history'],controls:['MFA','EDR','Network segmentation','Backup immutability','Incident response'],refs:['NIST SP 800-61','CIS Control 11']},
+    {id:'supply-chain',name:'Software supply-chain compromise',category:'Supply Chain',severity:'critical',killChain:'Dependency selection, malicious publish/update, build distribution, downstream execution, persistence.',mechanics:'An attacker compromises a package, build pipeline, update channel, vendor, or code-signing process, causing trusted software distribution mechanisms to deliver malicious code.',iocs:['Unexpected dependency-version changes','New post-install scripts or unusual build artifacts','Package registry publish events from unfamiliar accounts','Signed binaries with revoked or anomalous certificates'],b2b:['Generate an SBOM and verify dependencies','Pin versions and use signed provenance attestations','Restrict CI/CD permissions and isolate build runners','Monitor vendor advisories and maintain a software inventory'],b2c:['Install software only from official vendor stores or sites','Enable automatic updates','Review requested permissions before installing browser extensions or mobile apps'],controls:['SBOM','Code signing','CI/CD hardening','Vendor risk management'],refs:['OWASP Top 10 A08','NIST SSDF']},
+    {id:'zero-day',name:'Zero-day exploitation',category:'Zero-Day Exploits',severity:'critical',killChain:'Vulnerability discovery, weaponization, delivery, exploitation, execution, command and control.',mechanics:'A previously unknown or unpatched flaw is exploited before a vendor patch or broad detection exists. Exploits often target browsers, mail servers, VPN appliances, or enterprise endpoint agents.',iocs:['Unusual process spawning from browser or office-suite processes','Novel outbound C2 destinations','Crashes in internet-facing services','Exploit-kit-like URL parameters or malformed requests'],b2b:['Apply emergency patching and virtual patching through WAF/IPS','Restrict exposure of administrative interfaces','Use MDR and threat hunting for anomalous process trees','Maintain compensating controls during patch windows'],b2c:['Update devices immediately when vendors release fixes','Restart browsers and devices after updates','Avoid installing untrusted “urgent update” prompts'],controls:['Patch management','EDR','WAF','Exposure management'],refs:['CISA Known Exploited Vulnerabilities','NIST SP 800-61']},
+    {id:'phishing',name:'Phishing and social engineering',category:'Phishing/Social Engineering',severity:'high',killChain:'Reconnaissance, lure delivery, credential capture, session hijacking, persistence.',mechanics:'A message impersonates a trusted service or colleague and directs the target to a fraudulent site or malicious attachment. Captured credentials, MFA codes, or session cookies enable account takeover.',iocs:['Look-alike domains and homograph characters','Unexpected OAuth consent requests','Login pages requesting recovery codes','Messages creating urgency around payments or credentials'],b2b:['Deploy email authentication: SPF, DKIM, DMARC','Use FIDO2 passkeys and number-matching MFA','Run phishing simulations and reporting workflows','Block legacy authentication and enforce conditional access'],b2c:['Check the sender domain carefully; do not trust display names','Never share one-time codes; legitimate services do not ask for them','Use a password manager and enable passkeys where offered','Report scams to the platform and relevant consumer-protection authority'],controls:['DMARC','Passkeys','Email filtering','Security awareness'],refs:['OWASP Top 10 A07','NIST SP 800-63B']},
+    {id:'ddos',name:'DDoS',category:'DDoS',severity:'high',killChain:'Botnet recruitment, target reconnaissance, attack launch, resource exhaustion, service disruption.',mechanics:'Distributed sources flood network, transport, or application resources, consuming bandwidth, connection tables, CPU, or backend capacity until legitimate users cannot be served.',iocs:['Sudden traffic spikes from many geographies','High SYN/UDP packet rates','Elevated 5xx responses and backend latency','Repetitive expensive endpoint requests'],b2b:['Use upstream scrubbing and anycast capacity','Apply rate limits, bot management, and caching','Create runbooks with provider escalation contacts','Protect origin infrastructure and avoid exposing direct IPs'],b2c:['Use provider DDoS protection for hosted sites','Enable platform-level rate limits','Keep contact and recovery information current'],controls:['CDN/WAF','Rate limiting','Anycast','Capacity planning'],refs:['NIST SP 800-61']},
+    {id:'sqli',name:'SQL injection',category:'SQLi/XSS/CSRF',severity:'critical',killChain:'Input discovery, payload injection, query manipulation, data extraction or modification.',mechanics:'Untrusted input alters a database query, allowing authentication bypass, data disclosure, or destructive database operations.',iocs:['SQL error text in responses','Unexpected UNION/SELECT strings in logs','Unusual database query volume','New administrative records or exports'],b2b:['Use parameterized queries and ORM-safe APIs','Apply least-privilege database accounts','Validate input and constrain database permissions','Test with SAST, DAST, and code review'],b2c:['Use reputable applications and keep them updated','Use unique passwords so a breach does not cascade across accounts'],controls:['Parameterized queries','WAF','Least privilege','Code review'],refs:['OWASP Top 10 A03']},
+    {id:'xss',name:'Cross-site scripting',category:'SQLi/XSS/CSRF',severity:'high',killChain:'Payload delivery, DOM/browser execution, session or action abuse, persistence.',mechanics:'Attacker-controlled script executes in another user’s browser, enabling session theft, UI spoofing, or unauthorized actions on their behalf.',iocs:['Unexpected script or event-handler markup in stored fields','Unknown outbound requests from user browsers','New inline scripts or altered DOM elements'],b2b:['Contextually encode output and use a strict CSP','Avoid dangerous sinks such as innerHTML with user data','Use Trusted Types where supported','Sanitize only when rich text is genuinely required'],b2c:['Be cautious pasting scripts or “coupon codes” into unfamiliar sites','Use browser protections and keep extensions minimal'],controls:['Output encoding','CSP','Trusted Types','DOM review'],refs:['OWASP Top 10 A03']},
+    {id:'csrf',name:'Cross-site request forgery',category:'SQLi/XSS/CSRF',severity:'medium',killChain:'Authenticated session establishment, cross-site request trigger, state-changing action.',mechanics:'A victim’s browser automatically sends authenticated requests to another site, causing unintended actions if the application relies only on ambient cookies for authorization.',iocs:['State-changing requests lacking custom headers or tokens','Unexpected POST/PUT/DELETE requests from third-party origins'],b2b:['Use SameSite cookies, CSRF tokens, and Origin validation','Require reauthentication for sensitive operations','Avoid GET-based state changes'],b2c:['Log out of sensitive accounts on shared devices','Review unexpected account-change notifications promptly'],controls:['SameSite cookies','CSRF tokens','Origin checking'],refs:['OWASP Top 10 A01']},
+    {id:'api-abuse',name:'API abuse',category:'API Abuse',severity:'high',killChain:'Endpoint discovery, authentication bypass or token misuse, enumeration, data exfiltration.',mechanics:'Attackers exploit weak authorization, excessive data exposure, missing rate limits, or leaked tokens to enumerate records or automate abusive requests.',iocs:['High-volume requests to enumeration endpoints','Token reuse across unexpected IP ranges','Large response payloads','Access to object IDs outside authorized scope'],b2b:['Enforce object-level authorization on every request','Use short-lived scoped tokens and mTLS where appropriate','Apply quotas, anomaly detection, and schema validation','Do not return more data than the client needs'],b2c:['Revoke unused app connections and API tokens','Review connected-app permissions periodically'],controls:['OAuth scopes','Authorization tests','Rate limiting','API gateway'],refs:['OWASP API Security Top 10']},
+    {id:'prompt-injection',name:'AI/LLM prompt injection',category:'AI/LLM Prompt Injection',severity:'high',killChain:'Content preparation, instruction smuggling, tool invocation, data exfiltration or harmful action.',mechanics:'Hostile instructions embedded in documents, web pages, emails, or user input manipulate an AI system into ignoring its intended constraints or misusing connected tools.',iocs:['Unexpected tool calls or external fetches','Model outputs revealing system instructions','Requests to send data to unfamiliar destinations','Agent actions not matching user intent'],b2b:['Treat model input and tool output as untrusted','Separate system instructions from retrieved content','Use least-privilege tool scopes, human approval for consequential actions, and audit logs','Do not connect agents to production credentials by default'],b2c:['Do not give AI assistants password-manager, email, or payment access casually','Review actions before an agent sends, deletes, or purchases anything'],controls:['Least privilege','Sandboxing','Human-in-the-loop','Output filtering'],refs:['OWASP Top 10 for LLM Applications']},
+    {id:'credential-stuffing',name:'Credential stuffing',category:'Credential Stuffing',severity:'high',killChain:'Breach-data acquisition, credential testing, valid-session identification, account takeover.',mechanics:'Attackers replay username/password pairs from prior breaches against other services, exploiting password reuse and weak bot defenses.',iocs:['Distributed login failures','Login success from unfamiliar ASNs or devices','High rates of password-reset requests','Dormant accounts suddenly active'],b2b:['Require breach-password screening and MFA','Use adaptive risk-based authentication','Rate-limit and monitor credential endpoints','Encourage passkeys and password managers'],b2c:['Use a unique password for every account','Enable MFA, preferably passkeys or authenticator apps','Check breach-exposure notifications and change reused passwords immediately'],controls:['MFA','Passkeys','Rate limiting','Breach-password screening'],refs:['NIST SP 800-63B']},
+    {id:'insider',name:'Insider threat',category:'Insider Threats',severity:'high',killChain:'Motive or coercion, access misuse, data staging, exfiltration, cover activity.',mechanics:'An authorized person misuses legitimate access—intentionally or through error—to expose, alter, destroy, or exfiltrate sensitive information.',iocs:['Bulk downloads outside role norms','Access to systems after resignation notice','Shared credentials or disabled logging','Unusual exports to personal storage'],b2b:['Apply least privilege and regular access reviews','Log privileged actions and data exports','Use DLP and separation of duties','Establish a fair, privacy-respecting insider-risk process'],b2c:['Use separate accounts for work and personal activity','Do not reuse work credentials for personal services'],controls:['Least privilege','DLP','UEBA','Access reviews'],refs:['NIST SP 800-53','ISO/IEC 27001']}
+  ],
+  services:{
+    b2b:[
+      {name:'Zero Trust Network Access',desc:'Identity-aware, least-privilege access to applications without broad network trust.',price:'From $4/user/month',tags:['ZTNA','IAM','Network']},
+      {name:'Managed Detection & Response',desc:'24/7 telemetry triage, threat hunting, containment guidance, and incident escalation.',price:'From $1,900/month',tags:['MDR','SOC','Detection']},
+      {name:'vCISO Advisory',desc:'Fractional security leadership for strategy, board reporting, risk registers, and vendor oversight.',price:'From $3,500/month',tags:['GRC','Strategy']},
+      {name:'Penetration Testing',desc:'Scoped offensive assessment of web, cloud, network, mobile, or social-engineering surfaces.',price:'From $9,500/engagement',tags:['Offensive','Testing']},
+      {name:'Compliance Readiness',desc:'SOC 2, ISO/IEC 27001, HIPAA, and GDPR gap assessment, evidence collection, and control design.',price:'From $6,800',tags:['GRC','Compliance']},
+      {name:'Cloud Security Posture Management',desc:'Continuous misconfiguration, identity, exposure, and data-path review across cloud estates.',price:'From $2,400/month',tags:['Cloud','CSPM']}
+    ],
+    b2c:[
+      {name:'Identity & Dark Web Monitoring',desc:'Alerts for exposed email addresses, passwords, and personal-data mentions in monitored sources.',price:'From $6/month',tags:['Identity','Monitoring']},
+      {name:'Zero-Knowledge Vault Setup',desc:'Guided migration to a password manager, passkeys, recovery codes, and emergency access.',price:'From $89 one-time',tags:['Passwords','Passkeys']},
+      {name:'Home Wi-Fi & IoT Hardening',desc:'Router, guest-network, firmware, camera, and smart-device configuration review.',price:'From $149',tags:['Home','IoT']},
+      {name:'Anti-Phishing & Scam Shield',desc:'Personalized phishing review, scam-response playbook, and browser/account hardening.',price:'From $39/month',tags:['Phishing','Scams']},
+      {name:'Family Digital Safety',desc:'Age-appropriate controls, account recovery, shared-device hygiene, and guardian guidance.',price:'From $12/month',tags:['Family','Safety']},
+      {name:'Personal Cyber Checkup',desc:'One-on-one assessment of accounts, devices, backups, recovery paths, and exposure.',price:'From $179',tags:['Assessment']}
+    ]
+  }
+};
+
+const Protocols={
+  items:[
+    {name:'TLS 1.3',group:'Network & Transport',use:'Transport encryption',strength:'High',quantum:'No',notes:'Modern handshake with forward secrecy; prefer AEAD suites and disable legacy TLS.',stack:['TLS 1.3','X.509','HSTS']},
+    {name:'WireGuard',group:'Network & Transport',use:'VPN tunneling',strength:'High',quantum:'No',notes:'Lean VPN protocol using Curve25519, ChaCha20-Poly1305, and BLAKE2s.',stack:['WireGuard','ChaCha20-Poly1305','Ed25519']},
+    {name:'IPsec',group:'Network & Transport',use:'Site-to-site VPN',strength:'High',quantum:'No',notes:'Suite of protocols for authenticated, encrypted IP traffic; commonly used with IKEv2.',stack:['IPsec/IKEv2','AES-GCM','X.509']},
+    {name:'SSH',group:'Network & Transport',use:'Secure administration',strength:'High',quantum:'No',notes:'Use Ed25519 keys, disable password-only access, restrict algorithms, and audit host keys.',stack:['SSH','Ed25519','MFA']},
+    {name:'DNSSEC',group:'Network & Transport',use:'DNS integrity',strength:'Medium',quantum:'No',notes:'Cryptographically signs DNS records; it does not encrypt DNS queries.',stack:['DNSSEC','DNS']},
+    {name:'DoH/DoT',group:'Network & Transport',use:'Encrypted DNS',strength:'Medium',quantum:'No',notes:'Encrypts DNS resolution between client and resolver; choose a trustworthy resolver.',stack:['DoH','DoT','TLS']},
+    {name:'BGPsec',group:'Network & Transport',use:'Routing integrity',strength:'Medium',quantum:'No',notes:'Provides cryptographic validation for BGP route announcements.',stack:['BGPsec','RPKI']},
+    {name:'WPA3',group:'Network & Transport',use:'Wi-Fi protection',strength:'High',quantum:'No',notes:'Use WPA3-Personal with SAE or WPA3-Enterprise; avoid WEP/WPA/WPA2-only configurations.',stack:['WPA3','SAE','PMF']},
+    {name:'OAuth 2.1',group:'Identity & Access',use:'Delegated authorization',strength:'High',quantum:'N/A',notes:'Authorization framework; use authorization-code flow with PKCE for public clients.',stack:['OAuth 2.1','PKCE','JWT']},
+    {name:'OpenID Connect',group:'Identity & Access',use:'Federated identity',strength:'High',quantum:'N/A',notes:'Identity layer over OAuth 2.0; validate issuer, audience, signatures, and nonce.',stack:['OIDC','JWT','MFA']},
+    {name:'SAML 2.0',group:'Identity & Access',use:'Enterprise SSO',strength:'High',quantum:'N/A',notes:'XML-based federation standard; validate signatures, audience, recipient, and clock skew.',stack:['SAML 2.0','X.509','SSO']},
+    {name:'WebAuthn / FIDO2',group:'Identity & Access',use:'Phishing-resistant MFA',strength:'Very high',quantum:'Partial',notes:'Public-key credentials bound to an origin; prefer passkeys and hardware-backed authenticators.',stack:['WebAuthn','FIDO2','Passkeys']},
+    {name:'Kerberos',group:'Identity & Access',use:'Enterprise authentication',strength:'Medium',quantum:'No',notes:'Ticket-based authentication common in Active Directory environments.',stack:['Kerberos','AD','SPNEGO']},
+    {name:'RADIUS',group:'Identity & Access',use:'Network access control',strength:'Medium',quantum:'No',notes:'AAA protocol; protect shared secrets and prefer RadSec where feasible.',stack:['RADIUS','802.1X','EAP-TLS']},
+    {name:'MFA/TOTP',group:'Identity & Access',use:'Second factor',strength:'Medium',quantum:'N/A',notes:'Better than SMS; still phishable, so prefer passkeys or hardware security keys.',stack:['TOTP','MFA','Recovery codes']},
+    {name:'AES-256-GCM',group:'Cryptography & PKI',use:'Symmetric encryption',strength:'High',quantum:'No',notes:'Authenticated encryption; never reuse a nonce/key pair.',stack:['AES-256-GCM','KMS','AEAD']},
+    {name:'ChaCha20-Poly1305',group:'Cryptography & PKI',use:'Symmetric encryption',strength:'High',quantum:'No',notes:'Strong AEAD option, particularly attractive on devices without AES acceleration.',stack:['ChaCha20-Poly1305','AEAD']},
+    {name:'RSA-4096',group:'Cryptography & PKI',use:'Asymmetric cryptography',strength:'Medium',quantum:'No',notes:'Still usable for many legacy cases, but prefer modern ECC or hybrid post-quantum designs.',stack:['RSA-4096','X.509','OAEP']},
+    {name:'Ed25519',group:'Cryptography & PKI',use:'Signatures',strength:'High',quantum:'No',notes:'Fast, compact elliptic-curve signatures; suitable for SSH and modern application signing.',stack:['Ed25519','SSH','JWT']},
+    {name:'SHA-3',group:'Cryptography & PKI',use:'Hashing',strength:'High',quantum:'No',notes:'Use SHA-3 or SHA-2 appropriately; never use unsalted fast hashes for passwords.',stack:['SHA-3','Argon2id','HMAC']},
+    {name:'ML-KEM (Kyber)',group:'Cryptography & PKI',use:'Post-quantum key exchange',strength:'High',quantum:'Yes',notes:'NIST-selected post-quantum key-encapsulation mechanism for hybrid key exchange.',stack:['ML-KEM','TLS 1.3','Hybrid KEM']},
+    {name:'ML-DSA (Dilithium)',group:'Cryptography & PKI',use:'Post-quantum signatures',strength:'High',quantum:'Yes',notes:'NIST-selected post-quantum digital-signature algorithm; larger keys and signatures than ECC.',stack:['ML-DSA','X.509','Code signing']},
+    {name:'X.509 Certificates',group:'Cryptography & PKI',use:'Identity binding',strength:'High',quantum:'No',notes:'Bind public keys to identities; automate issuance, renewal, revocation, and transparency monitoring.',stack:['X.509','ACME','CT logs']},
+    {name:'mTLS',group:'Cryptography & PKI',use:'Mutual authentication',strength:'High',quantum:'No',notes:'Both client and server authenticate with certificates; useful for service-to-service trust.',stack:['mTLS','X.509','Service mesh']}
+  ],
+  recipes:{
+    'Securing SaaS SSO':['OIDC or SAML 2.0','WebAuthn/FIDO2 passkeys','Conditional access','SCIM provisioning','Audit logging'],
+    'Encrypting Site-to-Site VPN':['WireGuard or IPsec/IKEv2','AES-256-GCM or ChaCha20-Poly1305','Certificate-based peer identity','Rotating pre-shared keys where applicable'],
+    'Future-Proofing Against Quantum Threats':['TLS 1.3 with hybrid ML-KEM','ML-DSA for high-value signing where supported','Crypto-agility inventory','Long-lived data encryption review'],
+    'Hardening a Home Network':['WPA3-Personal','Unique guest SSID','DNS over HTTPS','Router firmware updates','IoT VLAN isolation'],
+    'Protecting a Public Web Application':['TLS 1.3','Strict CSP','HSTS','OAuth 2.1 + PKCE','Parameterized queries','Rate limiting']
+  }
+};
+
+const Methodologies={
+  defensive:[
+    {name:'Zero Trust Architecture',source:'NIST SP 800-207',focus:'Never implicitly trust network location; evaluate identity, device, and context for each request.',checks:['Inventory users, devices, and services','Enforce MFA/phishing-resistant authentication','Apply least-privilege authorization','Segment sensitive systems','Monitor access continuously']},
+    {name:'Defense-in-Depth',source:'Foundational architecture',focus:'Layer independent controls so one failure does not create total compromise.',checks:['Endpoint protection','Network segmentation','Application hardening','Identity controls','Backup and recovery']},
+    {name:'NIST Cybersecurity Framework 2.0',source:'NIST CSF 2.0',focus:'Organize security activity across Govern, Identify, Protect, Detect, Respond, and Recover.',checks:['Governance roles defined','Asset inventory maintained','Protective controls deployed','Detection coverage assessed','Response plan tested']},
+    {name:'CIS Critical Security Controls',source:'CIS Controls v8',focus:'Prioritized, actionable safeguards for enterprise cyber hygiene.',checks:['Enterprise asset inventory','Software inventory','Account governance','Secure configuration','Vulnerability management']},
+    {name:'ISO/IEC 27001',source:'ISO/IEC 27001',focus:'Risk-based information-security management system.',checks:['Scope and policy defined','Risk assessment performed','Statement of Applicability maintained','Internal audit scheduled','Management review conducted']},
+    {name:'SOC 2 Type II',source:'AICPA Trust Services Criteria',focus:'Evidence that controls operated effectively over a period.',checks:['Control ownership assigned','Evidence retained','Exceptions tracked','Monitoring operational','Auditor readiness reviewed']},
+    {name:'SASE',source:'Secure Access Service Edge',focus:'Converge networking and security services delivered from the cloud.',checks:['SSE policy baseline','ZTNA deployment','SWG/CASB coverage','Consistent identity policy','Performance validated']}
+  ],
+  offensive:[
+    {name:'PTES',source:'Penetration Testing Execution Standard',focus:'Structured engagement from pre-engagement through reporting.',checks:['Scope and authorization documented','Rules of engagement agreed','Testing methodology selected','Findings validated','Retest scheduled']},
+    {name:'OWASP Top 10',source:'OWASP Top 10:2021',focus:'High-impact web application risk categories.',checks:['Access-control tests','Cryptographic review','Injection testing','Misconfiguration review','Dependency inventory']},
+    {name:'OWASP ASVS',source:'OWASP Application Security Verification Standard',focus:'Detailed requirements for application security verification.',checks:['Authentication requirements','Session controls','Access-control tests','Cryptographic controls','Logging requirements']},
+    {name:'OSSTMM',source:'Open Source Security Testing Methodology Manual',focus:'Operational security measurement across channels and controls.',checks:['Scope defined','Attack surface mapped','Controls measured','Findings quantified']},
+    {name:'Red / Blue / Purple Teaming',source:'Adversary simulation practice',focus:'Offensive emulation paired with detection engineering and improvement.',checks:['Threat scenarios selected','Detection opportunities mapped','Blue-team feedback collected','Control gaps remediated']},
+    {name:'STRIDE',source:'Microsoft threat modeling',focus:'Identify Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege.',checks:['Data-flow diagram created','Trust boundaries marked','Threats identified','Mitigations assigned']},
+    {name:'PASTA',source:'Process for Attack Simulation and Threat Analysis',focus:'Risk-centric threat modeling aligned to business impact.',checks:['Business objectives defined','Technical scope mapped','Threat scenarios developed','Risk ranked','Controls prioritized']}
+  ],
+  incident:[
+    {name:'NIST SP 800-61 Lifecycle',source:'NIST SP 800-61',focus:'Preparation, Detection & Analysis, Containment/Eradication/Recovery, Post-Incident Activity.',checks:['IR plan current','On-call contacts available','Evidence-preservation process defined','Containment actions documented','Lessons-learned review held']},
+    {name:'Cyber Kill Chain',source:'Lockheed Martin framework',focus:'Reconnaissance through Actions on Objectives; useful for detection mapping.',checks:['Recon detection','Delivery controls','Exploitation prevention','Command-and-control monitoring','Actions-on-objectives response']}
+  ]
+};
+
+const seedThreads=[
+  {id:'t1',channel:'#zero-day-alerts',title:'Emergency patch window: internet-facing VPN appliance',author:'Nadia Rahman',role:'B2B',severity:'CRITICAL',tags:['CVE','Patch','VPN'],up:27,verified:true,time:Date.now()-1000*60*42,body:'A remote code-execution issue is being actively discussed for an edge VPN appliance. Confirm your version against the vendor advisory, restrict management interfaces, and preserve logs before upgrading.',replies:[{author:'Miguel Ortiz',time:Date.now()-1000*60*20,body:'We isolated the admin interface and applied the vendor workaround while staging the patch. No anomalous process trees so far.'}]},
+  {id:'t2',channel:'#blue-team-defense',title:'Hunting pass-the-hash after a privileged service-account alert',author:'Priya Nair',role:'B2B',severity:'ADVISORY',tags:['Detection','Identity','Windows'],up:18,verified:true,time:Date.now()-1000*60*180,body:'Look for unusual logon type patterns, unexpected remote-management tooling, and service-account use outside its normal host set. Correlate with EDR process lineage before containment.',replies:[{author:'Sam Porter',time:Date.now()-1000*60*90,body:'Adding a baseline for service-account source hosts reduced our false positives substantially.'}]},
+  {id:'t3',channel:'#red-team-research',title:'Purple-team exercise: testing OAuth token replay controls',author:'Elena Voss',role:'B2B',severity:'ADVISORY',tags:['OAuth','Red Team','API'],up:12,verified:false,time:Date.now()-1000*60*320,body:'We emulated token replay from an unexpected network location and tested scope enforcement, audience validation, and refresh-token rotation. The biggest gap was insufficient anomaly alerting on token reuse.',replies:[]},
+  {id:'t4',channel:'#b2b-compliance-grc',title:'SOC 2 evidence: proving quarterly access reviews',author:'Jordan Lee',role:'B2B',severity:'INFO',tags:['SOC 2','GRC','Access'],up:9,verified:true,time:Date.now()-1000*60*600,body:'Keep the review roster, approver identity, timestamp, exceptions, and remediation evidence. A screenshot alone rarely demonstrates that the review actually occurred.',replies:[{author:'Ana Silva',time:Date.now()-1000*60*300,body:'We attach the ticket workflow and export the final signed review record.'}]},
+  {id:'t5',channel:'#b2c-scam-help-desk',title:'“Bank security team” asked for my one-time passcode',author:'Casey Morgan',role:'B2C',severity:'CRITICAL',tags:['Phishing','Scam','MFA'],up:34,verified:true,time:Date.now()-1000*60*25,body:'This is a classic MFA relay scam. Do not read back the code. Hang up, open your banking app independently, and call the number printed on the back of your card.',replies:[{author:'Riley Chen',time:Date.now()-1000*60*12,body:'Also check recent authorized devices and change the password from a device you trust.'}]},
+  {id:'t6',channel:'#b2c-scam-help-desk',title:'Fake delivery-text link used a look-alike domain',author:'Dana Brooks',role:'B2C',severity:'HIGH',tags:['Phishing','Smishing','URL'],up:21,verified:true,time:Date.now()-1000*60*75,body:'The message claimed a package was held. The link used a look-alike domain rather than the carrier’s official domain. Do not enter card details; report and delete it.',replies:[]},
+  {id:'t7',channel:'#zero-day-alerts',title:'Browser zero-day: update and restart before assuming safety',author:'Alex Kim',role:'B2C',severity:'CRITICAL',tags:['Browser','Patch','Zero Day'],up:16,verified:false,time:Date.now()-1000*60*150,body:'For consumer devices, update the browser through its built-in updater and fully restart it. Avoid installing updates from pop-ups or search-result ads.',replies:[{author:'Morgan Diaz',time:Date.now()-1000*60*60,body:'Also remove extensions you do not recognize; they can persist after a browser restart.'}]}
+];
+
+/* ============================== Router ============================== */
+const Router=(()=>{
+  const routes=new Map();
+  const parse=()=>{const h=location.hash||'#/command';const[path,query]=h.slice(1).split('?');return{path:path||'/command',params:new URLSearchParams(query||'')}};
+  const titles={'/command':'Command Center','/threats':'Threat Intelligence','/protocols':'Protocols & Cryptography','/governance':'Methodologies & Governance','/forum':'Threat Exchange','/toolkit':'Security Toolkit','/settings':'Settings'};
+  const go=path=>{location.hash=path.startsWith('#')?path:'#'+path};
+  const render=()=>{
+    const{path,params}=parse();
+    const view=routes.get(path)||routes.get('/not-found');
+    State.set({route:'#'+path+(params.toString()?'?'+params:'')},false);
+    const update=()=>{view(params);document.title=`${titles[path]||'Not found'} — Aegis Command`;
+      $$('.nav a').forEach(a=>a.setAttribute('aria-current',a.getAttribute('href')==='#'+path?'page':'false'));};
+    document.startViewTransition&&!matchMedia('(prefers-reduced-motion: reduce)').matches?document.startViewTransition(update):update();
+  };
+  addEventListener('hashchange',render);
+  return{register(path,fn){routes.set(path,fn)},start(){if(!location.hash)location.replace('#/command');render()}};
+})();
+
+/* ============================== UI helpers ============================== */
+const UI={
+  card(title,children,cls=''){
+    return el('article',{class:`card ${cls}`},[el('h3',{text:title}),...[].concat(children)]);
+  },
+  badge(text,kind='info'){return el('span',{class:`badge ${kind}`,text})},
+  metric(label,value,note=''){
+    return el('div',{class:'metric'},[el('span',{class:'muted',text:label}),el('b',{class:'num',text:value}),note?el('small',{class:'muted',text:note}):null]);
+  },
+  openDetail(kind,title,nodes){
+    $('#detail-kind').textContent=kind;$('#detail-title').textContent=title;
+    const body=$('#detail-body');body.replaceChildren(...[].concat(nodes));
+    $('#detail').showModal();$('#detail-close').focus();
+  },
+  announce(msg,assertive=false){
+    const live=$('#live-region');if(!live)return;
+    live.setAttribute('aria-live',assertive?'assertive':'polite');live.textContent='';
+    requestAnimationFrame(()=>live.textContent=msg);
+  }
+};
+
+/* ============================== Command Center ============================== */
+const Command={
+  canvas:null,ctx:null,raf:null,visible:true,nodes:[],packets:[],
+  init(){
+    const mount=$('#threat-canvas');if(!mount)return;
+    this.canvas=el('canvas',{role:'img','aria-label':'Animated network topology showing simulated attack paths between endpoints, identity services, cloud workloads, and a security operations center.'});
+    mount.replaceChildren(this.canvas);
+    this.ctx=this.canvas.getContext('2d');
+    this.build();
+    new ResizeObserver(()=>this.resize()).observe(this.canvas);
+    new IntersectionObserver(entries=>{this.visible=entries[0].isIntersecting;this.loop()},{threshold:.05}).observe(this.canvas);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(this.raf);else this.loop()});
+    this.loop();
+    this.startTicker();
+  },
+  build(){
+    const w=this.canvas.clientWidth||600,h=this.canvas.clientHeight||360;
+    this.nodes=[
+      {x:w*.14,y:h*.32,label:'Endpoint'},{x:w*.16,y:h*.72,label:'Mobile'},
+      {x:w*.46,y:h*.2,label:'Identity'},{x:w*.46,y:h*.55,label:'SaaS'},
+      {x:w*.46,y:h*.85,label:'IoT'},{x:w*.78,y:h*.28,label:'Cloud'},
+      {x:w*.78,y:h*.68,label:'SOC'}
+    ];
+    this.edges=[[0,2],[1,2],[0,3],[1,3],[2,3],[3,5],[4,5],[3,6],[5,6],[2,6]];
+    this.packets=this.edges.map((e,i)=>({edge:i,t:Math.random(),bad:i%4===0}));
+  },
+  resize(){
+    const dpr=Math.min(devicePixelRatio||1,2),r=this.canvas.getBoundingClientRect();
+    this.canvas.width=Math.max(1,r.width*dpr);this.canvas.height=Math.max(1,r.height*dpr);
+    this.ctx.setTransform(dpr,0,0,dpr,0,0);this.build();
+  },
+  loop(){
+    if(!this.visible||document.hidden)return;
+    const c=this.ctx,w=this.canvas.clientWidth,h=this.canvas.clientHeight;
+    c.clearRect(0,0,w,h);
+    c.strokeStyle='rgba(0,240,255,.16)';c.lineWidth=1;
+    for(const[a,b]of this.edges){c.beginPath();c.moveTo(this.nodes[a].x,this.nodes[a].y);c.lineTo(this.nodes[b].x,this.nodes[b].y);c.stroke()}
+    for(const p of this.packets){
+      p.t+=p.bad?.006:.004;if(p.t>1)p.t=0;
+      const[a,b]=this.edges[p.edge],A=this.nodes[a],B=this.nodes[b];
+      const x=A.x+(B.x-A.x)*p.t,y=A.y+(B.y-A.y)*p.t;
+      c.beginPath();c.arc(x,y,p.bad?4:2.5,0,7);
+      c.fillStyle=p.bad?'#f43f5e':'#00f0ff';c.fill();
+    }
+    for(const n of this.nodes){
+      c.beginPath();c.arc(n.x,n.y,9,0,7);c.fillStyle='#0b1425';c.fill();
+      c.strokeStyle='#00f0ff';c.lineWidth=2;c.stroke();
+      c.fillStyle='#e8f2fb';c.font='600 11px ui-monospace,monospace';c.textAlign='center';
+      c.fillText(n.label,n.x,n.y-16);
+    }
+    this.raf=requestAnimationFrame(()=>this.loop());
+  },
+  startTicker(){
+    const feed=[
+      'Simulated IOC: unusual OAuth consent request from look-alike domain',
+      'Simulated telemetry: repeated credential failures across distributed ASNs',
+      'Simulated CVE watch: edge appliance patch advisory under review',
+      'Simulated detection: anomalous service-account logon pattern',
+      'Simulated IOC: unexpected outbound transfer to object storage',
+      'Simulated alert: prompt-injection tool-call attempt blocked in staging'
+    ];
+    const target=$('#threat-ticker');let i=0;
+    setInterval(()=>{if(!target)return;target.replaceChildren(el('li',{text:feed[i++%feed.length]}));},3200);
+  },
+  render(){
+    const b2b=State.get('mode')==='b2b';
+    const view=$('#view');
+    const hero=el('section',{class:'hero'},[
+      el('div',{class:'hero-copy'},[
+        el('p',{class:'eyebrow',text:b2b?'Enterprise cyber command':'Personal cyber command'}),
+        el('h1',{text:b2b?'Reduce blast radius. Prove resilience.':'Take back control of your digital life.'}),
+        el('p',{class:'muted',text:b2b?'Aegis Command unifies zero-trust access, managed detection, offensive testing, cloud posture, and compliance readiness into one operational view.':'Aegis Command helps you secure accounts, devices, home networks, family safety, and recovery paths without technical jargon.'}),
+        el('div',{class:'actions'},[
+          el('a',{class:'btn primary',href:b2b?'#/governance':'#/toolkit',text:b2b?'Run readiness assessment':'Start personal checkup'}),
+          el('button',{class:'btn',type:'button',onclick:()=>Booking.open(),text:b2b?'Request enterprise support':'Book a cyber checkup'})
+        ])
+      ]),
+      el('div',{class:'viz'},[
+        el('span',{class:'viz-label',text:'Live attack-surface simulator'}),
+        el('div',{id:'threat-canvas'}),
+        el('ul',{id:'threat-ticker',class:'list',style:'position:absolute;bottom:1rem;left:1rem;right:1rem;font-size:.78rem;color:#9fb0c6'},[el('li',{text:'Initializing simulated telemetry stream…'})])
+      ])
+    ]);
+    const services=ThreatData.services[State.get('mode')].map(s=>UI.card(s.name,[
+      el('p',{class:'muted',text:s.desc}),
+      el('div',{class:'flex mt-2'},[UI.badge(s.price,b2b?'info':'medium'),...s.tags.map(t=>UI.badge(t))]),
+      el('button',{class:'btn small mt-2',type:'button',onclick:()=>Booking.open(s.name),text:b2b?'Request scope':'Book service'})
+    ]));
+    const stats=el('div',{class:'grid cols-3'},[
+      UI.card('Threat level',[el('div',{class:'gauge'},[Command.gauge(3.4)]),el('p',{class:'muted',text:'Illustrative simulated index; not a real-world threat forecast.'})]),
+      UI.card('Active coverage',[el('div',{class:'grid cols-2'},[UI.metric('Attack patterns',ThreatData.attacks.length,'Encyclopedia entries'),UI.metric('Protocols',Protocols.items.length,'Reference records'),UI.metric('Controls',38,'Readiness checks'),UI.metric('Forum threads',State.get('threads').length,'Community posts')])]),
+      UI.card('Priority actions',[el('ul',{class:'list'},(b2b?['Enforce phishing-resistant MFA for privileged users','Inventory internet-facing assets and admin interfaces','Test restoration from immutable backups','Review cloud identity and public exposure']:['Turn on passkeys or app-based MFA','Use a unique password for every account','Update router, phone, and computer firmware','Save recovery codes offline']).map(x=>el('li',{},[el('span',{class:'dot'}),el('span',{text:x})])))])
+    ]);
+    view.replaceChildren(hero,el('section',{class:'section'},[el('h2',{text:b2b?'Enterprise service matrix':'Personal protection services'}),el('div',{class:'grid cols-3 mt-3'},services)]),el('section',{class:'section'},stats));
+    Command.init();
+  },
+  gauge(value){
+    const pct=Math.max(0,Math.min(1,value/5));
+    const svg=el('div',{class:'gauge'});
+    const s=el('span',{class:'sr',text:`Threat level ${value.toFixed(1)} of 5`});
+    const graphic=el('div',{class:'gauge'},[
+      el('div',{style:'width:min(100%,230px)'},[
+        el('svg',{viewBox:'0 0 200 120','aria-hidden':'true'},[
+          el('path',{d:'M20 105 A80 80 0 0 1 180 105',fill:'none',stroke:'#1e293b','stroke-width':'16','stroke-linecap':'round'}),
+          el('path',{d:'M20 105 A80 80 0 0 1 180 105',fill:'none',stroke:pct>.66?'#f43f5e':pct>.33?'#fbbf24':'#10b981','stroke-width':'16','stroke-linecap':'round','stroke-dasharray':`${pct*251} 251`}),
+          el('text',{x:100,y:98,'text-anchor':'middle',fill:'#e8f2fb','font-size':'28','font-weight':'800',text:value.toFixed(1)}),
+          el('text',{x:100,y:115,'text-anchor':'middle',fill:'#9fb0c6','font-size':'10',text:'SIMULATED THREAT INDEX'})
+        ])
+      ]),
+      s
+    ]);
+    svg.replaceChildren(graphic);
+    return svg;
+  }
+};
+
+/* ============================== Threats ============================== */
+const Threats={
+  filters:{q:'',category:'All',severity:'All'},
+  render(){
+    const view=$('#view');
+    const search=el('input',{type:'search',id:'threat-q',placeholder:'Search attack name, mechanics, IOC, or control','aria-label':'Search attacks',value:Threats.filters.q,oninput:debounce(e=>{Threats.filters.q=e.target.value;Threats.render()})});
+    const cats=['All',...new Set(ThreatData.attacks.map(a=>a.category))];
+    const sev=['All','critical','high','medium'];
+    const toolbar=el('div',{class:'toolbar'},[
+      search,
+      el('select',{'aria-label':'Filter by category',onchange:e=>{Threats.filters.category=e.target.value;Threats.render()}},cats.map(c=>el('option',{value:c,text:c,selected:c===Threats.filters.category}))),
+      el('select',{'aria-label':'Filter by severity',onchange:e=>{Threats.filters.severity=e.target.value;Threats.render()}},sev.map(s=>el('option',{value:s,text:s,selected:s===Threats.filters.severity})))
+    ]);
+    const q=Threats.filters.q.toLowerCase();
+    const rows=ThreatData.attacks.filter(a=>
+      (Threats.filters.category==='All'||a.category===Threats.filters.category)&&
+      (Threats.filters.severity==='All'||a.severity===Threats.filters.severity)&&
+      (!q||[a.name,a.category,a.mechanics,...a.iocs,...a.controls].join(' ').toLowerCase().includes(q))
+    );
+    const table=el('div',{class:'table-wrap'},[el('table',{},[
+      el('thead',{},[el('tr',{},['Attack','Category','Severity','Primary controls','Saved'].map(h=>el('th',{text:h})))])
+      ,el('tbody',{},rows.map(a=>el('tr',{},[
+        el('td',{},[el('button',{class:'btn small',type:'button',onclick:()=>Threats.detail(a),text:a.name})]),
+        el('td',{text:a.category}),
+        el('td',{},[UI.badge(a.severity,a.severity)]),
+        el('td',{class:'muted',text:a.controls.slice(0,3).join(', ')}),
+        el('td',{},[el('button',{class:'chip',type:'button','aria-pressed':State.get('savedThreats').includes(a.id),onclick:()=>Threats.toggleSave(a.id),text:State.get('savedThreats').includes(a.id)?'★ Saved':'☆ Save'})])
+      ])))
+    ])]);
+    view.replaceChildren(
+      el('div',{class:'page-head'},[el('p',{class:'eyebrow',text:'Threat intelligence encyclopedia'}),el('h2',{text:'Known attacks and defensive controls'}),el('p',{class:'muted',text:'Filter attack patterns, inspect kill chains and indicators, then compare enterprise and personal defenses. Entries are educational reference material, not a substitute for incident-specific professional advice.'})]),
+      toolbar,rows.length?table:el('div',{class:'empty',text:'No attacks match the current filters.'}),
+      el('p',{class:'muted mt-2',text:`${rows.length} of ${ThreatData.attacks.length} attack patterns shown.`})
+    );
+    UI.announce(`${rows.length} attack patterns match the current filters.`);
+  },
+  detail(a){
+    UI.openDetail('Attack pattern',a.name,[
+      UI.badge(a.severity,a.severity),UI.badge(a.category),
+      el('h3',{class:'mt-3',text:'Kill chain & mechanics'}),el('p',{text:a.killChain}),el('p',{class:'muted',text:a.mechanics}),
+      el('h3',{class:'mt-3',text:'Indicators of compromise'}),el('ul',{class:'list'},a.iocs.map(x=>el('li',{},[el('span',{class:'dot red'}),el('span',{text:x})]))),
+      el('h3',{class:'mt-3',text:'B2B enterprise mitigation'}),el('ul',{class:'list'},a.b2b.map(x=>el('li',{},[el('span',{class:'dot'}),el('span',{text:x})]))),
+      el('h3',{class:'mt-3',text:'B2C personal defense'}),el('ul',{class:'list'},a.b2c.map(x=>el('li',{},[el('span',{class:'dot green'}),el('span',{text:x})]))),
+      el('h3',{class:'mt-3',text:'Mapped protocols & controls'}),el('div',{class:'flex'},a.controls.map(c=>UI.badge(c))),
+      el('p',{class:'muted mt-3',text:`References: ${a.refs.join(' · ')}`})
+    ]);
+  },
+  toggleSave(id){
+    const saved=State.get('savedThreats');
+    const next=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];
+    State.set({savedThreats:next});Threats.render();
+    UI.announce(next.includes(id)?'Threat saved to your watchlist.':'Threat removed from your watchlist.');
+  }
+};
+
+/* ============================== Protocols ============================== */
+const ProtocolsUI={
+  filters:{q:'',group:'All',quantum:'All'},
+  render(){
+    const view=$('#view');
+    const groups=['All',...new Set(Protocols.items.map(p=>p.group))];
+    const toolbar=el('div',{class:'toolbar'},[
+      el('input',{type:'search',placeholder:'Search protocols','aria-label':'Search protocols',value:ProtocolsUI.filters.q,oninput:debounce(e=>{ProtocolsUI.filters.q=e.target.value;ProtocolsUI.render()})}),
+      el('select',{'aria-label':'Protocol group',onchange:e=>{ProtocolsUI.filters.group=e.target.value;ProtocolsUI.render()}},groups.map(g=>el('option',{value:g,text:g,selected:g===ProtocolsUI.filters.group}))),
+      el('select',{'aria-label':'Quantum readiness',onchange:e=>{ProtocolsUI.filters.quantum=e.target.value;ProtocolsUI.render()}},['All','Quantum-ready','Not quantum-ready'].map(q=>el('option',{value:q,text:q,selected:q===ProtocolsUI.filters.quantum})))
+    ]);
+    const q=ProtocolsUI.filters.q.toLowerCase();
+    const rows=Protocols.items.filter(p=>
+      (ProtocolsUI.filters.group==='All'||p.group===ProtocolsUI.filters.group)&&
+      (ProtocolsUI.filters.quantum==='All'||(ProtocolsUI.filters.quantum==='Quantum-ready'?p.quantum==='Yes':p.quantum!=='Yes'))&&
+      (!q||[p.name,p.use,p.notes,...p.stack].join(' ').toLowerCase().includes(q))
+    );
+    const table=el('div',{class:'table-wrap'},[el('table',{},[
+      el('thead',{},[el('tr',{},['Protocol','Group','Primary use','Quantum-ready','Stack','Save'].map(h=>el('th',{text:h})))])
+      ,el('tbody',{},rows.map(p=>el('tr',{},[
+        el('td',{},[el('button',{class:'btn small',type:'button',onclick:()=>ProtocolsUI.detail(p),text:p.name})]),
+        el('td',{text:p.group}),el('td',{text:p.use}),
+        el('td',{},[UI.badge(p.quantum==='Yes'?'Quantum-ready':p.quantum==='Partial'?'Partial':'Classical',p.quantum==='Yes'?'medium':p.quantum==='Partial'?'high':'info')]),
+        el('td',{class:'mono muted',text:p.stack.join(' · ')}),
+        el('td',{},[el('button',{class:'chip',type:'button','aria-pressed':State.get('savedProtocols').includes(p.name),onclick:()=>ProtocolsUI.save(p.name),text:State.get('savedProtocols').includes(p.name)?'★ Saved':'☆ Save'})])
+      ])))
+    ])]);
+    view.replaceChildren(
+      el('div',{class:'page-head'},[el('p',{class:'eyebrow',text:'Security protocols & cryptography'}),el('h2',{text:'Protocol and standards explorer'}),el('p',{class:'muted',text:'Compare transport, identity, and cryptographic controls, then generate a use-case-specific protocol stack. Quantum readiness indicates algorithm resistance to known quantum attacks, not a guarantee that every deployment is quantum-safe.'})]),
+      UI.card('Protocol selector wizard',[
+        el('div',{class:'field'},[el('label',{for:'recipe',text:'Choose a security objective'}),el('select',{id:'recipe',onchange:e=>ProtocolsUI.recipe(e.target.value)},Object.keys(Protocols.recipes).map(k=>el('option',{value:k,text:k})))])
+        ,el('div',{id:'recipe-output',class:'code',text:'Select an objective to generate a recommended stack.'})
+      ]),
+      el('section',{class:'section'},[el('h3',{text:'Protocol library'}),el('div',{class:'mt-3'},[toolbar,rows.length?table:el('div',{class:'empty',text:'No protocols match the current filters.'})])])
+    );
+    ProtocolsUI.recipe($('#recipe').value);
+  },
+  recipe(key){
+    const out=$('#recipe-output');if(!out)return;
+    out.replaceChildren(el('strong',{text:`Recommended stack — ${key}`}),document.createTextNode('\n\n'+Protocols.recipes[key].map((x,i)=>`${i+1}. ${x}`).join('\n')));
+  },
+  detail(p){
+    UI.openDetail('Protocol',p.name,[
+      el('div',{class:'flex'},[UI.badge(p.group),UI.badge(`Strength: ${p.strength}`),UI.badge(p.quantum==='Yes'?'Quantum-ready':'Classical')]),
+      el('p',{class:'mt-3',text:p.notes}),
+      el('h3',{class:'mt-3',text:'Recommended stack'}),el('ul',{class:'list'},p.stack.map(x=>el('li',{},[el('span',{class:'dot'}),el('span',{text:x})])))
+    ]);
+  },
+  save(name){
+    const saved=State.get('savedProtocols');
+    const next=saved.includes(name)?saved.filter(x=>x!==name):[...saved,name];
+    State.set({savedProtocols:next});ProtocolsUI.render();UI.announce(next.includes(name)?'Protocol saved.':'Protocol removed.');
+  }
+};
+
+/* ============================== Governance ============================== */
+const Governance={
+  render(){
+    const view=$('#view');
+    const tabs=el('div',{class:'toolbar',role:'tablist','aria-label':'Methodology categories'},[
+      ['defensive','Defensive & architectural'],['offensive','Offensive & testing'],['incident','Incident response']
+    ].map(([id,label],i)=>el('button',{class:'chip',type:'button',role:'tab',id:`tab-${id}`,'aria-selected':i===0,'aria-controls':`panel-${id}`,onclick:e=>Governance.tab(id),text:label})));
+    const panels=['defensive','offensive','incident'].map((id,i)=>el('div',{id:`panel-${id}`,role:'tabpanel','aria-labelledby':`tab-${id}`,class:i===0?'':'hidden'},Governance.cards(id)));
+    view.replaceChildren(
+      el('div',{class:'page-head'},[el('p',{class:'eyebrow',text:'Methodologies & governance'}),el('h2',{text:'Security frameworks and readiness'}),el('p',{class:'muted',text:'Use these checklists to structure a security program. Zero Trust emphasizes evaluating each request based on identity, device, and context rather than network location alone, as described in NIST SP 800-207. [1]'})]),
+      tabs,el('div',{class:'mt-3'},panels),
+      el('section',{class:'section'},[el('h2',{text:'Readiness calculator'}),el('p',{class:'muted',text:'Select implemented controls to calculate a posture score and prioritized roadmap. This is a self-assessment aid, not a certification or audit result.'}),el('div',{class:'grid cols-2 mt-3'},[Governance.calculator(),Governance.roadmap()])])
+    );
+  },
+  cards(kind){
+    return el('div',{class:'grid cols-2'},Methodologies[kind].map(m=>UI.card(m.name,[
+      el('p',{class:'muted',text:m.focus}),el('p',{class:'eyebrow mt-2',text:m.source}),
+      el('ul',{class:'list mt-2'},m.checks.map(c=>el('li',{},[el('span',{class:'dot'}),el('span',{text:c})])))
+    ])));
+  },
+  tab(id){
+    $$('#view [role="tab"]').forEach(t=>t.setAttribute('aria-selected',t.id===`tab-${id}`));
+    $$('#view [role="tabpanel"]').forEach(p=>p.classList.toggle('hidden',p.id!==`panel-${id}`));
+  },
+  checks:[
+    {id:'mfa',label:'Phishing-resistant MFA or passkeys for privileged access',weight:14},
+    {id:'inventory',label:'Complete asset, SaaS, and identity inventory',weight:10},
+    {id:'patch',label:'Risk-based patching with emergency-change process',weight:12},
+    {id:'backup',label:'Immutable backups with tested restoration',weight:14},
+    {id:'segment',label:'Network segmentation and least-privilege access',weight:11},
+    {id:'logging',label:'Centralized logging, alerting, and detection coverage',weight:11},
+    {id:'ir',label:'Incident-response plan, contacts, and tabletop exercise',weight:10},
+    {id:'vendor',label:'Third-party and software supply-chain risk management',weight:9},
+    {id:'training',label:'Role-based security awareness and phishing reporting',weight:7},
+    {id:'crypto',label:'Encryption, key management, and crypto-agility review',weight:12}
+  ],
+  calculator(){
+    const saved=State.get('readiness');
+    const box=el('div',{class:'card'},[el('h3',{text:'Control implementation'}),el('div',{class:'mt-2'},Governance.checks.map(c=>el('label',{class:'flex',style:'margin-bottom:.45rem'},[
+      el('input',{type:'checkbox',checked:!!saved[c.id],onchange:e=>{const next={...State.get('readiness'),[c.id]:e.target.checked};State.set({readiness:next});Governance.updateScore();}}),
+      el('span',{text:c.label})
+    ])))]);
+    return box;
+  },
+  score(){
+    const saved=State.get('readiness');
+    const earned=Governance.checks.reduce((s,c)=>s+(saved[c.id]?c.weight:0),0);
+    return{earned,total:Governance.checks.reduce((s,c)=>s+c.weight,0),pct:Math.round(earned/Governance.checks.reduce((s,c)=>s+c.weight,0)*100)};
+  },
+  updateScore(){
+    const{pct}=Governance.score();
+    $('#score-value').textContent=`${pct}%`;
+    $('#score-bar').style.width=`${pct}%`;
+    $('#score-status').textContent=pct>=80?'Strong baseline':pct>=50?'Developing posture':'Foundational gaps';
+    const missing=Governance.checks.filter(c=>!State.get('readiness')[c.id]).sort((a,b)=>b.weight-a.weight).slice(0,4);
+    $('#roadmap-list').replaceChildren(...missing.map(c=>el('li',{},[el('span',{class:'dot amber'}),el('span',{text:`${c.label} — priority weight ${c.weight}`})])));
+    if(!missing.length)$('#roadmap-list').replaceChildren(el('li',{},[el('span',{class:'dot green'}),el('span',{text:'All baseline checks selected. Maintain evidence, test recovery, and reassess after major changes.'})]));
+    UI.announce(`Security posture score updated to ${pct} percent.`);
+  },
+  calculatorPanel(){
+    const{pct}=Governance.score();
+    return el('div',{class:'card'},[
+      el('h3',{text:'Posture score'}),
+      el('div',{class:'gauge mt-2'},[el('svg',{class:'score-ring',viewBox:'0 0 120 120','aria-hidden':'true'},[
+        el('circle',{cx:60,cy:60,r:50,fill:'none',stroke:'#1e293b','stroke-width':'12'}),
+        el('circle',{id:'score-arc',cx:60,cy:60,r:50,fill:'none',stroke:'#10b981','stroke-width':'12','stroke-linecap':'round','stroke-dasharray':`${pct*3.14} 314`,transform:'rotate(-90 60 60)'}),
+        el('text',{x:60,y:66,'text-anchor':'middle',fill:'#e8f2fb','font-size':'25','font-weight':'800',id:'score-value',text:`${pct}%`})
+      ])]),
+      el('p',{id:'score-status',class:'muted',text:pct>=80?'Strong baseline':pct>=50?'Developing posture':'Foundational gaps'}),
+      el('div',{class:'mt-2',style:'height:8px;background:#0a1120;border-radius:99px;overflow:hidden'},[el('div',{id:'score-bar',style:`height:100%;width:${pct}%;background:linear-gradient(90deg,#00f0ff,#10b981)`})])
+    ]);
+  },
+  roadmap(){
+    return el('div',{class:'card'},[el('h3',{text:'Prioritized remediation roadmap'}),el('ul',{id:'roadmap-list',class:'list mt-2'})]);
+  }
+};
+
+/* ============================== Forum ============================== */
+const Forum={
+  channels:['#zero-day-alerts','#blue-team-defense','#red-team-research','#b2b-compliance-grc','#b2c-scam-help-desk'],
+  filters:{channel:'All',tag:'All',severity:'All'},
+  render(){
+    const view=$('#view');
+    const threads=State.get('threads');
+    const tags=['All',...new Set(threads.flatMap(t=>t.tags))];
+    const toolbar=el('div',{class:'toolbar'},[
+      el('select',{'aria-label':'Channel',onchange:e=>{Forum.filters.channel=e.target.value;Forum.render()}},['All',...Forum.channels].map(c=>el('option',{value:c,text:c,selected:c===Forum.filters.channel}))),
+      el('select',{'aria-label':'Tag',onchange:e=>{Forum.filters.tag=e.target.value;Forum.render()}},tags.map(t=>el('option',{value:t,text:t,selected:t===Forum.filters.tag}))),
+      el('select',{'aria-label':'Severity',onchange:e=>{Forum.filters.severity=e.target.value;Forum.render()}},['All','CRITICAL','ADVISORY','INFO'].map(s=>el('option',{value:s,text:s,selected:s===Forum.filters.severity})))
+    ]);
+    const shown=threads.filter(t=>
+      (Forum.filters.channel==='All'||t.channel===Forum.filters.channel)&&
+      (Forum.filters.tag==='All'||t.tags.includes(Forum.filters.tag))&&
+      (Forum.filters.severity==='All'||t.severity===Forum.filters.severity)
+    );
+    view.replaceChildren(
+      el('div',{class:'page-head'},[el('p',{class:'eyebrow',text:'Community threat exchange'}),el('h2',{text:'Message boards & incident discussion'}),el('p',{class:'muted',text:'Share defensive observations, patch guidance, and scam reports. Do not post credentials, private keys, customer data, exploit code, or personally identifying information.'})]),
+      UI.card('New thread / incident report',Forum.composer()),
+      el('section',{class:'section'},[el('h3',{text:'Discussion board'}),el('div',{class:'mt-3'},[toolbar,shown.length?el('div',{},shown.map(Forum.threadCard)):el('div',{class:'empty',text:'No threads match the selected filters.'})])])
+    );
+  },
+  threadCard(t){
+    const card=el('article',{class:'thread'},[
+      el('div',{class:'thread-head'},[
+        el('div',{},[el('strong',{text:t.title}),el('p',{class:'muted',text:`${t.author} · ${t.channel} · ${relTime(t.time)}`})]),
+        el('div',{class:'flex'},[UI.badge(t.severity,t.severity.toLowerCase()),...t.tags.map(x=>UI.badge(x)),t.verified?UI.badge('Verified','medium'):null])
+      ]),
+      el('p',{class:'mt-2',text:t.body}),
+      el('div',{class:'flex mt-2'},[
+        el('button',{class:'chip',type:'button',onclick:e=>Forum.upvote(t.id,e.target),text:`▲ ${t.up} upvotes`}),
+        el('button',{class:'chip',type:'button',onclick:e=>Forum.verify(t.id,e.target),text:t.verified?'✔ Verified':'○ Verify'}),
+        el('button',{class:'chip',type:'button',onclick:()=>Forum.expand(t.id),text:`💬 ${t.replies.length} replies`})
+      ]),
+      el('div',{id:`replies-${t.id}`,class:'hidden'})
+    ]);
+    return card;
+  },
+  expand(id){
+    const box=$(`#replies-${CSS.escape(id)}`);const t=State.get('threads').find(x=>x.id===id);
+    if(box.classList.contains('hidden')){
+      box.replaceChildren(...(t.replies.length?t.replies.map(r=>el('div',{class:'reply'},[el('strong',{text:r.author}),el('p',{class:'muted',text:relTime(r.time)}),el('p',{text:r.body})])):[el('p',{class:'muted',text:'No replies yet.'})]));
+      box.classList.remove('hidden');
+    }else box.classList.add('hidden');
+  },
+  upvote(id,btn){
+    const threads=State.get('threads');const t=threads.find(x=>x.id===id);t.up++;
+    State.set({threads});btn.textContent=`▲ ${t.up} upvotes`;UI.announce('Thread upvoted.');
+  },
+  verify(id,btn){
+    const threads=State.get('threads');const t=threads.find(x=>x.id===id);t.verified=!t.verified;
+    State.set({threads});btn.textContent=t.verified?'✔ Verified':'○ Verify';UI.announce(t.verified?'Thread marked verified.':'Verification removed.');
+  },
+  composer(){
+    const form=el('form',{onsubmit:e=>{e.preventDefault();Forum.submit(e.target)}},[
+      el('div',{class:'field'},[el('label',{for:'f-channel',text:'Channel'}),el('select',{id:'f-channel'},Forum.channels.map(c=>el('option',{value:c,text:c})))]),
+      el('div',{class:'field'},[el('label',{for:'f-title',text:'Title'}),el('input',{id:'f-title',required,maxlength:'120',placeholder:'Concise incident or research topic'})]),
+      el('div',{class:'field'},[el('label',{for:'f-author',text:'Display name'}),el('input',{id:'f-author',required,maxlength:'40',placeholder:'Analyst or community member'})]),
+      el('div',{class:'field'},[el('label',{for:'f-severity',text:'Severity'}),el('select',{id:'f-severity'},['CRITICAL','ADVISORY','INFO'].map(s=>el('option',{value:s,text:s})))]),
+      el('div',{class:'field'},[el('label',{for:'f-tags',text:'Tags (comma separated)'}),el('input',{id:'f-tags',placeholder:'Phishing, MFA, Detection'})]),
+      el('div',{class:'field'},[el('label',{for:'f-body',text:'Report'}),el('textarea',{id:'f-body',required,placeholder:'Describe the observable behavior, impact, and defensive action. Redact sensitive details.'})]),
+      el('div',{class:'flex'},[el('button',{class:'btn primary',type:'submit',text:'Publish thread'}),el('button',{class:'btn',type:'reset',text:'Clear'})])
+    ]);
+    return form;
+  },
+  submit(form){
+    const title=$('#f-title').value.trim(),author=$('#f-author').value.trim(),body=$('#f-body').value.trim();
+    if(!title||!author||!body){UI.announce('Title, display name, and report are required.',true);return}
+    const thread={
+      id:'u'+Date.now().toString(36),channel:$('#f-channel').value,title,author,role:'Community',
+      severity:$('#f-severity').value,tags:$('#f-tags').value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,6),
+      up:0,verified:false,time:Date.now(),body,replies:[]
+    };
+    State.set({threads:[thread,...State.get('threads')]});Forum.render();
+    UI.announce('Thread published to the local threat exchange.');
+  }
+};
+
+/* ============================== Toolkit ============================== */
+const Toolkit={
+  render(){
+    const view=$('#view');
+    view.replaceChildren(
+      el('div',{class:'page-head'},[el('p',{class:'eyebrow',text:'Interactive security toolkit'}),el('h2',{text:'Private, client-side utilities'}),el('p',{class:'muted',text:'All analysis occurs in your browser. Do not enter real passwords, production secrets, or sensitive email content.'})]),
+      el('div',{class:'grid cols-2'},[Toolkit.entropy(),Toolkit.headers()]),
+      el('section',{class:'section'},[Toolkit.phishing()])
+    );
+    Toolkit.entropyUpdate();
+  },
+  entropy(){
+    return UI.card('Password & passphrase entropy analyzer',[
+      el('div',{class:'field'},[el('label',{for:'pw',text:'Candidate password or passphrase'}),el('input',{id:'pw',type:'text',autocomplete:'off',spellcheck:'false',oninput:()=>Toolkit.entropyUpdate()}),el('small',{text:'Use a disposable sample. Nothing is transmitted or stored.'})]),
+      el('div',{id:'entropy-out',class:'code','aria-live':'polite'}),
+      el('button',{class:'btn small mt-2',type:'button',onclick:()=>{$('#pw').value='';Toolkit.entropyUpdate()},text:'Clear sample'})
+    ]);
+  },
+  entropyUpdate(){
+    const pw=$('#pw')?.value||'';
+    let pool=0;
+    if(/[a-z]/.test(pw))pool+=26;if(/[A-Z]/.test(pw))pool+=26;
+    if(/[0-9]/.test(pw))pool+=10;if(/[^A-Za-z0-9]/.test(pw))pool+=33;
+    const bits=pw.length?Math.log2(pool)*pw.length:0;
+    const guesses=Math.pow(2,Math.min(bits,128));
+    const seconds=guesses/1e11;
+    const years=seconds/31557600;
+    const issues=[];
+    if(/(.)\1{2,}/.test(pw))issues.push('Repeated characters reduce effective variety.');
+    if(/^(?:password|qwerty|admin|letmein|123456)/i.test(pw))issues.push('Common dictionary pattern detected.');
+    if(pw.length<16)issues.push('Prefer at least 16 characters or a four-to-six-word passphrase.');
+    if(!/[0-9]/.test(pw)&&!/[^A-Za-z]/.test(pw))issues.push('Add digits or symbols for a broader keyspace.');
+    const human=years>1e9?'Centuries+ at the modeled offline attack rate':years>1?'Approximately '+years.toExponential(2)+' years':'Less than one year';
+    $('#entropy-out').replaceChildren(
+      el('div',{text:`Character pool: ${pool} · Entropy: ${bits.toFixed(1)} bits`}),
+      el('div',{text:`Modeled offline crack estimate: ${human}`}),
+      el('div',{text:issues.length?'Weaknesses: '+issues.join(' '):'No common pattern weakness detected in this local heuristic.'})
+    );
+  },
+  headers(){
+    const options=[
+      ['hsts','Strict-Transport-Security',"max-age=31536000; includeSubDomains; preload"],
+      ['csp','Content-Security-Policy',"default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"],
+      ['frame','X-Frame-Options','DENY'],
+      ['permissions','Permissions-Policy',"camera=(), microphone=(), geolocation=()"],
+      ['nosniff','X-Content-Type-Options','nosniff'],
+      ['referrer','Referrer-Policy','strict-origin-when-cross-origin']
+    ];
+    const box=el('div',{class:'card'},[
+      el('h3',{text:'HTTP security header & CSP generator'}),
+      el('div',{class:'mt-2'},options.map(([id,label])=>el('label',{class:'flex',style:'margin-bottom:.45rem'},[
+        el('input',{type:'checkbox',id:`hdr-${id}`,checked:id==='hsts'||id==='csp'||id==='nosniff',onchange:Toolkit.headersUpdate}),
+        el('span',{text:label})
+      ]))),
+      el('pre',{id:'header-output',class:'code mt-2'}),
+      el('button',{class:'btn small mt-2',type:'button',onclick:async e=>{const ok=await copy($('#header-output').textContent);UI.announce(ok?'Security headers copied.':'Copy unavailable in this browser.');e.target.textContent=ok?'Copied':'Copy failed'}},'Copy configuration')
+    ]);
+    return box;
+  },
+  headersUpdate(){
+    const lines=[];
+    if($('#hdr-hsts')?.checked)lines.push('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+    if($('#hdr-csp')?.checked)lines.push("Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");
+    if($('#hdr-frame')?.checked)lines.push('X-Frame-Options: DENY');
+    if($('#hdr-permissions')?.checked)lines.push('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+    if($('#hdr-nosniff')?.checked)lines.push('X-Content-Type-Options: nosniff');
+    if($('#hdr-referrer')?.checked)lines.push('Referrer-Policy: strict-origin-when-cross-origin');
+    $('#header-output').textContent=lines.join('\n')||'Select at least one header.';
+  },
+  phishing(){
+    return UI.card('Phishing URL & email header inspector',[
+      el('div',{class:'field'},[el('label',{for:'phish-input',text:'Paste a URL or email header snippet'}),el('textarea',{id:'phish-input',placeholder:'https://secure-paypa1.example/login\nReceived: from suspicious-mailer.example',oninput:debounce(()=>Toolkit.phishInspect(),150)})]),
+      el('div',{id:'phish-output',class:'code','aria-live':'polite',text:'Paste content to inspect locally.'})
+    ]);
+  },
+  phishInspect(){
+    const raw=$('#phish-input').value.trim();const out=$('#phish-output');
+    if(!raw){out.textContent='Paste content to inspect locally.';return}
+    const findings=[];
+    let url;try{url=new URL(raw.match(/https?:\/\/[^\s]+/i)?.[0]||'https://invalid.invalid')}catch{url=null}
+    if(url){
+      const host=url.hostname.toLowerCase();
+      if(/[-_]/.test(host))findings.push('Hyphens or underscores can support impersonation; verify the registrable domain independently.');
+      if(/(paypa1|g00gle|amaz0n|micr0soft|app1e)/i.test(host))findings.push('Character-substitution pattern commonly used in brand impersonation.');
+      if(/\.(zip|mov|top|xyz|click|loan|cam)$/.test(host))findings.push('TLD frequently abused in malicious campaigns; treat as untrusted until verified.');
+      if(url.protocol!=='https:')findings.push('Connection is not HTTPS; do not submit credentials.');
+      if(url.username||url.password)findings.push('Embedded credentials detected in the URL.');
+      if(!findings.length)findings.push('No obvious URL-level indicator found; domain reputation and page content still require verification.');
+    }else findings.push('No parsable URL found; inspecting header text.');
+    if(/urgent|immediately|suspend|verify now|account locked|final warning/i.test(raw))findings.push('Urgency or threat language detected; legitimate organizations normally let you initiate contact through a known channel.');
+    if(/received: from|received-spf|authentication-results/i.test(raw))findings.push('Email header detected. Validate SPF, DKIM, and DMARC results against the actual sending infrastructure.');
+    out.replaceChildren(el('strong',{text:'Local inspection results'}),document.createTextNode('\n\n'+findings.map((f,i)=>`${i+1}. ${f}`).join('\n')));
+  }
+};
+
+/* ============================== Booking ============================== */
+const Booking={
+  open(service){
+    const b2b=State.get('mode')==='b2b';
+    const services=b2b?['Enterprise penetration test','vCISO audit','Managed detection & response','Zero Trust access design','Compliance readiness assessment','Enterprise security retainer']:['Personal cyber checkup','Guided account recovery','Home Wi-Fi & IoT hardening','Family digital safety setup','Phishing incident support'];
+    $('#bk-service').replaceChildren(...services.map(s=>el('option',{value:s,text:s,selected:service===s})));
+    $('#bk-team-field').classList.toggle('hidden',!b2b);
+    $('#bk-compliance-field').classList.toggle('hidden',!b2b);
+    $('#booking-title').textContent=b2b?'Request enterprise security support':'Book personal cyber support';
+    $('#booking').showModal();$('#bk-service').focus();
+  },
+  init(){
+    $('#detail-close').addEventListener('click',()=>$('#detail').close());
+    $('#booking-close').addEventListener('click',()=>$('#booking').close());
+    $('#booking-reset').addEventListener('click',()=>$('#booking-form').reset());
+    $('#booking-form').addEventListener('submit',e=>{
+      e.preventDefault();
+      const err=$('#booking-error');err.classList.add('hidden');
+      const org=$('#bk-org').value.trim(),email=$('#bk-email').value.trim(),context=$('#bk-context').value.trim();
+      if(!org||!email||!context){err.textContent='Complete organization, email, and context fields.';err.classList.remove('hidden');return}
+      $('#booking').close();
+      UI.announce(`Request received locally for ${$('#bk-service').value}. This demonstration does not transmit data.`);
+    });
+    $('#capabilities-btn').addEventListener('click',()=>Capabilities.render());
+  }
+};
+
+/* ============================== Settings ============================== */
+const Settings={
+  render(){
+    const view=$('#view');
+    const exportBtn=el('button',{class:'btn',type:'button',onclick:()=>{
+      const data={version:1,exportedAt:new Date().toISOString(),mode:State.get('mode'),savedThreats:State.get('savedThreats'),savedProtocols:State.get('savedProtocols'),threads:State.get('threads'),readiness:State.get('readiness')};
+      const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+      const a=el('a',{href:url,download:'aegis-command-data.json'});document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }},'Export local data');
+    const importInput=el('input',{type:'file',accept:'application/json,.json','aria-label':'Import Aegis Command JSON data',onchange:e=>{
+      const file=e.target.files[0];if(!file)return;
+      if(file.size>2_000_000){UI.announce('Import file exceeds the 2 MB limit.',true);return}
+      const reader=new FileReader();
+      reader.onload=()=>{
+        try{
+          const data=JSON.parse(reader.result);
+          if(data.version!==1||typeof data!=='object')throw new Error('Unsupported data format');
+          State.set({mode:data.mode==='b2c'?'b2c':'b2b',savedThreats:Array.isArray(data.savedThreats)?data.savedThreats:[],savedProtocols:Array.isArray(data.savedProtocols)?data.savedProtocols:[],threads:Array.isArray(data.threads)?data.threads:[],readiness:data.readiness&&typeof data.readiness==='object'?data.readiness:{}});
+          UI.announce('Local data imported successfully.');
+        }catch(err){UI.announce('Import failed: '+err.message,true)}
+      };
+      reader.readAsText(file);e.target.value='';
+    }});
+    view.replaceChildren(
+      el('div',{class:'page-head'},[el('p',{class:'eyebrow',text:'Settings & system'}),el('h2',{text:'Preferences, data, and platform support'}),el('p',{class:'muted',text:'Aegis Command stores only non-sensitive preferences and locally created forum content in your browser. It performs no external network requests for core functionality.'})]),
+      el('div',{class:'grid cols-2'},[
+        UI.card('Audience & appearance',[
+          el('p',{class:'muted',text:'The audience switcher tailors services, recommendations, booking options, and defensive guidance.'}),
+          el('div',{class:'flex mt-2'},[
+            el('button',{class:'chip',type:'button',onclick:()=>{State.set({mode:'b2b'});Router.go('#/command')},text:'Use B2B Enterprise'}),
+            el('button',{class:'chip',type:'button',onclick:()=>{State.set({mode:'b2c'});Router.go('#/command')},text:'Use B2C Personal'})
+          ]),
+          el('p',{class:'muted mt-2',text:'The interface follows your operating-system reduced-motion and increased-contrast preferences where supported.'})
+        ]),
+        UI.card('Local data',[
+          el('div',{class:'flex'},[exportBtn,el('label',{class:'btn',text:'Import JSON'},[importInput])]),
+          el('button',{class:'btn danger mt-2',type:'button',onclick:()=>{
+            if(confirm('Clear all locally saved Aegis Command preferences and forum posts?')){['aegis.mode','aegis.saved','aegis.protocols','aegis.threads','aegis.readiness'].forEach(storage.remove);location.reload()}
+          }},'Clear local data')
+        ]),
+        UI.card('About this platform',[
+          el('p',{text:'Aegis Command is an educational cybersecurity operations and decision-support interface. Simulated telemetry, threat levels, and service availability are illustrative.'}),
+          el('p',{class:'muted mt-2',text:'For an active intrusion, ransomware event, or account takeover, follow your organization’s incident-response process or contact the legitimate support channel for the affected service.'})
+        ]),
+        UI.card('Capability inspector',[
+          el('div',{id:'settings-capabilities',class:'capability'}),
+          el('button',{class:'btn small mt-2',type:'button',popovertarget:'capabilities',text:'Open detailed capability panel'})
+        ])
+      ])
+    );
+    Capabilities.render($('#settings-capabilities'));
+  }
+};
+
+/* ============================== Capabilities ============================== */
+const Capabilities={
+  render(target){
+    const tests=[
+      ['View Transitions',!!document.startViewTransition,'Animated route and detail transitions'],
+      ['Scroll-driven animations',CSS.supports('animation-timeline','scroll()'),'Page-progress visualization'],
+      ['Container queries',CSS.supports('container-type','inline-size'),'Responsive component layouts'],
+      ['Container style queries',CSS.supports('container-style','inline-size'),'Style-driven component variants'],
+      ['CSS nesting',CSS.supports('selector','&'),'Readable scoped styles'],
+      ['@scope',CSS.supports('selector','@scope'),'Bounded component styling'],
+      ['Anchor positioning',CSS.supports('anchor-name','--a'),'Contextual popover placement'],
+      ['Popover API',!!HTMLElement.prototype.showPopover,'Light-dismiss capability panel'],
+      ['Dialog',!!window.HTMLDialogElement,'Accessible modal workflows'],
+      [':has()',CSS.supports('selector','a:has(b)'),'Parent-state styling'],
+      ['field-sizing',CSS.supports('width','field-sizing(content)'),'Content-aware form fields'],
+      ['Trusted Types',!!window.trustedTypes,'DOM injection policy support'],
+      ['Navigation API',!!window.navigation,'Modern SPA navigation'],
+      ['Web Animations',!!Element.prototype.animate,'Interactive motion'],
+      ['Canvas 2D',!!document.createElement('canvas').getContext,'Threat topology visualization'],
+      ['Web Audio',!!window.AudioContext,'Optional future audio cues'],
+      ['Clipboard',!!navigator.clipboard,'Copy generated configurations'],
+      ['Web Share',!!navigator.share,'Share reports where supported'],
+      ['localStorage',(()=>{try{localStorage.setItem('__aegis','1');localStorage.removeItem('__aegis');return true}catch{return false}})(),'Preferences and local threads']
+    ];
+    const root=target||$('#capability-list');if(!root)return;
+    root.replaceChildren(...tests.map(([name,ok,why])=>el('div',{},[
+      el('b',{text:name}),el('span',{text:`${ok?'Active':'Unavailable'} — ${why}`})
+    ])));
+  }
+};
+
+/* ============================== Boot ============================== */
+Router.register('/command',()=>Command.render());
+Router.register('/threats',()=>Threats.render());
+Router.register('/protocols',()=>ProtocolsUI.render());
+Router.register('/governance',()=>Governance.render());
+Router.register('/forum',()=>Forum.render());
+Router.register('/toolkit',()=>Toolkit.render());
+Router.register('/settings',()=>Settings.render());
+Router.register('/not-found',()=>{
+  $('#view').replaceChildren(el('div',{class:'card'},[el('h1',{text:'Route not found'}),el('p',{class:'muted',text:'That operations channel is unavailable. Return to the Command Center.'}),el('a',{class:'btn primary mt-3',href:'#/command',text:'Return to Command Center'})]));
+});
+
+if(!State.get('threads'))State.set({threads:seedThreads});
+$('#mode-b2b').addEventListener('click',()=>{State.set({mode:'b2b'});Router.go('#/command')});
+$('#mode-b2c').addEventListener('click',()=>{State.set({mode:'b2c'});Router.go('#/command')});
+State.subscribe(()=>{const b2b=State.get('mode')==='b2b';$('#mode-b2b').setAttribute('aria-pressed',b2b);$('#mode-b2c').setAttribute('aria-pressed',!b2b)});
+$('#mode-b2b').setAttribute('aria-pressed',State.get('mode')==='b2b');
+$('#mode-b2c').setAttribute('aria-pressed',State.get('mode')==='b2c');
+Booking.init();
+Router.start();
+</script>
+<div id="live-region" class="sr" aria-live="polite"></div>
+</body>
+</html>
