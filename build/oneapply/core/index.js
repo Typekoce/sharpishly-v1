@@ -261,3 +261,12 @@ document.getElementById('year').textContent=new Date().getFullYear();
 initTheme();renderFeed();initMode();renderPortalGrid();renderFeatures();initTailor();initRoi();initBilling();renderPricing();renderFaq();initCapabilities();initReveal();
 };
 init();
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    alert('hello');
+
+    app.init();
+
+
+});
