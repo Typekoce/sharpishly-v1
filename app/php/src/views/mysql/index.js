@@ -1242,10 +1242,15 @@ CREATE TABLE telemetry_logs (
     }
 
     // Boot Application
+
+
+document.addEventListener('DOMContentLoaded', () => {
     renderCapabilities();
     bindEvents();
     initBufferCanvas();
     navigateTo(parseHashRoute(), false);
+  DbController.index();
+});
 
 const DbConfig = {
   baseUrl: '/innodb'
