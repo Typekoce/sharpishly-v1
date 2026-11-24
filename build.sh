@@ -53,6 +53,7 @@ touch app/php/src/views/oneapply/index.js
 echo "[BUILD] Compiling JavaScript..."
 JS_FILES=(
     build/javascript/core/app.js
+    build/javascript/controllers/render_controller.js
     build/oneapply/core/app_init.js
     build/oneapply/controllers/feed_controller.js
     build/oneapply/core/index.js
