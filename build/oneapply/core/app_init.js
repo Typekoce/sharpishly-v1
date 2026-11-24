@@ -3,5 +3,5 @@
     ======================================================================== */
 
 app.init = function(){
-    console.log(app);
+    FeedController.init();
 };
