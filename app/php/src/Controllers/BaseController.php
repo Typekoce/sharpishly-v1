@@ -60,6 +60,8 @@ class BaseController {
 
             $page = $this->css($path,$page);
 
+            $page = $this->script($path,$page);
+
             echo $page;
 
         } else {
@@ -75,6 +77,22 @@ class BaseController {
 
             $c = file_get_contents($file);
             $page = str_replace('<style></style>','<style>' . $c . '</style>',$page);
+
+        } else {
+            //echo "Opps... page does not exist";
+        }
+
+        return $page;
+    }
+
+    public function script($path,$page){
+
+        $file = $this->location->baseDir() . 'app/php/src/views/' . $path . '.js';
+
+        if(file_exists($file)){
+
+            $c = file_get_contents($file);
+            $page = str_replace('<script></script>','<script type="module">' . $c . '</script>',$page);
 
         } else {
             //echo "Opps... page does not exist";
