@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en-GB" data-theme="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="RebateDirect UK — calculate, bundle and prepare PAYE tax-relief claims for professional subscriptions, flat-rate expenses, working from home and business mileage.">
+<meta name="color-scheme" content="light dark">
+<title>RebateDirect UK — PAYE tax relief, calculated clearly</title>
+<style></style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<div class="reading-progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href="#/home" aria-label="RebateDirect UK home">
+      <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="5" width="38" height="38" rx="10" fill="none" stroke="currentColor" stroke-width="3.5"/><path d="M14 30h20M14 22h14" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path d="M29 14l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>RebateDirect UK<small>PAYE tax relief</small></span>
+    </a>
+    <nav class="primary-nav" aria-label="Primary">
+      <a href="#/home" data-route="home">Overview</a>
+      <a href="#/reliefs" data-route="reliefs">Find reliefs</a>
+      <a href="#/claim" data-route="claim">My claim</a>
+      <a href="#/about" data-route="about">About</a>
+    </nav>
+    <div class="header-actions">
+      <button id="theme-button" class="button button-ghost button-icon" type="button" popovertarget="theme-help" aria-label="Change appearance">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button id="open-drawer" class="button button-primary" type="button" aria-label="Open live claim summary">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 9h8M8 13h8M8 17h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="num" id="refund-preview">£0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main-content" class="shell" tabindex="-1">
+  <div id="view-root" aria-live="polite"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="shell footer-grid">
+    <div>
+      <strong>RebateDirect UK</strong>
+      <p>A demonstration claims planner for employed UK taxpayers. It prepares an illustrative expense schedule and does not provide regulated tax, legal or financial advice.</p>
+    </div>
+    <div>
+      <strong>Explore</strong>
+      <p><a href="#/reliefs">Relief explorer</a><br><a href="#/claim">Claim basket</a><br><a href="#/about">Assumptions &amp; support</a></p>
+    </div>
+    <div>
+      <strong>Managed claim</strong>
+      <p>Service fee: 25% of gross HMRC relief plus VAT. You can switch to a self-file estimate at any time; no personal claim data leaves this device.</p>
+    </div>
+  </div>
+</footer>
+
+<div id="drawer-root"></div>
+<div id="modal-root"></div>
+<div id="toast-root" class="toast-region" aria-live="polite" aria-atomic="false"></div>
+
+<div id="theme-help" class="popover-help" popover>
+  <strong>Appearance</strong>
+  <p class="muted">Choose Light, Dark or follow your device preference. The choice is stored locally.</p>
+  <div class="row" style="margin-top:10px">
+    <button class="pill" type="button" data-action="set-theme" data-theme="light">Light</button>
+    <button class="pill" type="button" data-action="set-theme" data-theme="dark">Dark</button>
+    <button class="pill" type="button" data-action="set-theme" data-theme="system">System</button>
+  </div>
+</div>
+
+<script></script>
+</body>
+</html>

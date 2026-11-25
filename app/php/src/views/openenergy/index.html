@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en-GB" data-theme="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Open Energy — renewable energy technology, smart-grid hardware and home energy independence.">
+<meta name="color-scheme" content="light dark">
+<title>Open Energy — Clean power for independent homes</title>
+<style>
+/* === CONFIG & UTILITIES (DRY) === */
+@layer reset, tokens, base, layout, components, utilities, motion;
+
+@layer reset {
+  *,*::before,*::after { box-sizing: border-box; }
+  * { margin: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { min-height: 100svh; }
+  img,svg,canvas,video { display: block; max-width: 100%; }
+  button,input,select,textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  [hidden] { display: none !important; }
+}
+
+@layer tokens {
+  :root {
+    color-scheme: light dark;
+    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas, monospace;
+
+    --ink: oklch(21% 0.03 235);
+    --ink-soft: oklch(39% 0.03 235);
+    --paper: oklch(98% 0.008 105);
+    --surface: oklch(100% 0 0);
+    --surface-2: oklch(96.5% 0.012 105);
+    --line: oklch(88% 0.015 105);
+    --forest: oklch(33% 0.075 165);
+    --forest-strong: oklch(25% 0.07 165);
+    --emerald: oklch(65% 0.16 155);
+    --amber: oklch(78% 0.15 78);
+    --amber-deep: oklch(63% 0.16 65);
+    --danger: oklch(55% 0.19 25);
+    --success: oklch(58% 0.15 155);
+    --warning: oklch(73% 0.15 80);
+
+    --radius-xs: 6px;
+    --radius-sm: 10px;
+    --radius: 16px;
+    --radius-lg: 24px;
+    --radius-pill: 999px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 22px;
+    --space-6: 30px;
+    --space-7: 42px;
+    --space-8: 58px;
+    --shadow-1: 0 1px 2px oklch(20% 0.03 235 / .08), 0 8px 24px oklch(20% 0.03 235 / .07);
+    --shadow-2: 0 18px 50px oklch(20% 0.03 235 / .16);
+    --ring: 0 0 0 3px color-mix(in oklab, var(--emerald) 45%, transparent);
+    --header-blur: blur(16px) saturate(1.3);
+    --motion: 180ms;
+    --ease: cubic-bezier(.2,.7,.2,1);
+    --content: min(1200px, 100% - clamp(24px, 6vw, 72px));
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --ink: oklch(94% 0.01 105);
+    --ink-soft: oklch(75% 0.02 105);
+    --paper: oklch(16% 0.025 235);
+    --surface: oklch(21% 0.03 235);
+    --surface-2: oklch(25% 0.035 235);
+    --line: oklch(34% 0.03 235);
+    --forest: oklch(74% 0.12 165);
+    --forest-strong: oklch(83% 0.13 165);
+    --emerald: oklch(76% 0.15 155);
+    --amber: oklch(82% 0.14 78);
+    --shadow-1: 0 1px 2px oklch(0% 0 0 / .3), 0 10px 30px oklch(0% 0 0 / .22);
+    --shadow-2: 0 22px 60px oklch(0% 0 0 / .45);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html[data-theme="system"] {
+      color-scheme: dark;
+      --ink: oklch(94% 0.01 105);
+      --ink-soft: oklch(75% 0.02 105);
+      --paper: oklch(16% 0.025 235);
+      --surface: oklch(21% 0.03 235);
+      --surface-2: oklch(25% 0.035 235);
+      --line: oklch(34% 0.03 235);
+      --forest: oklch(74% 0.12 165);
+      --forest-strong: oklch(83% 0.13 165);
+      --emerald: oklch(76% 0.15 155);
+      --amber: oklch(82% 0.14 78);
+      --shadow-1: 0 1px 2px oklch(0% 0 0 / .3), 0 10px 30px oklch(0% 0 0 / .22);
+      --shadow-2: 0 22px 60px oklch(0% 0 0 / .45);
+    }
+  }
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background:
+      radial-gradient(1100px 520px at 8% -10%, color-mix(in oklab, var(--amber) 18%, transparent), transparent 65%),
+      radial-gradient(900px 520px at 100% 0%, color-mix(in oklab, var(--emerald) 15%, transparent), transparent 60%),
+      var(--paper);
+    color: var(--ink);
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+  h1,h2,h3,h4 { line-height: 1.15; text-wrap: balance; letter-spacing: -0.02em; }
+  h1 { font-size: clamp(2.1rem, 1.2rem + 4vw, 4rem); }
+  h2 { font-size: clamp(1.5rem, 1rem + 2vw, 2.25rem); }
+  h3 { font-size: clamp(1.1rem, .95rem + .7vw, 1.35rem); }
+  p { text-wrap: pretty; }
+  a { color: inherit; }
+  :focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--radius-xs); }
+  ::selection { background: color-mix(in oklab, var(--amber) 45%, transparent); }
+  .num { font-variant-numeric: tabular-nums; }
+}
+
+@layer layout {
+  .shell { width: var(--content); margin-inline: auto; }
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in oklab, var(--paper) 76%, transparent);
+    backdrop-filter: var(--header-blur);
+    border-bottom: 1px solid var(--line);
+  }
+  .header-inner {
+    display: flex; align-items: center; gap: var(--space-4);
+    min-height: 68px; padding-block: var(--space-3);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; text-decoration: none; }
+  .brand-mark { width: 38px; height: 38px; color: var(--emerald); }
+  .brand small { display: block; font-size: .68rem; color: var(--ink-soft); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+  .primary-nav { display: flex; gap: 4px; margin-left: auto; }
+  .primary-nav a {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px;
+    border-radius: var(--radius-pill); text-decoration: none; font-weight: 650; color: var(--ink-soft);
+    transition: background var(--motion) var(--ease), color var(--motion) var(--ease);
+  }
+  .primary-nav a:hover { background: var(--surface-2); color: var(--ink); }
+  .primary-nav a[aria-current="page"] { background: color-mix(in oklab, var(--emerald) 18%, transparent); color: var(--ink); }
+  .header-actions { display: flex; align-items: center; gap: var(--space-2); }
+  .cart-button { position: relative; }
+  .cart-count {
+    position: absolute; top: -4px; right: -4px; min-width: 22px; height: 22px; padding: 0 5px;
+    display: grid; place-items: center; border-radius: var(--radius-pill);
+    background: var(--amber-deep); color: white; font-size: .72rem; font-weight: 800;
+  }
+  main { padding-block: var(--space-6) var(--space-8); min-height: 70svh; }
+  .site-footer {
+    border-top: 1px solid var(--line); padding-block: var(--space-6);
+    color: var(--ink-soft); font-size: .88rem;
+  }
+  .footer-grid { display: grid; gap: var(--space-5); grid-template-columns: 1fr; }
+  .skip-link {
+    position: fixed; top: 8px; left: 8px; z-index: 100; transform: translateY(-160%);
+    background: var(--forest-strong); color: white; padding: 12px 18px; border-radius: var(--radius-pill);
+    transition: transform var(--motion) var(--ease);
+  }
+  .skip-link:focus-visible { transform: translateY(0); }
+  @media (min-width: 720px) {
+    .footer-grid { grid-template-columns: 2fr 1fr 1fr; }
+  }
+}
+
+@layer components {
+  .button {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 44px; padding: 10px 18px; border: 1px solid transparent;
+    border-radius: var(--radius-pill); font-weight: 750; text-decoration: none;
+    transition: transform var(--motion) var(--ease), background var(--motion) var(--ease), box-shadow var(--motion) var(--ease), border-color var(--motion) var(--ease);
+  }
+  .button:active { transform: translateY(1px) scale(.99); }
+  .button-primary { background: var(--forest-strong); color: white; box-shadow: var(--shadow-1); }
+  .button-primary:hover { background: color-mix(in oklab, var(--forest-strong) 82%, var(--emerald)); }
+  .button-accent { background: var(--amber); color: oklch(20% 0.05 65); }
+  .button-accent:hover { background: color-mix(in oklab, var(--amber) 82%, var(--amber-deep)); }
+  .button-ghost { background: transparent; border-color: var(--line); color: var(--ink); }
+  .button-ghost:hover { background: var(--surface-2); }
+  .button-danger { background: color-mix(in oklab, var(--danger) 12%, transparent); color: var(--danger); border-color: color-mix(in oklab, var(--danger) 30%, transparent); }
+  .button-sm { min-height: 36px; padding: 6px 12px; font-size: .85rem; }
+  .button-icon { width: 44px; padding: 0; }
+  .icon { width: 20px; height: 20px; flex: none; }
+
+  .card {
+    container-type: inline-size;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow-1); overflow: hidden;
+    transition: transform var(--motion) var(--ease), box-shadow var(--motion) var(--ease), border-color var(--motion) var(--ease);
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-2); border-color: color-mix(in oklab, var(--emerald) 35%, var(--line)); }
+  .card-media { aspect-ratio: 16 / 9; background: linear-gradient(135deg, color-mix(in oklab, var(--emerald) 18%, var(--surface-2)), color-mix(in oklab, var(--amber) 20%, var(--surface-2))); display: grid; place-items: center; }
+  .card-media svg { width: min(72%, 230px); height: auto; color: var(--forest-strong); }
+  .card-body { display: grid; gap: var(--space-3); padding: var(--space-4); }
+  .card-title { font-size: 1.05rem; }
+  .card-specs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .card-actions { display: flex; gap: 8px; align-items: center; margin-top: auto; }
+  .card-actions .button { flex: 1; }
+  @container (max-width: 340px) {
+    .card-actions { flex-direction: column; align-items: stretch; }
+  }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: var(--radius-pill);
+    font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+    background: color-mix(in oklab, var(--emerald) 16%, transparent); color: var(--forest-strong);
+    border: 1px solid color-mix(in oklab, var(--emerald) 32%, transparent);
+  }
+  .badge-amber { background: color-mix(in oklab, var(--amber) 25%, transparent); color: oklch(38% 0.1 65); border-color: color-mix(in oklab, var(--amber) 45%, transparent); }
+  .badge-muted { background: var(--surface-2); color: var(--ink-soft); border-color: var(--line); }
+  .badge-danger { background: color-mix(in oklab, var(--danger) 12%, transparent); color: var(--danger); border-color: color-mix(in oklab, var(--danger) 30%, transparent); }
+
+  .pill {
+    min-height: 40px; padding: 7px 14px; border-radius: var(--radius-pill); border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink-soft); font-weight: 700;
+  }
+  .pill:hover { background: var(--surface-2); color: var(--ink); }
+  .pill[aria-pressed="true"] { background: var(--forest-strong); border-color: transparent; color: white; }
+
+  .field { display: grid; gap: 6px; }
+  .field label { font-size: .82rem; font-weight: 750; }
+  .input, .select {
+    width: 100%; min-height: 46px; padding: 10px 13px; border-radius: var(--radius-sm);
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  }
+  .input:user-invalid, .select:user-invalid { border-color: var(--danger); }
+  .field-error { color: var(--danger); font-size: .82rem; font-weight: 650; min-height: 1em; }
+  .input[aria-invalid="true"] { border-color: var(--danger); }
+
+  .hero {
+    position: relative; overflow: hidden; border-radius: var(--radius-lg);
+    background: linear-gradient(145deg, var(--forest-strong), oklch(20% 0.05 235));
+    color: white; box-shadow: var(--shadow-2); margin-bottom: var(--space-7);
+  }
+  .hero-inner { display: grid; gap: var(--space-6); padding: clamp(24px, 5vw, 58px); }
+  .hero h1 { max-width: 17ch; }
+  .hero p { max-width: 52ch; color: color-mix(in oklab, white 78%, transparent); }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero-stats { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); }
+  .hero-stat { padding: 14px; border-radius: var(--radius); background: oklch(100% 0 0 / .09); border: 1px solid oklch(100% 0 0 / .16); }
+  .hero-stat strong { display: block; font-size: 1.35rem; }
+  .hero-stat span { font-size: .78rem; opacity: .82; }
+  .hero-canvas { min-height: 230px; }
+  @media (min-width: 900px) {
+    .hero-inner { grid-template-columns: 1.1fr .9fr; align-items: center; }
+    .hero-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .section { margin-block: var(--space-7); }
+  .section-head { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: end; justify-content: space-between; margin-bottom: var(--space-5); }
+  .section-head p { color: var(--ink-soft); max-width: 60ch; }
+  .toolbar { display: grid; gap: var(--space-3); margin-bottom: var(--space-5); }
+  .search-row { display: flex; gap: 8px; }
+  .search-row .input { flex: 1; }
+  .filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+  .product-grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 265px), 1fr)); }
+  .panel {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: clamp(16px, 3vw, 26px); box-shadow: var(--shadow-1);
+  }
+  .estimator-grid { display: grid; gap: var(--space-5); }
+  @media (min-width: 900px) { .estimator-grid { grid-template-columns: .85fr 1.15fr; align-items: start; } }
+  .recommendation { display: grid; gap: var(--space-3); }
+  .recommendation-item { display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: var(--radius-sm); background: var(--surface-2); }
+  .recommendation-item strong { display: block; }
+  .recommendation-item span { color: var(--ink-soft); font-size: .85rem; }
+  .estimator-visual { border-radius: var(--radius); background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
+  .estimator-visual svg { width: 100%; height: auto; }
+
+  .drawer {
+    position: fixed; inset: 0; z-index: 80; display: grid; grid-template-columns: 1fr;
+    background: oklch(10% 0.02 235 / .48); backdrop-filter: blur(3px);
+  }
+  .drawer-panel {
+    grid-column: 1; width: min(100%, 460px); margin-left: auto; height: 100dvh;
+    display: flex; flex-direction: column; background: var(--paper); box-shadow: var(--shadow-2);
+    border-left: 1px solid var(--line);
+    animation: drawer-in var(--motion) var(--ease);
+  }
+  @media (min-width: 640px) { .drawer { grid-template-columns: 1fr min(460px, 92vw); } .drawer-panel { grid-column: 2; } }
+  .drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: var(--space-4); border-bottom: 1px solid var(--line); }
+  .drawer-body { flex: 1; overflow: auto; padding: var(--space-4); display: grid; gap: var(--space-3); align-content: start; }
+  .drawer-foot { border-top: 1px solid var(--line); padding: var(--space-4); display: grid; gap: var(--space-3); background: var(--surface); }
+  .cart-line { display: grid; grid-template-columns: 58px 1fr auto; gap: 12px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+  .cart-thumb { width: 58px; height: 58px; border-radius: var(--radius-xs); display: grid; place-items: center; background: var(--surface-2); color: var(--forest-strong); }
+  .cart-thumb svg { width: 34px; height: 34px; }
+  .cart-line-info { min-width: 0; }
+  .cart-line-info strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cart-line-info span { font-size: .78rem; color: var(--ink-soft); }
+  .quantity-control { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: var(--radius-pill); overflow: hidden; background: var(--surface); }
+  .quantity-control button { width: 36px; height: 36px; border: 0; background: transparent; font-weight: 800; }
+  .quantity-control button:hover { background: var(--surface-2); }
+  .quantity-control output { min-width: 32px; text-align: center; font-weight: 750; }
+  .summary-row { display: flex; justify-content: space-between; gap: 12px; font-size: .93rem; }
+  .summary-row.total { font-size: 1.1rem; font-weight: 850; padding-top: 8px; border-top: 1px solid var(--line); }
+  .progress { height: 8px; border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+  .progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--emerald), var(--amber)); transition: width 350ms var(--ease); }
+
+  .modal { border: 0; padding: 0; background: transparent; max-width: min(880px, 94vw); width: 100%; }
+  .modal::backdrop { background: oklch(10% 0.02 235 / .55); backdrop-filter: blur(4px); }
+  .modal-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-2); overflow: hidden; }
+  .modal-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; padding: var(--space-5) var(--space-5) 0; }
+  .modal-body { padding: var(--space-5); display: grid; gap: var(--space-5); }
+  .quick-grid { display: grid; gap: var(--space-5); }
+  @media (min-width: 780px) { .quick-grid { grid-template-columns: .8fr 1.2fr; } }
+  .spec-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .spec-table th, .spec-table td { padding: 9px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  .spec-table th { color: var(--ink-soft); font-weight: 700; width: 42%; }
+  .checkout-steps { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: var(--space-4); }
+  .checkout-step { display: flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: var(--radius-pill); border: 1px solid var(--line); color: var(--ink-soft); font-size: .82rem; font-weight: 750; }
+  .checkout-step[data-state="active"] { background: var(--forest-strong); color: white; border-color: transparent; }
+  .checkout-step[data-state="done"] { color: var(--success); border-color: color-mix(in oklab, var(--success) 35%, transparent); }
+  .checkout-form { display: grid; gap: var(--space-4); }
+  .form-grid { display: grid; gap: var(--space-3); }
+  @media (min-width: 620px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+  .order-confirmation { text-align: center; display: grid; gap: var(--space-3); justify-items: center; }
+  .order-ref { font-family: var(--font-mono); font-size: clamp(1rem, .8rem + 1.5vw, 1.4rem); font-weight: 800; padding: 12px 18px; border-radius: var(--radius); background: var(--surface-2); border: 1px dashed var(--line); }
+
+  .popover-help {
+    position: fixed; inset: auto; margin: 0; width: min(320px, 88vw); padding: 14px;
+    border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink);
+    box-shadow: var(--shadow-2); font-size: .88rem;
+  }
+  @supports (anchor-name: --x) {
+    .popover-help { position-anchor: --help-anchor; position-area: bottom span-right; position-try-fallbacks: flip-block; margin-top: 8px; }
+  }
+  .capability-list { display: grid; gap: 8px; }
+  .capability { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 10px; border-radius: var(--radius-sm); background: var(--surface-2); }
+  .capability p { font-size: .8rem; color: var(--ink-soft); grid-column: 1 / -1; margin: 0; }
+  .status-active { color: var(--success); font-weight: 800; }
+  .status-unavailable { color: var(--ink-soft); font-weight: 700; }
+  .empty-state { text-align: center; padding: var(--space-7) var(--space-4); border: 1px dashed var(--line); border-radius: var(--radius); background: var(--surface); display: grid; gap: 10px; justify-items: center; }
+  .empty-state svg { width: 72px; color: var(--emerald); }
+  .toast-region { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 120; display: grid; gap: 8px; width: min(420px, calc(100vw - 24px)); }
+  .toast { padding: 12px 16px; border-radius: var(--radius-pill); background: var(--forest-strong); color: white; box-shadow: var(--shadow-2); font-weight: 700; text-align: center; animation: toast-in 240ms var(--ease); }
+  .toast.error { background: var(--danger); }
+}
+
+@layer utilities {
+  .visually-hidden {
+    position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap;
+  }
+  .muted { color: var(--ink-soft); }
+  .small { font-size: .84rem; }
+  .stack { display: grid; gap: var(--space-3); }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .price { font-weight: 850; font-size: 1.15rem; }
+  .stock-in { color: var(--success); font-weight: 750; }
+  .stock-low { color: var(--warning); font-weight: 750; }
+  .stock-out { color: var(--danger); font-weight: 750; }
+}
+
+@layer motion {
+  @keyframes drawer-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse-dot { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+  @keyframes flow { to { stroke-dashoffset: -220; } }
+  .flow-line { stroke-dasharray: 8 12; animation: flow 7s linear infinite; }
+  .live-dot { animation: pulse-dot 2.2s ease-in-out infinite; }
+  @starting-style {
+    .modal-card { opacity: 0; transform: translateY(18px) scale(.98); }
+  }
+  .modal-card { transition: opacity 220ms var(--ease), transform 220ms var(--ease), display 220ms allow-discrete; }
+  @media (prefers-reduced-motion: reduce) {
+    *,*::before,*::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    .flow-line { animation: none; }
+  }
+  @supports (animation-timeline: scroll()) {
+    .reading-progress {
+      position: fixed; top: 0; left: 0; z-index: 90; height: 3px; width: 100%;
+      transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, var(--emerald), var(--amber));
+      animation: grow-progress linear both; animation-timeline: scroll();
+    }
+    @keyframes grow-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<div class="reading-progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href="#/store" aria-label="Open Energy home">
+      <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 6v10M24 32v10M6 24h10M32 24h10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M24 15l7 12H17z" fill="currentColor"/></svg>
+      <span>Open Energy<small>Smart-grid commerce</small></span>
+    </a>
+    <nav class="primary-nav" aria-label="Primary">
+      <a href="#/store" data-route="store">Store</a>
+      <a href="#/estimator" data-route="estimator">System estimator</a>
+      <a href="#/about" data-route="about">About</a>
+    </nav>
+    <div class="header-actions">
+      <button id="theme-toggle" class="button button-ghost button-icon" type="button" aria-label="Change colour theme" popovertarget="theme-help">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button id="open-basket" class="button button-primary cart-button" type="button" aria-label="Open shopping basket">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16l-1.5 11a2 2 0 0 1-2 1.8H7.5a2 2 0 0 1-2-1.8Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 7V5.5A3 3 0 0 1 15 5.5V7" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        <span class="cart-count num" id="cart-count" aria-hidden="true">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main-content" class="shell" tabindex="-1">
+  <div id="view-root" aria-live="polite"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="shell footer-grid">
+    <div>
+      <strong>Open Energy</strong>
+      <p>Hardware, storage and monitoring for homes moving beyond fossil fuels. Product specifications and savings estimates are illustrative demonstration data.</p>
+    </div>
+    <div>
+      <strong>Explore</strong>
+      <p><a href="#/store">Catalogue</a><br><a href="#/estimator">System estimator</a><br><a href="#/about">Platform &amp; accessibility</a></p>
+    </div>
+    <div>
+      <strong>Commerce</strong>
+      <p>UK VAT included at 20%. Free delivery on orders over £500. Promo code <code>SOLAR10</code> gives 10% off eligible items.</p>
+    </div>
+  </div>
+</footer>
+
+<div id="basket-root"></div>
+<div id="modal-root"></div>
+<div id="toast-root" class="toast-region" aria-live="polite" aria-atomic="false"></div>
+
+<div id="theme-help" class="popover-help" popover>
+  <strong>Appearance</strong>
+  <p class="muted">Choose Light, Dark or follow your device setting. Your preference is stored locally.</p>
+  <div class="row" style="margin-top:10px">
+    <button class="pill" type="button" data-set-theme="light">Light</button>
+    <button class="pill" type="button" data-set-theme="dark">Dark</button>
+    <button class="pill" type="button" data-set-theme="system">System</button>
+  </div>
+</div>
+
+<script type="module">
+/* === CONFIG & UTILITIES (DRY) === */
+const CONFIG = Object.freeze({
+  currency: 'GBP',
+  locale: 'en-GB',
+  vatRate: 0.20,
+  freeShippingThreshold: 500,
+  standardShipping: 24.95,
+  promoCodes: Object.freeze({ SOLAR10: 0.10 }),
+  storageKeys: Object.freeze({ cart: 'open-energy.cart.v1', preferences: 'open-energy.preferences.v1' })
+});
+
+const money = new Intl.NumberFormat(CONFIG.locale, { style: 'currency', currency: CONFIG.currency });
+const compact = new Intl.NumberFormat(CONFIG.locale, { notation: 'compact', maximumFractionDigits: 1 });
+
+const formatMoney = value => money.format(Number(value) || 0);
+const formatKwh = value => `${compact.format(value)} kWh`;
+const formatKw = value => `${compact.format(value)} kW`;
+const formatPercent = value => `${value.toFixed(1)}%`;
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+const round2 = value => Math.round((Number(value) || 0) * 100) / 100;
+const sum = values => values.reduce((total, value) => total + value, 0);
+const debounce = (fn, delay = 250) => {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
+};
+const createId = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`.toUpperCase();
+
+/** Safe DOM factory: never passes user-controlled values into HTML strings. */
+const el = (tag, props = {}, children = []) => {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (value === false || value === null || value === undefined) continue;
+    if (key === 'class') node.className = value;
+    else if (key === 'dataset') Object.assign(node.dataset, value);
+    else if (key === 'style') Object.assign(node.style, value);
+    else if (key.startsWith('on') && typeof value === 'function') node.addEventListener(key.slice(2), value);
+    else node.setAttribute(key, value);
+  }
+  for (const child of [].concat(children)) {
+    if (child === false || child === null || child === undefined) continue;
+    node.append(child.nodeType ? child : document.createTextNode(String(child)));
+  }
+  return node;
+};
+
+const safeStorage = {
+  get(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch { return fallback; }
+  },
+  set(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+    catch { return false; }
+  },
+  remove(key) {
+    try { localStorage.removeItem(key); return true; }
+    catch { return false; }
+  }
+};
+
+/* === MODEL (State & Persistence) === */
+const PRODUCT_CATALOG = Object.freeze([
+  {
+    id: 'pv-bifacial-440', sku: 'OE-PV-440B', name: 'Aurora 440 W Bifacial Solar Panel',
+    category: 'Solar & PV', price: 129, stockStatus: 'in-stock', rating: 4.8, badge: 'MCS Certified',
+    specs: { output: '440 W', efficiency: '22.6%', cells: '108 half-cut mono', warranty: '25 years' },
+    description: 'Dual-glass monocrystalline panel with bifacial rear gain for south-facing roofs and light-coloured mounting surfaces.',
+    illustration: 'panel'
+  },
+  {
+    id: 'microinverter-800', sku: 'OE-INV-800M', name: 'Flux Microinverter 800 W',
+    category: 'Solar & PV', price: 168, stockStatus: 'in-stock', rating: 4.6, badge: 'Smart Grid Ready',
+    specs: { output: '800 W', efficiency: '96.8%', channels: '2 MPPT', warranty: '12 years' },
+    description: 'Module-level microinverter with rapid shutdown, per-panel monitoring and grid-support functions.',
+    illustration: 'inverter'
+  },
+  {
+    id: 'rooftop-kit-6kw', sku: 'OE-KIT-6R', name: 'Rooftop Solar Kit — 6 kW',
+    category: 'Solar & PV', price: 4890, stockStatus: 'low-stock', rating: 4.9, badge: 'Best Seller',
+    specs: { output: '6.0 kW', panels: '14 × 430 W', efficiency: '22.4%', warranty: '25 years' },
+    description: 'A complete rooftop package: panels, mounting rails, hybrid inverter, DC protection and monitoring gateway.',
+    illustration: 'roof'
+  },
+  {
+    id: 'lfp-battery-10', sku: 'OE-BAT-10L', name: 'Voltcell Modular LFP Battery — 10 kWh',
+    category: 'Battery Storage', price: 3290, stockStatus: 'in-stock', rating: 4.7, badge: 'Expandable',
+    specs: { capacity: '10 kWh', chemistry: 'LiFePO4', output: '5 kW', warranty: '10 years' },
+    description: 'Stackable lithium-iron-phosphate battery with 6,000-cycle design life, integrated BMS and IP65 enclosure.',
+    illustration: 'battery'
+  },
+  {
+    id: 'hybrid-inverter-8', sku: 'OE-INV-8H', name: 'GridBridge Hybrid Inverter — 8 kW',
+    category: 'Battery Storage', price: 1840, stockStatus: 'in-stock', rating: 4.5, badge: 'Smart Grid Ready',
+    specs: { output: '8 kW', efficiency: '97.4%', battery: '48 V LFP', warranty: '10 years' },
+    description: 'Hybrid inverter for solar, battery and backup circuits, with dynamic export limiting and time-of-use scheduling.',
+    illustration: 'inverter'
+  },
+  {
+    id: 'ev-wallbox-22', sku: 'OE-EV-22W', name: 'Current One Smart Wallbox — 22 kW',
+    category: 'EV Charging', price: 749, stockStatus: 'in-stock', rating: 4.8, badge: 'Solar Matching',
+    specs: { output: '22 kW', phases: 'Three-phase', connector: 'Type 2', warranty: '3 years' },
+    description: 'Tethered Level-2 wallbox with RFID access, solar-surplus charging and OCPP-compatible backend support.',
+    illustration: 'charger'
+  },
+  {
+    id: 'load-balancer', sku: 'OE-EV-LB1', name: 'LoadSense Dynamic Load Balancer',
+    category: 'EV Charging', price: 289, stockStatus: 'low-stock', rating: 4.4, badge: 'Installer Favourite',
+    specs: { sensing: '3-phase CT', response: '<1 second', rating: '100 A', warranty: '5 years' },
+    description: 'Monitors household demand and adjusts EV charging power to help avoid main-breaker overload.',
+    illustration: 'sensor'
+  },
+  {
+    id: 'hems-core', sku: 'OE-HEM-C1', name: 'Orchard Home Energy Management System',
+    category: 'Smart Energy & Monitoring', price: 599, stockStatus: 'in-stock', rating: 4.7, badge: 'Smart Grid Ready',
+    specs: { inputs: '12 CT channels', connectivity: 'Wi-Fi, Ethernet', automation: 'Tariff & solar rules', warranty: '3 years' },
+    description: 'Local-first energy hub that coordinates solar, battery, EV charging, heat pump and time-of-use tariffs.',
+    illustration: 'hub'
+  },
+  {
+    id: 'ct-clamp-set', sku: 'OE-SEN-CT3', name: 'Flux CT Clamp Set — 3 × 100 A',
+    category: 'Smart Energy & Monitoring', price: 79, stockStatus: 'in-stock', rating: 4.3, badge: 'MCS Certified',
+    specs: { sensing: '3 × 100 A', accuracy: 'Class 1', cable: '3 m', warranty: '2 years' },
+    description: 'Split-core current transformers for whole-home consumption, solar generation and EV-charger circuits.',
+    illustration: 'sensor'
+  },
+  {
+    id: 'heat-controller', sku: 'OE-HEM-HP1', name: 'Therma Heat Pump Controller',
+    category: 'Smart Energy & Monitoring', price: 349, stockStatus: 'in-stock', rating: 4.6, badge: 'Best Seller',
+    specs: { control: 'Heat pump + immersion', protocols: 'Modbus, OpenTherm', schedules: 'Tariff-aware', warranty: '3 years' },
+    description: 'Coordinates low-carbon heating with cheap electricity windows, solar surplus and battery state of charge.',
+    illustration: 'hub'
+  }
+]);
+
+const CATEGORIES = Object.freeze(['All products', 'Solar & PV', 'Battery Storage', 'EV Charging', 'Smart Energy & Monitoring']);
+const SORT_OPTIONS = Object.freeze([
+  { value: 'featured', label: 'Featured' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'rating-desc', label: 'Highest Rated' }
+]);
+const PROPERTY_OPTIONS = Object.freeze([
+  { value: 'small', label: '1–2 bed', panels: 6, battery: 5, evPower: 7 },
+  { value: 'medium', label: '3–4 bed', panels: 10, battery: 10, evPower: 11 },
+  { value: 'large', label: '5+ bed', panels: 14, battery: 15, evPower: 22 }
+]);
+
+class EnergyStoreModel {
+  #listeners = new Set();
+  #state;
+
+  constructor() {
+    const preferences = safeStorage.get(CONFIG.storageKeys.preferences, {});
+    this.#state = {
+      route: 'store',
+      products: PRODUCT_CATALOG,
+      categories: CATEGORIES,
+      sortOptions: SORT_OPTIONS,
+      searchQuery: '',
+      activeCategory: 'All products',
+      activeSort: 'featured',
+      quickViewProductId: null,
+      estimator: { propertySize: 'medium', ownsEv: true },
+      cart: this.#loadCart(),
+      promoCode: '',
+      promoDiscount: 0,
+      checkoutStep: 1,
+      checkoutDetails: { name: '', email: '', postcode: '', address: '', installation: 'delivery' },
+      orderReference: null,
+      theme: preferences.theme || 'system'
+    };
+    this.#applyTheme();
+  }
+
+  subscribe(listener) { this.#listeners.add(listener); return () => this.#listeners.delete(listener); }
+  getState() { return structuredClone(this.#state); }
+  #notify(patch = {}) {
+    this.#state = { ...this.#state, ...patch };
+    this.#listeners.forEach(listener => listener(this.getState(), patch));
+  }
+
+  #loadCart() {
+    const stored = safeStorage.get(CONFIG.storageKeys.cart, []);
+    if (!Array.isArray(stored)) return [];
+    return stored.filter(item => item && PRODUCT_CATALOG.some(product => product.id === item.id))
+      .map(item => ({ id: String(item.id), quantity: clamp(Number(item.quantity) || 1, 1, 20) }));
+  }
+
+  #persistCart() { safeStorage.set(CONFIG.storageKeys.cart, this.#state.cart); }
+
+  setRoute(route) {
+    const validRoutes = new Set(['store', 'estimator', 'about']);
+    this.#notify({ route: validRoutes.has(route) ? route : 'store' });
+  }
+
+  setSearchQuery(value) { this.#notify({ searchQuery: String(value).slice(0, 80) }); }
+  setActiveCategory(value) { if (CATEGORIES.includes(value)) this.#notify({ activeCategory: value }); }
+  setActiveSort(value) { if (SORT_OPTIONS.some(option => option.value === value)) this.#notify({ activeSort: value }); }
+  setQuickView(productId) {
+    const product = PRODUCT_CATALOG.find(item => item.id === productId) || null;
+    this.#notify({ quickViewProductId: product ? product.id : null });
+  }
+  setEstimator(patch) { this.#notify({ estimator: { ...this.#state.estimator, ...patch } }); }
+  setCheckoutStep(step) { this.#notify({ checkoutStep: clamp(Number(step) || 1, 1, 3) }); }
+  setCheckoutDetails(patch) { this.#notify({ checkoutDetails: { ...this.#state.checkoutDetails, ...patch } }); }
+
+  setTheme(theme) {
+    const allowed = new Set(['light', 'dark', 'system']);
+    const next = allowed.has(theme) ? theme : 'system';
+    safeStorage.set(CONFIG.storageKeys.preferences, { ...safeStorage.get(CONFIG.storageKeys.preferences, {}), theme: next });
+    this.#state = { ...this.#state, theme: next };
+    this.#applyTheme();
+    this.#notify({ theme: next });
+  }
+
+  #applyTheme() {
+    document.documentElement.dataset.theme = this.#state.theme;
+  }
+
+  addToCart(productId, quantity = 1) {
+    const product = PRODUCT_CATALOG.find(item => item.id === productId);
+    if (!product || product.stockStatus === 'out-of-stock') return false;
+    const existing = this.#state.cart.find(item => item.id === productId);
+    const nextCart = existing
+      ? this.#state.cart.map(item => item.id === productId ? { ...item, quantity: clamp(item.quantity + quantity, 1, 20) } : item)
+      : [...this.#state.cart, { id: productId, quantity: clamp(quantity, 1, 20) }];
+    this.#notify({ cart: nextCart });
+    this.#persistCart();
+    return true;
+  }
+
+  updateQuantity(productId, delta) {
+    const nextCart = this.#state.cart
+      .map(item => item.id === productId ? { ...item, quantity: clamp(item.quantity + delta, 0, 20) } : item)
+      .filter(item => item.quantity > 0);
+    this.#notify({ cart: nextCart });
+    this.#persistCart();
+  }
+
+  removeFromCart(productId) {
+    this.#notify({ cart: this.#state.cart.filter(item => item.id !== productId) });
+    this.#persistCart();
+  }
+
+  clearCart() {
+    this.#notify({ cart: [], promoCode: '', promoDiscount: 0 });
+    this.#persistCart();
+  }
+
+  applyPromoCode(code) {
+    const normalised = String(code || '').trim().toUpperCase();
+    const discountRate = CONFIG.promoCodes[normalised] || 0;
+    this.#notify({ promoCode: normalised, promoDiscount: discountRate });
+    return discountRate > 0;
+  }
+
+  getCartLines() {
+    return this.#state.cart.map(item => {
+      const product = PRODUCT_CATALOG.find(product => product.id === item.id);
+      return { product, quantity: item.quantity, lineTotal: round2(product.price * item.quantity) };
+    });
+  }
+
+  getBasketTotals() {
+    const lines = this.getCartLines();
+    const subtotal = round2(sum(lines.map(line => line.lineTotal)));
+    const discount = round2(subtotal * this.#state.promoDiscount);
+    const discountedSubtotal = round2(subtotal - discount);
+    const shipping = discountedSubtotal === 0 || discountedSubtotal >= CONFIG.freeShippingThreshold ? 0 : CONFIG.standardShipping;
+    const vat = round2((discountedSubtotal + shipping) * CONFIG.vatRate);
+    const total = round2(discountedSubtotal + shipping + vat);
+    return { lines, subtotal, discount, discountedSubtotal, shipping, vat, total, promoCode: this.#state.promoCode, promoDiscount: this.#state.promoDiscount };
+  }
+
+  getCartCount() { return sum(this.#state.cart.map(item => item.quantity)); }
+
+  getFilteredProducts() {
+    const query = this.#state.searchQuery.trim().toLowerCase();
+    let products = this.#state.products.filter(product => {
+      const matchesCategory = this.#state.activeCategory === 'All products' || product.category === this.#state.activeCategory;
+      const haystack = `${product.name} ${product.category} ${product.description} ${product.sku} ${Object.values(product.specs).join(' ')}`.toLowerCase();
+      return matchesCategory && (!query || haystack.includes(query));
+    });
+    const sorters = {
+      'featured': (a, b) => (b.badge ? 1 : 0) - (a.badge ? 1 : 0) || b.rating - a.rating,
+      'price-asc': (a, b) => a.price - b.price,
+      'price-desc': (a, b) => b.price - a.price,
+      'rating-desc': (a, b) => b.rating - a.rating
+    };
+    return [...products].sort(sorters[this.#state.activeSort]);
+  }
+
+  getQuickViewProduct() {
+    return PRODUCT_CATALOG.find(product => product.id === this.#state.quickViewProductId) || null;
+  }
+
+  getEstimate() {
+    const property = PROPERTY_OPTIONS.find(option => option.value === this.#state.estimator.propertySize) || PROPERTY_OPTIONS[1];
+    const ownsEv = Boolean(this.#state.estimator.ownsEv);
+    const annualGeneration = Math.round(property.panels * 430 * 0.94);
+    const annualConsumption = Math.round(property.panels * 430 * (ownsEv ? 0.78 : 0.62));
+    const batteryCoverage = Math.min(92, Math.round((property.battery / annualConsumption) * 10000) / 100);
+    const annualSaving = Math.round(annualGeneration * 0.24 + property.battery * 38 + (ownsEv ? 310 : 0));
+    const bundle = [
+      { name: 'Rooftop Solar Kit', detail: `${property.panels} bifacial panels`, price: property.panels * 129 },
+      { name: 'Modular LFP Battery', detail: `${property.battery} kWh usable storage`, price: property.battery * 329 }
+    ];
+    if (ownsEv) bundle.push({ name: 'Smart EV Wallbox', detail: `${property.evPower} kW solar-aware charging`, price: 749 });
+    bundle.push({ name: 'Home Energy Management System', detail: 'Tariff, solar and battery automation', price: 599 });
+    const bundleTotal = round2(sum(bundle.map(item => item.price)));
+    return { property, ownsEv, annualGeneration, annualConsumption, batteryCoverage, annualSaving, bundle, bundleTotal };
+  }
+
+  createOrder() {
+    const reference = createId('OE');
+    this.clearCart();
+    this.#notify({ orderReference: reference, checkoutStep: 3 });
+    return reference;
+  }
+}
+
+/* === VIEW (Reusable Components & DOM Rendering) === */
+const ICONS = Object.freeze({
+  panel: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect x="10" y="12" width="100" height="56" rx="7" fill="currentColor" opacity=".18"/><path d="M10 40h100M36 12v56M60 12v56M84 12v56" stroke="currentColor" stroke-width="3"/><rect x="10" y="12" width="100" height="56" rx="7" fill="none" stroke="currentColor" stroke-width="4"/></svg>',
+  inverter: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect x="24" y="10" width="72" height="60" rx="9" fill="currentColor" opacity=".16"/><path d="M38 28h20l-8 16h20" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M34 60h52" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><rect x="24" y="10" width="72" height="60" rx="9" fill="none" stroke="currentColor" stroke-width="4"/></svg>',
+  roof: '<svg viewBox="0 0 120 80" aria-hidden="true"><path d="M12 52 60 14l48 38" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M28 48h64M38 40h44M48 32h24" stroke="currentColor" stroke-width="3"/><path d="M20 68h80" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>',
+  battery: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect x="24" y="16" width="72" height="48" rx="9" fill="currentColor" opacity=".16"/><path d="M38 34h44M38 48h28" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><rect x="24" y="16" width="72" height="48" rx="9" fill="none" stroke="currentColor" stroke-width="4"/><path d="M100 34h8v12h-8" fill="currentColor"/></svg>',
+  charger: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect x="38" y="10" width="44" height="60" rx="9" fill="currentColor" opacity=".16"/><path d="M60 24v18M52 42h16l-4 14h8" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="38" y="10" width="44" height="60" rx="9" fill="none" stroke="currentColor" stroke-width="4"/></svg>',
+  sensor: '<svg viewBox="0 0 120 80" aria-hidden="true"><circle cx="60" cy="40" r="20" fill="currentColor" opacity=".16"/><circle cx="60" cy="40" r="20" fill="none" stroke="currentColor" stroke-width="4"/><path d="M60 20v-8M60 68v-8M40 40h-8M88 40h-8" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="60" cy="40" r="6" fill="currentColor"/></svg>',
+  hub: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect x="20" y="26" width="80" height="34" rx="9" fill="currentColor" opacity=".16"/><circle cx="38" cy="43" r="5" fill="currentColor"/><circle cx="60" cy="43" r="5" fill="currentColor"/><circle cx="82" cy="43" r="5" fill="currentColor"/><rect x="20" y="26" width="80" height="34" rx="9" fill="none" stroke="currentColor" stroke-width="4"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  leaf: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20C4 10 10 4 20 4c0 10-6 16-16 16Z" fill="currentColor" opacity=".85"/><path d="M7 17c3-4 6-7 10-10" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>'
+});
+
+const createIcon = (name, className = 'icon') => {
+  const wrapper = el('span', { class: className, 'aria-hidden': 'true' });
+  wrapper.innerHTML = ICONS[name] || ICONS.leaf;
+  return wrapper;
+};
+
+const createBadge = (text, variant = '') => el('span', { class: `badge ${variant}`.trim() }, text);
+const createEmptyState = (title, message, action) => el('div', { class: 'empty-state' }, [
+  createIcon('sun'), el('h3', {}, title), el('p', { class: 'muted' }, message), action
+].filter(Boolean));
+
+const createQuantityControl = (productId, quantity, controller) => el('div', { class: 'quantity-control', 'aria-label': `Quantity for product ${productId}` }, [
+  el('button', { type: 'button', 'data-action': 'cart-decrease', 'data-product-id': productId, 'aria-label': `Decrease quantity for ${productId}` }, '−'),
+  el('output', { class: 'num', 'aria-live': 'polite' }, String(quantity)),
+  el('button', { type: 'button', 'data-action': 'cart-increase', 'data-product-id': productId, 'aria-label': `Increase quantity for ${productId}` }, '+'),
+  el('button', { type: 'button', class: 'button-danger button-sm', 'data-action': 'cart-remove', 'data-product-id': productId, 'aria-label': `Remove ${productId} from basket`, style: { border: '0', background: 'transparent', width: '36px', color: 'var(--danger)' } }, '×'),
+  controller
+]);
+
+const createProductCard = (product, controller) => {
+  const stockClass = { 'in-stock': 'stock-in', 'low-stock': 'stock-low', 'out-of-stock': 'stock-out' }[product.stockStatus];
+  const stockLabel = { 'in-stock': 'In stock', 'low-stock': 'Low stock', 'out-of-stock': 'Out of stock' }[product.stockStatus];
+  const specs = Object.entries(product.specs).slice(0, 3).map(([, value]) => createBadge(value, 'badge-muted'));
+  return el('article', { class: 'card', 'aria-label': product.name }, [
+    el('div', { class: 'card-media' }, createIcon(product.illustration)),
+    el('div', { class: 'card-body' }, [
+      el('div', { class: 'row' }, [
+        createBadge(product.category),
+        product.badge ? createBadge(product.badge, 'badge-amber') : null
+      ]),
+      el('h3', { class: 'card-title' }, product.name),
+      el('p', { class: 'muted small' }, product.description),
+      el('div', { class: 'card-specs' }, specs),
+      el('div', { class: 'row', style: { justifyContent: 'space-between' } }, [
+        el('span', { class: 'price num' }, formatMoney(product.price)),
+        el('span', { class: stockClass }, stockLabel)
+      ]),
+      el('div', { class: 'card-actions' }, [
+        el('button', { class: 'button button-ghost', type: 'button', 'data-action': 'quick-view', 'data-product-id': product.id }, 'Quick view'),
+        el('button', {
+          class: 'button button-primary', type: 'button', 'data-action': 'add-to-cart',
+          'data-product-id': product.id, disabled: product.stockStatus === 'out-of-stock'
+        }, 'Add to basket')
+      ])
+    ])
+  ]);
+};
+
+const createCatalogView = (state, controller) => {
+  const products = controller.model.getFilteredProducts();
+  const searchInput = el('input', {
+    class: 'input', type: 'search', id: 'catalog-search', placeholder: 'Search panels, batteries, inverters or EV chargers',
+    value: state.searchQuery, 'aria-label': 'Search the product catalogue', autocomplete: 'off'
+  });
+  const sortSelect = el('select', { class: 'select', id: 'catalog-sort', 'aria-label': 'Sort products' },
+    state.sortOptions.map(option => el('option', { value: option.value, selected: option.value === state.activeSort }, option.label)));
+
+  const categoryPills = state.categories.map(category => el('button', {
+    class: 'pill', type: 'button', 'data-action': 'set-category', 'data-category': category,
+    'aria-pressed': String(category === state.activeCategory)
+  }, category));
+
+  const grid = products.length
+    ? el('div', { class: 'product-grid', id: 'product-grid' }, products.map(product => createProductCard(product, controller)))
+    : createEmptyState('No matching equipment', 'Try a broader search, clear the category filter, or browse the full catalogue.', el('button', { class: 'button button-accent', type: 'button', 'data-action': 'reset-filters' }, 'Clear filters'));
+
+  const resultStatus = el('p', { class: 'muted small', id: 'catalog-status', role: 'status' },
+    `${products.length} product${products.length === 1 ? '' : 's'} available`);
+
+  return el('section', { class: 'section', 'aria-labelledby': 'catalog-title' }, [
+    el('div', { class: 'hero' }, [
+      el('div', { class: 'hero-inner' }, [
+        el('div', { class: 'stack' }, [
+          createBadge('Clean energy independence', 'badge-amber'),
+          el('h1', { id: 'catalog-title' }, 'Build a home that makes, stores and intelligently uses its own power.'),
+          el('p', {}, 'Open Energy brings together bifacial solar, modular LFP storage, solar-aware EV charging and local-first energy management — with instant bundle savings on complete systems.'),
+          el('div', { class: 'hero-actions' }, [
+            el('a', { class: 'button button-accent', href: '#/estimator' }, 'Estimate my system'),
+            el('a', { class: 'button button-ghost', href: '#/store', style: { color: 'white', borderColor: 'oklch(100% 0 0 / .3)' } }, 'Browse hardware')
+          ])
+        ]),
+        el('div', { class: 'hero-canvas' }, [
+          el('canvas', { id: 'energy-canvas', 'aria-label': 'Animated illustration of solar energy flowing to a home battery and electric vehicle', role: 'img' })
+        ])
+      ])
+    ]),
+    el('div', { class: 'section-head' }, [
+      el('div', {}, [el('h2', {}, 'Renewable energy hardware'), el('p', {}, 'Filter by technology, compare technical specifications and add components individually or as a recommended bundle.')]),
+      el('a', { class: 'button button-ghost', href: '#/estimator' }, 'Open estimator')
+    ]),
+    el('div', { class: 'toolbar' }, [
+      el('div', { class: 'search-row' }, [searchInput, sortSelect]),
+      el('div', { class: 'filter-row', role: 'group', 'aria-label': 'Product categories' }, categoryPills),
+      resultStatus
+    ]),
+    grid
+  ]);
+};
+
+const createQuickViewModal = (product, controller) => {
+  const dialog = el('dialog', { class: 'modal', 'aria-labelledby': 'quick-view-title' });
+  const specs = el('table', { class: 'spec-table' }, [
+    el('caption', { class: 'visually-hidden' }, `Technical specifications for ${product.name}`),
+    el('tbody', {}, Object.entries(product.specs).map(([key, value]) => el('tr', {}, [
+      el('th', { scope: 'row' }, key.replace(/([A-Z])/g, ' $1').replace(/^./, char => char.toUpperCase())),
+      el('td', {}, value)
+    ])))
+  ]);
+  const annualSaving = Math.round(product.price * 0.08 + 45);
+  dialog.append(el('div', { class: 'modal-card' }, [
+    el('div', { class: 'modal-head' }, [
+      el('div', {}, [
+        el('div', { class: 'row' }, [createBadge(product.category), createBadge(product.badge || 'Open Energy', 'badge-amber')]),
+        el('h2', { id: 'quick-view-title' }, product.name)
+      ]),
+      el('button', { class: 'button button-ghost button-icon', type: 'button', 'data-action': 'close-modal', 'aria-label': 'Close quick view' }, '×')
+    ]),
+    el('div', { class: 'modal-body' }, [
+      el('div', { class: 'quick-grid' }, [
+        el('div', { class: 'stack' }, [
+          el('div', { class: 'card-media', style: { borderRadius: 'var(--radius)' } }, createIcon(product.illustration)),
+          el('p', { class: 'muted' }, product.description),
+          createBadge(`Estimated annual saving: ${formatMoney(annualSaving)}`, 'badge-amber'),
+          el('p', { class: 'small muted' }, `SKU ${product.sku} · ${product.rating.toFixed(1)} / 5 customer rating`)
+        ]),
+        el('div', { class: 'stack' }, [
+          specs,
+          el('div', { class: 'row', style: { justifyContent: 'space-between' } }, [
+            el('span', { class: 'price num' }, formatMoney(product.price)),
+            el('span', { class: 'muted small' }, 'Incl. VAT')
+          ]),
+          el('div', { class: 'row' }, [
+            el('label', { class: 'field', for: 'quick-quantity' }, 'Quantity'),
+            el('input', { class: 'input', id: 'quick-quantity', type: 'number', min: '1', max: '20', value: '1', inputmode: 'numeric' })
+          ]),
+          el('button', {
+            class: 'button button-primary', type: 'button', 'data-action': 'add-from-quick-view',
+            'data-product-id': product.id, disabled: product.stockStatus === 'out-of-stock'
+          }, 'Add to basket'),
+          el('p', { class: 'small muted' }, 'Warranty: ' + (product.specs.warranty || 'Manufacturer warranty applies') + '. Installation must be completed by a suitably qualified contractor.')
+        ])
+      ])
+    ])
+  ]));
+  return dialog;
+};
+
+const createEstimatorView = (state, controller) => {
+  const estimate = controller.model.getEstimate();
+  const propertySelect = el('select', { class: 'select', id: 'property-size', 'aria-label': 'Property size' },
+    PROPERTY_OPTIONS.map(option => el('option', { value: option.value, selected: option.value === state.estimator.propertySize }, option.label)));
+  const evCheckbox = el('input', { type: 'checkbox', id: 'owns-ev', checked: state.estimator.ownsEv });
+  const bundleList = el('div', { class: 'recommendation' }, estimate.bundle.map(item => el('div', { class: 'recommendation-item' }, [
+    createIcon('leaf'), el('div', {}, [el('strong', {}, item.name), el('span', {}, item.detail)]),
+    el('span', { class: 'price num', style: { marginLeft: 'auto' } }, formatMoney(item.price))
+  ])));
+
+  return el('section', { class: 'section', 'aria-labelledby': 'estimator-title' }, [
+    el('div', { class: 'section-head' }, [
+      el('div', {}, [el('h2', { id: 'estimator-title' }, 'Solar, storage and EV system estimator'), el('p', {}, 'Select a property profile to generate an illustrative equipment bundle, generation estimate and annual saving range.')])
+    ]),
+    el('div', { class: 'estimator-grid' }, [
+      el('form', { class: 'panel stack', id: 'estimator-form', novalidate: true }, [
+        el('div', { class: 'field' }, [el('label', { for: 'property-size' }, 'Property size'), propertySelect]),
+        el('div', { class: 'field' }, [
+          el('label', { class: 'row', for: 'owns-ev' }, [evCheckbox, 'Household owns or plans to own an electric vehicle']),
+          el('p', { class: 'small muted' }, 'EV ownership adds a smart wallbox and increases the recommended battery capacity.')
+        ]),
+        el('div', { class: 'stack' }, [
+          el('h3', {}, 'Recommended bundle'),
+          bundleList,
+          el('div', { class: 'summary-row total' }, [el('span', {}, 'Bundle total'), el('span', { class: 'num' }, formatMoney(estimate.bundleTotal))]),
+          el('button', { class: 'button button-primary', type: 'button', 'data-action': 'add-bundle' }, 'Add bundle to basket'),
+          el('p', { class: 'small muted' }, 'Estimates use illustrative UK conditions and do not replace a site survey, structural assessment or grid-connection application.')
+        ])
+      ]),
+      el('div', { class: 'stack' }, [
+        el('div', { class: 'estimator-visual' }, [
+          el('svg', { viewBox: '0 0 420 230', role: 'img', 'aria-label': `Illustrative system producing ${estimate.annualGeneration} kilowatt hours annually` }, [
+            el('defs', {}, el('linearGradient', { id: 'energy-gradient', x1: '0', y1: '0', x2: '1', y2: '1' }, [
+              el('stop', { offset: '0%', 'stop-color': 'var(--amber)' }),
+              el('stop', { offset: '100%', 'stop-color': 'var(--emerald)' })
+            ])),
+            el('rect', { x: '18', y: '18', width: '110', height: '70', rx: '10', fill: 'var(--amber)', opacity: '.25' }),
+            el('path', { d: 'M28 45h90M50 26h56M50 64h56', stroke: 'var(--amber-deep)', 'stroke-width': '4' }),
+            el('rect', { x: '170', y: '70', width: '80', height: '95', rx: '12', fill: 'var(--emerald)', opacity: '.25' }),
+            el('path', { d: 'M188 100h44M188 122h30', stroke: 'var(--forest-strong)', 'stroke-width': '4', 'stroke-linecap': 'round' }),
+            el('rect', { x: '300', y: '90', width: '90', height: '75', rx: '12', fill: 'var(--surface-2)' }),
+            el('path', { d: 'M322 128h46M322 148h28', stroke: 'var(--ink-soft)', 'stroke-width': '4', 'stroke-linecap': 'round' }),
+            el('path', { class: 'flow-line', d: 'M128 52C160 52 160 90 170 105M250 118h50M250 150c30 0 40-25 50-25', stroke: 'url(#energy-gradient)', 'stroke-width': '5', fill: 'none', 'stroke-linecap': 'round' })
+          ])
+        ]),
+        el('div', { class: 'panel stack' }, [
+          el('h3', {}, 'Projected performance'),
+          el('div', { class: 'hero-stats' }, [
+            el('div', { class: 'hero-stat' }, [el('strong', { class: 'num' }, formatKwh(estimate.annualGeneration)), el('span', {}, 'Estimated annual solar generation')]),
+            el('div', { class: 'hero-stat' }, [el('strong', { class: 'num' }, formatKwh(estimate.annualConsumption)), el('span', {}, 'Modelled annual household use')]),
+            el('div', { class: 'hero-stat' }, [el('strong', { class: 'num' }, `${estimate.batteryCoverage}%`), el('span', {}, 'Potential battery coverage')]),
+            el('div', { class: 'hero-stat' }, [el('strong', { class: 'num' }, formatMoney(estimate.annualSaving)), el('span', {}, 'Illustrative first-year saving range')])
+          ])
+        ])
+      ])
+    ])
+  ]);
+};
+
+const createAboutView = (state, controller) => {
+  const capabilities = controller.getCapabilities();
+  return el('section', { class: 'section', 'aria-labelledby': 'about-title' }, [
+    el('div', { class: 'section-head' }, [
+      el('div', {}, [el('h2', { id: 'about-title' }, 'Platform, data and accessibility'), el('p', {}, 'Open Energy is a self-contained demonstration commerce experience. It uses local browser storage only and makes no external network requests.')])
+    ]),
+    el('div', { class: 'estimator-grid' }, [
+      el('div', { class: 'panel stack' }, [
+        el('h3', {}, 'How estimates work'),
+        el('p', {}, 'The estimator combines property size, panel count, battery capacity and EV ownership into an illustrative generation, consumption and saving model. It is designed for early planning, not installation design.'),
+        el('p', {}, 'Basket totals separate goods, promotional discount, delivery and VAT. The free-delivery threshold and promo rules are configurable in the application configuration object.'),
+        el('p', {}, 'Your basket, promo code and appearance preference remain on this device. Clearing site data removes them.')
+      ]),
+      el('div', { class: 'panel stack' }, [
+        el('h3', {}, 'Platform capabilities'),
+        el('div', { class: 'capability-list' }, capabilities.map(capability => el('div', { class: 'capability' }, [
+          el('strong', {}, capability.label),
+          el('span', { class: capability.supported ? 'status-active' : 'status-unavailable' }, capability.supported ? 'Active' : 'Unavailable'),
+          el('p', {}, capability.description)
+        ])))
+      ])
+    ])
+  ]);
+};
+
+const createBasketDrawer = (state, controller) => {
+  const totals = controller.model.getBasketTotals();
+  const remaining = Math.max(0, CONFIG.freeShippingThreshold - totals.discountedSubtotal);
+  const progressPercent = clamp((totals.discountedSubtotal / CONFIG.freeShippingThreshold) * 100, 0, 100);
+  const lines = totals.lines.length ? totals.lines.map(line => el('div', { class: 'cart-line' }, [
+    el('div', { class: 'cart-thumb' }, createIcon(line.product.illustration)),
+    el('div', { class: 'cart-line-info' }, [
+      el('strong', {}, line.product.name),
+      el('span', {}, `${line.product.sku} · ${formatMoney(line.product.price)} each`)
+    ]),
+    el('div', { class: 'stack', style: { justifyItems: 'end' } }, [
+      createQuantityControl(line.product.id, line.quantity, el('span', { class: 'price num' }, formatMoney(line.lineTotal))),
+      el('span', { class: 'small muted num' }, formatMoney(line.lineTotal))
+    ])
+  ])) : [createEmptyState('Your basket is empty', 'Add solar, storage, EV or monitoring hardware to begin building a system.')];
+
+  return el('div', { class: 'drawer', id: 'basket-drawer', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'basket-title' }, [
+    el('div', { class: 'drawer-panel' }, [
+      el('div', { class: 'drawer-head' }, [
+        el('h2', { id: 'basket-title' }, 'Shopping basket'),
+        el('button', { class: 'button button-ghost button-icon', type: 'button', 'data-action': 'close-basket', 'aria-label': 'Close basket' }, '×')
+      ]),
+      el('div', { class: 'drawer-body' }, lines),
+      el('div', { class: 'drawer-foot' }, [
+        el('div', { class: 'stack' }, [
+          el('p', { class: 'small' }, remaining > 0
+            ? `Add ${formatMoney(remaining)} more for free delivery.`
+            : 'Free delivery unlocked.'),
+          el('div', { class: 'progress', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(CONFIG.freeShippingThreshold), 'aria-valuenow': String(Math.round(totals.discountedSubtotal)), 'aria-label': 'Progress toward free delivery' },
+            el('div', { class: 'progress-bar', style: { width: `${progressPercent}%` } }))
+        ]),
+        el('form', { class: 'row', id: 'promo-form', novalidate: true }, [
+          el('input', { class: 'input', type: 'text', name: 'promo', placeholder: 'Promo code', value: state.promoCode, 'aria-label': 'Promo code' }),
+          el('button', { class: 'button button-ghost', type: 'submit' }, 'Apply')
+        ]),
+        el('div', { class: 'stack' }, [
+          el('div', { class: 'summary-row' }, [el('span', {}, 'Subtotal'), el('span', { class: 'num' }, formatMoney(totals.subtotal))]),
+          totals.discount > 0 ? el('div', { class: 'summary-row' }, [el('span', {}, `Promo ${totals.promoCode}`), el('span', { class: 'num' }, `−${formatMoney(totals.discount)}`)]) : null,
+          el('div', { class: 'summary-row' }, [el('span', {}, 'Delivery'), el('span', { class: 'num' }, totals.shipping === 0 ? 'Free' : formatMoney(totals.shipping))]),
+          el('div', { class: 'summary-row' }, [el('span', {}, 'VAT at 20%'), el('span', { class: 'num' }, formatMoney(totals.vat))]),
+          el('div', { class: 'summary-row total' }, [el('span', {}, 'Total'), el('span', { class: 'num' }, formatMoney(totals.total))])
+        ]),
+        el('button', { class: 'button button-accent', type: 'button', 'data-action': 'start-checkout', disabled: totals.lines.length === 0 }, 'Checkout'),
+        el('button', { class: 'button button-danger button-sm', type: 'button', 'data-action': 'clear-basket', disabled: totals.lines.length === 0 }, 'Clear basket')
+      ])
+    ])
+  ]);
+};
+
+const createCheckoutModal = (state, controller) => {
+  const totals = controller.model.getBasketTotals();
+  const details = state.checkoutDetails;
+  const steps = ['Customer & delivery', 'Installation', 'Review & pay'];
+  const stepIndicator = el('div', { class: 'checkout-steps', role: 'list' }, steps.map((label, index) => {
+    const stepNumber = index + 1;
+    const stateName = stepNumber === state.checkoutStep ? 'active' : stepNumber < state.checkoutStep ? 'done' : 'upcoming';
+    return el('div', { class: 'checkout-step', role: 'listitem', 'data-state': stateName }, [`${stepNumber}. ${label}`]);
+  }));
+
+  const stepOne = el('form', { class: 'checkout-form', id: 'checkout-form', novalidate: true }, [
+    el('div', { class: 'form-grid' }, [
+      el('div', { class: 'field' }, [
+        el('label', { for: 'checkout-name' }, 'Full name'),
+        el('input', { class: 'input', id: 'checkout-name', name: 'name', required: true, autocomplete: 'name', value: details.name }),
+        el('p', { class: 'field-error', id: 'name-error' }, '')
+      ]),
+      el('div', { class: 'field' }, [
+        el('label', { for: 'checkout-email' }, 'Email address'),
+        el('input', { class: 'input', id: 'checkout-email', name: 'email', type: 'email', required: true, autocomplete: 'email', value: details.email }),
+        el('p', { class: 'field-error', id: 'email-error' }, '')
+      ])
+    ]),
+    el('div', { class: 'field' }, [
+      el('label', { for: 'checkout-address' }, 'Delivery address'),
+      el('input', { class: 'input', id: 'checkout-address', name: 'address', required: true, autocomplete: 'street-address', value: details.address }),
+      el('p', { class: 'field-error', id: 'address-error' }, '')
+    ]),
+    el('div', { class: 'field' }, [
+      el('label', { for: 'checkout-postcode' }, 'UK postcode'),
+      el('input', { class: 'input', id: 'checkout-postcode', name: 'postcode', required: true, pattern: '^[A-Z]{1,2}\\d[A-Z\\d]? ?\\d[A-Z]{2}$', autocomplete: 'postal-code', value: details.postcode }),
+      el('p', { class: 'field-error', id: 'postcode-error' }, '')
+    ]),
+    el('button', { class: 'button button-primary', type: 'submit' }, 'Continue to installation')
+  ]);
+
+  const stepTwo = el('form', { class: 'checkout-form', id: 'installation-form', novalidate: true }, [
+    el('fieldset', { class: 'stack', style: { border: '0', padding: '0' } }, [
+      el('legend', { class: 'field' }, 'Installation preference'),
+      el('label', { class: 'row' }, [
+        el('input', { type: 'radio', name: 'installation', value: 'delivery', checked: details.installation === 'delivery' }),
+        el('span', {}, [el('strong', {}, 'Hardware delivery only'), el('br'), el('span', { class: 'muted small' }, 'Equipment is delivered for installation by your chosen contractor.')])
+      ]),
+      el('label', { class: 'row' }, [
+        el('input', { type: 'radio', name: 'installation', value: 'survey', checked: details.installation === 'survey' }),
+        el('span', {}, [el('strong', {}, 'Certified installer survey'), el('br'), el('span', { class: 'muted small' }, 'Arrange a remote suitability review before dispatch.')])
+      ])
+    ]),
+    el('div', { class: 'row' }, [
+      el('button', { class: 'button button-ghost', type: 'button', 'data-action': 'checkout-back' }, 'Back'),
+      el('button', { class: 'button button-primary', type: 'submit' }, 'Review order')
+    ])
+  ]);
+
+  const stepThree = el('div', { class: 'stack' }, [
+    el('div', { class: 'stack' }, [
+      el('h3', {}, 'Order summary'),
+      ...totals.lines.map(line => el('div', { class: 'summary-row' }, [
+        el('span', {}, `${line.product.name} × ${line.quantity}`),
+        el('span', { class: 'num' }, formatMoney(line.lineTotal))
+      ])),
+      el('div', { class: 'summary-row' }, [el('span', {}, 'Delivery'), el('span', { class: 'num' }, totals.shipping === 0 ? 'Free' : formatMoney(totals.shipping))]),
+      el('div', { class: 'summary-row' }, [el('span', {}, 'VAT'), el('span', { class: 'num' }, formatMoney(totals.vat))]),
+      el('div', { class: 'summary-row total' }, [el('span', {}, 'Amount payable'), el('span', { class: 'num' }, formatMoney(totals.total))])
+    ]),
+    el('p', { class: 'small muted' }, `Delivery to ${details.address || 'your address'}, ${details.postcode || ''}. Installation: ${details.installation === 'survey' ? 'Certified installer survey' : 'Hardware delivery only'}.`),
+    el('div', { class: 'row' }, [
+      el('button', { class: 'button button-ghost', type: 'button', 'data-action': 'checkout-back' }, 'Back'),
+      el('button', { class: 'button button-accent', type: 'button', 'data-action': 'confirm-payment' }, 'Pay securely')
+    ]),
+    el('p', { class: 'small muted' }, 'This demonstration does not transmit payment data or create a real financial transaction.')
+  ]);
+
+  const body = state.orderReference
+    ? el('div', { class: 'order-confirmation' }, [
+        createIcon('leaf'),
+        el('h2', {}, 'Order confirmed'),
+        el('p', {}, 'Your basket has been cleared and your demonstration order has been recorded locally.'),
+        el('p', { class: 'order-ref' }, state.orderReference),
+        el('button', { class: 'button button-primary', type: 'button', 'data-action': 'close-modal' }, 'Continue shopping')
+      ])
+    : [stepIndicator, state.checkoutStep === 1 ? stepOne : state.checkoutStep === 2 ? stepTwo : stepThree];
+
+  const dialog = el('dialog', { class: 'modal', 'aria-labelledby': 'checkout-title' });
+  dialog.append(el('div', { class: 'modal-card' }, [
+    el('div', { class: 'modal-head' }, [
+      el('h2', { id: 'checkout-title' }, state.orderReference ? 'Thank you' : 'Secure checkout'),
+      el('button', { class: 'button button-ghost button-icon', type: 'button', 'data-action': 'close-modal', 'aria-label': 'Close checkout' }, '×')
+    ]),
+    el('div', { class: 'modal-body' }, body)
+  ]));
+  return dialog;
+};
+
+/* === CONTROLLER (Event Handling & Business Logic) === */
+class EnergyAppController {
+  constructor(model, view) {
+    this.model = model;
+    this.view = view;
+    this.activeModal = null;
+    this.activeDrawer = null;
+    this.canvasAnimationId = null;
+    this.canvasObserver = null;
+  }
+
+  getCapabilities() {
+    const supports = (property, value = 'initial') => {
+      try { return CSS.supports(property, value); } catch { return false; }
+    };
+    const features = [
+      ['View Transitions API', Boolean(document.startViewTransition), 'Smooth same-document route and modal transitions.'],
+      ['Scroll-driven animations', supports('animation-timeline', 'scroll()'), 'Progress bar responds to page scrolling.'],
+      ['Container queries', supports('container-type', 'inline-size'), 'Product cards adapt to their own width.'],
+      ['Container style queries', supports('container', 'style(--x: y)'), 'Enables component-level style conditions.'],
+      ['CSS nesting', supports('selector(&)', '& p'), 'Keeps related component styles together.'],
+      ['@scope', supports('selector(@scope)'), 'Scoped component styling.'],
+      ['Anchor positioning', supports('position-area', 'top'), 'Positions help popovers relative to their trigger.'],
+      ['Popover API', Boolean(HTMLElement.prototype.showPopover), 'Native lightweight theme selector.'],
+      ['Dialog element', Boolean(window.HTMLDialogElement), 'Accessible modal and checkout surfaces.'],
+      [':has()', supports('selector(:has(a))'), 'Parent-state styling without extra JavaScript.'],
+      ['field-sizing', supports('field-sizing', 'content'), 'Progressive form-control sizing.'],
+      ['Trusted Types', Boolean(window.trustedTypes), 'Additional DOM-injection protections.'],
+      ['Navigation API', Boolean(window.navigation), 'Modern client-side navigation events.'],
+      ['Web Animations API', Boolean(Element.prototype.animate), 'Programmatic interaction feedback.'],
+      ['Canvas 2D', Boolean(document.createElement('canvas').getContext('2d')), 'Animated hero energy-flow visual.'],
+      ['Web Audio', Boolean(window.AudioContext || window.webkitAudioContext), 'Optional audio capability detection.'],
+      ['Clipboard API', Boolean(navigator.clipboard), 'Potential copy-to-clipboard actions.'],
+      ['Web Share API', Boolean(navigator.share), 'Native sharing where available.'],
+      ['localStorage', safeStorage.set('open-energy.test', '1') && safeStorage.remove('open-energy.test'), 'Basket and preference persistence.']
+    ];
+    return features.map(([label, supported, description]) => ({ label, supported, description }));
+  }
+
+  init() {
+    this.model.subscribe((state, patch) => this.render(state, patch));
+    this.bindGlobalEvents();
+    this.syncFromLocation();
+    this.render(this.model.getState(), {});
+  }
+
+  bindGlobalEvents() {
+    document.addEventListener('click', event => this.handleDocumentClick(event));
+    document.addEventListener('input', event => this.handleDocumentInput(event));
+    document.addEventListener('change', event => this.handleDocumentChange(event));
+    document.addEventListener('submit', event => this.handleDocumentSubmit(event));
+    document.addEventListener('keydown', event => this.handleKeydown(event));
+    window.addEventListener('hashchange', () => this.syncFromLocation());
+    if (window.navigation) {
+      window.navigation.addEventListener('navigate', event => {
+        if (event.canIntercept && event.hashChange) event.intercept({ handler: () => this.syncFromLocation() });
+      });
+    }
+    this.initialiseCanvas();
+  }
+
+  handleDocumentClick(event) {
+    const actionElement = event.target.closest('[data-action]');
+    if (!actionElement) return;
+    const action = actionElement.dataset.action;
+    const productId = actionElement.dataset.productId;
+
+    switch (action) {
+      case 'set-category': this.model.setActiveCategory(actionElement.dataset.category); break;
+      case 'reset-filters': this.model.setSearchQuery(''); this.model.setActiveCategory('All products'); break;
+      case 'quick-view': this.openModal('quick-view', productId); break;
+      case 'add-to-cart': this.addProduct(productId, 1); break;
+      case 'add-from-quick-view': {
+        const input = document.getElementById('quick-quantity');
+        const quantity = clamp(Number(input?.value) || 1, 1, 20);
+        this.addProduct(productId, quantity);
+        this.closeModal();
+        break;
+      }
+      case 'add-bundle': this.addBundle(); break;
+      case 'open-basket': this.openDrawer(); break;
+      case 'close-basket': this.closeDrawer(); break;
+      case 'cart-increase': this.model.updateQuantity(productId, 1); break;
+      case 'cart-decrease': this.model.updateQuantity(productId, -1); break;
+      case 'cart-remove': this.model.removeFromCart(productId); break;
+      case 'clear-basket': this.model.clearCart(); this.announce('Basket cleared.'); break;
+      case 'start-checkout': this.openModal('checkout'); break;
+      case 'checkout-back': this.model.setCheckoutStep(this.model.getState().checkoutStep - 1); break;
+      case 'confirm-payment': this.completeOrder(); break;
+      case 'close-modal': this.closeModal(); break;
+      case 'set-theme': this.model.setTheme(actionElement.dataset.setTheme); break;
+    }
+  }
+
+  handleDocumentInput(event) {
+    if (event.target.id === 'catalog-search') {
+      const value = event.target.value;
+      debounce(() => this.model.setSearchQuery(value), 220)();
+    }
+    if (event.target.name === 'name') this.model.setCheckoutDetails({ name: event.target.value });
+    if (event.target.name === 'email') this.model.setCheckoutDetails({ email: event.target.value });
+    if (event.target.name === 'address') this.model.setCheckoutDetails({ address: event.target.value });
+    if (event.target.name === 'postcode') this.model.setCheckoutDetails({ postcode: event.target.value.toUpperCase() });
+  }
+
+  handleDocumentChange(event) {
+    if (event.target.id === 'catalog-sort') this.model.setActiveSort(event.target.value);
+    if (event.target.id === 'property-size') this.model.setEstimator({ propertySize: event.target.value });
+    if (event.target.id === 'owns-ev') this.model.setEstimator({ ownsEv: event.target.checked });
+    if (event.target.name === 'installation') this.model.setCheckoutDetails({ installation: event.target.value });
+  }
+
+  handleDocumentSubmit(event) {
+    if (event.target.id === 'promo-form') {
+      event.preventDefault();
+      const input = event.target.querySelector('input[name="promo"]');
+      const applied = this.model.applyPromoCode(input.value);
+      this.announce(applied ? 'Promo code SOLAR10 applied: 10% off.' : 'Promo code not recognised.');
+    }
+    if (event.target.id === 'checkout-form') {
+      event.preventDefault();
+      if (this.validateCheckoutForm(event.target)) this.model.setCheckoutStep(2);
+    }
+    if (event.target.id === 'installation-form') {
+      event.preventDefault();
+      this.model.setCheckoutStep(3);
+    }
+  }
+
+  handleKeydown(event) {
+    if (event.key === 'Escape') {
+      if (this.activeModal?.open) this.closeModal();
+      if (this.activeDrawer) this.closeDrawer();
+    }
+  }
+
+  validateCheckoutForm(form) {
+    const fields = [
+      { input: form.elements.name, errorId: 'name-error', message: 'Enter your full name.' },
+      { input: form.elements.email, errorId: 'email-error', message: 'Enter a valid email address.' },
+      { input: form.elements.address, errorId: 'address-error', message: 'Enter your delivery address.' },
+      { input: form.elements.postcode, errorId: 'postcode-error', message: 'Enter a valid UK postcode.' }
+    ];
+    let isValid = true;
+    for (const field of fields) {
+      const error = document.getElementById(field.errorId);
+      const valid = field.input.checkValidity();
+      field.input.setAttribute('aria-invalid', String(!valid));
+      field.input.setAttribute('aria-describedby', field.errorId);
+      if (error) error.textContent = valid ? '' : field.message;
+      if (!valid && isValid) { field.input.focus(); isValid = false; }
+    }
+    return isValid;
+  }
+
+  addProduct(productId, quantity) {
+    const added = this.model.addToCart(productId, quantity);
+    this.announce(added ? 'Item added to basket.' : 'That item is currently unavailable.');
+    if (added) this.openDrawer();
+  }
+
+  addBundle() {
+    const estimate = this.model.getEstimate();
+    estimate.bundle.forEach(item => {
+      const match = PRODUCT_CATALOG.find(product =>
+        (item.name.includes('Solar Kit') && product.id === 'rooftop-kit-6kw') ||
+        (item.name.includes('Battery') && product.id === 'lfp-battery-10') ||
+        (item.name.includes('Wallbox') && product.id === 'ev-wallbox-22') ||
+        (item.name.includes('Management') && product.id === 'hems-core'));
+      if (match) this.model.addToCart(match.id, 1);
+    });
+    this.announce('Recommended bundle added to basket.');
+    this.openDrawer();
+  }
+
+  completeOrder() {
+    const reference = this.model.createOrder();
+    this.announce(`Order ${reference} confirmed.`);
+  }
+
+  openModal(kind, productId) {
+    this.closeModal();
+    if (kind === 'quick-view') this.model.setQuickView(productId);
+    const state = this.model.getState();
+    const modal = kind === 'quick-view'
+      ? createQuickViewModal(this.model.getQuickViewProduct(), this)
+      : createCheckoutModal(state, this);
+    document.getElementById('modal-root').append(modal);
+    this.activeModal = modal;
+    modal.showModal();
+    this.transition(() => modal.querySelector('.modal-card')?.classList.add('open'));
+  }
+
+  closeModal() {
+    if (!this.activeModal) return;
+    const modal = this.activeModal;
+    modal.close();
+    modal.remove();
+    this.activeModal = null;
+    this.model.setQuickView(null);
+    if (this.model.getState().orderReference) this.model.setCheckoutStep(1);
+  }
+
+  openDrawer() {
+    this.closeDrawer();
+    const drawer = createBasketDrawer(this.model.getState(), this);
+    document.getElementById('basket-root').append(drawer);
+    this.activeDrawer = drawer;
+    document.body.style.overflow = 'hidden';
+    drawer.querySelector('[data-action="close-basket"]')?.focus();
+  }
+
+  closeDrawer() {
+    if (!this.activeDrawer) return;
+    this.activeDrawer.remove();
+    this.activeDrawer = null;
+    document.body.style.overflow = '';
+    document.getElementById('open-basket')?.focus();
+  }
+
+  transition(update) {
+    if (document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.startViewTransition(update);
+    } else update();
+  }
+
+  announce(message) {
+    const toast = el('div', { class: 'toast', role: 'status' }, message);
+    document.getElementById('toast-root').append(toast);
+    setTimeout(() => toast.remove(), 3200);
+  }
+
+  syncFromLocation() {
+    const hash = window.location.hash.replace(/^#\/?/, '') || 'store';
+    const [route, query = ''] = hash.split('?');
+    this.model.setRoute(route);
+    const params = new URLSearchParams(query);
+    if (params.has('q')) this.model.setSearchQuery(params.get('q'));
+    if (params.has('category')) this.model.setActiveCategory(params.get('category'));
+    const titles = { store: 'Storefront', estimator: 'System estimator', about: 'About Open Energy' };
+    document.title = `${titles[this.model.getState().route] || 'Open Energy'} — Open Energy`;
+  }
+
+  render(state, patch) {
+    const viewRoot = document.getElementById('view-root');
+    const nextView = state.route === 'estimator' ? createEstimatorView(state, this)
+      : state.route === 'about' ? createAboutView(state, this)
+      : createCatalogView(state, this);
+
+    this.transition(() => {
+      viewRoot.replaceChildren(nextView);
+      document.querySelectorAll('.primary-nav a').forEach(link => {
+        if (link.dataset.route === state.route) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+      });
+    });
+
+    const cartCount = document.getElementById('cart-count');
+    const count = this.model.getCartCount();
+    cartCount.textContent = String(count);
+    document.getElementById('open-basket').setAttribute('aria-label', `Open shopping basket, ${count} item${count === 1 ? '' : 's'}`);
+
+    if (this.activeDrawer) {
+      const scrollPosition = this.activeDrawer.querySelector('.drawer-body')?.scrollTop || 0;
+      this.activeDrawer.replaceWith(createBasketDrawer(state, this));
+      this.activeDrawer = document.querySelector('#basket-drawer');
+      this.activeDrawer.querySelector('.drawer-body').scrollTop = scrollPosition;
+    }
+
+    if (state.quickViewProductId && (!this.activeModal || this.activeModal.dataset.kind !== 'quick-view')) {
+      this.openModal('quick-view', state.quickViewProductId);
+    }
+    if (patch.route) window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.initialiseCanvas();
+  }
+
+  initialiseCanvas() {
+    const canvas = document.getElementById('energy-canvas');
+    if (!canvas) return;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let particles = [];
+    let visible = true;
+    let running = false;
+
+    const resize = () => {
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, rect.width * ratio);
+      canvas.height = Math.max(1, rect.height * ratio);
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      particles = Array.from({ length: reducedMotion ? 12 : 34 }, () => ({
+        x: Math.random() * rect.width, y: Math.random() * rect.height,
+        radius: 1 + Math.random() * 2.4, speed: 0.25 + Math.random() * 0.8, hue: Math.random()
+      }));
+    };
+
+    const draw = () => {
+      const rect = canvas.getBoundingClientRect();
+      context.clearRect(0, 0, rect.width, rect.height);
+      context.strokeStyle = 'rgba(255,255,255,.16)';
+      context.lineWidth = 1;
+      for (let x = 0; x < rect.width; x += 28) {
+        context.beginPath(); context.moveTo(x, 0); context.lineTo(x, rect.height); context.stroke();
+      }
+      for (const particle of particles) {
+        context.beginPath();
+        context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+        context.fillStyle = particle.hue > 0.5 ? 'rgba(251,191,36,.85)' : 'rgba(52,211,153,.85)';
+        context.fill();
+        if (!reducedMotion) {
+          particle.x += particle.speed;
+          particle.y += Math.sin(particle.x / 45) * 0.35;
+          if (particle.x > rect.width + 10) particle.x = -10;
+        }
+      }
+      if (visible && !document.hidden && !reducedMotion) {
+        this.canvasAnimationId = requestAnimationFrame(draw);
+      } else running = false;
+    };
+
+    const start = () => { if (!running) { running = true; this.canvasAnimationId = requestAnimationFrame(draw); } };
+    resize();
+    this.canvasObserver?.disconnect();
+    this.canvasObserver = new IntersectionObserver(entries => {
+      visible = entries[0]?.isIntersecting ?? true;
+      if (visible) start();
+    }, { threshold: 0.05 });
+    this.canvasObserver.observe(canvas);
+    const resizeObserver = new ResizeObserver(debounce(resize, 120));
+    resizeObserver.observe(canvas);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) start(); });
+    start();
+  }
+}
+
+/* === INITIALIZATION === */
+const energyModel = new EnergyStoreModel();
+const energyView = { /* Rendering functions are pure component factories above. */ };
+const energyController = new EnergyAppController(energyModel, energyView);
+energyController.init();
+</script>
+</body>
+</html>
