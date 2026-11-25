@@ -180,6 +180,7 @@ const RenderController = {
 
     createValueElement(record) {
         const text = String(record.description || JSON.stringify(record)).trim();
+        const label = String(record.link || JSON.stringify(record)).trim();
         const isUrl = /^https?:\/\/\S+$/i.test(text);
 
         app.dBug('RenderController', 'createValueElement()', {
@@ -190,7 +191,7 @@ const RenderController = {
         });
 
         if (isUrl) {
-            const link = app.item('a', 'metric-value', text);
+            const link = app.item('a', 'metric-value', label);
             link.href = text;
             link.target = '_blank';
             link.rel = 'noopener noreferrer';
