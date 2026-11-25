@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\dBug;
+
 class TodoModel extends BaseModel {
 
     public function readTodo(){
@@ -13,7 +15,11 @@ class TodoModel extends BaseModel {
                 // 'limit' => 10
             ];
 
-            return $this->db->find($conditions);
+            $records = $this->db->find($conditions);
+
+            $records = $this->setUrl($records);
+
+            return $records;
             
         } catch (Throwable $e) {
 
@@ -37,6 +43,29 @@ class TodoModel extends BaseModel {
                 'message' => $e->getMessage()
             ];
         }
+
+    }
+
+    public function setUrl($records){
+
+        $rs;
+
+        foreach($records as $record){
+
+                $string = $record['description'];
+
+                $record['link'] = '';
+
+                if (preg_match('/https?/', $string)) {
+                    $arr = explode('/',$string);
+                    $record['link'] = $arr[5] . "/" . $arr[6];
+                }
+
+                $rs[] = $record;
+
+        }
+
+        return $rs;
 
     }
 
