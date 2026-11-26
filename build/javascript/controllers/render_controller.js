@@ -87,6 +87,8 @@ const RenderController = {
 
             const labelSpan = app.item('span', 'metric-label', 'Edit');
 
+            labelSpan.setAttribute('style','cursor:pointer');
+
             labelSpan.onclick = function() {
                 app.dBug('RenderController', 'labelSpan clicked', { index, id: record?.id });
                 // TODO: Display details page
