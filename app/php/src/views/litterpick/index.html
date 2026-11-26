@@ -1,0 +1,1184 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The Great Chorlton Litter Pick — a community ledger for neighbourhood litter picks, merchant rewards, and neighbourly fellowship in Chorlton-cum-Hardy.">
+<title>The Great Chorlton Litter Pick — Ye Olde Chorlton Guild of Street Wardens</title>
+<style>
+@layer reset, tokens, base, layout, components, utilities, motion;
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  img, svg, canvas { max-width: 100%; display: block; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  [hidden] { display: none !important; }
+}
+
+@layer tokens {
+  :root {
+    --parchment: oklch(94% 0.038 88);
+    --parchment-deep: oklch(90% 0.048 83);
+    --ink: oklch(22% 0.032 45);
+    --ink-soft: oklch(33% 0.028 45);
+    --forest: oklch(35% 0.075 150);
+    --forest-bright: oklch(45% 0.09 150);
+    --crimson: oklch(40% 0.15 25);
+    --brass: oklch(62% 0.13 80);
+    --brass-soft: oklch(80% 0.07 85);
+    --paper-line: color-mix(in oklab, var(--ink) 18%, var(--parchment));
+    --surface: var(--parchment);
+    --raised: color-mix(in oklab, var(--parchment) 92%, white);
+    --focus: var(--crimson);
+    --radius: 4px;
+    --radius-lg: 10px;
+    --shadow: 0 2px 0 color-mix(in oklab, var(--ink) 18%, transparent);
+    --space-1: .25rem; --space-2: .5rem; --space-3: .75rem;
+    --space-4: 1rem; --space-5: 1.5rem; --space-6: 2.25rem; --space-7: 3.5rem;
+    --measure: 68ch;
+    --font-display: Georgia, 'Times New Roman', serif;
+    --font-body: Georgia, 'Times New Roman', serif;
+    --font-ledger: 'Courier New', ui-monospace, monospace;
+    --motion: 1;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --parchment: oklch(20% 0.018 70);
+      --parchment-deep: oklch(16% 0.02 70);
+      --ink: oklch(91% 0.04 85);
+      --ink-soft: oklch(76% 0.035 85);
+      --forest: oklch(70% 0.08 150);
+      --forest-bright: oklch(78% 0.09 150);
+      --crimson: oklch(68% 0.13 25);
+      --brass: oklch(76% 0.11 82);
+      --paper-line: color-mix(in oklab, var(--ink) 22%, transparent);
+      --raised: oklch(24% 0.02 70);
+      --shadow: 0 2px 0 color-mix(in oklab, black 40%, transparent);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --parchment: oklch(20% 0.018 70);
+    --parchment-deep: oklch(16% 0.02 70);
+    --ink: oklch(91% 0.04 85);
+    --ink-soft: oklch(76% 0.035 85);
+    --forest: oklch(70% 0.08 150);
+    --forest-bright: oklch(78% 0.09 150);
+    --crimson: oklch(68% 0.13 25);
+    --brass: oklch(76% 0.11 82);
+    --paper-line: color-mix(in oklab, var(--ink) 22%, transparent);
+    --raised: oklch(24% 0.02 70);
+    --shadow: 0 2px 0 color-mix(in oklab, black 40%, transparent);
+  }
+
+  :root[data-motion="reduced"] { --motion: 0; }
+}
+
+@layer base {
+  body {
+    min-height: 100dvh;
+    background:
+      radial-gradient(circle at 12% 8%, color-mix(in oklab, var(--brass) 10%, transparent), transparent 35%),
+      radial-gradient(circle at 88% 90%, color-mix(in oklab, var(--forest) 12%, transparent), transparent 40%),
+      repeating-linear-gradient(90deg, transparent 0 34px, color-mix(in oklab, var(--ink) 3%, transparent) 34px 35px),
+      var(--parchment);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    line-height: 1.1;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  p { text-wrap: pretty; max-width: var(--measure); }
+  a { color: var(--crimson); }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 2px; }
+  ::selection { background: color-mix(in oklab, var(--crimson) 25%, transparent); }
+}
+
+@layer layout {
+  .skip-link {
+    position: absolute; left: -9999px; top: 0; z-index: 99;
+    background: var(--ink); color: var(--parchment); padding: .75rem 1rem;
+  }
+  .skip-link:focus { left: .5rem; top: .5rem; }
+
+  .shell { width: min(1180px, 100% - 2rem); margin-inline: auto; }
+
+  .masthead {
+    border-block: 3px double var(--ink);
+    background: color-mix(in oklab, var(--parchment-deep) 88%, var(--brass));
+    box-shadow: var(--shadow);
+  }
+  .masthead-inner {
+    display: grid; gap: var(--space-3);
+    padding: var(--space-4) 0;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+  .mast-title { font-size: clamp(1.55rem, 5.5vw, 3rem); letter-spacing: .02em; }
+  .mast-sub { font-family: var(--font-ledger); font-size: .78rem; text-transform: uppercase; letter-spacing: .12em; }
+  .mast-meta { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: flex-end; align-items: center; }
+
+  .primary-nav { border-top: 1px solid var(--ink); }
+  .primary-nav ul {
+    display: flex; flex-wrap: wrap; list-style: none; margin: 0; padding: 0;
+  }
+  .primary-nav a {
+    display: inline-flex; min-height: 44px; align-items: center; gap: .45rem;
+    padding: .65rem .9rem; color: var(--ink); text-decoration: none;
+    border-right: 1px solid var(--paper-line); font-weight: 700;
+  }
+  .primary-nav a[aria-current="page"] {
+    background: color-mix(in oklab, var(--crimson) 15%, transparent);
+    box-shadow: inset 0 -3px 0 var(--crimson);
+  }
+
+  main { padding-block: var(--space-5) var(--space-7); }
+  .view { animation: none; }
+  .page-title { font-size: clamp(1.8rem, 5vw, 3rem); margin-bottom: var(--space-2); }
+  .lede { font-size: 1.05rem; color: var(--ink-soft); }
+  .section { margin-top: var(--space-6); }
+  .section-head {
+    display: flex; justify-content: space-between; align-items: end; gap: 1rem;
+    border-bottom: 2px solid var(--ink); padding-bottom: .5rem; margin-bottom: var(--space-4);
+  }
+  .grid { display: grid; gap: var(--space-4); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+  .footer {
+    border-top: 3px double var(--ink); padding: var(--space-5) 0;
+    color: var(--ink-soft); font-family: var(--font-ledger); font-size: .8rem;
+  }
+}
+
+@layer components {
+  .panel {
+    container-type: inline-size;
+    background: var(--raised);
+    border: 1px solid var(--ink);
+    outline: 3px double color-mix(in oklab, var(--brass) 75%, transparent);
+    outline-offset: -7px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: clamp(1rem, 4cqi, 1.7rem);
+  }
+  .panel.tight { padding: .9rem; }
+  .panel h3 { font-size: 1.25rem; margin-bottom: .4rem; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: .35rem;
+    border: 1px solid currentColor; border-radius: 999px;
+    padding: .2rem .55rem; font-family: var(--font-ledger);
+    font-size: .72rem; text-transform: uppercase; letter-spacing: .07em;
+  }
+  .badge.forest { color: var(--forest); }
+  .badge.crimson { color: var(--crimson); }
+  .badge.brass { color: color-mix(in oklab, var(--brass) 75%, var(--ink)); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+    min-height: 44px; padding: .6rem 1rem; border-radius: var(--radius);
+    border: 2px solid var(--ink); background: var(--parchment);
+    font-weight: 700; text-decoration: none; color: var(--ink);
+    transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+  }
+  .btn:hover { background: color-mix(in oklab, var(--brass) 22%, var(--parchment)); }
+  .btn:active { transform: translateY(2px); }
+  .btn.primary { background: var(--forest); color: var(--parchment); border-color: var(--forest); }
+  .btn.primary:hover { background: var(--forest-bright); }
+  .btn.seal { background: var(--crimson); color: var(--parchment); border-color: var(--crimson); }
+  .btn.ghost { background: transparent; }
+  .btn.small { min-height: 38px; padding: .35rem .7rem; font-size: .9rem; }
+  .btn[aria-pressed="true"] { background: var(--forest); color: var(--parchment); }
+
+  .tally {
+    display: grid; gap: .8rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+  }
+  .tally-card {
+    border: 2px solid var(--ink); background: var(--raised);
+    padding: 1rem; text-align: center; border-radius: var(--radius);
+  }
+  .tally-value {
+    display: block; font-family: var(--font-ledger); font-size: clamp(1.7rem, 6cqi, 2.4rem);
+    font-weight: 800; font-variant-numeric: tabular-nums;
+  }
+  .tally-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-soft); }
+
+  .event {
+    display: grid; gap: .8rem;
+    border: 1px solid var(--ink); background: var(--raised);
+    padding: 1rem; border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .event-top { display: flex; justify-content: space-between; gap: .75rem; align-items: start; }
+  .event h3 { font-size: 1.25rem; }
+  .event dl {
+    margin: 0; display: grid; gap: .3rem;
+    grid-template-columns: auto 1fr; font-size: .94rem;
+  }
+  .event dt { font-family: var(--font-ledger); text-transform: uppercase; font-size: .7rem; color: var(--ink-soft); padding-top: .2rem; }
+  .event dd { margin: 0; }
+  .pledged { font-family: var(--font-ledger); font-size: .8rem; color: var(--ink-soft); }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: .6rem; align-items: end; margin-bottom: var(--space-4); }
+  .field { display: grid; gap: .3rem; min-width: min(100%, 11rem); }
+  .field label { font-family: var(--font-ledger); font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; }
+  input, select, textarea {
+    width: 100%; min-height: 44px; padding: .55rem .65rem;
+    border: 1px solid var(--ink); background: var(--parchment);
+    border-radius: var(--radius); color: var(--ink);
+  }
+  textarea { min-height: 6rem; resize: vertical; }
+  .error { color: var(--crimson); font-size: .9rem; min-height: 1.2em; }
+
+  .tabs { display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .tab {
+    min-height: 44px; padding: .5rem .8rem; border: 1px solid var(--ink);
+    background: transparent; border-radius: var(--radius);
+  }
+  .tab[aria-selected="true"] { background: var(--forest); color: var(--parchment); }
+
+  .directory-item {
+    border: 1px solid var(--ink); background: var(--raised);
+    padding: 1rem; border-radius: var(--radius);
+  }
+  .directory-item h3 { margin-bottom: .25rem; }
+  .tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }
+
+  .note {
+    border-left: 4px solid var(--brass); background: color-mix(in oklab, var(--brass) 12%, transparent);
+    padding: .7rem .85rem; margin-block: .5rem; border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  .note-meta { font-family: var(--font-ledger); font-size: .72rem; color: var(--ink-soft); }
+
+  .ornament { color: var(--crimson); text-align: center; font-size: 1.2rem; margin: .75rem 0; }
+  .hero {
+    display: grid; gap: var(--space-5); align-items: center;
+    grid-template-columns: 1fr;
+  }
+  .hero-art { border: 2px solid var(--ink); border-radius: var(--radius-lg); overflow: hidden; }
+  .hero-copy h1 { font-size: clamp(2.1rem, 7vw, 4rem); }
+  .hero-copy p { font-size: 1.08rem; }
+
+  dialog {
+    width: min(680px, calc(100% - 2rem)); max-height: min(88dvh, 44rem);
+    border: 2px solid var(--ink); background: var(--parchment); color: var(--ink);
+    border-radius: var(--radius-lg); padding: 0;
+  }
+  dialog::backdrop { background: color-mix(in oklab, black 55%, transparent); backdrop-filter: blur(2px); }
+  .dialog-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    padding: 1rem; border-bottom: 2px solid var(--ink);
+    background: color-mix(in oklab, var(--brass) 18%, var(--parchment));
+  }
+  .dialog-body { padding: 1rem; overflow: auto; }
+
+  .social-cards { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); }
+  .social-card {
+    display: flex; align-items: center; gap: .6rem; min-height: 48px;
+    border: 1px dashed var(--ink); background: var(--raised); padding: .6rem;
+    border-radius: var(--radius); width: 100%; text-align: left;
+  }
+  .social-card:hover { background: color-mix(in oklab, var(--brass) 18%, var(--parchment)); }
+
+  .capability-list {
+    columns: 2; column-gap: 1.5rem; font-size: .86rem;
+    padding-left: 1.1rem;
+  }
+  .capability-list li { break-inside: avoid; margin-bottom: .35rem; }
+  .capability-list .ok { color: var(--forest); font-weight: 700; }
+  .capability-list .no { color: var(--crimson); font-weight: 700; }
+
+  .empty {
+    border: 2px dashed var(--paper-line); padding: 1.5rem; text-align: center;
+    color: var(--ink-soft); border-radius: var(--radius);
+  }
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap;
+  }
+  .progress {
+    position: fixed; inset: 0 0 auto 0; height: 4px; z-index: 50;
+    background: var(--crimson); transform-origin: 0 50%; transform: scaleX(0);
+  }
+  @supports (animation-timeline: scroll()) {
+    .progress {
+      animation: grow linear both;
+      animation-timeline: scroll(root);
+    }
+    @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  }
+
+  .anchor-trigger { anchor-name: --help-trigger; }
+  .help-popover {
+    position: fixed; inset: auto; margin: 0; max-width: min(90vw, 22rem);
+    padding: .8rem; border: 1px solid var(--ink); background: var(--raised);
+    border-radius: var(--radius); box-shadow: var(--shadow); font-size: .9rem;
+  }
+  @supports (anchor-name: --x) {
+    .help-popover {
+      position-anchor: --help-trigger;
+      position-area: bottom span-right;
+      position-try-fallbacks: flip-block, flip-inline;
+    }
+  }
+}
+
+@layer utilities {
+  .mt-0 { margin-top: 0; }
+  .mb-2 { margin-bottom: var(--space-2); }
+  .mb-4 { margin-bottom: var(--space-4); }
+  .flex { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+  .right { margin-left: auto; }
+  .muted { color: var(--ink-soft); }
+  .ledger { font-family: var(--font-ledger); }
+  .center { text-align: center; }
+}
+
+@layer motion {
+  @media (prefers-reduced-motion: no-preference) {
+    :root:not([data-motion="reduced"]) .view { animation: rise .35s ease both; }
+    :root:not([data-motion="reduced"]) .btn:hover { transform: translateY(-1px); }
+    :root:not([data-motion="reduced"]) dialog[open] { animation: rise .25s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+    @starting-style {
+      dialog[open] { opacity: 0; transform: translateY(12px); }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+    }
+  }
+}
+
+@media (min-width: 780px) {
+  .hero { grid-template-columns: 1.05fr .95fr; }
+  .masthead-inner { grid-template-columns: 1fr auto; }
+}
+
+@media (max-width: 640px) {
+  .masthead-inner { grid-template-columns: 1fr; }
+  .mast-meta { justify-content: flex-start; }
+  .primary-nav ul { overflow-x: auto; }
+  .primary-nav a { white-space: nowrap; }
+  .capability-list { columns: 1; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to the Town Square</a>
+<div class="progress" aria-hidden="true"></div>
+
+<header class="masthead">
+  <div class="shell masthead-inner">
+    <div>
+      <p class="mast-sub">Est. in the spirit of civic fellowship · Chorlton-cum-Hardy, Manchester</p>
+      <h1 class="mast-title">The Great Chorlton Litter Pick</h1>
+      <p class="mast-sub">Ye Olde Chorlton Guild of Street Wardens</p>
+    </div>
+    <div class="mast-meta">
+      <span class="badge brass" id="weatherMotto">Rain or Shine upon the Meadows</span>
+      <button class="btn small anchor-trigger" id="helpButton" popovertarget="helpPopover" aria-describedby="helpHint">Parish Counsel</button>
+      <button class="btn small seal" id="ledgerButton">Sign the Ledger</button>
+      <span id="userBadge" class="badge forest" hidden></span>
+    </div>
+  </div>
+  <nav class="primary-nav" aria-label="Primary">
+    <div class="shell">
+      <ul>
+        <li><a href="#/town-square">The Town Square</a></li>
+        <li><a href="#/expeditions">Upcoming Expeditions</a></li>
+        <li><a href="#/guild-roll">The Guild Roll</a></li>
+        <li><a href="#/parish-office">Parish Office</a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<main id="main" class="shell" tabindex="-1">
+  <div id="viewRoot" class="view" aria-live="polite"></div>
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <p>❦ The Great Chorlton Litter Pick is a demonstration community platform. Expedition details, merchant offers and tallies are illustrative unless entered by you. ❦</p>
+    <p>Keep thy gloves upon thy hands; leave no sack unattended; and greet a neighbour kindly.</p>
+  </div>
+</footer>
+
+<div id="helpHint" class="visually-hidden">Opens practical guidance for taking part safely.</div>
+<div id="helpPopover" class="help-popover" popover>
+  <h3>Parish Counsel</h3>
+  <p>Wear gloves and sturdy shoes. Do not handle needles, broken glass, unknown chemicals, or hazardous waste; report these to the event steward.</p>
+  <p>Stay on public paths, respect wildlife and private land, and place collected litter only in suitable public bins or arranged collection points.</p>
+</div>
+
+<dialog id="ledgerDialog" aria-labelledby="ledgerTitle">
+  <div class="dialog-head">
+    <h2 id="ledgerTitle">Sign the Parish Ledger</h2>
+    <button class="btn small ghost" data-close-dialog>Close</button>
+  </div>
+  <div class="dialog-body">
+    <p class="muted">Enter thy name upon the roll, or present one of these vintage calling cards.</p>
+    <div class="social-cards mb-4">
+      <button class="social-card" data-social="Google">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M7 12h10" stroke="currentColor" stroke-width="2"/></svg>
+        Continue with Google
+      </button>
+      <button class="social-card" data-social="Facebook">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 8h-2a2 2 0 0 0-2 2v10" stroke="currentColor" stroke-width="2"/></svg>
+        Continue with Facebook
+      </button>
+      <button class="social-card" data-social="Apple">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a5 5 0 0 1 5 5v10a3 3 0 0 1-3 3H10a3 3 0 0 1-3-3V8a5 5 0 0 1 5-5Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        Continue with Apple
+      </button>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Registration type">
+      <button class="tab" role="tab" id="tab-neighbour" aria-selected="true" aria-controls="pane-neighbour">Good Citizen</button>
+      <button class="tab" role="tab" id="tab-merchant" aria-selected="false" aria-controls="pane-merchant">Local Merchant</button>
+      <button class="tab" role="tab" id="tab-guild" aria-selected="false" aria-controls="pane-guild">Community Guild</button>
+    </div>
+
+    <form id="registerForm" novalidate>
+      <div id="pane-neighbour" role="tabpanel" aria-labelledby="tab-neighbour">
+        <div class="grid grid-2">
+          <label class="field">Full name<input name="name" required autocomplete="name"></label>
+          <label class="field">Chorlton ward or street<input name="area" required placeholder="Beech Road, Oswald Road, Whalley Range border"></label>
+        </div>
+        <label class="field mt-0">Interests &amp; neighbourly bio<textarea name="bio" placeholder="Tea enthusiast; happy to collect along the Mersey; enjoys a natter about gardens."></textarea></label>
+        <label class="flex"><input type="checkbox" name="kit" style="width:auto;min-height:auto"> Request a free litter-picker kit, subject to local availability</label>
+      </div>
+
+      <div id="pane-merchant" role="tabpanel" aria-labelledby="tab-merchant" hidden>
+        <div class="grid grid-2">
+          <label class="field">Business name<input name="business" required></label>
+          <label class="field">Trade<select name="trade" required>
+            <option value="">Choose a trade</option>
+            <option>Café</option><option>Pub</option><option>Greengrocer</option>
+            <option>Artisanal Baker</option><option>Shop</option><option>Other</option>
+          </select></label>
+        </div>
+        <label class="field">Address<input name="address" required placeholder="Street, Chorlton-cum-Hardy"></label>
+        <fieldset>
+          <legend>Guild offerings</legend>
+          <label class="flex"><input type="checkbox" name="offer" value="Free tea or coffee for litter pickers" style="width:auto;min-height:auto"> Free tea or coffee</label>
+          <label class="flex"><input type="checkbox" name="offer" value="10% off pastries with a full sack" style="width:auto;min-height:auto"> 10% off pastries with a full sack</label>
+          <label class="flex"><input type="checkbox" name="offer" value="Kit storage depot" style="width:auto;min-height:auto"> Kit storage depot</label>
+          <label class="flex"><input type="checkbox" name="offer" value="Sponsoring sacks and hoops" style="width:auto;min-height:auto"> Sponsoring sacks and hoops</label>
+        </fieldset>
+      </div>
+
+      <div id="pane-guild" role="tabpanel" aria-labelledby="tab-guild" hidden>
+        <div class="grid grid-2">
+          <label class="field">Guild or society name<input name="guild" required></label>
+          <label class="field">Kind of society<select name="guildType" required>
+            <option value="">Choose a society</option>
+            <option>School</option><option>Sports club</option><option>Faith group</option>
+            <option>Residents’ association</option><option>Other</option>
+          </select></label>
+        </div>
+        <label class="field">How might thy members aid the parish?<textarea name="guildNote" placeholder="We can bring twenty volunteers, refreshments, and a banner."></textarea></label>
+      </div>
+
+      <p class="error" id="formError" role="alert"></p>
+      <div class="flex">
+        <button class="btn primary" type="submit">Inscribe upon the Ledger</button>
+        <button class="btn ghost" type="button" data-close-dialog>Not today</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<script type="module">
+const STORAGE_KEY = 'great-chorlton-litter-pick:v1';
+const routes = {
+  '/town-square': 'The Town Square',
+  '/expeditions': 'Upcoming Expeditions',
+  '/guild-roll': 'The Guild Roll',
+  '/parish-office': 'Parish Office'
+};
+
+const seed = {
+  tallies: { bags: 418, neighbours: 126, merchants: 23, teas: 312 },
+  events: [
+    { id:'e1', title:'Chorlton Ees & Ivy Green Sweep', date:'2026-12-06T11:00', meeting:'Chorlton Ees Car Park, off Brookburn Road', social:'The Bowling Green — tea and a well-earned pint', difficulty:'Gentle; uneven meadow paths', accessibility:'Wheelchair-accessible meeting point; some grassy terrain', area:'Chorlton Ees', pledged:['Martha P.','Sam O.','The Beech Road Rambler'], capacity:25 },
+    { id:'e2', title:'Beech Road & The Green Tidy', date:'2026-12-13T10:00', meeting:'Outside Chorlton Library, Manchester Road', social:'A local café along Beech Road — tea, coffee and pastries', difficulty:'Easy pavements', accessibility:'Step-free route; benches available', area:'Beech Road', pledged:['Aisha K.','Tom R.'], capacity:18 },
+    { id:'e3', title:'Barlow Moor & Hardy Lane Patrol', date:'2026-12-19T14:00', meeting:'Barlow Hall Park entrance, Hardy Lane', social:'Tavern gathering afterwards', difficulty:'Moderate; bring stout boots', accessibility:'Pavement sections; grass verges may be muddy', area:'Barlow Moor', pledged:['Barlow Hall Neighbourhood Group'], capacity:30 },
+    { id:'e4', title:'Longford Park Borders Brigade', date:'2026-12-27T10:30', meeting:'Longford Park main gates', social:'Café refreshments at the park pavilion', difficulty:'Gentle', accessibility:'Paved paths; accessible toilets nearby', area:'Longford Park', pledged:['Friends of Longford Park','Nina B.'], capacity:40 },
+    { id:'e5', title:'Mersey Valley Riverside Ramble', date:'2027-01-03T11:00', meeting:'Jackson’s Boat bridge', social:'Riverside café — hot chocolate for young wardens', difficulty:'Moderate; riverside paths', accessibility:'Some uneven ground; accompanied children welcome', area:'Mersey Valley', pledged:['River Keepers','Elliot M.'], capacity:22 },
+    { id:'e6', title:'Chorlton Water Park Shoreline Watch', date:'2027-01-10T09:30', meeting:'Chorlton Water Park visitor car park', social:'Tea at the visitor centre', difficulty:'Gentle; lakeside paths', accessibility:'Mostly level paths; dress warmly', area:'Chorlton Water Park', pledged:['Friends of Chorlton Water Park'], capacity:28 }
+  ],
+  merchants: [
+    { id:'m1', name:'The Bowling Green', trade:'Pub', area:'Chorlton Ees', offers:['Free tea or coffee for litter pickers','Sponsoring sacks and hoops'], note:'A warm welcome after a morning upon the meadows.' },
+    { id:'m2', name:'Beech Road Bakery', trade:'Artisanal Baker', area:'Beech Road', offers:['10% off pastries with a full sack'], note:'A buttery reward for a bag well filled.' },
+    { id:'m3', name:'The Greengrocer’s Cart', trade:'Greengrocer', area:'Manchester Road', offers:['Free tea or coffee for litter pickers','Kit storage depot'], note:'Fresh provisions and a place to stow thy tongs.' },
+    { id:'m4', name:'Chorlton Coffee House', trade:'Café', area:'Beech Road', offers:['Free tea or coffee for litter pickers'], note:'Coffee before the pick; cocoa after, if the wind bites.' },
+    { id:'m5', name:'The Hardy Lane Hardware', trade:'Shop', area:'Hardy Lane', offers:['Kit storage depot','Sponsoring sacks and hoops'], note:'Gloves, sacks and sensible advice for street wardens.' },
+    { id:'m6', name:'Meadow Lane Deli', trade:'Café', area:'Meadow Lane', offers:['10% off pastries with a full sack','Free tea or coffee for litter pickers'], note:'Soup and sandwiches for hungry volunteers.' }
+  ],
+  wardens: [
+    { id:'w1', name:'Martha P.', area:'Beech Road', bio:'Collector of stray crisp packets; maker of excellent flapjacks.', messages:[] },
+    { id:'w2', name:'Sam O.', area:'Chorlton Ees', bio:'Meadow wanderer, bird-spotter, and keeper of spare gloves.', messages:[] },
+    { id:'w3', name:'Aisha K.', area:'Whalley Range border', bio:'Organises family-friendly picks and always brings biscuits.', messages:[] },
+    { id:'w4', name:'Tom R.', area:'Barlow Moor', bio:'Can fix a squeaky litter-picker and tell a decent tale.', messages:[] },
+    { id:'w5', name:'Nina B.', area:'Longford Park', bio:'Friends of Longford Park volunteer; fond of tea and tidy borders.', messages:[] },
+    { id:'w6', name:'Elliot M.', area:'Mersey Valley', bio:'Riverside rambler; collects bottles and shares bin-bag wisdom.', messages:[] }
+  ],
+  guestbook: [
+    { id:'g1', name:'Martha P.', text:'A grand turn-out at the Ees last month — thank you, every last pair of gloves!', date:'2026-11-18' },
+    { id:'g2', name:'Sam O.', text:'The Bowling Green’s tea after a windy pick is a civic treasure.', date:'2026-11-21' },
+    { id:'g3', name:'Aisha K.', text:'My little one found three bottle caps and declared herself Chief Warden.', date:'2026-11-24' }
+  ]
+};
+
+const defaultState = {
+  version: 1,
+  user: null,
+  tallies: structuredClone(seed.tallies),
+  events: structuredClone(seed.events),
+  merchants: structuredClone(seed.merchants),
+  wardens: structuredClone(seed.wardens),
+  guestbook: structuredClone(seed.guestbook),
+  prefs: { theme: 'system', motion: 'system' },
+  savedFilters: {}
+};
+
+const listeners = new Set();
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return structuredClone(defaultState);
+    const parsed = JSON.parse(raw);
+    if (parsed?.version !== 1) return structuredClone(defaultState);
+    return { ...structuredClone(defaultState), ...parsed };
+  } catch {
+    return structuredClone(defaultState);
+  }
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch { announce('Thy ledger could not be preserved in this browser.', 'assertive'); }
+}
+
+function dispatch(mutator, options = {}) {
+  const previous = structuredClone(state);
+  mutator(state);
+  saveState();
+  listeners.forEach(fn => fn(state, previous));
+  if (options.rerender !== false) render();
+}
+
+function subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); }
+
+function announce(message, politeness = 'polite') {
+  const region = document.getElementById('announcer');
+  region.setAttribute('aria-live', politeness);
+  region.textContent = message;
+}
+
+function uid(prefix) { return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`; }
+
+function formatDate(value) {
+  try {
+    return new Intl.DateTimeFormat('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }).format(new Date(value));
+  } catch { return value; }
+}
+
+function escapeAttr(value) {
+  return String(value).replace(/[&"'<>\r\n]/g, c => ({'&':'&amp;','"':'&quot;',"'":'&#39;','<':'&lt;','>':'&gt;','\r':'','\n':' '}[c]));
+}
+
+function el(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (key === 'class') node.className = value;
+    else if (key === 'text') node.textContent = value;
+    else if (key === 'dataset') Object.assign(node.dataset, value);
+    else if (key.startsWith('on') && typeof value === 'function') node.addEventListener(key.slice(2), value);
+    else if (value !== false && value != null) node.setAttribute(key, value);
+  }
+  (Array.isArray(children) ? children : [children]).filter(Boolean).forEach(child => {
+    node.append(typeof child === 'string' ? document.createTextNode(child) : child);
+  });
+  return node;
+}
+
+function currentRoute() {
+  const hash = location.hash.replace(/^#/, '') || '/town-square';
+  return routes[hash] ? hash : '/not-found';
+}
+
+function navigate(path) {
+  if (location.hash === `#${path}`) render();
+  else location.hash = path;
+}
+
+function updateNav(route) {
+  document.querySelectorAll('.primary-nav a').forEach(a => {
+    const active = a.getAttribute('href') === `#${route}`;
+    if (active) a.setAttribute('aria-current', 'page');
+    else a.removeAttribute('aria-current');
+  });
+}
+
+function render() {
+  const route = currentRoute();
+  const root = document.getElementById('viewRoot');
+  const update = () => {
+    root.replaceChildren();
+    if (route === '/town-square') root.append(TownSquare());
+    else if (route === '/expeditions') root.append(Expeditions());
+    else if (route === '/guild-roll') root.append(GuildRoll());
+    else if (route === '/parish-office') root.append(ParishOffice());
+    else root.append(NotFound());
+    updateNav(route);
+    document.title = `${routes[route] || 'Not Found'} — The Great Chorlton Litter Pick`;
+  };
+  if (document.startViewTransition && matchMedia('(prefers-reduced-motion: no-preference)').matches && state.prefs.motion !== 'reduced') {
+    document.startViewTransition(update);
+  } else update();
+}
+
+function TownSquare() {
+  const t = state.tallies;
+  const section = el('section', { class:'section', 'aria-labelledby':'square-title' });
+  section.append(
+    el('div', { class:'hero' }, [
+      el('div', { class:'hero-copy' }, [
+        el('p', { class:'badge crimson', text:'A Proclamation to All Good Neighbours' }),
+        el('h2', { id:'square-title', class:'page-title', text:'Hark! Good Neighbours of Chorlton' }),
+        el('p', { class:'lede', text:'The litter is but the excuse. Come for the tongs and sacks; stay for a natter with a neighbour, a cup of tea, and the quiet satisfaction of a cleaner corner of Chorlton.' }),
+        el('div', { class:'flex' }, [
+          el('a', { class:'btn primary', href:'#/expeditions', text:'Join an Expedition' }),
+          el('button', { class:'btn seal', text:'Sign the Parish Ledger', onclick:() => openLedger() })
+        ]),
+        el('div', { class:'ornament', text:'❦ ❧ ❦' })
+      ]),
+      el('figure', { class:'hero-art', 'aria-label':'Illustrative woodcut-style scene of Chorlton volunteers collecting litter beside trees and a river' }, [
+        HeroArt()
+      ])
+    ]),
+    el('div', { class:'section' }, [
+      el('div', { class:'section-head' }, [
+        el('h3', { text:'Live Parish Tally' }),
+        el('span', { class:'muted ledger', text:'Updated by the Guild Clerk' })
+      ]),
+      el('div', { class:'tally' }, [
+        Tally('Bags collected', t.bags),
+        Tally('Neighbours united', t.neighbours),
+        Tally('Local merchants pledged', t.merchants),
+        Tally('Cups of tea shared', t.teas)
+      ])
+    ]),
+    el('div', { class:'section' }, [
+      el('div', { class:'section-head' }, [
+        el('h3', { text:'How the Guild Works' }),
+        el('span', { class:'muted', text:'Three simple acts of fellowship' })
+      ]),
+      el('div', { class:'grid grid-3' }, [
+        Panel('I. Claim Thy Tongs', 'Sign the ledger, request a kit where available, and choose an expedition that suits thy boots and thy calendar.'),
+        Panel('II. Stroll & Converse', 'Walk a familiar street or meadow with neighbours. Collect what may safely be collected; speak with those thou passest.'),
+        Panel('III. Gather at the Tavern', 'When the sacks are full, repair to a café, pub, or tea table. Share a brew, compare finds, and plan the next patrol.')
+      ])
+    ])
+  );
+  return section;
+}
+
+function Tally(label, value) {
+  return el('div', { class:'tally-card' }, [
+    el('span', { class:'tally-value', text:new Intl.NumberFormat('en-GB').format(value) }),
+    el('span', { class:'tally-label', text:label })
+  ]);
+}
+
+function Panel(title, body) {
+  return el('article', { class:'panel' }, [
+    el('h3', { text:title }),
+    el('p', { class:'muted', text:body })
+  ]);
+}
+
+function HeroArt() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 600 340');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Woodcut-style illustration of volunteers with litter pickers beside trees and a river');
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f4ecd8"/><stop offset="1" stop-color="#d8c9a3"/>
+      </linearGradient>
+      <filter id="rough"><feTurbulence baseFrequency="0.035" numOctaves="2" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/></filter>
+    </defs>
+    <rect width="600" height="340" fill="url(#sky)"/>
+    <g filter="url(#rough)" stroke="#2b1e16" stroke-width="4" fill="none">
+      <path d="M0 250h600" />
+      <path d="M0 270h600" stroke-width="2"/>
+      <path d="M80 250c30-70 70-95 110-100 40 5 70 35 85 100" fill="#2e4a36" opacity=".8"/>
+      <path d="M420 250c20-55 55-80 90-85 35 5 60 30 70 85" fill="#2e4a36" opacity=".7"/>
+      <path d="M180 250v-60M180 190c-20-10-35-25-40-45M180 190c20-10 35-25 40-45"/>
+      <path d="M470 250v-50M470 200c-15-10-25-20-30-35M470 200c15-10 25-20 30-35"/>
+      <path d="M40 305h520" stroke-width="5"/>
+      <path d="M60 305l30-45M120 305l30-45M500 305l-30-45M440 305l-30-45" stroke-width="3"/>
+    </g>
+    <g fill="#2b1e16">
+      <circle cx="250" cy="205" r="15"/><rect x="243" y="220" width="14" height="45" rx="6"/>
+      <circle cx="350" cy="210" r="14"/><rect x="343" y="225" width="14" height="40" rx="6"/>
+      <path d="M265 235l30-35M355 240l25-30" stroke="#2b1e16" stroke-width="5"/>
+      <path d="M295 200l8 8M380 210l8 8" stroke="#8b261d" stroke-width="5"/>
+    </g>
+    <g fill="#8b261d"><circle cx="300" cy="290" r="10"/><circle cx="335" cy="292" r="7"/><circle cx="410" cy="288" r="8"/></g>
+  `;
+  return svg;
+}
+
+function Expeditions() {
+  const section = el('section', { class:'section', 'aria-labelledby':'expedition-title' });
+  const list = el('div', { class:'grid grid-2', id:'eventList' });
+  const search = el('input', { type:'search', id:'eventSearch', placeholder:'Search expeditions, meeting points or areas', 'aria-label':'Search expeditions' });
+  const area = el('select', { id:'areaFilter', 'aria-label':'Filter by area' }, [
+    el('option', { value:'all', text:'All Chorlton territories' }),
+    ...new Set(state.events.map(e => e.area)).values ? [] : []
+  ]);
+  const sort = el('select', { id:'eventSort', 'aria-label':'Sort expeditions' }, [
+    el('option', { value:'date', text:'Soonest first' }),
+    el('option', { value:'attendance', text:'Most pledged' }),
+    el('option', { value:'title', text:'Title, A to Z' })
+  ]);
+
+  const areas = [...new Set(state.events.map(e => e.area))].sort(new Intl.Collator('en').compare);
+  area.append(...areas.map(a => el('option', { value:a, text:a })));
+
+  const update = () => {
+    const query = search.value.trim().toLowerCase();
+    const chosenArea = area.value;
+    const chosenSort = sort.value;
+    let items = state.events.filter(event => {
+      const haystack = `${event.title} ${event.meeting} ${event.area} ${event.social}`.toLowerCase();
+      return (!query || haystack.includes(query)) && (chosenArea === 'all' || event.area === chosenArea);
+    });
+    items.sort((a,b) => chosenSort === 'attendance' ? b.pledged.length - a.pledged.length : chosenSort === 'title' ? a.title.localeCompare(b.title) : new Date(a.date) - new Date(b.date));
+    list.replaceChildren(...(items.length ? items.map(EventCard) : [el('p', { class:'empty', text:'No expeditions answer thy search. Propose a patrol and rally thy neighbours.' })]));
+    state.savedFilters.expeditions = { query: search.value, area: chosenArea, sort: chosenSort };
+    saveState();
+    announce(`${items.length} expedition${items.length === 1 ? '' : 's'} found.`);
+  };
+
+  search.addEventListener('input', debounce(update, 180));
+  area.addEventListener('change', update);
+  sort.addEventListener('change', update);
+
+  const saved = state.savedFilters.expeditions;
+  if (saved) { search.value = saved.query || ''; area.value = saved.area || 'all'; sort.value = saved.sort || 'date'; }
+
+  section.append(
+    el('h2', { id:'expedition-title', class:'page-title', text:'Upcoming Expeditions' }),
+    el('p', { class:'lede', text:'Choose a patrol, pledge thy attendance, and meet thy fellow wardens at the appointed hour. Bring gloves; the Guild shall provide the good company.' }),
+    el('div', { class:'toolbar' }, [search, area, sort, el('button', { class:'btn primary', text:'Propose a Patrol', onclick:() => openProposal() })]),
+    list,
+    ProposalForm()
+  );
+  update();
+  return section;
+}
+
+function EventCard(event) {
+  const joined = state.user && event.pledged.includes(state.user.name);
+  const full = event.pledged.length >= event.capacity;
+  const button = el('button', {
+    class:`btn ${joined ? 'ghost' : 'primary'}`,
+    text: joined ? 'Thou Art Pledged' : full ? 'Expedition Full' : 'Pledge Attendance',
+    disabled: full && !joined,
+    'aria-pressed': String(joined)
+  });
+  button.addEventListener('click', () => {
+    if (!state.user) { openLedger(); announce('Sign the ledger before pledging attendance.'); return; }
+    dispatch(s => {
+      const target = s.events.find(e => e.id === event.id);
+      if (joined) target.pledged = target.pledged.filter(n => n !== state.user.name);
+      else target.pledged.push(state.user.name);
+    });
+    announce(joined ? 'Thy pledge hath been withdrawn.' : 'Thy name is entered upon the expedition scroll.');
+  });
+
+  return el('article', { class:'event', dataset:{ eventId:event.id } }, [
+    el('div', { class:'event-top' }, [
+      el('div', {}, [
+        el('h3', { text:event.title }),
+        el('span', { class:'badge forest', text:event.area })
+      ]),
+      el('span', { class:'badge crimson', text:`${event.pledged.length} / ${event.capacity} pledged` })
+    ]),
+    el('dl', {}, [
+      el('dt', { text:'When' }), el('dd', { text:formatDate(event.date) }),
+      el('dt', { text:'Meeting point' }), el('dd', { text:event.meeting }),
+      el('dt', { text:'Post-pick social' }), el('dd', { text:event.social }),
+      el('dt', { text:'Difficulty' }), el('dd', { text:event.difficulty }),
+      el('dt', { text:'Accessibility' }), el('dd', { text:event.accessibility })
+    ]),
+    el('div', { class:'flex' }, [button, el('span', { class:'pledged', text: joined ? 'Thy name appears upon the scroll.' : 'Pledging adds thy name to the scroll.' })])
+  ]);
+}
+
+function ProposalForm() {
+  const form = el('form', { class:'panel mt-4', id:'proposalForm', novalidate:true }, [
+    el('h3', { text:'Propose a Patrol' }),
+    el('p', { class:'muted', text:'A logged-in Good Citizen may summon neighbours to a new corner of the parish.' }),
+    el('div', { class:'grid grid-2' }, [
+      el('label', { class:'field' }, ['Title', el('input', { name:'title', required:true, placeholder:'Wilbraham Road Gateway Sweep' })]),
+      el('label', { class:'field' }, ['Date and time', el('input', { name:'date', type:'datetime-local', required:true })])
+    ]),
+    el('div', { class:'grid grid-2' }, [
+      el('label', { class:'field' }, ['Meeting point', el('input', { name:'meeting', required:true, placeholder:'Outside the shops on Wilbraham Road' })]),
+      el('label', { class:'field' }, ['Post-pick social spot', el('input', { name:'social', required:true, placeholder:'Tea at a nearby café' })])
+    ]),
+    el('div', { class:'grid grid-2' }, [
+      el('label', { class:'field' }, ['Area', el('input', { name:'area', required:true, placeholder:'Wilbraham Road' })]),
+      el('label', { class:'field' }, ['Capacity', el('input', { name:'capacity', type:'number', min:'2', max:'200', value:'15', required:true })])
+    ]),
+    el('label', { class:'field' }, ['Difficulty and accessibility', el('textarea', { name:'access', required:true, placeholder:'Pavements and grass verges; suitable for accompanied children.' })]),
+    el('p', { class:'error', id:'proposalError', role:'alert' }),
+    el('div', { class:'flex' }, [el('button', { class:'btn primary', type:'submit', text:'Post the Patrol' })])
+  ]);
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const error = form.querySelector('#proposalError');
+    if (!state.user) { error.textContent = 'Sign the Parish Ledger before proposing a patrol.'; return; }
+    if (!data.get('title') || !data.get('date') || !data.get('meeting')) { error.textContent = 'Please complete the title, date, and meeting point.'; return; }
+    dispatch(s => {
+      s.events.push({
+        id: uid('event'), title: String(data.get('title')), date: String(data.get('date')),
+        meeting: String(data.get('meeting')), social: String(data.get('social') || 'Tea and conversation nearby'),
+        difficulty: 'As described by the proposer', accessibility: String(data.get('access')),
+        area: String(data.get('area')), pledged: [state.user.name], capacity: Number(data.get('capacity')) || 15
+      });
+    });
+    form.reset();
+    error.textContent = '';
+    announce('Thy patrol hath been posted to the expedition roll.');
+  });
+  return form;
+}
+
+function GuildRoll() {
+  const section = el('section', { class:'section', ariaLabelledby:'guild-title' });
+  const search = el('input', { type:'search', id:'guildSearch', placeholder:'Search merchants, wardens or trades', 'aria-label':'Search the Guild Roll' });
+  const filter = el('select', { id:'guildFilter', 'aria-label':'Filter the Guild Roll' }, [
+    el('option', { value:'all', text:'All members of the Guild' }),
+    el('option', { value:'merchant', text:'Local Merchants' }),
+    el('option', { value:'warden', text:'Neighbourhood Wardens' })
+  ]);
+  const results = el('div', { class:'grid grid-3', id:'guildResults' });
+
+  const update = () => {
+    const q = search.value.trim().toLowerCase();
+    const kind = filter.value;
+    const merchants = kind === 'all' || kind === 'merchant' ? state.merchants.filter(m => `${m.name} ${m.trade} ${m.area} ${m.offers.join(' ')}`.toLowerCase().includes(q)) : [];
+    const wardens = kind === 'all' || kind === 'warden' ? state.wardens.filter(w => `${w.name} ${w.area} ${w.bio}`.toLowerCase().includes(q)) : [];
+    results.replaceChildren(
+      ...merchants.map(MerchantCard),
+      ...wardens.map(WardenCard),
+      ...(merchants.length || wardens.length ? [] : [el('p', { class:'empty', text:'No guild members answer thy search.' })])
+    );
+    announce(`${merchants.length + wardens.length} Guild members found.`);
+  };
+  search.addEventListener('input', debounce(update, 180));
+  filter.addEventListener('change', update);
+
+  section.append(
+    el('h2', { id:'guild-title', class:'page-title', text:'The Guild Roll' }),
+    el('p', { class:'lede', text:'Merchants who reward tidy deeds, and neighbours who keep the parish in good cheer.' }),
+    el('div', { class:'toolbar' }, [search, filter]),
+    results,
+    Guestbook()
+  );
+  update();
+  return section;
+}
+
+function MerchantCard(merchant) {
+  return el('article', { class:'directory-item' }, [
+    el('span', { class:'badge brass', text:merchant.trade }),
+    el('h3', { text:merchant.name }),
+    el('p', { class:'muted', text:merchant.note }),
+    el('div', { class:'tags' }, merchant.offers.map(o => el('span', { class:'badge forest', text:o })))
+  ]);
+}
+
+function WardenCard(warden) {
+  return el('article', { class:'directory-item' }, [
+    el('span', { class:'badge crimson', text:'Neighbourhood Warden' }),
+    el('h3', { text:warden.name }),
+    el('p', { class:'muted', text:`${warden.area} · ${warden.bio}` })
+  ]);
+}
+
+function Guestbook() {
+  const section = el('section', { class:'section', ariaLabelledby:'guestbook-title' });
+  const list = el('div', { id:'guestbookList' });
+  const form = el('form', { class:'panel', novalidate:true }, [
+    el('h3', { text:'Leave a Word of Encouragement' }),
+    el('label', { class:'field' }, ['Thy message', el('textarea', { name:'message', required:true, maxlength:'240', placeholder:'Well done, wardens of Beech Road — the Green looks grander already!' })]),
+    el('p', { class:'error', id:'guestError', role:'alert' }),
+    el('button', { class:'btn primary', type:'submit', text:'Pin to the Message Board' })
+  ]);
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const message = new FormData(form).get('message').trim();
+    const error = form.querySelector('#guestError');
+    if (!state.user) { error.textContent = 'Sign the ledger before leaving a message.'; return; }
+    if (!message) { error.textContent = 'Please write a short message of encouragement.'; return; }
+    dispatch(s => s.guestbook.unshift({ id:uid('note'), name:state.user.name, text:message, date:new Date().toISOString().slice(0,10) }));
+    form.reset(); error.textContent = '';
+    announce('Thy message hath been pinned to the board.');
+  });
+
+  const renderNotes = () => {
+    list.replaceChildren(...(state.guestbook.length ? state.guestbook.map(note => el('article', { class:'note' }, [
+      el('p', { text:note.text }),
+      el('p', { class:'note-meta', text:`— ${note.name}, ${note.date}` })
+    ])) : [el('p', { class:'empty', text:'The board awaits its first word of encouragement.' })]));
+  };
+  renderNotes();
+  subscribe(() => renderNotes());
+
+  section.append(el('h2', { id:'guestbook-title', class:'page-title', text:'The Wardens’ Message Board' }), list, form);
+  return section;
+}
+
+function ParishOffice() {
+  const section = el('section', { class:'section', ariaLabelledby:'office-title' });
+  const theme = el('select', { id:'themeSelect', 'aria-label':'Colour mode' }, [
+    el('option', { value:'system', text:'Follow the device' }),
+    el('option', { value:'light', text:'Daylight parchment' }),
+    el('option', { value:'dark', text:'Midnight ledger' })
+  ]);
+  theme.value = state.prefs.theme;
+  theme.addEventListener('change', () => dispatch(s => s.prefs.theme = theme.value, { rerender:false }));
+
+  const motion = el('select', { id:'motionSelect', 'aria-label':'Motion preference' }, [
+    el('option', { value:'system', text:'Follow the device' }),
+    el('option', { value:'full', text:'Permit animation' }),
+    el('option', { value:'reduced', text:'Reduce animation' })
+  ]);
+  motion.value = state.prefs.motion;
+  motion.addEventListener('change', () => dispatch(s => s.prefs.motion = motion.value, { rerender:false }));
+
+  const exportButton = el('button', { class:'btn', text:'Export Parish Records', onclick:exportData });
+  const importInput = el('input', { type:'file', accept:'application/json', 'aria-label':'Import parish records JSON' });
+  importInput.addEventListener('change', () => importData(importInput.files?.[0]));
+
+  const resetButton = el('button', { class:'btn seal', text:'Clear Local Records', onclick:() => {
+    if (confirm('Erase all local ledger records, pledges, messages and preferences?')) {
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+      state = structuredClone(defaultState);
+      saveState(); render(); announce('Local records cleared.');
+    }
+  }});
+
+  section.append(
+    el('h2', { id:'office-title', class:'page-title', text:'Parish Office' }),
+    el('p', { class:'lede', text:'Adjust the appearance of thy ledger, preserve or restore its records, and inspect the modern contrivances available in this browser.' }),
+    el('div', { class:'grid grid-2' }, [
+      el('div', { class:'panel' }, [
+        el('h3', { text:'Ledger Preferences' }),
+        el('label', { class:'field' }, ['Colour mode', theme]),
+        el('label', { class:'field' }, ['Motion', motion])
+      ]),
+      el('div', { class:'panel' }, [
+        el('h3', { text:'Parish Records' }),
+        el('p', { class:'muted', text:'Export or import a JSON copy of thy local pledges, patrols, messages and preferences.' }),
+        el('div', { class:'flex' }, [exportButton, importInput, resetButton])
+      ]),
+      el('div', { class:'panel' }, [
+        el('h3', { text:'Platform Capabilities' }),
+        CapabilityList()
+      ])
+    ])
+  );
+  return section;
+}
+
+function CapabilityList() {
+  const checks = [
+    ['View Transitions', 'document.startViewTransition' in document, 'Animates major view changes.'],
+    ['Scroll-driven animation', CSS.supports('animation-timeline: scroll()'), 'Drives the reading-progress bar.'],
+    ['Container queries', CSS.supports('container-type: inline-size'), 'Lets cards adapt to their own width.'],
+    ['Container style queries', CSS.supports('container style(--x: y)'), 'Can restyle components by custom property.'],
+    ['CSS nesting', CSS.supports('selector(&)'), 'Keeps related component styles together.'],
+    ['@scope', CSS.supports('selector(@scope)'), 'Can bound component styling.'],
+    ['Anchor positioning', CSS.supports('anchor-name: --x'), 'Positions the Parish Counsel popover.'],
+    ['Popover API', 'popover' in HTMLElement.prototype, 'Provides lightweight, dismissible counsel.'],
+    ['Dialog element', typeof HTMLDialogElement !== 'undefined', 'Presents accessible modals.'],
+    [':has()', CSS.supports('selector(:has(a))'), 'Enables parent-state styling.'],
+    ['field-sizing', CSS.supports('field-sizing: content'), 'Can grow inputs with content.'],
+    ['Trusted Types', 'trustedTypes' in window, 'Adds an additional script-injection safeguard.'],
+    ['Navigation API', 'navigation' in window, 'Offers modern SPA navigation hooks.'],
+    ['Web Animations', 'animate' in Element.prototype, 'Supports scripted interaction motion.'],
+    ['Canvas 2D', (() => { try { return Boolean(document.createElement('canvas').getContext('2d')); } catch { return false; } })(), 'Enables procedural artwork.'],
+    ['Web Audio', 'AudioContext' in window || 'webkitAudioContext' in window, 'Could support optional sounds.'],
+    ['Clipboard API', navigator.clipboard !== undefined, 'Can copy expedition details.'],
+    ['Web Share', 'share' in navigator, 'Can share an expedition where supported.'],
+    ['localStorage', storageAvailable(), 'Preserves thy ledger between visits.']
+  ];
+  return el('ul', { class:'capability-list' }, checks.map(([label, ok, why]) =>
+    el('li', {}, [
+      el('span', { class: ok ? 'ok' : 'no', text: ok ? 'Active' : 'Unavailable' }),
+      ` ${label}: ${why}`
+    ])
+  ));
+}
+
+function NotFound() {
+  return el('section', { class:'section center' }, [
+    el('h2', { class:'page-title', text:'A Lane Unknown to the Guild' }),
+    el('p', { class:'lede', text:'This thoroughfare appears upon no parish map. Return to the Town Square and seek thy bearings.' }),
+    el('a', { class:'btn primary', href:'#/town-square', text:'Return to the Town Square' })
+  ]);
+}
+
+function openLedger() {
+  const dialog = document.getElementById('ledgerDialog');
+  dialog.showModal();
+  dialog.querySelector('input[name="name"]')?.focus();
+}
+
+function openProposal() {
+  if (!state.user) { openLedger(); return; }
+  navigate('/expeditions');
+  document.getElementById('proposalForm')?.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = el('a', { href:url, download:'great-chorlton-litter-pick-records.json' });
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  announce('Parish records exported.');
+}
+
+function importData(file) {
+  if (!file) return;
+  if (file.type && file.type !== 'application/json') { announce('Please choose a JSON parish-record file.', 'assertive'); return; }
+  if (file.size > 2_000_000) { announce('That record is too large for the parish ledger.', 'assertive'); return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const imported = JSON.parse(reader.result);
+      if (imported?.version !== 1) throw new Error('Unrecognised ledger version');
+      state = { ...structuredClone(defaultState), ...imported };
+      saveState(); render(); announce('Parish records imported.');
+    } catch { announce('The imported ledger could not be understood.', 'assertive'); }
+  };
+  reader.readAsText(file);
+}
+
+function storageAvailable() {
+  try { localStorage.setItem('__chorlton_test', '1'); localStorage.removeItem('__chorlton_test'); return true; }
+  catch { return false; }
+}
+
+function debounce(fn, wait) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), wait); };
+}
+
+function applyPrefs() {
+  const root = document.documentElement;
+  root.dataset.theme = state.prefs.theme === 'system' ? '' : state.prefs.theme;
+  root.dataset.motion = state.prefs.motion === 'system'
+    ? (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'reduced' : 'full')
+    : state.prefs.motion;
+}
+
+function syncUserBadge() {
+  const badge = document.getElementById('userBadge');
+  if (state.user) {
+    badge.hidden = false;
+    badge.textContent = `${state.user.name} · ${state.user.role}`;
+  } else badge.hidden = true;
+}
+
+document.getElementById('ledgerButton').addEventListener('click', openLedger);
+document.getElementById('helpButton').addEventListener('click', () => {});
+document.querySelectorAll('[data-close-dialog]').forEach(button => button.addEventListener('click', () => document.getElementById('ledgerDialog').close()));
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t === tab)));
+    ['neighbour','merchant','guild'].forEach(kind => {
+      document.getElementById(`pane-${kind}`).hidden = kind !== tab.id.replace('tab-','');
+    });
+  });
+});
+
+document.querySelectorAll('[data-social]').forEach(button => {
+  button.addEventListener('click', () => {
+    const provider = button.dataset.social;
+    dispatch(s => {
+      s.user = { name:`${provider} Warden`, role:'Good Citizen', provider, area:'Chorlton', bio:'A newcomer to the Guild, keen to lend a hand.' };
+      s.tallies.neighbours += 1;
+    });
+    document.getElementById('ledgerDialog').close();
+    announce(`Welcome, ${state.user.name}. Thou art entered upon the Parish Ledger.`);
+  });
+});
+
+document.getElementById('registerForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const data = new FormData(e.target);
+  const error = document.getElementById('formError');
+  const role = document.querySelector('.tab[aria-selected="true"]').id.replace('tab-','');
+  const name = (data.get('name') || data.get('business') || data.get('guild') || '').trim();
+  if (!name) { error.textContent = 'Please provide a name for the ledger.'; return; }
+  dispatch(s => {
+    s.user = { name, role: role === 'merchant' ? 'Local Merchant' : role === 'guild' ? 'Community Guild' : 'Good Citizen', area:String(data.get('area') || data.get('address') || 'Chorlton'), bio:String(data.get('bio') || data.get('guildNote') || '') };
+    s.tallies.neighbours += 1;
+    if (role === 'merchant') {
+      s.merchants.push({ id:uid('merchant'), name, trade:String(data.get('trade') || 'Shop'), area:String(data.get('address') || 'Chorlton'), offers:data.getAll('offer'), note:'A newly inscribed member of the Guild of Provisions.' });
+      s.tallies.merchants += 1;
+    }
+    if (role === 'guild') {
+      s.wardens.push({ id:uid('warden'), name, area:String(data.get('area') || 'Chorlton'), bio:`${data.get('guildType') || 'Community guild'} — ${data.get('guildNote') || 'Ready to aid the parish.'}`, messages:[] });
+    }
+  });
+  e.target.reset();
+  error.textContent = '';
+  document.getElementById('ledgerDialog').close();
+  announce(`Welcome, ${state.user.name}. Thy entry is preserved upon the ledger.`);
+});
+
+window.addEventListener('hashchange', render);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) saveState();
+});
+matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', applyPrefs);
+
+const announcer = el('div', { id:'announcer', class:'visually-hidden', 'aria-live':'polite' });
+document.body.append(announcer);
+applyPrefs();
+syncUserBadge();
+render();
+</script>
+</body>
+</html>
