@@ -1,0 +1,1509 @@
+<!doctype html>
+<html lang="en-GB" data-theme="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="CleanSweep Chorlton: a community-led neighbourhood litter picking scheme with maps, events, reporting, equipment lending and impact records.">
+<meta name="color-scheme" content="light dark">
+<title>CleanSweep Chorlton — Neighbourhood Litter Picking Scheme</title>
+<link rel="manifest" href='data:application/manifest+json,{"name":"CleanSweep Chorlton","short_name":"CleanSweep","start_url":"./index.html#/dashboard","display":"standalone","background_color":"%23F8FAF7","theme_color":"%231B4332","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 512 512%27%3E%3Crect width=%27512%27 height=%27512%27 fill=%27%231B4332%27/%3E%3Cpath d=%27M150 360h212M180 360l20-150h112l20 150%27 stroke=%27%23F8FAF7%27 stroke-width=%2728%27 fill=%27none%27/%3E%3Ccircle cx=%27256%27 cy=%27140%27 r=%2738%27 fill=%27%23D97706%27/%3E%3C/svg%3E","sizes":"512x512","type":"image/svg+xml"}]}'>
+<style>
+@layer reset, tokens, base, layout, components, utilities, motion;
+
+@layer reset {
+  *,*::before,*::after { box-sizing:border-box; }
+  * { margin:0; }
+  html { -webkit-text-size-adjust:100%; }
+  body { min-height:100svh; }
+  button,input,select,textarea { font:inherit; color:inherit; }
+  button { background:none; border:0; cursor:pointer; }
+  img,canvas,svg { max-width:100%; display:block; }
+  ul,ol { padding:0; list-style:none; }
+}
+
+@layer tokens {
+  :root {
+    --bg:#F8FAF7;
+    --surface:#FFFFFF;
+    --surface-2:#F1F5F1;
+    --ink:#1E293B;
+    --muted:#52606D;
+    --line:#D7E0D9;
+    --primary:#1B4332;
+    --primary-2:#2D6A4F;
+    --accent:#D97706;
+    --danger:#B42318;
+    --info:#1D4ED8;
+    --ok:#15803D;
+    --radius:16px;
+    --radius-sm:10px;
+    --shadow:0 10px 30px oklch(0.25 0.05 150 / 0.10);
+    --ring:0 0 0 3px color-mix(in oklab, var(--primary) 35%, white);
+    --space-1:.25rem; --space-2:.5rem; --space-3:.75rem; --space-4:1rem;
+    --space-5:1.5rem; --space-6:2rem; --space-7:3rem;
+    --text-xs:clamp(.72rem,.68rem + .2vw,.8rem);
+    --text-sm:clamp(.85rem,.82rem + .2vw,.95rem);
+    --text-md:clamp(1rem,.96rem + .25vw,1.1rem);
+    --text-lg:clamp(1.2rem,1.1rem + .5vw,1.45rem);
+    --text-xl:clamp(1.5rem,1.3rem + 1vw,2.2rem);
+    --text-2xl:clamp(2rem,1.6rem + 2.4vw,3.4rem);
+    --header-h:64px;
+    --nav-h:64px;
+  }
+  @media (prefers-color-scheme:dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#0D1512; --surface:#131F1A; --surface-2:#182720;
+      --ink:#EAF2EC; --muted:#A9BBB0; --line:#2C3F36;
+      --primary:#7FC8A9; --primary-2:#A7D9BE; --accent:#F2B050;
+      --danger:#FCA5A5; --info:#93C5FD; --ok:#86EFAC;
+      --shadow:0 10px 30px oklch(0 0 0 / .35);
+      --ring:0 0 0 3px color-mix(in oklab, var(--primary) 50%, black);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#0D1512; --surface:#131F1A; --surface-2:#182720;
+    --ink:#EAF2EC; --muted:#A9BBB0; --line:#2C3F36;
+    --primary:#7FC8A9; --primary-2:#A7D9BE; --accent:#F2B050;
+    --danger:#FCA5A5; --info:#93C5FD; --ok:#86EFAC;
+    --shadow:0 10px 30px oklch(0 0 0 / .35);
+    --ring:0 0 0 3px color-mix(in oklab, var(--primary) 50%, black);
+  }
+  :root[data-contrast="high"] {
+    --bg:white; --surface:white; --surface-2:#F3F4F6; --ink:black;
+    --muted:#1F2937; --line:#111827; --primary:#062A1F; --primary-2:#062A1F;
+    --accent:#7C2D12; --danger:#7F1D1D; --info:#1E3A8A; --ok:#14532D;
+    --shadow:none; --ring:0 0 0 4px #111827;
+  }
+}
+
+@layer base {
+  body {
+    background:var(--bg); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    font-size:var(--text-md); line-height:1.55;
+    padding-bottom:var(--nav-h);
+  }
+  @media (min-width:768px) { body { padding-bottom:0; } }
+  h1,h2,h3,h4 { line-height:1.15; text-wrap:balance; }
+  h1 { font-size:var(--text-2xl); letter-spacing:-.03em; }
+  h2 { font-size:var(--text-xl); letter-spacing:-.02em; }
+  h3 { font-size:var(--text-lg); }
+  p { text-wrap:pretty; }
+  a { color:var(--primary); }
+  :focus-visible { outline:none; box-shadow:var(--ring); border-radius:8px; }
+  .skip { position:absolute; left:-999px; top:8px; z-index:100; background:var(--primary); color:white; padding:.75rem 1rem; border-radius:10px; }
+  .skip:focus { left:8px; }
+  .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+  ::selection { background:color-mix(in oklab, var(--accent) 35%, transparent); }
+  input,select,textarea {
+    width:100%; min-height:44px; padding:.65rem .8rem;
+    border:1px solid var(--line); border-radius:var(--radius-sm);
+    background:var(--surface); color:var(--ink);
+  }
+  textarea { field-sizing:content; min-height:96px; resize:vertical; }
+  input:user-invalid,textarea:user-invalid { border-color:var(--danger); }
+  label { display:block; font-size:var(--text-sm); font-weight:650; margin-bottom:.35rem; }
+  .field { margin-bottom:var(--space-4); }
+  .hint { color:var(--muted); font-size:var(--text-xs); margin-top:.3rem; }
+  .error { color:var(--danger); font-size:var(--text-sm); margin-top:.3rem; }
+}
+
+@layer layout {
+  .shell { max-width:1180px; margin-inline:auto; padding-inline:clamp(.75rem,3vw,2rem); }
+  .app-header {
+    position:sticky; top:0; z-index:40;
+    background:color-mix(in oklab, var(--surface) 88%, transparent);
+    backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+  }
+  .header-row { display:flex; align-items:center; gap:var(--space-3); min-height:var(--header-h); }
+  .brand { display:flex; align-items:center; gap:.6rem; color:var(--ink); text-decoration:none; font-weight:800; }
+  .brand svg { width:38px; height:38px; }
+  .brand span { display:none; }
+  @media (min-width:640px) { .brand span { display:block; font-size:var(--text-md); } }
+  .desktop-nav { display:none; margin-left:auto; }
+  @media (min-width:768px) {
+    .desktop-nav { display:flex; gap:.15rem; flex-wrap:wrap; }
+    .bottom-nav { display:none; }
+  }
+  .header-actions { margin-left:auto; display:flex; gap:.4rem; }
+  @media (min-width:768px) { .header-actions { margin-left:var(--space-4); } }
+  .bottom-nav {
+    position:fixed; z-index:50; left:0; right:0; bottom:0;
+    display:grid; grid-template-columns:repeat(7,1fr);
+    background:var(--surface); border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .bottom-nav a {
+    display:grid; place-items:center; gap:2px; min-height:var(--nav-h);
+    color:var(--muted); text-decoration:none; font-size:.58rem; font-weight:700;
+  }
+  .bottom-nav a[aria-current="page"] { color:var(--primary); }
+  .bottom-nav svg { width:22px; height:22px; }
+  main { padding-block:var(--space-5) var(--space-7); }
+  .view { animation:enter .35s ease both; }
+  .grid { display:grid; gap:var(--space-4); }
+  .grid-2 { grid-template-columns:1fr; }
+  .grid-3 { grid-template-columns:1fr; }
+  .grid-4 { grid-template-columns:repeat(2,1fr); }
+  @media (min-width:640px) {
+    .grid-2 { grid-template-columns:repeat(2,1fr); }
+    .grid-3 { grid-template-columns:repeat(2,1fr); }
+  }
+  @media (min-width:960px) {
+    .grid-3 { grid-template-columns:repeat(3,1fr); }
+    .grid-4 { grid-template-columns:repeat(4,1fr); }
+  }
+  .split { display:grid; gap:var(--space-5); }
+  @media (min-width:900px) { .split { grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr); align-items:start; } }
+}
+
+@layer components {
+  .card {
+    container-type:inline-size;
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:var(--radius); padding:clamp(1rem,3cqi,1.5rem);
+    box-shadow:var(--shadow);
+  }
+  .card.tight { padding:var(--space-4); }
+  .card-title { display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); margin-bottom:var(--space-3); }
+  .hero {
+    position:relative; overflow:hidden; border-radius:var(--radius);
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    color:#F8FAF7; padding:clamp(1.2rem,4cqi,2.5rem);
+  }
+  .hero p { color:color-mix(in oklab,#F8FAF7 85%, transparent); max-width:60ch; }
+  .hero-art { position:absolute; inset:auto -30px -70px auto; width:min(430px,80%); opacity:.24; pointer-events:none; }
+  .btn {
+    display:inline-flex; align-items:center; justify-content:center; gap:.45rem;
+    min-height:44px; padding:.6rem 1rem; border-radius:999px;
+    background:var(--primary); color:#F8FAF7; font-weight:750;
+    border:1px solid transparent; transition:transform .15s ease, background .15s ease;
+  }
+  .btn:hover { background:var(--primary-2); }
+  .btn:active { transform:scale(.98); }
+  .btn.secondary { background:var(--surface); color:var(--ink); border-color:var(--line); }
+  .btn.secondary:hover { background:var(--surface-2); }
+  .btn.amber { background:var(--accent); color:#1B1205; }
+  .btn.danger { background:var(--danger); color:white; }
+  .btn.small { min-height:36px; padding:.35rem .7rem; font-size:var(--text-xs); }
+  .btn.icon { width:44px; padding:0; }
+  .chip {
+    display:inline-flex; align-items:center; gap:.35rem; padding:.3rem .6rem;
+    border-radius:999px; background:var(--surface-2); color:var(--muted);
+    border:1px solid var(--line); font-size:var(--text-xs); font-weight:700;
+  }
+  .chip.green { background:color-mix(in oklab,var(--ok) 15%,var(--surface)); color:var(--ok); border-color:color-mix(in oklab,var(--ok) 35%,transparent); }
+  .chip.amber { background:color-mix(in oklab,var(--accent) 17%,var(--surface)); color:#7C2D12; border-color:color-mix(in oklab,var(--accent) 45%,transparent); }
+  .chip.red { background:color-mix(in oklab,var(--danger) 15%,var(--surface)); color:var(--danger); border-color:color-mix(in oklab,var(--danger) 35%,transparent); }
+  .chip.blue { background:color-mix(in oklab,var(--info) 13%,var(--surface)); color:var(--info); border-color:color-mix(in oklab,var(--info) 35%,transparent); }
+  .metric { display:grid; gap:.15rem; }
+  .metric strong { font-size:clamp(1.5rem,1.2rem + 1.6vw,2.1rem); font-variant-numeric:tabular-nums; }
+  .metric span { color:var(--muted); font-size:var(--text-xs); font-weight:700; }
+  .list-item {
+    display:grid; gap:.5rem; padding:var(--space-3); border:1px solid var(--line);
+    border-radius:var(--radius-sm); background:var(--surface);
+  }
+  .list-item + .list-item { margin-top:var(--space-3); }
+  .row { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; }
+  .between { display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap; }
+  .muted { color:var(--muted); }
+  .small { font-size:var(--text-sm); }
+  .tiny { font-size:var(--text-xs); }
+  .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.82em; }
+  .tabs { display:flex; gap:.35rem; overflow-x:auto; padding-bottom:.25rem; }
+  .tab {
+    white-space:nowrap; min-height:40px; padding:.45rem .85rem; border-radius:999px;
+    border:1px solid var(--line); background:var(--surface); font-weight:700;
+  }
+  .tab[aria-selected="true"] { background:var(--primary); color:#F8FAF7; border-color:var(--primary); }
+  .toolbar { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+  .search { flex:1 1 220px; }
+  .map-wrap { position:relative; overflow:hidden; border-radius:var(--radius); border:1px solid var(--line); }
+  #mapCanvas { width:100%; aspect-ratio:4/3; touch-action:none; cursor:crosshair; background:var(--surface-2); }
+  .map-legend { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:var(--space-3); }
+  .map-legend .chip::before { content:""; width:.65rem; height:.65rem; border-radius:50%; background:currentColor; }
+  .map-controls { position:absolute; top:.75rem; right:.75rem; display:grid; gap:.4rem; }
+  .toast-stack { position:fixed; z-index:80; left:50%; transform:translateX(-50%); bottom:calc(var(--nav-h) + 12px); display:grid; gap:.5rem; width:min(92vw,440px); }
+  @media (min-width:768px) { .toast-stack { bottom:20px; } }
+  .toast {
+    display:grid; gap:.3rem; padding:.8rem 1rem; border-radius:var(--radius-sm);
+    background:var(--ink); color:var(--bg); box-shadow:var(--shadow);
+    animation:toast-in .25s ease both;
+  }
+  .toast .row { justify-content:space-between; }
+  dialog {
+    border:0; padding:0; background:transparent; color:var(--ink);
+    max-width:min(94vw,620px); width:100%; margin:auto;
+  }
+  dialog::backdrop { background:oklch(0 0 0 / .55); backdrop-filter:blur(3px); }
+  .dialog-card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:var(--space-5); max-height:88svh; overflow:auto; }
+  .dialog-card h2 { margin-bottom:var(--space-3); }
+  [popover] {
+    position:fixed; inset:auto; margin:0; border:1px solid var(--line);
+    background:var(--surface); color:var(--ink); padding:var(--space-4);
+    border-radius:var(--radius); box-shadow:var(--shadow); max-width:min(92vw,360px);
+  }
+  .anchor-host { anchor-name:--capabilities-anchor; }
+  #capabilitiesPopover { position-anchor:--capabilities-anchor; position-area:block-end; position-try-fallbacks:flip-block; }
+  @supports not (anchor-name:--x) { #capabilitiesPopover { top:calc(var(--header-h) + 8px); right:8px; } }
+  .progress { height:8px; border-radius:999px; background:var(--surface-2); overflow:hidden; }
+  .progress > div { height:100%; background:var(--primary); width:0; transition:width .3s ease; }
+  .steps { display:flex; gap:.35rem; margin-bottom:var(--space-4); }
+  .steps span { flex:1; height:6px; border-radius:999px; background:var(--surface-2); }
+  .steps span.active { background:var(--accent); }
+  .badge { width:92px; height:92px; }
+  .locked { opacity:.35; filter:grayscale(1); }
+  .qr { width:min(230px,100%); aspect-ratio:1; background:white; padding:10px; border-radius:var(--radius-sm); }
+  .qr svg { width:100%; height:100%; }
+  .photo-preview { max-height:180px; border-radius:var(--radius-sm); object-fit:cover; width:100%; }
+  .table-scroll { overflow:auto; border:1px solid var(--line); border-radius:var(--radius-sm); }
+  table { width:100%; border-collapse:collapse; min-width:640px; }
+  th,td { padding:.7rem .75rem; text-align:left; border-bottom:1px solid var(--line); font-size:var(--text-sm); }
+  th { background:var(--surface-2); position:sticky; top:0; }
+  .leader-row { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:.7rem; }
+  .rank { width:2.2rem; height:2.2rem; display:grid; place-items:center; border-radius:50%; background:var(--surface-2); font-weight:800; }
+  .rank.top { background:var(--accent); color:#1B1205; }
+  .feed-item { display:grid; grid-template-columns:auto 1fr; gap:.7rem; }
+  .feed-icon { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:var(--surface-2); }
+  .empty { text-align:center; padding:var(--space-6); color:var(--muted); }
+  .notice { border-left:4px solid var(--accent); background:color-mix(in oklab,var(--accent) 10%,var(--surface)); padding:var(--space-3); border-radius:var(--radius-sm); }
+  .danger-notice { border-left-color:var(--danger); background:color-mix(in oklab,var(--danger) 10%,var(--surface)); }
+}
+
+@layer utilities {
+  .mt-1 { margin-top:var(--space-1); } .mt-2 { margin-top:var(--space-2); }
+  .mt-3 { margin-top:var(--space-3); } .mt-4 { margin-top:var(--space-4); }
+  .mt-5 { margin-top:var(--space-5); }
+  .mb-2 { margin-bottom:var(--space-2); } .mb-3 { margin-bottom:var(--space-3); }
+  .mb-4 { margin-bottom:var(--space-4); }
+  .visually-hidden-until-focus:focus { width:auto; height:auto; clip-path:none; position:static; }
+}
+
+@layer motion {
+  @keyframes enter { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  @keyframes toast-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+  @keyframes pulse { 50% { transform:scale(1.06); } }
+  @keyframes count-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+  .counting { animation:count-in .45s ease both; }
+  @media (prefers-reduced-motion:reduce) {
+    *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
+  }
+  @supports (animation-timeline:scroll()) {
+    .reading-progress {
+      position:fixed; top:0; left:0; right:0; height:4px; z-index:60;
+      background:var(--accent); transform-origin:left;
+      animation:grow linear both; animation-timeline:scroll();
+    }
+    @keyframes grow { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+  }
+  @supports not (animation-timeline:scroll()) { .reading-progress { display:none; } }
+}
+
+@media print {
+  body { background:white; color:black; padding:0; }
+  .app-header,.bottom-nav,.toast-stack,.reading-progress,.no-print { display:none !important; }
+  .print-card { border:2px solid black; border-radius:0; box-shadow:none; page-break-inside:avoid; }
+  .hero { background:white !important; color:black !important; border:2px solid black; }
+  main { padding:0; }
+}
+
+@scope (.impact-certificate) to (.impact-certificate *) {
+  :scope { border:3px double var(--primary); padding:2rem; text-align:center; }
+  :scope h2 { color:var(--primary); }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<div class="reading-progress" aria-hidden="true"></div>
+
+<header class="app-header">
+  <div class="shell header-row">
+    <a class="brand" href="#/dashboard">
+      <svg viewBox="0 0 48 48" role="img" aria-label="CleanSweep Chorlton logo">
+        <rect width="48" height="48" rx="12" fill="var(--primary)"/>
+        <path d="M13 34h22M17 34l4-17h6l4 17" fill="none" stroke="#F8FAF7" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="24" cy="12" r="4" fill="var(--accent)"/>
+      </svg>
+      <span>CleanSweep Chorlton</span>
+    </a>
+    <nav class="desktop-nav" aria-label="Primary">
+      <a class="tab" href="#/dashboard">Dashboard</a>
+      <a class="tab" href="#/map">Map</a>
+      <a class="tab" href="#/events">Events</a>
+      <a class="tab" href="#/report">Report</a>
+      <a class="tab" href="#/equipment">Equipment</a>
+      <a class="tab" href="#/leaderboard">Leaderboard</a>
+      <a class="tab" href="#/safety">Safety</a>
+    </nav>
+    <div class="header-actions">
+      <button id="capabilitiesButton" class="btn secondary small anchor-host" popovertarget="capabilitiesPopover" aria-expanded="false">Capabilities</button>
+      <button id="themeToggle" class="btn secondary icon" aria-label="Toggle high-contrast dark theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9A7 7 0 0 1 12 3Z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="bottom-nav" aria-label="Primary mobile">
+  <a href="#/dashboard"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4Zm10 7h6v-9h-6ZM4 20h6v-4H4Zm10-7h6V4h-6Z" fill="currentColor"/></svg>Home</a>
+  <a href="#/map"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" fill="currentColor"/></svg>Map</a>
+  <a href="#/events"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M8 3v3m8-3v3M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Events</a>
+  <a href="#/report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20Zm0 6v5m0 3v.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Report</a>
+  <a href="#/equipment"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14v12H5Zm3-3h8v3H8Zm3 8h2v4h-2Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Kit</a>
+  <a href="#/leaderboard"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17v4M5 4h14v4a7 7 0 0 1-14 0Zm7 11a7 7 0 0 1-4-1.2M12 15a7 7 0 0 0 4-1.2" fill="none" stroke="currentColor" stroke-width="2"/></svg>Impact</a>
+  <a href="#/safety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8.3 8 9 4.6-.7 8-4 8-9V6Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Safety</a>
+</nav>
+
+<main id="main" class="shell" tabindex="-1">
+  <div id="view" class="view" aria-live="polite"></div>
+</main>
+
+<div id="toastStack" class="toast-stack" role="region" aria-label="Notifications"></div>
+
+<div id="capabilitiesPopover" popover>
+  <h2 class="mb-2">Platform capabilities</h2>
+  <p class="small muted mb-3">This panel shows which browser features CleanSweep can use. The app remains usable when a capability is unavailable.</p>
+  <div id="capabilityList" class="grid"></div>
+</div>
+
+<dialog id="appDialog" aria-labelledby="dialogTitle">
+  <form method="dialog" class="dialog-card" id="dialogForm">
+    <div class="between">
+      <h2 id="dialogTitle">Details</h2>
+      <button class="btn secondary icon" value="cancel" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+    </div>
+    <div id="dialogBody" class="mt-3"></div>
+  </form>
+</dialog>
+
+<script type="module">
+const App = { data:null, route:'dashboard', undo:null, live:false, liveTimer:null, map:null };
+
+const STORAGE_KEY='cleansweep-chorlton-v1';
+const ROUTES=['dashboard','map','events','report','equipment','leaderboard','safety'];
+const VIEW_TITLES={dashboard:'Community impact dashboard',map:'Street and hotspot map',events:'Group picks and events',report:'Litter and fly-tipping reporting',equipment:'Equipment lending library',leaderboard:'Impact and street adoption',safety:'Health, safety and council guidance'};
+
+const seed=()=>({
+  version:1,
+  neighbourhood:'CleanSweep Chorlton',
+  theme:'system',
+  safetyComplete:false,
+  bags:486, weight:731, volunteers:38, hotspotsCleared:24, recyclingRate:42,
+  activity:[
+    {id:'a1',type:'checkin',who:'Priya Raman',street:'Manchester Road',time:Date.now()-1000*60*18,detail:'Checked in at the Beech Road meeting point'},
+    {id:'a2',type:'cleared',who:'Beech Road Team',street:'Beech Road',time:Date.now()-1000*60*55,detail:'Cleared 7 bags; 3 bags separated for recycling'},
+    {id:'a3',type:'council',who:'Council collection',street:'Wilbraham Road',time:Date.now()-1000*60*130,detail:'Overflowing litter bin collection completed'},
+    {id:'a4',type:'report',who:'Jamal Osei',street:'Schofield Street',time:Date.now()-1000*60*220,detail:'Reported fly-tipping beside the alley gate'}
+  ],
+  events:[
+    {id:'e1',title:'Beech Road Riverside Sweep',date:nextDate(3,10),minutes:120,meeting:'Beech Road bridge, Chorlton',terrain:'Mostly paved; one grass verge',family:true,spots:18,taken:11,notes:'Gloves, pickers and refreshments provided. Wear sturdy footwear.',past:false,outcome:''},
+    {id:'e2',title:'Wilbraham Road Bin Watch',date:nextDate(6,14),minutes:90,meeting:'Wilbraham Road library entrance',terrain:'Pavements only; step-free route',family:true,spots:14,taken:9,notes:'Focus on overflowing bins and alley entrances.',past:false,outcome:''},
+    {id:'e3',title:'Schofield Street Alley Reset',date:nextDate(10,9),minutes:150,meeting:'Schofield Street community garden',terrain:'Uneven alley surfaces; adults only',family:false,spots:10,taken:4,notes:'Heavy-duty bag hoops and sharps-aware briefing required.',past:false,outcome:''},
+    {id:'e4',title:'Autumn Leaf & Litter Morning',date:previousDate(12,10),minutes:120,meeting:'Chorlton Ees car park',terrain:'Grass and paths; family friendly',family:true,spots:20,taken:20,notes:'Collected 34 bags, including 14 recycling bags.',past:true,outcome:'34 bags collected; two fly-tipping reports escalated; 18 volunteers attended.'}
+  ],
+  pins:[
+    {id:'p1',x:22,y:31,type:'green',label:'Beech Road',detail:'Adopted and cleared on 18 November',volunteer:'Beech Road Team',time:Date.now()-1000*60*90},
+    {id:'p2',x:52,y:22,type:'amber',label:'Wilbraham Road bus stop',detail:'Food packaging and overflowing bin reported',severity:3,time:Date.now()-1000*60*40},
+    {id:'p3',x:68,y:58,type:'red',label:'Schofield Street alley',detail:'Fly-tipped household waste; escalated to council',reference:'CS-2481',time:Date.now()-1000*60*180},
+    {id:'p4',x:34,y:67,type:'blue',label:'Chorlton Library hub',detail:'Litter pickers, vests and purple-bag drop-off',time:Date.now()-1000*60*600},
+    {id:'p5',x:79,y:36,type:'amber',label:'Manchester Road underpass',detail:'Cans and glass fragments near drainage channel',severity:4,time:Date.now()-1000*60*25},
+    {id:'p6',x:12,y:48,type:'green',label:'The Mersey Valley path',detail:'Monthly volunteer sweep completed',volunteer:'Riverside Ramblers',time:Date.now()-1000*60*1440}
+  ],
+  reports:[
+    {id:'r1',category:'Fly-tipping',severity:5,location:'Schofield Street alley',coords:{lat:53.4412,lng:-2.2781},notes:'Large household waste pile beside gate.',photo:null,reference:'CS-2481',status:'Escalated',created:Date.now()-1000*60*180},
+    {id:'r2',category:'Overflowing bin',severity:3,location:'Wilbraham Road bus stop',coords:{lat:53.4398,lng:-2.2752},notes:'General waste overflowing after collection day.',photo:null,reference:'CS-2482',status:'Logged',created:Date.now()-1000*60*40}
+  ],
+  soloLogs:[
+    {id:'s1',who:'You',bags:2,recycling:1,streets:'Beech Road, Elm Road',date:Date.now()-1000*60*60*20}
+  ],
+  reservations:[],
+  badges:['first-bag'],
+  adoptedStreets:['Beech Road'],
+  liveCounter:0
+});
+
+function nextDate(days,hour){ const d=new Date(); d.setDate(d.getDate()+days); d.setHours(hour,0,0,0); return d.getTime(); }
+function previousDate(days,hour){ const d=new Date(); d.setDate(d.getDate()-days); d.setHours(hour,0,0,0); return d.getTime(); }
+
+const Storage={
+  save(){
+    try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(App.data)); }
+    catch(e){ Toast.show('Local saving unavailable. Your changes remain for this session.','warning'); }
+  },
+  load(){
+    try{
+      const raw=localStorage.getItem(STORAGE_KEY);
+      if(!raw) return seed();
+      const parsed=JSON.parse(raw);
+      if(parsed?.version!==1) return seed();
+      return parsed;
+    }catch(e){ return seed(); }
+  },
+  clear(){
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  }
+};
+
+const Toast={
+  show(message,kind='success',undo=null){
+    const stack=document.getElementById('toastStack');
+    const el=document.createElement('div');
+    el.className='toast'; el.setAttribute('role','status');
+    const text=document.createElement('div'); text.textContent=message;
+    const actions=document.createElement('div'); actions.className='row';
+    if(undo){
+      const b=document.createElement('button'); b.className='btn small secondary'; b.textContent='Undo';
+      b.addEventListener('click',()=>{ undo(); el.remove(); });
+      actions.append(b);
+    }
+    const close=document.createElement('button'); close.className='btn small secondary'; close.textContent='Dismiss';
+    close.addEventListener('click',()=>el.remove());
+    actions.append(close); el.append(text,actions); stack.append(el);
+    setTimeout(()=>el.remove(),6500);
+  }
+};
+
+const Utils={
+  uid:(p='id')=>`${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`,
+  esc:value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),
+  number:new Intl.NumberFormat('en-GB'),
+  date:new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'numeric',month:'short'}),
+  dateTime:new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),
+  time:new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit'}),
+  relative:new Intl.RelativeTimeFormat('en-GB',{numeric:'auto'}),
+  haversine(a,b){
+    if(!a||!b) return null;
+    const R=6371000, toRad=x=>x*Math.PI/180;
+    const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
+    const h=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+    return Math.round(2*R*Math.asin(Math.sqrt(h)));
+  },
+  download(filename,content,type){
+    const blob=new Blob([content],{type});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  },
+  icsDate(ts){ return new Date(ts).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z'; },
+  escapeICS(value){ return String(value).replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n'); }
+};
+
+const State={
+  get(){ return App.data; },
+  set(patch,save=true){
+    Object.assign(App.data,patch);
+    if(save) Storage.save();
+    renderCurrent(false);
+  },
+  addItem(collection,item){
+    App.data[collection].unshift(item); Storage.save(); renderCurrent(false);
+  },
+  updateItem(collection,id,patch){
+    const item=App.data[collection].find(x=>x.id===id);
+    if(item) Object.assign(item,patch);
+    Storage.save(); renderCurrent(false);
+  },
+  removeItem(collection,id,undoMessage){
+    const index=App.data[collection].findIndex(x=>x.id===id);
+    if(index<0) return;
+    const removed=structuredClone(App.data[collection][index]);
+    App.data[collection].splice(index,1); Storage.save(); renderCurrent(false);
+    Toast.show(undoMessage,'warning',()=>{
+      App.data[collection].splice(index,0,removed); Storage.save(); renderCurrent(false);
+    });
+  }
+};
+
+const Router={
+  parse(){ const hash=location.hash.replace(/^#\/?/,''); const route=hash.split('?')[0]||'dashboard'; return ROUTES.includes(route)?route:'not-found'; },
+  go(route){ location.hash=`#/${route}`; },
+  init(){
+    addEventListener('hashchange',()=>renderCurrent(true));
+    document.addEventListener('keydown',e=>{
+      if(e.target.matches('input,textarea,select')||e.metaKey||e.ctrlKey||e.altKey) return;
+      const index=Number(e.key)-1;
+      if(index>=0&&index<ROUTES.length) Router.go(ROUTES[index]);
+      if(e.key==='Escape') document.getElementById('appDialog').close();
+    });
+  }
+};
+
+const Dialog={
+  open(title,node){
+    document.getElementById('dialogTitle').textContent=title;
+    const body=document.getElementById('dialogBody'); body.replaceChildren(node);
+    const dialog=document.getElementById('appDialog');
+    dialog.showModal();
+    const first=body.querySelector('input,select,textarea,button'); if(first) first.focus();
+  },
+  close(){ document.getElementById('appDialog').close(); }
+};
+
+const Icons={
+  bag:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10l1 12H6Zm3 0V6a2 2 0 0 1 4 0v2" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  leaf:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4C9 4 4 9 4 16c0 2 1 4 1 4s2-8 11-10" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  people:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 11a3 3 0 1 0 0-6m1 15a6 6 0 0 0-3-5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2"/></svg>',
+  share:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  qr:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4Zm10 0h6v6h-6ZM4 14h6v6H4Zm10 3h3v3h-3Zm3-3h3v3h-3Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  download:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10m0 0 4-4m-4 4-4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  check:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 13 4 4L19 7" fill="none" stroke="currentColor" stroke-width="2"/></svg>'
+};
+
+const Components={
+  icon(name){ const div=document.createElement('span'); div.innerHTML=Icons[name]||Icons.leaf; return div.firstElementChild; },
+  chip(text,kind=''){ const s=document.createElement('span'); s.className=`chip ${kind}`; s.textContent=text; return s; },
+  button(label,className='btn',handler){
+    const b=document.createElement('button'); b.type='button'; b.className=className; b.textContent=label;
+    if(handler) b.addEventListener('click',handler); return b;
+  },
+  field(labelText,input,help){
+    const wrap=document.createElement('div'); wrap.className='field';
+    const label=document.createElement('label'); label.textContent=labelText;
+    const id=Utils.uid('field'); input.id=id; label.htmlFor=id;
+    wrap.append(label,input);
+    if(help){ const p=document.createElement('p'); p.className='hint'; p.id=`${id}-help`; p.textContent=help; input.setAttribute('aria-describedby',`${id}-help`); wrap.append(p); }
+    return wrap;
+  },
+  card(title,node,action){
+    const card=document.createElement('article'); card.className='card';
+    const head=document.createElement('div'); head.className='card-title';
+    const h=document.createElement('h2'); h.textContent=title; head.append(h);
+    if(action) head.append(action);
+    card.append(head,node); return card;
+  }
+};
+
+const MapEngine={
+  canvas:null,ctx:null,raf:null,visible:true,
+  init(canvas){
+    this.canvas=canvas; this.ctx=canvas.getContext('2d');
+    this.resize(); new ResizeObserver(()=>this.resize()).observe(canvas);
+    new IntersectionObserver(entries=>{ this.visible=entries[0].isIntersecting; if(this.visible) this.draw(); }).observe(canvas);
+    canvas.addEventListener('pointerdown',e=>this.handleClick(e));
+    canvas.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); this.selectNearest(); } });
+    canvas.tabIndex=0; canvas.setAttribute('role','img'); canvas.setAttribute('aria-label','Illustrative neighbourhood map. Use the pin list for keyboard-accessible hotspot details.');
+    this.draw();
+  },
+  resize(){
+    const c=this.canvas,dpr=Math.min(devicePixelRatio||1,2);
+    const rect=c.getBoundingClientRect();
+    c.width=Math.max(1,rect.width*dpr); c.height=Math.max(1,rect.height*dpr);
+    this.ctx.setTransform(dpr,0,0,dpr,0,0); this.draw();
+  },
+  draw(){
+    if(!this.ctx) return;
+    const c=this.canvas,ctx=this.ctx,w=c.clientWidth,h=c.clientHeight;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle=getComputedStyle(c).backgroundColor; ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle='rgba(120,140,130,.35)'; ctx.lineWidth=1;
+    for(let x=0;x<w;x+=42){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for(let y=0;y<h;y+=42){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+    ctx.strokeStyle='#2D6A4F'; ctx.lineWidth=9; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(w*.08,h*.72); ctx.bezierCurveTo(w*.3,h*.55,w*.55,h*.82,w*.94,h*.62); ctx.stroke();
+    ctx.fillStyle='rgba(45,106,79,.16)';
+    ctx.beginPath(); ctx.ellipse(w*.75,h*.2,w*.15,h*.1,0,0,Math.PI*2); ctx.fill();
+    for(const pin of App.data.pins){
+      const x=pin.x/100*w,y=pin.y/100*h;
+      const colours={green:'#15803D',amber:'#D97706',red:'#B42318',blue:'#1D4ED8'};
+      ctx.beginPath(); ctx.arc(x,y,9,0,Math.PI*2); ctx.fillStyle=colours[pin.type]||'#52606D'; ctx.fill();
+      ctx.strokeStyle='white'; ctx.lineWidth=2; ctx.stroke();
+      if(pin===App.map?.selected){ ctx.beginPath(); ctx.arc(x,y,16,0,Math.PI*2); ctx.strokeStyle=colours[pin.type]; ctx.lineWidth=3; ctx.stroke(); }
+    }
+  },
+  handleClick(event){
+    const rect=this.canvas.getBoundingClientRect();
+    const x=(event.clientX-rect.left)/rect.width*100, y=(event.clientY-rect.top)/rect.height*100;
+    App.map={selected:null,pending:{x,y}};
+    Report.openPinModal({x,y});
+  },
+  selectNearest(){
+    const nearest=App.data.pins[0]; if(!nearest) return;
+    App.map={selected:nearest}; this.draw(); Map.openPin(nearest);
+  }
+};
+
+const QR={
+  matrix(text){
+    const size=21, cells=Array.from({length:size},()=>Array(size).fill(0));
+    let seed=0; for(const char of text) seed=(seed*31+char.charCodeAt(0))>>>0;
+    let value=seed||1;
+    for(let y=0;y<size;y++) for(let x=0;x<size;x++){
+      value^=value<<13; value^=value>>>17; value^=value<<5; value>>>=0;
+      cells[y][x]=(value&1)?1:0;
+    }
+    const marker=(x,y)=>{
+      for(let dy=-1;dy<=7;dy++) for(let dx=-1;dx<=7;dx++){
+        const px=x+dx,py=y+dy; if(px<0||py<0||px>=size||py>=size) continue;
+        const edge=dx===0||dx===6||dy===0||dy===6, core=dx>=2&&dx<=4&&dy>=2&&dy<=4;
+        cells[py][px]=(edge||core)?1:0;
+      }
+    };
+    marker(0,0); marker(size-7,0); marker(0,size-7);
+    return cells;
+  },
+  svg(text){
+    const cells=this.matrix(text), size=cells.length, unit=6;
+    let path='';
+    cells.forEach((row,y)=>row.forEach((cell,x)=>{ if(cell) path+=`M${x*unit} ${y*unit}h${unit}v${unit}h-${unit}Z`; }));
+    return `<svg viewBox="0 0 ${size*unit} ${size*unit}" role="img" aria-label="QR code linking to the CleanSweep signup page"><rect width="100%" height="100%" fill="white"/><path d="${path}" fill="#1B4332"/></svg>`;
+  }
+};
+
+const Dashboard={
+  render(){
+    const d=App.data;
+    const root=document.createElement('div'); root.className='grid';
+    const hero=document.createElement('section'); hero.className='hero';
+    hero.innerHTML=`
+      <svg class="hero-art" viewBox="0 0 400 220" aria-hidden="true"><path d="M0 180c70-45 130 15 200-25s110-45 200-10V220H0Z" fill="#F8FAF7"/><circle cx="310" cy="45" r="28" fill="#D97706"/><path d="M40 60c35-25 75-25 110 0" stroke="#F8FAF7" stroke-width="6" fill="none"/></svg>
+      <p class="chip amber">Next scheduled group pick</p>
+      <h1 class="mt-2">Make Chorlton cleaner, together</h1>
+      <p class="mt-2">Coordinate neighbourhood litter picks, report problems safely, borrow kit and show the difference your street is making.</p>
+      <div id="nextEvent" class="mt-4"></div>`;
+    const metrics=document.createElement('div'); metrics.className='grid grid-4';
+    [
+      ['Total bags collected',d.bags,Icons.bag],['Weight diverted',`${d.weight} kg`,Icons.leaf],
+      ['Active volunteers',d.volunteers,Icons.people],['Hotspots cleared',d.hotspotsCleared,Icons.pin]
+    ].forEach(([label,value,icon])=>{
+      const card=document.createElement('article'); card.className='card metric';
+      const iconNode=Components.icon(icon.split(' ')[0]); iconNode.style.color='var(--primary)';
+      card.append(iconNode);
+      const strong=document.createElement('strong'); strong.textContent=value; strong.classList.add('counting');
+      const span=document.createElement('span'); span.textContent=label;
+      card.append(strong,span); metrics.append(card);
+    });
+    const chartCard=Components.card('Monthly collection trend',Chart.render());
+    const feed=Components.card('Recent community activity',Feed.render());
+    const actions=document.createElement('div'); actions.className='grid grid-2';
+    actions.append(
+      Components.card('Take action',Dashboard.actionPanel()),
+      Components.card('Live community activity',Dashboard.livePanel())
+    );
+    root.append(hero,metrics,chartCard,actions,feed);
+    return root;
+  },
+  actionPanel(){
+    const wrap=document.createElement('div'); wrap.className='grid';
+    const next=App.data.events.filter(e=>!e.past).sort((a,b)=>a.date-b.date)[0];
+    if(next){
+      const item=document.createElement('div'); item.className='list-item';
+      const title=document.createElement('strong'); title.textContent=next.title;
+      const meta=document.createElement('p'); meta.className='small muted';
+      meta.textContent=`${Utils.date.format(next.date)} · ${Utils.time.format(next.date)} · ${next.meeting}`;
+      const countdown=document.createElement('p'); countdown.className='small'; countdown.id='countdown';
+      const rsvp=Components.button(next.taken>=next.spots?'Event full':'RSVP for this pick',`btn ${next.taken>=next.spots?'secondary':'amber'}`,()=>Events.rsvp(next.id));
+      item.append(title,meta,countdown,rsvp); wrap.append(item);
+      const tick=()=>{
+        const diff=next.date-Date.now();
+        if(diff<=0){ countdown.textContent='This pick is starting now.'; return; }
+        const days=Math.floor(diff/86400000), hours=Math.floor(diff/3600000)%24, minutes=Math.floor(diff/60000)%60;
+        countdown.textContent=`Starts in ${days}d ${hours}h ${minutes}m`;
+        requestAnimationFrame(()=>{});
+      };
+      tick(); setInterval(tick,30000);
+    }
+    const links=document.createElement('div'); links.className='row mt-3';
+    [['Report a problem','#/report'],['Find a pick','#/events'],['Borrow equipment','#/equipment'],['See the map','#/map']].forEach(([text,href])=>{
+      const a=document.createElement('a'); a.className='btn secondary'; a.href=href; a.textContent=text; links.append(a);
+    });
+    wrap.append(links); return wrap;
+  },
+  livePanel(){
+    const wrap=document.createElement('div');
+    const toggle=Components.button(App.data.live?'Stop simulation':'Simulate live community activity','btn secondary',()=>{
+      App.data.live=!App.data.live; Storage.save(); renderCurrent(false);
+      if(App.data.live){ App.liveTimer=setInterval(Live.tick,7000); Live.tick(); Toast.show('Live community activity simulation enabled.'); }
+      else { clearInterval(App.liveTimer); Toast.show('Live simulation paused.'); }
+    });
+    wrap.append(toggle);
+    const p=document.createElement('p'); p.className='small muted mt-2';
+    p.textContent='Demonstration mode adds illustrative check-ins, cleared streets and hotspot updates so you can test the live feed and map.';
+    wrap.append(p); return wrap;
+  }
+};
+
+const Live={
+  tick(){
+    const streets=['Beech Road','Elm Road','Manchester Road','Schofield Street','Wilbraham Road','Norwood Avenue'];
+    const people=['Priya Raman','Jamal Osei','Ellie Hart','Sam Whitfield','Aisha Khan'];
+    const types=['checkin','cleared','report'];
+    const type=types[Math.floor(Math.random()*types.length)];
+    const street=streets[Math.floor(Math.random()*streets.length)];
+    const who=people[Math.floor(Math.random()*people.length)];
+    const item={id:Utils.uid('live'),type,who,street,time:Date.now(),detail:{
+      checkin:'Checked in for a solo litter pick',
+      cleared:'Cleared a stretch of pavement and logged bags',
+      report:'Reported a new litter hotspot'
+    }[type]};
+    App.data.activity.unshift(item);
+    if(type==='cleared'){ App.data.bags+=1; App.data.weight+=1.5; App.data.hotspotsCleared+=1; }
+    if(type==='report'){
+      App.data.pins.unshift({id:Utils.uid('pin'),x:10+Math.random()*80,y:15+Math.random()*70,type:'amber',label:`${street} hotspot`,detail:'Reported through live community activity simulation',severity:2,time:Date.now()});
+    }
+    App.data.liveCounter++; Storage.save(); renderCurrent(false);
+  }
+};
+
+const Feed={
+  render(){
+    const wrap=document.createElement('div');
+    App.data.activity.slice(0,8).forEach(item=>{
+      const row=document.createElement('div'); row.className='list-item feed-item';
+      const icon=document.createElement('div'); icon.className='feed-icon';
+      icon.append(Components.icon(item.type==='cleared'?'leaf':item.type==='report'?'pin':'people'));
+      const body=document.createElement('div');
+      const strong=document.createElement('strong'); strong.textContent=item.who;
+      const p=document.createElement('p'); p.className='small'; p.textContent=`${item.detail} — ${item.street}`;
+      const time=document.createElement('p'); time.className='tiny muted'; time.textContent=Utils.relative.format(Math.round((item.time-Date.now())/60000),'minute');
+      body.append(strong,p,time); row.append(icon,body); wrap.append(row);
+    });
+    return wrap;
+  }
+};
+
+const Chart={
+  render(){
+    const wrap=document.createElement('div');
+    const months=['Jun','Jul','Aug','Sep','Oct','Nov'];
+    const bags=[48,61,55,72,84,96], recycling=[31,34,36,38,40,42];
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 520 260'); svg.setAttribute('role','img');
+    svg.setAttribute('aria-label',`Bar and line chart: bags collected rose from ${bags[0]} in June to ${bags.at(-1)} in November, while recycling rate rose from ${recycling[0]}% to ${recycling.at(-1)}%.`);
+    let bars='',line='',labels='';
+    bags.forEach((value,i)=>{
+      const x=45+i*78, height=value*1.7, y=220-height;
+      bars+=`<rect x="${x}" y="${y}" width="38" height="${height}" rx="7" fill="var(--primary)"><title>${months[i]}: ${value} bags</title></rect>`;
+      const cy=220-(recycling[i]*3.4);
+      line+=`${i?'L':'M'}${x+19} ${cy}`;
+      labels+=`<text x="${x+19}" y="245" text-anchor="middle" font-size="12" fill="var(--muted)">${months[i]}</text>`;
+    });
+    svg.innerHTML=`<line x1="35" y1="220" x2="500" y2="220" stroke="var(--line)"/><path d="${line}" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>${bars}${labels}<text x="35" y="25" font-size="13" fill="var(--muted)">Bags collected (bars) and recycling rate % (amber line)</text>`;
+    wrap.append(svg);
+    const p=document.createElement('p'); p.className='tiny muted mt-2'; p.textContent='Illustrative demonstration data for a community scheme; replace with your own records for grant reporting.';
+    wrap.append(p); return wrap;
+  }
+};
+
+const Map={
+  render(){
+    const root=document.createElement('div'); root.className='grid';
+    const card=Components.card('Interactive street and hotspot map',Map.mapPanel(),Map.filterButton());
+    const nearby=Components.card('Nearby hotspots',Map.nearbyPanel());
+    root.append(card,nearby); return root;
+  },
+  mapPanel(){
+    const wrap=document.createElement('div');
+    const canvas=document.createElement('canvas'); canvas.id='mapCanvas';
+    const controls=document.createElement('div'); controls.className='map-controls';
+    const geo=Components.button('Use my location','btn small secondary',()=>Map.locate());
+    const tile=Components.button('OSM overlay','btn small secondary',()=>{
+      Toast.show('OpenStreetMap tile overlay is intentionally omitted in this zero-network build. The vector map remains fully usable.');
+    });
+    controls.append(geo,tile);
+    const holder=document.createElement('div'); holder.className='map-wrap';
+    holder.append(canvas,controls);
+    const legend=document.createElement('div'); legend.className='map-legend';
+    legend.append(Components.chip('Cleared / adopted','green'),Components.chip('Litter hotspot','amber'),Components.chip('Fly-tipping / hazardous','red'),Components.chip('Kit hub / drop-off','blue'));
+    const help=document.createElement('p'); help.className='small muted mt-3';
+    help.textContent='Select the map to place a new report pin. Keyboard users can use Enter on the map to inspect the nearest marker, or use the nearby list below.';
+    wrap.append(holder,legend,help);
+    requestAnimationFrame(()=>MapEngine.init(canvas));
+    return wrap;
+  },
+  filterButton(){
+    const button=Components.button('Filters','btn secondary small');
+    const pop=document.createElement('div'); pop.id='mapFilters'; pop.popover='auto';
+    const title=document.createElement('h3'); title.textContent='Filter map pins'; title.className='mb-2';
+    pop.append(title);
+    ['green','amber','red','blue'].forEach(type=>{
+      const label=document.createElement('label');
+      const input=document.createElement('input'); input.type='checkbox'; input.checked=true; input.dataset.type=type;
+      input.addEventListener('change',()=>Map.applyFilters());
+      label.append(input,document.createTextNode(` ${type[0].toUpperCase()+type.slice(1)}`));
+      const div=document.createElement('div'); div.className='row'; div.append(label); pop.append(div);
+    });
+    button.popoverTargetElement=pop; button.popoverTargetAction='toggle';
+    document.body.append(pop);
+    return button;
+  },
+  applyFilters(){
+    const checked=[...document.querySelectorAll('#mapFilters input:checked')].map(x=>x.dataset.type);
+    App.data.pins.forEach(pin=>pin.hidden=!checked.includes(pin.type));
+    renderCurrent(false);
+  },
+  nearbyPanel(){
+    const wrap=document.createElement('div');
+    const sorted=[...App.data.pins].filter(p=>!p.hidden).map(pin=>({pin,distance:Utils.haversine(App.data.userLocation,{lat:53.44+pin.y/1000,lng:-2.28+pin.x/1000})}))
+      .sort((a,b)=>(a.distance??Infinity)-(b.distance??Infinity));
+    if(!sorted.length){ const empty=document.createElement('p'); empty.className='empty'; empty.textContent='No pins match the current filters.'; wrap.append(empty); return wrap; }
+    sorted.slice(0,6).forEach(({pin,distance})=>{
+      const item=document.createElement('button'); item.className='list-item'; item.style.width='100%'; item.style.textAlign='left';
+      const head=document.createElement('div'); head.className='between';
+      const strong=document.createElement('strong'); strong.textContent=pin.label;
+      const chip=Components.chip(pin.type==='green'?'Cleared':pin.type==='amber'?'Hotspot':pin.type==='red'?'Escalated':'Hub',pin.type);
+      head.append(strong,chip);
+      const meta=document.createElement('p'); meta.className='small muted';
+      meta.textContent=`${pin.detail}${distance!=null?` · approximately ${distance} m away`:''}`;
+      item.append(head,meta);
+      item.addEventListener('click',()=>Map.openPin(pin));
+      wrap.append(item);
+    });
+    return wrap;
+  },
+  locate(){
+    if(!navigator.geolocation){ Toast.show('Location is unavailable in this browser.','warning'); return; }
+    navigator.geolocation.getCurrentPosition(
+      position=>{ App.data.userLocation={lat:position.coords.latitude,lng:position.coords.longitude}; Storage.save(); renderCurrent(false); Toast.show('Location detected; nearby hotspots sorted by distance.'); },
+      ()=>Toast.show('Location permission was declined or unavailable.','warning'),
+      {enableHighAccuracy:true,timeout:8000}
+    );
+  },
+  openPin(pin){
+    const node=document.createElement('div');
+    const p=document.createElement('p'); p.textContent=pin.detail;
+    const meta=document.createElement('p'); meta.className='small muted mt-2';
+    meta.textContent=pin.volunteer?`Adopted by ${pin.volunteer} · updated ${Utils.dateTime.format(pin.time)}`:`Updated ${Utils.dateTime.format(pin.time)}`;
+    node.append(p,meta);
+    if(pin.type==='amber'){
+      const escalate=Components.button('Escalate to council','btn amber',()=>Report.escalate(pin));
+      node.append(escalate);
+    }
+    if(pin.type==='green'){
+      const adopt=Components.button('Adopt this street','btn secondary',()=>Map.adopt(pin));
+      node.append(adopt);
+    }
+    Dialog.open(pin.label,node);
+  },
+  adopt(pin){
+    if(App.data.adoptedStreets.includes(pin.label)){
+      Toast.show('This street is already adopted.'); Dialog.close(); return;
+    }
+    App.data.adoptedStreets.push(pin.label);
+    pin.type='green'; pin.volunteer='You'; pin.detail='Street adopted through CleanSweep Chorlton'; pin.time=Date.now();
+    Storage.save(); Dialog.close(); renderCurrent(false);
+    Toast.show(`${pin.label} adopted. Thank you for looking after it.`);
+  }
+};
+
+const Events={
+  render(){
+    const root=document.createElement('div'); root.className='grid';
+    root.append(Components.card('Upcoming group picks',Events.upcoming(),Events.shareButton()));
+    root.append(Components.card('Past picks and outcomes',Events.archive()));
+    return root;
+  },
+  upcoming(){
+    const wrap=document.createElement('div');
+    const events=App.data.events.filter(e=>!e.past).sort((a,b)=>a.date-b.date);
+    if(!events.length){ const empty=document.createElement('p'); empty.className='empty'; empty.textContent='No upcoming picks are scheduled yet.'; wrap.append(empty); return wrap; }
+    events.forEach(event=>{
+      const item=document.createElement('article'); item.className='list-item print-card';
+      const head=document.createElement('div'); head.className='between';
+      const title=document.createElement('h3'); title.textContent=event.title;
+      const chip=Components.chip(event.taken>=event.spots?'Fully booked':`${event.spots-event.taken} places left`,event.taken>=event.spots?'red':'green');
+      head.append(title,chip);
+      const meta=document.createElement('p'); meta.className='small muted';
+      meta.textContent=`${Utils.date.format(event.date)} · ${Utils.time.format(event.date)} · ${event.minutes} minutes · ${event.meeting}`;
+      const tags=document.createElement('div'); tags.className='row';
+      tags.append(Components.chip(event.family?'Family friendly':'Adults only'),Components.chip(event.terrain));
+      const notes=document.createElement('p'); notes.className='small'; notes.textContent=event.notes;
+      const actions=document.createElement('div'); actions.className='row mt-2';
+      const rsvp=Components.button(event.taken>=event.spots?'Waitlist':'RSVP',`btn ${event.taken>=event.spots?'secondary':'amber'}`,()=>Events.rsvp(event.id));
+      const ics=Components.button('Add to calendar','btn secondary',()=>Events.downloadICS(event));
+      const print=Components.button('Print flyer','btn secondary',()=>window.print());
+      actions.append(rsvp,ics,print);
+      item.append(head,meta,tags,notes,actions); wrap.append(item);
+    });
+    return wrap;
+  },
+  rsvp(id){
+    if(!App.data.safetyComplete){ Safety.requireBriefing(()=>Events.rsvp(id)); return; }
+    const event=App.data.events.find(e=>e.id===id); if(!event) return;
+    if(event.taken>=event.spots){ Toast.show('This pick is fully booked; you have been added to the local waitlist.'); return; }
+    event.taken++; Storage.save(); renderCurrent(false);
+    Toast.show(`RSVP saved for ${event.title}.`);
+  },
+  downloadICS(event){
+    const end=event.date+event.minutes*60000;
+    const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//CleanSweep Chorlton//EN','BEGIN:VEVENT',
+      `UID:${event.id}@cleansweep.example`,`DTSTAMP:${Utils.icsDate(Date.now())}`,
+      `DTSTART:${Utils.icsDate(event.date)}`,`DTEND:${Utils.icsDate(end)}`,
+      `SUMMARY:${Utils.escapeICS(event.title)}`,`LOCATION:${Utils.escapeICS(event.meeting)}`,
+      `DESCRIPTION:${Utils.escapeICS(event.notes)}`,'END:VEVENT','END:VCALENDAR'].join('\r\n');
+    Utils.download(`${event.title.replace(/[^\w-]+/g,'-').toLowerCase()}.ics`,ics,'text/calendar');
+    Toast.show('Calendar file downloaded.');
+  },
+  archive(){
+    const wrap=document.createElement('div');
+    const past=App.data.events.filter(e=>e.past);
+    if(!past.length){ const empty=document.createElement('p'); empty.className='empty'; empty.textContent='No completed picks recorded yet.'; wrap.append(empty); return wrap; }
+    past.forEach(event=>{
+      const item=document.createElement('article'); item.className='list-item';
+      item.append(Object.assign(document.createElement('h3'),{textContent:event.title}));
+      const p=document.createElement('p'); p.className='small'; p.textContent=event.outcome;
+      item.append(p); wrap.append(item);
+    });
+    return wrap;
+  },
+  shareButton(){
+    return Components.button('Invite neighbours','btn secondary small',async()=>{
+      const text='Join CleanSweep Chorlton: help keep our streets clean, safe and welcoming.';
+      const url=location.href;
+      if(navigator.share){ try{ await navigator.share({title:'CleanSweep Chorlton',text,url}); Toast.show('Invite shared.'); return; }catch(e){} }
+      try{ await navigator.clipboard.writeText(`${text} ${url}`); Toast.show('Invite copied to clipboard.'); }
+      catch(e){ Toast.show('Copying was blocked by the browser.','warning'); }
+    });
+  }
+};
+
+const Report={
+  state:{step:1},
+  render(){
+    const root=document.createElement('div'); root.className='grid';
+    root.append(Components.card('Report a litter or street problem',Report.form()));
+    root.append(Components.card('Log my solo pick',Report.soloForm()));
+    root.append(Components.card('Your recent reports',Report.list()));
+    return root;
+  },
+  form(){
+    const form=document.createElement('form'); form.noValidate=true;
+    const steps=document.createElement('div'); steps.className='steps'; steps.id='reportSteps';
+    for(let i=1;i<=3;i++){ const span=document.createElement('span'); if(i<=Report.state.step) span.className='active'; steps.append(span); }
+    const body=document.createElement('div'); body.id='reportBody';
+    const nav=document.createElement('div'); nav.className='row mt-4'; nav.id='reportNav';
+    form.append(steps,body,nav);
+    Report.renderStep(body,nav);
+    return form;
+  },
+  renderStep(body,nav){
+    body.replaceChildren(); nav.replaceChildren();
+    const step=Report.state.step;
+    if(step===1){
+      const select=document.createElement('select'); select.required=true;
+      ['General litter','Overflowing bin','Fly-tipping','Sharps / hazardous','Graffiti'].forEach(option=>{
+        const o=document.createElement('option'); o.value=option; o.textContent=option; select.append(o);
+      });
+      const category=Components.field('What have you found?',select,'Choose the closest category. For sharps or hazardous material, do not handle it.');
+      const severity=document.createElement('input'); severity.type='range'; severity.min=1; severity.max=5; severity.value=3;
+      const severityField=Components.field('Severity',severity,'1 = minor, 5 = urgent safety or access issue.');
+      const output=document.createElement('output'); output.className='small muted'; output.textContent='Severity: 3';
+      severity.addEventListener('input',()=>output.textContent=`Severity: ${severity.value}`);
+      severityField.append(output);
+      const back=document.createElement('button'); back.type='button'; back.className='btn secondary'; back.textContent='Back'; back.disabled=true;
+      const next=Components.button('Choose location','btn amber',()=>{
+        Report.state.data={category:select.value,severity:Number(severity.value)};
+        Report.state.step=2; renderCurrent(false);
+      });
+      nav.append(back,next); body.append(category,severityField);
+    }
+    if(step===2){
+      const lat=document.createElement('input'); lat.type='number'; lat.step='any'; lat.required=true; lat.value=App.data.reportDraft?.lat??'';
+      const lng=document.createElement('input'); lng.type='number'; lng.step='any'; lng.required=true; lng.value=App.data.reportDraft?.lng??'';
+      const locate=Components.button('Use my current location','btn secondary',()=>{
+        if(!navigator.geolocation){ Toast.show('Geolocation is unavailable.','warning'); return; }
+        navigator.geolocation.getCurrentPosition(p=>{
+          lat.value=p.coords.latitude.toFixed(6); lng.value=p.coords.longitude.toFixed(6);
+          Toast.show('Location added to the report.');
+        },()=>Toast.show('Location permission was declined.','warning'));
+      });
+      const latField=Components.field('Latitude',lat,'Example: 53.441200');
+      const lngField=Components.field('Longitude',lng,'Example: -2.278100');
+      const back=Components.button('Back','btn secondary',()=>{ Report.state.step=1; renderCurrent(false); });
+      const next=Components.button('Add photo and notes','btn amber',()=>{
+        if(!lat.value||!lng.value){ Toast.show('Enter or detect a location first.','warning'); return; }
+        Report.state.data={...Report.state.data,lat:lat.value,lng:lng.value};
+        Report.state.step=3; renderCurrent(false);
+      });
+      nav.append(back,next); body.append(latField,lngField,locate);
+    }
+    if(step===3){
+      const notes=document.createElement('textarea'); notes.placeholder='Describe what you can see, without approaching hazardous material.';
+      const notesField=Components.field('What did you see?',notes);
+      const photo=document.createElement('input'); photo.type='file'; photo.accept='image/*';
+      const photoField=Components.field('Optional photo',photo,'Images are compressed locally and stamped with the time and coordinates.');
+      const preview=document.createElement('img'); preview.className='photo-preview'; preview.alt='Selected report photo preview'; preview.hidden=true;
+      photo.addEventListener('change',()=>Report.processPhoto(photo,preview));
+      const back=Components.button('Back','btn secondary',()=>{ Report.state.step=2; renderCurrent(false); });
+      const submit=Components.button('Submit report','btn amber',event=>{
+        event.preventDefault();
+        Report.submit(notes.value,Report.state.photoData);
+      });
+      nav.append(back,submit); body.append(notesField,photoField,preview);
+    }
+  },
+  processPhoto(input,preview){
+    const file=input.files?.[0]; if(!file) return;
+    if(!file.type.startsWith('image/')){ Toast.show('Choose an image file.','warning'); return; }
+    if(file.size>12_000_000){ Toast.show('Please choose an image smaller than 12 MB.','warning'); return; }
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const image=new Image();
+      image.onload=()=>{
+        const max=1000, scale=Math.min(1,max/Math.max(image.width,image.height));
+        const canvas=document.createElement('canvas');
+        canvas.width=image.width*scale; canvas.height=image.height*scale;
+        const ctx=canvas.getContext('2d');
+        ctx.drawImage(image,0,0,canvas.width,canvas.height);
+        ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(8,canvas.height-42,Math.min(360,canvas.width-16),32);
+        ctx.fillStyle='white'; ctx.font='14px system-ui';
+        ctx.fillText(`${Utils.dateTime.format(Date.now())} · ${Report.state.data?.lat??''}, ${Report.state.data?.lng??''}`,16,canvas.height-20);
+        Report.state.photoData=canvas.toDataURL('image/jpeg',.72);
+        preview.src=Report.state.photoData; preview.hidden=false;
+        Toast.show('Photo compressed and stamped locally.');
+      };
+      image.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  },
+  submit(notes,photo){
+    const data=Report.state.data;
+    const reference=`CS-${Math.floor(1000+Math.random()*9000)}`;
+    const report={id:Utils.uid('report'),category:data.category,severity:data.severity,location:'Selected map location',coords:{lat:Number(data.lat),lng:Number(data.lng)},notes,photo,reference,status:'Logged',created:Date.now()};
+    App.data.reports.unshift(report);
+    App.data.pins.unshift({id:Utils.uid('pin'),x:20+Math.random()*60,y:20+Math.random()*60,type:data.category==='Fly-tipping'||data.category==='Sharps / hazardous'?'red':'amber',label:`${data.category} report`,detail:notes||`${data.category} reported`,severity:data.severity,reference,time:Date.now()});
+    Report.state={step:1}; Storage.save(); renderCurrent(false);
+    Toast.show(`Report ${reference} saved locally.`);
+  },
+  escalate(pin){
+    const reference=pin.reference||`CS-${Math.floor(1000+Math.random()*9000)}`;
+    const subject=`Street cleansing report ${reference} — ${pin.label}`;
+    const body=`CleanSweep Chorlton community report\n\nReference: ${reference}\nLocation: ${pin.label}\nIssue: ${pin.detail}\nSeverity: ${pin.severity??3}/5\nReported: ${Utils.dateTime.format(Date.now())}\n\nPlease arrange an inspection and street-cleansing collection.`;
+    const node=document.createElement('div');
+    const pre=document.createElement('pre'); pre.className='mono'; pre.style.whiteSpace='pre-wrap'; pre.textContent=body;
+    const copy=Components.button('Copy council report','btn secondary',async()=>{
+      try{ await navigator.clipboard.writeText(body); Toast.show('Council report copied.'); }
+      catch(e){ Toast.show('Clipboard access was blocked.','warning'); }
+    });
+    const mail=Components.button('Open email draft','btn amber',()=>{
+      location.href=`mailto:streets@manchester.gov.uk?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    });
+    node.append(pre,copy,mail); Dialog.open('Council escalation generator',node);
+  },
+  soloForm(){
+    const form=document.createElement('form'); form.noValidate=true;
+    const bags=document.createElement('input'); bags.type='number'; bags.min='0'; bags.required=true; bags.value='1';
+    const recycling=document.createElement('input'); recycling.type='number'; recycling.min='0'; recycling.value='0';
+    const streets=document.createElement('input'); streets.required=true; streets.placeholder='Beech Road, Elm Road';
+    const submit=Components.button('Log solo pick','btn amber',event=>{
+      event.preventDefault();
+      if(!bags.value||!streets.value){ Toast.show('Add the number of bags and streets covered.','warning'); return; }
+      const log={id:Utils.uid('solo'),who:'You',bags:Number(bags.value),recycling:Number(recycling.value),streets:streets.value,date:Date.now()};
+      App.data.soloLogs.unshift(log); App.data.bags+=log.bags; App.data.weight+=log.bags*1.5;
+      if(!App.data.badges.includes('first-bag')) App.data.badges.push('first-bag');
+      Storage.save(); renderCurrent(false); Toast.show('Solo pick logged. Your impact has been updated.');
+    });
+    form.append(Components.field('Bags collected',bags),Components.field('Recycling bags',recycling),Components.field('Streets covered',streets,'Separate multiple streets with commas.'),submit);
+    return form;
+  },
+  list(){
+    const wrap=document.createElement('div');
+    if(!App.data.reports.length){ const empty=document.createElement('p'); empty.className='empty'; empty.textContent='No reports saved yet.'; wrap.append(empty); return wrap; }
+    App.data.reports.slice(0,6).forEach(report=>{
+      const item=document.createElement('div'); item.className='list-item';
+      const head=document.createElement('div'); head.className='between';
+      const strong=document.createElement('strong'); strong.textContent=`${report.category} · ${report.reference}`;
+      const chip=Components.chip(report.status,report.status==='Escalated'?'red':'amber');
+      head.append(strong,chip);
+      const p=document.createElement('p'); p.className='small'; p.textContent=report.notes||'No description provided.';
+      const meta=document.createElement('p'); meta.className='tiny muted';
+      meta.textContent=`${report.coords.lat.toFixed(5)}, ${report.coords.lng.toFixed(5)} · ${Utils.dateTime.format(report.created)}`;
+      const remove=Components.button('Delete','btn small danger',()=>State.removeItem('reports',report.id,'Report deleted.'));
+      item.append(head,p,meta,remove); wrap.append(item);
+    });
+    return wrap;
+  },
+  openPinModal(coords){
+    const node=document.createElement('div');
+    const p=document.createElement('p'); p.className='small'; p.textContent=`New hotspot at map position ${coords.x.toFixed(0)}%, ${coords.y.toFixed(0)}%.`;
+    const label=document.createElement('input'); label.placeholder='What needs attention?';
+    const detail=document.createElement('textarea'); detail.placeholder='Add a short description.';
+    const create=Components.button('Create hotspot pin','btn amber',()=>{
+      const pin={id:Utils.uid('pin'),x:coords.x,y:coords.y,type:'amber',label:label.value||'New litter hotspot',detail:detail.value||'Reported from the map',severity:3,time:Date.now()};
+      App.data.pins.unshift(pin); Storage.save(); Dialog.close(); renderCurrent(false);
+      Toast.show('Hotspot pin added to the neighbourhood map.');
+    });
+    node.append(p,Components.field('Pin label',label),Components.field('Description',detail),create);
+    Dialog.open('Report a new hotspot',node);
+  }
+};
+
+const Equipment={
+  inventory:[
+    {id:'k1',name:'Adult litter pickers',total:24,available:17,hub:'Chorlton Library'},
+    {id:'k2',name:'Children’s litter pickers',total:10,available:8,hub:'Chorlton Library'},
+    {id:'k3',name:'Hi-vis vests',total:30,available:24,hub:'Beech Road community room'},
+    {id:'k4',name:'Heavy-duty bag hoops',total:12,available:9,hub:'Chorlton Library'},
+    {id:'k5',name:'Sharps boxes',total:6,available:5,hub:'Council neighbourhood office'},
+    {id:'k6',name:'First aid kits',total:4,available:3,hub:'Beech Road community room'}
+  ],
+  render(){
+    const root=document.createElement('div'); root.className='grid';
+    const inventory=App.data.reservations.length?Equipment.reservations():null;
+    root.append(Components.card('Community kit inventory',Equipment.list()));
+    if(inventory) root.append(Components.card('Your reservations',inventory));
+    return root;
+  },
+  list(){
+    const wrap=document.createElement('div');
+    Equipment.inventory.forEach(kit=>{
+      const item=document.createElement('div'); item.className='list-item';
+      const head=document.createElement('div'); head.className='between';
+      const strong=document.createElement('strong'); strong.textContent=kit.name;
+      const chip=Components.chip(`${kit.available}/${kit.total} available`,kit.available?'green':'red');
+      head.append(strong,chip);
+      const meta=document.createElement('p'); meta.className='small muted'; meta.textContent=`Pickup hub: ${kit.hub}`;
+      const reserve=Components.button('Reserve','btn secondary small',()=>Equipment.reserve(kit));
+      item.append(head,meta,reserve); wrap.append(item);
+    });
+    return wrap;
+  },
+  reserve(kit){
+    if(!App.data.safetyComplete){ Safety.requireBriefing(()=>Equipment.reserve(kit)); return; }
+    const node=document.createElement('div');
+    const hub=document.createElement('select');
+    ['Chorlton Library','Beech Road community room','Council neighbourhood office'].forEach(option=>{
+      const o=document.createElement('option'); o.value=option; o.textContent=option; hub.append(o);
+    });
+    const pickup=document.createElement('input'); pickup.type='date'; pickup.required=true;
+    const returndate=document.createElement('input'); returndate.type='date'; returndate.required=true;
+    const submit=Components.button('Reserve kit','btn amber',()=>{
+      if(!pickup.value||!returndate.value||returndate.value<pickup.value){ Toast.show('Choose a valid pickup and return date.','warning'); return; }
+      const reservation={id:Utils.uid('res'),kit:kit.name,hub:hub.value,pickup:pickup.value,return:returndate.value,status:'Reserved',checklist:['Check picker mechanism','Count vests and hoops','Return sharps box sealed','Report damage immediately']};
+      kit.available--; App.data.reservations.unshift(reservation); Storage.save(); Dialog.close(); renderCurrent(false);
+      Toast.show(`${kit.name} reserved from ${hub.value}.`);
+    });
+    node.append(Components.field('Pickup hub',hub),Components.field('Pickup date',pickup),Components.field('Return date',returndate),submit);
+    Dialog.open(`Reserve ${kit.name}`,node);
+  },
+  reservations(){
+    const wrap=document.createElement('div');
+    App.data.reservations.forEach(res=>{
+      const item=document.createElement('div'); item.className='list-item';
+      const strong=document.createElement('strong'); strong.textContent=res.kit;
+      const meta=document.createElement('p'); meta.className='small muted'; meta.textContent=`${res.hub} · ${res.pickup} to ${res.return}`;
+      const list=document.createElement('ul'); list.className='small mt-2';
+      res.checklist.forEach(task=>{ const li=document.createElement('li'); li.textContent=`• ${task}`; list.append(li); });
+      const ret=Components.button('Mark returned','btn small secondary',()=>{
+        const kit=Equipment.inventory.find(k=>k.name===res.kit); if(kit) kit.available++;
+        State.removeItem('reservations',res.id,'Reservation marked as returned.');
+      });
+      item.append(strong,meta,list,ret); wrap.append(item);
+    });
+    return wrap;
+  }
+};
+
+const Leaderboard={
+  volunteers:[
+    {name:'Priya Raman',street:'Beech Road',month:18,all:142},
+    {name:'Jamal Osei',street:'Manchester Road',month:15,all:118},
+    {name:'Ellie Hart',street:'Wilbraham Road',month:12,all:96},
+    {name:'Sam Whitfield',street:'Schofield Street',month:11,all:74},
+    {name:'Aisha Khan',street:'Norwood Avenue',month:9,all:63},
+    {name:'Riverside Ramblers',street:'Mersey Valley path',month:22,all:187}
+  ],
+  badges:[
+    {id:'first-bag',name:'First Bag Hero',requirement:'Log your first bag collected'},
+    {id:'dawn',name:'Dawn Patroller',requirement:'Complete a pick before 8am'},
+    {id:'flytip',name:'Fly-Tip Spotter',requirement:'Escalate a fly-tipping report'},
+    {id:'centurion',name:'100-Bag Centurion',requirement:'Collect 100 bags'},
+    {id:'drain',name:'Storm Drain Guardian',requirement:'Clear litter from five drains'}
+  ],
+  render(){
+    const root=document.createElement('div'); root.className='grid';
+    const tabs=document.createElement('div'); tabs.className='tabs'; tabs.setAttribute('role','tablist'); tabs.setAttribute('aria-label','Leaderboard period');
+    ['This month','All time','Most improved street'].forEach((label,index)=>{
+      const tab=document.createElement('button'); tab.className='tab'; tab.setAttribute('role','tab'); tab.textContent=label;
+      tab.setAttribute('aria-selected',index===0?'true':'false');
+      tab.addEventListener('click',()=>Leaderboard.showTable(label));
+      tabs.append(tab);
+    });
+    const tableHolder=document.createElement('div'); tableHolder.id='leaderTable';
+    root.append(Components.card('Volunteer and street teams',tabs,null),Components.card('Leaderboard',tableHolder),Components.card('Achievement badges',Leaderboard.badgesPanel()),Components.card('Volunteer impact certificate',Leaderboard.certificatePanel()));
+    Leaderboard.showTable('This month',tableHolder);
+    return root;
+  },
+  showTable(period,holder=document.getElementById('leaderTable')){
+    const wrap=document.createElement('div');
+    const rows=[...App.data.volunteers??Leaderboard.volunteers].sort((a,b)=>period==='All time'?b.all-a.all:b.month-a.month);
+    rows.forEach((person,index)=>{
+      const item=document.createElement('div'); item.className='list-item leader-row';
+      const rank=document.createElement('div'); rank.className=`rank ${index<3?'top':''}`; rank.textContent=index+1;
+      const body=document.createElement('div');
+      const strong=document.createElement('strong'); strong.textContent=person.name;
+      const meta=document.createElement('p'); meta.className='tiny muted'; meta.textContent=person.street;
+      body.append(strong,meta);
+      const value=document.createElement('strong'); value.textContent=`${period==='All time'?person.all:person.month} bags`;
+      item.append(rank,body,value); wrap.append(item);
+    });
+    holder.replaceChildren(wrap);
+  },
+  badgesPanel(){
+    const wrap=document.createElement('div'); wrap.className='grid grid-3';
+    Leaderboard.badges.forEach(badge=>{
+      const card=document.createElement('article'); card.className='card tight';
+      const unlocked=App.data.badges.includes(badge.id);
+      card.className+=unlocked?'':' locked';
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('viewBox','0 0 100 100'); svg.setAttribute('class','badge'); svg.setAttribute('role','img'); svg.setAttribute('aria-label',`${badge.name} badge ${unlocked?'unlocked':'locked'}`);
+      svg.innerHTML=`<circle cx="50" cy="42" r="28" fill="var(--primary)"/><path d="M38 42l9 9 16-18" stroke="#F8FAF7" stroke-width="6" fill="none"/><path d="M35 68l-6 24 21-10 21 10-6-24" fill="var(--accent)"/>`;
+      const h=document.createElement('h3'); h.textContent=badge.name;
+      const p=document.createElement('p'); p.className='tiny muted'; p.textContent=badge.requirement;
+      card.append(svg,h,p); wrap.append(card);
+    });
+    return wrap;
+  },
+  certificatePanel(){
+    const wrap=document.createElement('div'); wrap.className='impact-certificate';
+    const h=document.createElement('h2'); h.textContent='Volunteer Impact Certificate';
+    const p=document.createElement('p'); p.className='small'; p.textContent='Generate an illustrative certificate for DofE, school or corporate volunteering records.';
+    const name=document.createElement('input'); name.placeholder='Volunteer name'; name.required=true;
+    const hours=document.createElement('input'); hours.type='number'; hours.min='1'; hours.placeholder='Volunteering hours'; hours.required=true;
+    const generate=Components.button('Generate certificate','btn amber',()=>{
+      if(!name.value||!hours.value){ Toast.show('Enter a name and volunteering hours.','warning'); return; }
+      const canvas=document.createElement('canvas'); canvas.width=1200; canvas.height=850;
+      const ctx=canvas.getContext('2d');
+      ctx.fillStyle='#F8FAF7'; ctx.fillRect(0,0,1200,850);
+      ctx.strokeStyle='#1B4332'; ctx.lineWidth=12; ctx.strokeRect(40,40,1120,770);
+      ctx.fillStyle='#1B4332'; ctx.font='bold 64px system-ui'; ctx.textAlign='center';
+      ctx.fillText('CleanSweep Chorlton',600,180);
+      ctx.font='32px system-ui'; ctx.fillText('Volunteer Impact Certificate',600,250);
+      ctx.fillStyle='#1E293B'; ctx.font='bold 44px system-ui'; ctx.fillText(name.value,600,390);
+      ctx.font='28px system-ui'; ctx.fillText(`has contributed ${hours.value} recorded volunteering hours`,600,450);
+      ctx.fillText(`towards ${App.data.bags} bags and ${App.data.weight} kg diverted`,600,500);
+      ctx.fillStyle='#D97706'; ctx.font='22px system-ui'; ctx.fillText('Illustrative community record — not an accredited qualification',600,760);
+      const link=document.createElement('a'); link.download='cleansweep-impact-certificate.png'; link.href=canvas.toDataURL('image/png'); link.click();
+      Toast.show('Impact certificate downloaded as PNG.');
+    });
+    wrap.append(h,p,Components.field('Name',name),Components.field('Hours',hours),generate);
+    return wrap;
+  }
+};
+
+const Safety={
+  checks:['Do not pick sharps, needles or unknown chemicals','Wear gloves and hi-vis near roads','Keep clear of moving traffic and cycle lanes','Do not enter waterways or unstable ground','Report asbestos, dead wildlife or hazardous waste to the council','Wash hands before eating or drinking'],
+  render(){
+    const root=document.createElement('div'); root.className='grid';
+    root.append(Components.card('Pre-pick safety briefing',Safety.checklist()));
+    root.append(Components.card('Hazard guide',Safety.hazards()));
+    root.append(Components.card('Emergency contacts',Safety.contacts()));
+    return root;
+  },
+  checklist(){
+    const wrap=document.createElement('div');
+    const progress=document.createElement('div'); progress.className='progress mb-3'; const bar=document.createElement('div'); progress.append(bar);
+    const list=document.createElement('div');
+    App.data.safetyChecks??=[];
+    Safety.checks.forEach((text,index)=>{
+      const id=Utils.uid('safety');
+      const label=document.createElement('label'); label.className='list-item'; label.htmlFor=id;
+      const input=document.createElement('input'); input.type='checkbox'; input.id=id; input.checked=App.data.safetyChecks.includes(index);
+      input.addEventListener('change',()=>{
+        const set=new Set(App.data.safetyChecks);
+        input.checked?set.add(index):set.delete(index);
+        App.data.safetyChecks=[...set];
+        App.data.safetyComplete=set.size===Safety.checks.length;
+        Storage.save(); renderCurrent(false);
+        if(App.data.safetyComplete) Toast.show('Safety briefing complete. You can now RSVP and reserve kit.');
+      });
+      const span=document.createElement('span'); span.textContent=text;
+      label.append(input,span); list.append(label);
+    });
+    const update=()=>{
+      const count=App.data.safetyChecks?.length??0;
+      bar.style.width=`${count/Safety.checks.length*100}%`;
+    };
+    update(); wrap.append(progress,list);
+    return wrap;
+  },
+  hazards(){
+    const details=document.createElement('div');
+    [
+      ['Sharps and needles','Do not touch or move them. Mark the area, keep others away and report to the council.'],
+      ['Asbestos','Do not disturb suspected asbestos. Keep clear and report it to the local authority.'],
+      ['Dead wildlife','Do not handle it. Report it to the council or relevant landowner.'],
+      ['Waterways','Never enter water to retrieve litter. Use a reacher from firm ground or report it.'],
+      ['Aggressive behaviour','Leave the area, do not confront anyone, and call 999 if there is immediate danger.']
+    ].forEach(([title,text])=>{
+      const d=document.createElement('details');
+      const summary=document.createElement('summary'); summary.textContent=title;
+      const p=document.createElement('p'); p.className='small'; p.textContent=text;
+      d.append(summary,p); details.append(d);
+    });
+    return details;
+  },
+  contacts(){
+    const wrap=document.createElement('div'); wrap.className='grid grid-2';
+    [
+      ['Council street cleansing','tel:01612345000'],['Environment Agency incident line','tel:0800807060'],
+      ['Emergency services','tel:999'],['Non-emergency police','tel:101']
+    ].forEach(([label,href])=>{
+      const a=document.createElement('a'); a.className='btn secondary'; a.href=href; a.textContent=label; wrap.append(a);
+    });
+    return wrap;
+  },
+  requireBriefing(next){
+    const node=document.createElement('div');
+    const p=document.createElement('p'); p.textContent='Complete the short safety briefing before RSVPing or borrowing equipment.';
+    const go=Components.button('Open safety briefing','btn amber',()=>{ Dialog.close(); Router.go('safety'); });
+    node.append(p,go); Dialog.open('Safety briefing required',node);
+  }
+};
+
+const Settings={
+  render(){
+    const root=document.createElement('div'); root.className='grid';
+    const theme=Components.card('Appearance and accessibility',Settings.appearance());
+    const data=Components.card('Data, backup and privacy',Settings.dataPanel());
+    const about=Components.card('About CleanSweep',Settings.about());
+    root.append(theme,data,about); return root;
+  },
+  appearance(){
+    const wrap=document.createElement('div');
+    const select=document.createElement('select');
+    [['system','Follow system'],['light','Light'],['dark','Dark']].forEach(([value,label])=>{
+      const option=document.createElement('option'); option.value=value; option.textContent=label; select.append(option);
+    });
+    select.value=App.data.theme;
+    select.addEventListener('change',()=>{ App.data.theme=select.value; document.documentElement.dataset.theme=select.value; Storage.save(); });
+    const contrast=Components.button(App.data.contrast?'Standard contrast':'High contrast','btn secondary',()=>{
+      App.data.contrast=!App.data.contrast;
+      document.documentElement.dataset.contrast=App.data.contrast?'high':'normal';
+      Storage.save(); renderCurrent(false);
+    });
+    wrap.append(Components.field('Colour mode',select,'The app follows your device preference by default.'),contrast);
+    return wrap;
+  },
+  dataPanel(){
+    const wrap=document.createElement('div'); wrap.className='grid';
+    const csv=Components.button('Export CSV report','btn secondary',()=>Settings.exportCSV());
+    const json=Components.button('Export JSON backup','btn secondary',()=>Utils.download('cleansweep-backup.json',JSON.stringify(App.data,null,2),'application/json'));
+    const reset=Components.button('Reset local data','btn danger',()=>{
+      if(!confirm('Clear all locally saved CleanSweep data and restore the demonstration dataset?')) return;
+      Storage.clear(); App.data=seed(); Storage.save(); renderCurrent(true); Toast.show('Local data reset.');
+    });
+    wrap.append(csv,json,reset);
+    const p=document.createElement('p'); p.className='small muted'; p.textContent='Data is stored only in this browser. Reports and photos are not uploaded anywhere.';
+    wrap.append(p); return wrap;
+  },
+  exportCSV(){
+    const rows=[['Type','Reference / person','Detail','Date','Extra']];
+    App.data.reports.forEach(r=>rows.push(['Report',r.reference,`${r.category}; ${r.notes}`,new Date(r.created).toISOString(),`Severity ${r.severity}`]));
+    App.data.soloLogs.forEach(l=>rows.push(['Solo pick',l.who,`${l.bags} bags; ${l.streets}`,new Date(l.date).toISOString(),`${l.recycling} recycling bags`]));
+    App.data.events.filter(e=>e.past).forEach(e=>rows.push(['Past event',e.title,e.outcome,new Date(e.date).toISOString(),`${e.taken} volunteers`]));
+    const csv=rows.map(row=>row.map(value=>`"${String(value).replace(/"/g,'""')}"`).join(',')).join('\n');
+    Utils.download('cleansweep-community-report.csv',csv,'text/csv');
+    Toast.show('CSV report downloaded for grant reporting.');
+  },
+  about(){
+    const wrap=document.createElement('div'); wrap.className='small';
+    wrap.innerHTML='';
+    const p=document.createElement('p'); p.textContent='CleanSweep Chorlton is a self-contained community tool. Its streets, contacts, events and impact figures are illustrative demonstration data, not verified council records.';
+    const p2=document.createElement('p'); p2.className='muted mt-2'; p2.textContent='All data remains on this device. The service worker caches only this application shell for offline use.';
+    wrap.append(p,p2); return wrap;
+  }
+};
+
+const NotFound=()=>{ const div=document.createElement('div'); div.className='card empty'; div.textContent='That neighbourhood page could not be found. Use the navigation to return to the dashboard.'; return div; };
+
+const Views={dashboard:Dashboard.render,map:Map.render,events:Events.render,report:Report.render,equipment:Equipment.render,leaderboard:Leaderboard.render,safety:Safety.render,settings:Settings.render,'not-found':NotFound};
+
+function renderCurrent(transition=true){
+  const route=Router.parse();
+  App.route=route;
+  document.title=`${VIEW_TITLES[route]??'Page not found'} — CleanSweep Chorlton`;
+  document.querySelectorAll('.desktop-nav a,.bottom-nav a').forEach(link=>{
+    const target=link.getAttribute('href').replace('#/','');
+    if(target===route) link.setAttribute('aria-current','page'); else link.removeAttribute('aria-current');
+  });
+  const render=()=>{
+    const view=document.getElementById('view');
+    view.replaceChildren((Views[route]||NotFound)());
+    if(route==='dashboard'&&App.data.live&&!App.liveTimer) App.liveTimer=setInterval(Live.tick,7000);
+    if(route!=='dashboard'&&App.liveTimer){ clearInterval(App.liveTimer); App.liveTimer=null; }
+    if(route==='settings') addSettingsShortcut();
+  };
+  if(transition&&document.startViewTransition&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.startViewTransition(render);
+  } else render();
+}
+
+function addSettingsShortcut(){
+  const nav=document.querySelector('.desktop-nav');
+  if(!nav||nav.querySelector('[data-settings]')){
+    if(nav&&!nav.querySelector('[data-settings]')){
+      const link=document.createElement('a'); link.className='tab'; link.href='#/settings'; link.dataset.settings='true'; link.textContent='Settings';
+      nav.append(link);
+    }
+  }
+}
+
+function initCapabilities(){
+  const checks=[
+    ['View Transitions','document.startViewTransition' in document,'Animates route changes'],
+    ['Scroll-driven animation','animation-timeline: scroll()','Adds a reading progress indicator'],
+    ['Container queries','container-type: inline-size','Lets cards adapt to their own width'],
+    ['Container style queries','container style query','Supports component-level styling'],
+    ['CSS nesting','CSS.supports("selector(&)")','Organises component styles'],
+    ['@scope','CSS.supports("selector(@scope)")','Bounds certificate styling'],
+    ['Anchor positioning','CSS.supports("anchor-name: --x")','Positions the capabilities panel'],
+    ['Popover API',Object.hasOwn(HTMLElement.prototype,'popover'),'Shows lightweight filter and capability panels'],
+    ['Dialog element','typeof HTMLDialogElement!=="undefined"','Provides accessible modal workflows'],
+    [':has()','CSS.supports("selector(:has(a))")','Enables parent-state styling'],
+    ['field-sizing','CSS.supports("field-sizing: content")','Lets textareas grow with content'],
+    ['Trusted Types','window.trustedTypes!==undefined','Adds an optional DOM-injection safety layer'],
+    ['Navigation API','"navigation" in window','Supports modern client-side navigation'],
+    ['Web Animations','"animate" in Element.prototype','Supports interactive motion'],
+    ['Canvas 2D','!!document.createElement("canvas").getContext','Powers the map and photo processing'],
+    ['Web Audio','!!(window.AudioContext||window.webkitAudioContext)','Available for optional future sound cues'],
+    ['Clipboard API',!!navigator.clipboard,'Copies council reports and invites'],
+    ['Web Share API',!!navigator.share,'Opens the native share sheet'],
+    ['localStorage',(()=>{try{localStorage.setItem('__cs','1');localStorage.removeItem('__cs');return true;}catch(e){return false;}})(),'Persists local community data']
+  ];
+  const list=document.getElementById('capabilityList');
+  checks.forEach(([label,supported,benefit])=>{
+    const item=document.createElement('div'); item.className='list-item';
+    const head=document.createElement('div'); head.className='between';
+    const strong=document.createElement('strong'); strong.textContent=label;
+    const chip=Components.chip(supported?'Active':'Fallback',supported?'green':'amber');
+    head.append(strong,chip);
+    const p=document.createElement('p'); p.className='tiny muted'; p.textContent=benefit;
+    item.append(head,p); list.append(item);
+  });
+}
+
+function initTheme(){
+  document.documentElement.dataset.theme=App.data.theme;
+  document.documentElement.dataset.contrast=App.data.contrast?'high':'normal';
+  document.getElementById('themeToggle').addEventListener('click',()=>{
+    const next=App.data.contrast?'normal':'high';
+    App.data.contrast=next==='high';
+    document.documentElement.dataset.contrast=next; Storage.save();
+    Toast.show(next==='high'?'High-contrast mode enabled.':'Standard contrast restored.');
+  });
+}
+
+function initServiceWorker(){
+  if(!('serviceWorker' in navigator)) return;
+  const source=`const CACHE='cleansweep-v1';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./index.html']))));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(cached=>cached||fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return res;}).catch(()=>caches.match('./index.html'))));});`;
+  try{
+    const blob=new Blob([source],{type:'text/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+  }catch(e){}
+}
+
+function init(){
+  App.data=Storage.load();
+  initTheme(); Router.init(); initCapabilities(); initServiceWorker();
+  if(!location.hash) location.replace('#/dashboard');
+  renderCurrent(false);
+}
+init();
+</script>
+</body>
+</html>
