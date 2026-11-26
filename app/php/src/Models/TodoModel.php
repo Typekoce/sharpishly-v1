@@ -56,9 +56,11 @@ class TodoModel extends BaseModel {
 
                 $record['link'] = '';
 
+                $title = $this->word_count($record['title'], 5);
+
                 if (preg_match('/https?/', $string)) {
                     $arr = explode('/',$string);
-                    $record['link'] = $arr[5] . "/" . $arr[6];
+                    $record['link'] = $title . ": " . $arr[5] . "/" . $arr[6];
                 }
 
                 $rs[] = $record;
@@ -67,6 +69,25 @@ class TodoModel extends BaseModel {
 
         return $rs;
 
+    }
+
+    public function word_count(string $text, int $limit): string
+    {
+        if ($limit <= 0) {
+            return '';
+        }
+
+        $clean = trim((string) preg_replace('/\s+/u', ' ', $text));
+        if ($clean === '') {
+            return '';
+        }
+
+        $words = explode(' ', $clean);
+        if (count($words) <= $limit) {
+            return $clean;
+        }
+
+        return implode(' ', array_slice($words, 0, $limit));
     }
 
 }
