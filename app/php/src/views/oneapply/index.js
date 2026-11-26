@@ -230,7 +230,7 @@ const RenderController = {
         records.forEach((record, index) => {
             const metricItem = app.item('div', 'metric-item');
 
-            const labelSpan = app.item('span', 'metric-label', 'Framework');
+            const labelSpan = app.item('span', 'metric-label', 'Edit');
 
             labelSpan.onclick = function() {
                 app.dBug('RenderController', 'labelSpan clicked', { index, id: record?.id });

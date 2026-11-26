@@ -1,0 +1,1891 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The Conkers Natural Detergent Company — British conker saponin cleaners, circular supply, refill subscriptions and batch traceability.">
+<title>The Conkers — Wild British Conkers. Zero Synthetics. Circular by Design.</title>
+<style>
+@layer reset, tokens, base, layout, components, utilities, motion;
+
+@layer reset {
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  body,h1,h2,h3,h4,p,figure,blockquote,dl,dd,ul,ol{margin:0}
+  ul[class],ol[class]{padding:0;list-style:none}
+  img,svg,canvas{display:block;max-width:100%}
+  button,input,select,textarea{font:inherit;color:inherit}
+  button{background:none;border:0;cursor:pointer}
+  a{color:inherit}
+  :where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{
+    outline:3px solid var(--focus);outline-offset:2px;border-radius:4px
+  }
+}
+
+@layer tokens {
+  :root{
+    color-scheme:light dark;
+    --linen:#F7F4EE;
+    --bark:#2C221E;
+    --mahogany:#6E3524;
+    --sage:#4A6B53;
+    --brass:#C88A36;
+    --ink:#241B17;
+    --muted:#63554D;
+    --line:color-mix(in oklab, var(--bark) 18%, transparent);
+    --surface:var(--linen);
+    --raised:#fffdf8;
+    --danger:#a02d20;
+    --success:#33691e;
+    --focus:#8a5a00;
+    --radius-s:.45rem;--radius:.8rem;--radius-l:1.25rem;
+    --shadow:0 12px 30px color-mix(in oklab, var(--bark) 14%, transparent);
+    --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+    --space-5:1.5rem;--space-6:2rem;--space-7:3rem;--space-8:4.5rem;
+    --font-serif:Georgia,'Times New Roman',serif;
+    --font-sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --motion:1;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --linen:#171311;--bark:#e8ddd2;--mahogany:#d99a70;--sage:#9dc0a7;
+      --brass:#e0b05e;--ink:#f2ece5;--muted:#b6a79d;--line:#4b3f39;
+      --surface:#171311;--raised:#221b18;--focus:#f0c46a;--shadow:0 12px 30px #0006;
+    }
+  }
+  :root[data-theme="dark"]{
+    --linen:#171311;--bark:#e8ddd2;--mahogany:#d99a70;--sage:#9dc0a7;
+    --brass:#e0b05e;--ink:#f2ece5;--muted:#b6a79d;--line:#4b3f39;
+    --surface:#171311;--raised:#221b18;--focus:#f0c46a;--shadow:0 12px 30px #0006;
+  }
+  @media (prefers-reduced-motion:reduce){
+    :root{--motion:0}
+    *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  }
+  @media (prefers-contrast:more){
+    :root{--muted:#3d312b;--line:#000;--focus:#003ea8}
+  }
+}
+
+@layer base {
+  body{
+    background:
+      radial-gradient(60rem 40rem at 85% -10%, color-mix(in oklab,var(--sage) 15%,transparent), transparent 70%),
+      radial-gradient(50rem 35rem at -10% 20%, color-mix(in oklab,var(--brass) 12%,transparent), transparent 70%),
+      var(--surface);
+    color:var(--ink);font-family:var(--font-sans);line-height:1.55;
+    min-height:100dvh;overflow-x:hidden;
+  }
+  h1,h2,h3,h4{font-family:var(--font-serif);line-height:1.1;text-wrap:balance;letter-spacing:-.01em}
+  h1{font-size:clamp(2.25rem,6vw,4.25rem)}
+  h2{font-size:clamp(1.65rem,3.5vw,2.55rem)}
+  h3{font-size:clamp(1.15rem,2vw,1.45rem)}
+  p{text-wrap:pretty}
+  a{text-decoration-thickness:1px;text-underline-offset:3px}
+  code,.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+  .lede{font-size:clamp(1.03rem,1.5vw,1.25rem);color:var(--muted);max-width:65ch}
+  .eyebrow{font-size:.75rem;font-weight:750;letter-spacing:.13em;text-transform:uppercase;color:var(--mahogany)}
+  .skip{position:absolute;left:-999px;top:0;z-index:100;background:var(--bark);color:var(--linen);padding:.8rem 1rem;border-radius:0 0 var(--radius) 0}
+  .skip:focus{left:0}
+  :root{interpolate-size:allow-keywords}
+}
+
+@layer layout {
+  .shell{width:min(1240px,100% - clamp(1.5rem,5vw,5rem));margin-inline:auto}
+  .utility{background:var(--bark);color:var(--linen);font-size:.82rem}
+  .utility .shell{display:flex;gap:.75rem;align-items:center;justify-content:space-between;padding:.55rem 0;flex-wrap:wrap}
+  .status{display:flex;gap:.5rem;align-items:center;min-width:0}
+  .pulse{width:.55rem;height:.55rem;border-radius:50%;background:var(--brass);box-shadow:0 0 0 3px color-mix(in oklab,var(--brass) 25%,transparent)}
+  .role-pills{display:flex;gap:.35rem;flex-wrap:wrap}
+  .role-pill{padding:.35rem .7rem;border:1px solid #ffffff38;border-radius:99px;color:inherit;font-size:.78rem}
+  .role-pill[aria-current="true"]{background:var(--brass);border-color:var(--brass);color:#231708}
+  .site-head{position:sticky;top:0;z-index:40;background:color-mix(in oklab,var(--surface) 92%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .head-row{display:flex;align-items:center;gap:1rem;padding:.85rem 0}
+  .brand{display:flex;align-items:center;gap:.65rem;text-decoration:none;font-family:var(--font-serif);font-weight:700;font-size:1.15rem}
+  .brand svg{width:38px;height:38px}
+  .primary-nav{margin-left:auto;display:flex;gap:.15rem;align-items:center}
+  .primary-nav a{padding:.65rem .75rem;border-radius:99px;text-decoration:none;font-size:.9rem;white-space:nowrap}
+  .primary-nav a[aria-current="page"]{background:var(--bark);color:var(--linen)}
+  .head-actions{display:flex;gap:.5rem;align-items:center}
+  .icon-btn{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--raised)}
+  .cart-count{position:absolute;transform:translate(18px,-14px);background:var(--mahogany);color:#fff;font-size:.68rem;min-width:20px;height:20px;border-radius:99px;display:grid;place-items:center;padding:0 5px}
+  .cart-wrap{position:relative}
+  .search{display:flex;align-items:center;gap:.45rem;border:1px solid var(--line);background:var(--raised);border-radius:99px;padding:.3rem .35rem .3rem .8rem;max-width:290px}
+  .search input{border:0;background:none;min-width:0;width:150px}
+  main{padding-block:clamp(1.5rem,4vw,3rem) var(--space-8)}
+  .view{animation:view-in .35s ease both}
+  .section{padding-block:clamp(2rem,5vw,4rem)}
+  .split{display:grid;gap:clamp(1.5rem,4vw,4rem);grid-template-columns:1fr}
+  @media(min-width:900px){.split{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:center}}
+  .grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr))}
+  .metrics{display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .metric{background:var(--raised);border:1px solid var(--line);border-radius:var(--radius);padding:1rem}
+  .metric strong{display:block;font-family:var(--font-serif);font-size:clamp(1.5rem,3vw,2.1rem);color:var(--mahogany)}
+  .footer{background:var(--bark);color:var(--linen);padding-block:var(--space-7);margin-top:var(--space-7)}
+  .footer a{color:#f4e6d3}
+  .footer-grid{display:grid;gap:2rem;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+  .footer-bottom{border-top:1px solid #ffffff24;margin-top:2rem;padding-top:1rem;font-size:.8rem;display:flex;gap:1rem;justify-content:space-between;flex-wrap:wrap}
+}
+
+@layer components {
+  .card{container-type:inline-size;background:var(--raised);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .card-art{aspect-ratio:4/3;background:linear-gradient(145deg,color-mix(in oklab,var(--sage) 25%,var(--raised)),var(--raised));display:grid;place-items:center}
+  .card-body{padding:1.1rem;display:grid;gap:.65rem;flex:1;align-content:start}
+  .card-foot{padding:0 1.1rem 1.1rem;margin-top:auto;display:flex;gap:.5rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .price{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700}
+  .tag{font-size:.72rem;padding:.2rem .5rem;border-radius:99px;background:color-mix(in oklab,var(--sage) 15%,transparent);border:1px solid color-mix(in oklab,var(--sage) 35%,transparent)}
+  .tag.warn{background:color-mix(in oklab,var(--brass) 20%,transparent);border-color:var(--brass)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:44px;padding:.65rem 1.1rem;border-radius:99px;border:1px solid var(--line);background:var(--raised);font-weight:650;text-decoration:none;transition:transform .18s ease,background .18s ease}
+  .btn:hover{transform:translateY(-1px);background:color-mix(in oklab,var(--brass) 12%,var(--raised))}
+  .btn:active{transform:translateY(0)}
+  .btn-primary{background:var(--mahogany);border-color:var(--mahogany);color:#fff}
+  .btn-primary:hover{background:color-mix(in oklab,var(--mahogany) 85%,#000)}
+  .btn-brass{background:var(--brass);border-color:var(--brass);color:#231708}
+  .btn-ghost{background:transparent}
+  .btn-sm{min-height:36px;padding:.35rem .7rem;font-size:.85rem}
+  .field{display:grid;gap:.35rem}
+  .field label{font-size:.83rem;font-weight:650}
+  .field input,.field select,.field textarea{min-height:44px;padding:.6rem .75rem;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--raised);width:100%}
+  .field small{color:var(--muted)}
+  .field :user-invalid{border-color:var(--danger)}
+  .error{color:var(--danger);font-size:.82rem;min-height:1.2em}
+  .panel{background:var(--raised);border:1px solid var(--line);border-radius:var(--radius-l);padding:clamp(1rem,3vw,1.7rem);box-shadow:var(--shadow)}
+  .panel h3{margin-bottom:.5rem}
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--raised)}
+  table{border-collapse:collapse;width:100%;min-width:640px}
+  th,td{padding:.7rem .8rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{font-size:.76rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+  td.mono{font-variant-numeric:tabular-nums}
+  tbody tr:last-child td{border-bottom:0}
+  .chip{padding:.35rem .7rem;border:1px solid var(--line);border-radius:99px;background:var(--raised);font-size:.82rem}
+  .chip[aria-pressed="true"]{background:var(--sage);border-color:var(--sage);color:#fff}
+  .progress{height:10px;border-radius:99px;background:color-mix(in oklab,var(--bark) 12%,transparent);overflow:hidden}
+  .progress span{display:block;height:100%;background:linear-gradient(90deg,var(--sage),var(--brass));transition:width .3s ease}
+  .notice{border-left:4px solid var(--brass);background:color-mix(in oklab,var(--brass) 12%,var(--raised));padding:.85rem 1rem;border-radius:var(--radius-s)}
+  .notice.danger{border-color:var(--danger);background:color-mix(in oklab,var(--danger) 10%,var(--raised))}
+  .notice.success{border-color:var(--success);background:color-mix(in oklab,var(--success) 10%,var(--raised))}
+  dialog{border:0;padding:0;max-width:min(760px,calc(100vw - 2rem));width:100%;border-radius:var(--radius-l);background:var(--raised);color:var(--ink);box-shadow:0 30px 70px #0005}
+  dialog::backdrop{background:#1a120ecf;backdrop-filter:blur(4px)}
+  .dialog-inner{padding:clamp(1.1rem,3vw,2rem);max-height:86dvh;overflow:auto}
+  .dialog-head{display:flex;gap:1rem;align-items:flex-start;justify-content:space-between;margin-bottom:1rem}
+  .drawer{position:fixed;inset:0;z-index:60;display:none}
+  .drawer.open{display:block}
+  .drawer-backdrop{position:absolute;inset:0;background:#1a120e99;border:0;width:100%;height:100%}
+  .drawer-panel{position:absolute;top:0;right:0;height:100dvh;width:min(440px,100%);background:var(--raised);border-left:1px solid var(--line);padding:1.25rem;overflow:auto;display:flex;flex-direction:column;gap:1rem}
+  .cart-item{display:grid;grid-template-columns:70px 1fr auto;gap:.8rem;align-items:center;padding:.7rem 0;border-bottom:1px solid var(--line)}
+  .cart-thumb{width:70px;height:70px;border-radius:var(--radius-s);background:color-mix(in oklab,var(--sage) 18%,var(--raised));display:grid;place-items:center}
+  .qty{display:flex;align-items:center;gap:.25rem}
+  .qty button{width:34px;height:34px;border:1px solid var(--line);border-radius:50%}
+  .steps{display:grid;gap:.75rem;counter-reset:step}
+  .step{position:relative;padding:1rem 1rem 1rem 3.2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--raised)}
+  .step::before{counter-increment:step;content:counter(step);position:absolute;left:.8rem;top:.8rem;width:28px;height:28px;border-radius:50%;background:var(--sage);color:#fff;display:grid;place-items:center;font-family:var(--font-mono)}
+  .step.active{border-color:var(--brass);box-shadow:inset 0 0 0 2px color-mix(in oklab,var(--brass) 35%,transparent)}
+  .pipeline{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+  .pipe{padding:1rem;border:1px dashed var(--line);border-radius:var(--radius);background:color-mix(in oklab,var(--raised) 85%,transparent)}
+  .pipe.active{border-style:solid;border-color:var(--brass);transform:translateY(-3px)}
+  .qr{width:112px;height:112px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px}
+  .hero-art{border-radius:var(--radius-l);overflow:hidden;border:1px solid var(--line);background:var(--raised)}
+  .hero-art svg{width:100%;height:auto}
+  .popover{position:absolute;z-index:70;width:min(330px,calc(100vw - 2rem));background:var(--raised);border:1px solid var(--line);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
+  .popover::backdrop{background:transparent}
+  .capability{display:grid;gap:.35rem}
+  .cap-row{display:flex;gap:.5rem;align-items:center;justify-content:space-between;border-bottom:1px dashed var(--line);padding:.4rem 0}
+  .cap-state{font-size:.75rem;padding:.15rem .45rem;border-radius:99px;background:color-mix(in oklab,var(--success) 15%,transparent)}
+  .cap-state.off{background:color-mix(in oklab,var(--brass) 20%,transparent)}
+  .empty{padding:2rem;text-align:center;border:1px dashed var(--line);border-radius:var(--radius);color:var(--muted)}
+  .toast{position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);z-index:90;background:var(--bark);color:var(--linen);padding:.7rem 1rem;border-radius:99px;box-shadow:var(--shadow);max-width:min(92vw,480px)}
+  .scroll-progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--sage),var(--brass));z-index:80}
+  @supports (animation-timeline:scroll()){
+    .scroll-progress{animation:grow linear both;animation-timeline:scroll(root)}
+  }
+  @keyframes grow{from{width:0}to{width:100vw}}
+  @keyframes view-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @starting-style{dialog:open{opacity:0;transform:translateY(12px)}}
+  dialog{transition:opacity .25s ease,transform .25s ease,display .25s allow-discrete,overlay .25s allow-discrete}
+  @scope (.trade-panel){
+    .tier{border-left:4px solid var(--brass)}
+  }
+  .tier{border-left:4px solid var(--brass)}
+}
+
+@layer utilities {
+  .visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .stack-sm{display:grid;gap:.5rem}
+  .stack{display:grid;gap:1rem}
+  .row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+  .between{display:flex;gap:1rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .muted{color:var(--muted)}
+  .small{font-size:.82rem}
+  .center{text-align:center}
+  .mt{margin-top:1rem}.mt-lg{margin-top:2rem}
+  .nowrap{white-space:nowrap}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<div class="scroll-progress" aria-hidden="true"></div>
+
+<header class="utility">
+  <div class="shell">
+    <p class="status"><span class="pulse" aria-hidden="true"></span><span id="seasonStatus">Autumn Conker Intake: OPEN — Paying £1.40/kg Grade A Dried</span></p>
+    <div class="role-pills" role="group" aria-label="Stakeholder mode">
+      <button class="role-pill" data-role="consumer" aria-current="true">Shop Consumer</button>
+      <button class="role-pill" data-role="supplier">Supply Raw Harvest</button>
+      <button class="role-pill" data-role="manufacturer">Manufacturer Hub</button>
+      <button class="role-pill" data-role="trade">Trade / Wholesale</button>
+    </div>
+  </div>
+</header>
+
+<header class="site-head">
+  <div class="shell head-row">
+    <a class="brand" href="#/home">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="#6E3524"/><path d="M15 27c2-9 8-13 18-13-1 10-7 15-18 13Z" fill="#F7F4EE"/><path d="M18 31c4 3 9 3 13-1" stroke="#4A6B53" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+      <span>The Conkers</span>
+    </a>
+    <nav class="primary-nav" aria-label="Primary">
+      <a href="#/home">Home</a>
+      <a href="#/store">Storefront</a>
+      <a href="#/supply">Forager Portal</a>
+      <a href="#/manufacturing">Manufacturing</a>
+      <a href="#/trade">Trade</a>
+      <a href="#/cart">Cart</a>
+    </nav>
+    <div class="head-actions">
+      <form class="search" id="batchSearchForm" role="search">
+        <label class="visually-hidden" for="batchSearch">Batch lookup</label>
+        <input id="batchSearch" name="batch" placeholder="Batch e.g. CNK-2026-084" autocomplete="off">
+        <button class="btn btn-sm btn-brass" type="submit">Trace</button>
+      </form>
+      <button class="icon-btn" id="settingsBtn" aria-haspopup="dialog" aria-expanded="false" aria-label="Settings and platform capabilities">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn cart-wrap" id="cartBtn" aria-haspopup="dialog" aria-expanded="false" aria-label="Open shopping cart">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 7h16l-1.5 11h-13L4 7Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 7a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        <span class="cart-count" id="cartCount" aria-hidden="true">0</span>
+      </button>
+      <button class="icon-btn" id="menuBtn" aria-expanded="false" aria-controls="mobileNav" aria-label="Open navigation menu">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="mobileNav" class="panel" hidden style="margin:0 auto 1rem">
+    <nav class="stack-sm" aria-label="Mobile">
+      <a class="btn btn-ghost" href="#/home">Home</a>
+      <a class="btn btn-ghost" href="#/store">Storefront</a>
+      <a class="btn btn-ghost" href="#/supply">Forager Portal</a>
+      <a class="btn btn-ghost" href="#/manufacturing">Manufacturing</a>
+      <a class="btn btn-ghost" href="#/trade">Trade</a>
+      <a class="btn btn-ghost" href="#/cart">Cart / Checkout</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <div id="app" class="shell" aria-live="polite"></div>
+</main>
+
+<footer class="footer">
+  <div class="shell footer-grid">
+    <section>
+      <h2 style="font-size:1.25rem">The Conkers Natural Detergent Company</h2>
+      <p class="small">Unit 7, Ancoats Works, Manchester M4 6DE, United Kingdom.<br>Company No. 15482910 · VAT GB 482 7731 09</p>
+      <p class="small">hello@theconkers.co.uk · +44 161 555 0184</p>
+    </section>
+    <section>
+      <h3 style="font-size:1rem">Compliance & safety</h3>
+      <button class="btn btn-sm btn-ghost" id="sdsBtn" aria-haspopup="dialog">View COSHH / CLP Safety Data Sheet</button>
+      <p class="small">Biodegradable formulation. Cruelty-free. Conker extracts are for external cleaning use only; keep away from children and pets.</p>
+    </section>
+    <section>
+      <h3 style="font-size:1rem">UK coverage checker</h3>
+      <form id="postcodeForm" class="field" novalidate>
+        <label for="postcode">UK postcode</label>
+        <input id="postcode" name="postcode" required pattern="^[A-Za-z]{1,2}\d[A-Za-z\d]?\s*\d[A-Za-z]{2}$" placeholder="M4 6DE" autocomplete="postal-code">
+        <p class="error" id="postcodeError" aria-live="polite"></p>
+        <button class="btn btn-sm btn-brass" type="submit">Check refill coverage</button>
+      </form>
+      <p class="small" id="postcodeResult" aria-live="polite"></p>
+    </section>
+  </div>
+  <div class="shell footer-bottom">
+    <p>© <span id="year"></span> The Conkers Natural Detergent Company. Illustrative demonstration platform; prices, batches and operational data are simulated.</p>
+    <p>Made in Britain · Circular by design</p>
+  </div>
+</footer>
+
+<dialog id="settingsDialog" aria-labelledby="settingsTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <div><p class="eyebrow">Preferences</p><h2 id="settingsTitle">Settings & platform capabilities</h2></div>
+      <button class="icon-btn" data-close aria-label="Close settings">✕</button>
+    </div>
+    <div class="stack">
+      <fieldset class="panel"><legend>Appearance</legend>
+        <div class="row">
+          <button class="chip" data-theme="system" aria-pressed="true">System</button>
+          <button class="chip" data-theme="light" aria-pressed="false">Light</button>
+          <button class="chip" data-theme="dark" aria-pressed="false">Dark</button>
+        </div>
+        <label class="field mt"><input type="checkbox" id="motionToggle"> Reduce motion</label>
+      </fieldset>
+      <section class="panel">
+        <h3>Platform capabilities</h3>
+        <div class="capability" id="capabilityList"></div>
+      </section>
+      <section class="panel">
+        <h3>Data controls</h3>
+        <p class="small">Export or clear locally saved cart, supplier lots and preferences. No personal payment data is stored.</p>
+        <div class="row mt">
+          <button class="btn btn-sm" id="exportBtn">Export JSON</button>
+          <button class="btn btn-sm btn-ghost" id="resetBtn">Clear local data</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="productDialog" aria-labelledby="productTitle"></dialog>
+<dialog id="sdsDialog" aria-labelledby="sdsTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head"><div><p class="eyebrow">Safety</p><h2 id="sdsTitle">COSHH / CLP Safety Data Sheet</h2></div><button class="icon-btn" data-close aria-label="Close safety data sheet">✕</button></div>
+    <div class="stack">
+      <p><strong>Product:</strong> Chestnut Saponin Laundry Concentrate. <strong>Intended use:</strong> domestic and commercial laundry and hard-surface cleaning.</p>
+      <div class="notice danger"><strong>Warning:</strong> Causes serious eye irritation. Keep out of reach of children and pets. Avoid contact with eyes. If in eyes, rinse cautiously with water for several minutes; remove contact lenses if present and easy to do.</div>
+      <p><strong>Composition:</strong> aqueous extract of horse chestnut (<em>Aesculus hippocastanum</em>), English ivy leaf extract, soapwort root extract, plant-derived glycerin, citric acid, sodium benzoate.</p>
+      <p><strong>Handling:</strong> Do not ingest. Do not mix with bleach or acidic descalers. Store closed, upright and away from direct sunlight.</p>
+      <p><strong>Disposal:</strong> Rinse containers before kerbside recycling where accepted; refill pouches can be returned through The Conkers closed-loop collection network.</p>
+      <p class="small">This is an illustrative summary for the demonstration application and is not a substitute for the current product-specific SDS.</p>
+    </div>
+  </div>
+</dialog>
+<dialog id="sampleDialog" aria-labelledby="sampleTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head"><div><p class="eyebrow">Trade</p><h2 id="sampleTitle">Request a wholesale sample pack</h2></div><button class="icon-btn" data-close aria-label="Close sample request">✕</button></div>
+    <form id="sampleForm" class="stack" novalidate>
+      <div class="field"><label for="business">Business name</label><input id="business" required autocomplete="organization"></div>
+      <div class="field"><label for="email">Work email</label><input id="email" type="email" required autocomplete="email"></div>
+      <div class="field"><label for="venue">Venue type</label><select id="venue"><option>Eco-refill shop</option><option>Launderette</option><option>Hotel / hospitality</option><option>Workplace / facilities</option></select></div>
+      <div class="field"><label for="notes">Requirements</label><textarea id="notes" rows="3" placeholder="Tell us about refill infrastructure, expected monthly volume, or delivery constraints."></textarea></div>
+      <p class="error" id="sampleError" aria-live="assertive"></p>
+      <button class="btn btn-primary" type="submit">Request sample pack</button>
+    </form>
+  </div>
+</dialog>
+
+<div class="drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle" hidden>
+  <button class="drawer-backdrop" data-close-drawer aria-label="Close cart"></button>
+  <aside class="drawer-panel" tabindex="-1">
+    <div class="between"><h2 id="cartTitle" style="font-size:1.4rem">Your refill basket</h2><button class="icon-btn" data-close-drawer aria-label="Close cart">✕</button></div>
+    <div id="cartItems" class="stack-sm"></div>
+    <div class="panel">
+      <p class="small">Free UK mainland shipping over £35</p>
+      <div class="progress" role="progressbar" aria-labelledby="shippingLabel" aria-valuemin="0" aria-valuemax="35" aria-valuenow="0"><span id="shippingBar"></span></div>
+      <p class="small" id="shippingLabel">Add £35.00 for free shipping</p>
+    </div>
+    <div class="stack-sm">
+      <p class="between"><span>Subtotal</span><strong class="mono" id="cartSubtotal">£0.00</strong></p>
+      <p class="between small"><span>Subscription savings</span><strong class="mono" id="cartSavings">£0.00</strong></p>
+      <button class="btn btn-primary" id="checkoutBtn" type="button">Continue to UK checkout</button>
+    </div>
+  </aside>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script type="module">
+'use strict';
+
+/* =========================================================
+   The Conkers — MVC Architecture (Model, View, Controller)
+   ========================================================= */
+
+const STORAGE_KEY = 'the-conkers-spa-v1';
+const FREE_SHIPPING_THRESHOLD = 35;
+const STANDARD_SHIPPING = 4.95;
+const SUBSCRIPTION_DISCOUNT = 0.15;
+const UK_POSTCODE_RE = /^[A-Za-z]{1,2}\d[A-Za-z\d]?\s*\d[A-Za-z]{2}$/;
+const GRADE_FACTORS = Object.freeze({ A: 1, B: 0.9, C: 0.78 });
+
+const CATALOG = Object.freeze({
+  products: [
+    {
+      id: 'laundry-1l',
+      name: 'Chestnut Saponin Laundry Concentrate',
+      category: 'Laundry Liquid',
+      basePrice: 14.5,
+      sizes: [
+        { id: '1l', label: '1L amber glass', price: 14.5, co2: 0.82 },
+        { id: '5l', label: '5L jerrycan', price: 52, co2: 3.6 }
+      ],
+      blurb: 'A low-foam, plant-derived concentrate made from British conker saponin and English lavender.',
+      ingredients: [['Conker saponin extract', '38%'], ['English lavender hydrosol', '21%'], ['Plant glycerin', '12%'], ['Softened spring water', '27%'], ['Natural preservative', '2%']],
+      tags: ['Refillable', 'Vegan', 'Low foam']
+    },
+    {
+      id: 'delicate-750',
+      name: 'Conker & English Lavender Delicate Wash',
+      category: 'Laundry Liquid',
+      basePrice: 11.8,
+      sizes: [{ id: '750', label: '750ml bottle', price: 11.8, co2: 0.52 }],
+      blurb: 'A gentle wash for wool, silk and technical fabrics, with lavender from Somerset.',
+      ingredients: [['Conker saponin extract', '27%'], ['English lavender', '14%'], ['Coconut-derived cleanser', '18%'], ['Water', '39%'], ['Natural preservative', '2%']],
+      tags: ['Delicate', 'Vegan', 'pH balanced']
+    },
+    {
+      id: 'ivy-500',
+      name: 'Wild Ivy & Horse Chestnut Multi-Surface Degreaser',
+      category: 'Dish & Surface',
+      basePrice: 8.9,
+      sizes: [{ id: '500', label: '500ml spray', price: 8.9, co2: 0.31 }],
+      blurb: 'Cuts kitchen grease with ivy saponins, without synthetic fragrance or petroleum solvents.',
+      ingredients: [['Ivy leaf saponin extract', '24%'], ['Conker extract', '16%'], ['Citric acid', '3%'], ['Water', '55%'], ['Natural preservative', '2%']],
+      tags: ['Degreasing', 'Refillable', 'Fragrance-free option']
+    },
+    {
+      id: 'refill-2-5',
+      name: 'Zero-Waste Refill Pouch Subscription',
+      category: 'Refill Pouches & Bulk',
+      basePrice: 22,
+      sizes: [{ id: '2-5', label: '2.5L refill pouch', price: 22, co2: 1.8 }],
+      blurb: 'A returnable pouch of laundry concentrate; return the empty pouch with your next delivery.',
+      ingredients: [['Conker saponin extract', '36%'], ['English lavender hydrosol', '18%'], ['Plant glycerin', '14%'], ['Water', '30%'], ['Natural preservative', '2%']],
+      tags: ['Subscription', 'Returnable', 'Plastic-saving']
+    }
+  ],
+  materials: [
+    { id: 'fresh-conkers', name: 'Whole Fresh Horse Chestnuts (Conkers)', rate: 0.85, moistureDeduction: 0.18, saponin: '3.0% typical' },
+    { id: 'dried-kernel', name: 'Crushed & Kiln-Dried Conker Kernel', rate: 1.40, moistureDeduction: 0.04, saponin: 'Assay-dependent' },
+    { id: 'ivy-leaves', name: 'English Ivy Leaves (Hedera helix)', rate: 0.95, moistureDeduction: 0.22, saponin: '5.0% typical' },
+    { id: 'soapwort-root', name: 'Soapwort Root (Saponaria officinalis)', rate: 3.20, moistureDeduction: 0.08, saponin: '2.0–5.0%' }
+  ],
+  batches: [
+    { code: 'CNK-2026-084', county: 'Derbyshire', harvestDate: '2026-10-14', material: 'Crushed & Kiln-Dried Conker Kernel', saponin: 4.2, pH: 6.8, bottled: '2026-11-08', carbon: 38.4, supplier: 'Peak District Foragers Co-op', stage: 4 },
+    { code: 'CNK-2026-071', county: 'Shropshire', harvestDate: '2026-10-06', material: 'Whole Fresh Horse Chestnuts', saponin: 3.4, pH: 6.5, bottled: '2026-10-29', carbon: 31.7, supplier: 'Bridgnorth Community Harvest', stage: 4 },
+    { code: 'CNK-2026-062', county: 'Kent', harvestDate: '2026-09-28', material: 'English Ivy Leaves', saponin: 5.1, pH: 6.2, bottled: '2026-10-18', carbon: 26.9, supplier: 'Weald Woodland Trust', stage: 3 },
+    { code: 'CNK-2026-058', county: 'North Yorkshire', harvestDate: '2026-09-21', material: 'Soapwort Root', saponin: 4.8, pH: 6.9, bottled: '2026-10-11', carbon: 22.5, supplier: 'Dales Botanicals', stage: 4 },
+    { code: 'CNK-2026-049', county: 'Cornwall', harvestDate: '2026-09-12', material: 'Crushed & Kiln-Dried Conker Kernel', saponin: 3.9, pH: 6.7, bottled: '2026-10-04', carbon: 35.1, supplier: 'Tamar Estuary Gatherers', stage: 2 },
+    { code: 'CNK-2026-041', county: 'Norfolk', harvestDate: '2026-09-04', material: 'Whole Fresh Horse Chestnuts', saponin: 3.1, pH: 6.4, bottled: '2026-09-27', carbon: 29.8, supplier: 'Breckland School Harvest Project', stage: 1 }
+  ],
+  tradeTiers: [
+    { id: 'drum', name: '20L Refill Drum', min: 1, unitPrice: 126, unit: 'drum', co2: 14.2 },
+    { id: 'ibc', name: '200L IBC Tote', min: 1, unitPrice: 1090, unit: 'tote', co2: 128 },
+    { id: 'pallet', name: '20 × 20L Pallet', min: 20, unitPrice: 118, unit: 'drum', co2: 14.2 }
+  ]
+});
+
+const ROUTE_META = Object.freeze({
+  home: { title: 'The Conkers — Wild British Conkers. Zero Synthetics.', role: 'consumer' },
+  store: { title: 'Storefront — The Conkers', role: 'consumer' },
+  supply: { title: 'Forager & Supplier Portal — The Conkers', role: 'supplier' },
+  manufacturing: { title: 'Manufacturing & Batch Traceability — The Conkers', role: 'manufacturer' },
+  trade: { title: 'B2B Trade & Wholesale — The Conkers', role: 'trade' },
+  cart: { title: 'Cart / Checkout — The Conkers', role: 'consumer' },
+  batch: { title: 'Batch Traceability — The Conkers', role: 'manufacturer' },
+  notfound: { title: 'Not found — The Conkers', role: null }
+});
+
+/* ---------- formatters & pure helpers ---------- */
+const money = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' });
+const numberFmt = new Intl.NumberFormat('en-GB');
+const dateFmt = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium' });
+const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+const sum = (arr) => arr.reduce((acc, n) => acc + n, 0);
+const isValidPostcode = (value) => UK_POSTCODE_RE.test(String(value || '').trim());
+
+/* =========================================================
+   MODEL — State & Domain Logic
+   ========================================================= */
+class ConkersModel {
+  constructor() {
+    this.storage = this._initStorage();
+    this.state = this._load();
+    this.listeners = new Set();
+  }
+
+  _initStorage() {
+    try {
+      const probe = '__conkers_probe__';
+      localStorage.setItem(probe, probe);
+      localStorage.removeItem(probe);
+      return localStorage;
+    } catch {
+      return null;
+    }
+  }
+
+  _defaults() {
+    return {
+      version: 1,
+      role: 'consumer',
+      view: 'home',
+      storeFilter: 'All',
+      theme: 'system',
+      reduceMotion: false,
+      cart: [],
+      supplierLots: [],
+      orders: [],
+      favourites: [],
+      estimator: { material: 'dried-kernel', weight: 12, grade: 'A', delivery: 'label' },
+      trade: { product: 'drum', quantity: 2, postcode: '' },
+      lastBatch: 'CNK-2026-084'
+    };
+  }
+
+  _load() {
+    const base = this._defaults();
+    if (!this.storage) return base;
+    try {
+      const parsed = JSON.parse(this.storage.getItem(STORAGE_KEY) || 'null');
+      if (parsed?.version !== 1) return base;
+      return {
+        ...base,
+        ...parsed,
+        estimator: { ...base.estimator, ...parsed.estimator },
+        trade: { ...base.trade, ...parsed.trade }
+      };
+    } catch {
+      return base;
+    }
+  }
+
+  persist() {
+    if (!this.storage) return;
+    try {
+      const {
+        version, cart, supplierLots, orders, favourites,
+        theme, reduceMotion, role, storeFilter, estimator, trade, lastBatch
+      } = this.state;
+      this.storage.setItem(STORAGE_KEY, JSON.stringify({
+        version, cart, supplierLots, orders, favourites,
+        theme, reduceMotion, role, storeFilter, estimator, trade, lastBatch
+      }));
+    } catch {
+      // Ignore quota/storage errors in restricted contexts
+    }
+  }
+
+  subscribe(fn) {
+    this.listeners.add(fn);
+    return () => this.listeners.delete(fn);
+  }
+
+  notify(reason = 'state') {
+    this.persist();
+    this.listeners.forEach((fn) => fn(this.state, reason));
+  }
+
+  // Lookups
+  getProduct(id) { return CATALOG.products.find((p) => p.id === id) || null; }
+  getSize(product, sizeId) { return product?.sizes.find((s) => s.id === sizeId) || product?.sizes[0] || null; }
+  getMaterial(id) { return CATALOG.materials.find((m) => m.id === id) || CATALOG.materials[0]; }
+  getTradeTier(id) { return CATALOG.tradeTiers.find((t) => t.id === id) || CATALOG.tradeTiers[0]; }
+  getBatch(code) {
+    const needle = String(code || '').trim().toUpperCase();
+    return this.state.supplierLots.find((l) => l.batchCode === needle)
+      || CATALOG.batches.find((b) => b.code === needle)
+      || null;
+  }
+
+  // Domain calculations
+  getCartTotals() {
+    const count = sum(this.state.cart.map((i) => i.quantity));
+    const subtotal = sum(this.state.cart.map((i) => i.quantity * i.unitPrice));
+    const savings = sum(
+      this.state.cart
+        .filter((i) => i.subscription)
+        .map((i) => (i.quantity * i.unitPrice) / (1 - SUBSCRIPTION_DISCOUNT) * SUBSCRIPTION_DISCOUNT)
+    );
+    const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING;
+    const total = subtotal + shipping;
+    const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+    const shippingPct = clamp((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 0, 100);
+    return { count, subtotal, savings, shipping, total, remainingForFreeShipping, shippingPct };
+  }
+
+  getEstimate(overrides = {}) {
+    const cfg = { ...this.state.estimator, ...overrides };
+    const material = this.getMaterial(cfg.material);
+    const weight = clamp(Number(cfg.weight) || 0, 0.5, 2000);
+    const grade = GRADE_FACTORS[cfg.grade] ? cfg.grade : 'A';
+    const factor = GRADE_FACTORS[grade];
+    const deliveryRate = cfg.delivery === 'depot' ? 0.08 : 0;
+
+    const gross = weight * material.rate * factor;
+    const moisture = weight * material.moistureDeduction * material.rate;
+    const delivery = weight * deliveryRate;
+    const payout = Math.max(0, gross - moisture - delivery);
+    return { cfg: { ...cfg, weight, grade }, material, gross, moisture, delivery, payout };
+  }
+
+  getTradeQuote(overrides = {}) {
+    const cfg = { ...this.state.trade, ...overrides };
+    const tier = this.getTradeTier(cfg.product);
+    const quantity = clamp(Number(cfg.quantity) || 1, 1, 200);
+    const discounted = tier.id === 'pallet' && quantity >= tier.min;
+    const unitPrice = discounted ? tier.unitPrice * 0.92 : tier.unitPrice;
+    const total = unitPrice * quantity;
+    const litres = (tier.id === 'ibc' ? 200 : 20) * quantity;
+    const perLitre = total / litres;
+    return { cfg: { ...cfg, quantity }, tier, unitPrice, total, perLitre };
+  }
+
+  getOpsMetrics() {
+    const lots = this.state.supplierLots;
+    const extraKg = sum(lots.map((l) => Number(l.weight) || 0));
+    const orderedUnits = sum(this.state.orders.flatMap((o) => o.items.map((i) => i.quantity)));
+    return {
+      tonnes: (2.84 + extraKg / 1000).toFixed(2),
+      suppliers: 146 + lots.length,
+      litres: 18420 + orderedUnits,
+      savedBottles: 31900 + orderedUnits * 2
+    };
+  }
+
+  // State mutations
+  setView(view, lastBatch = null) {
+    this.state.view = view;
+    if (lastBatch) this.state.lastBatch = String(lastBatch).trim().toUpperCase();
+    this.persist();
+  }
+
+  setRole(role) {
+    this.state.role = role;
+    this.notify('chrome');
+  }
+
+  setStoreFilter(storeFilter) {
+    this.state.storeFilter = storeFilter;
+    this.notify('view');
+  }
+
+  setTheme(theme) {
+    this.state.theme = theme;
+    this.notify('chrome');
+  }
+
+  setReduceMotion(reduceMotion) {
+    this.state.reduceMotion = Boolean(reduceMotion);
+    this.notify('chrome');
+  }
+
+  toggleFavourite(productId) {
+    const next = new Set(this.state.favourites);
+    const added = !next.has(productId);
+    added ? next.add(productId) : next.delete(productId);
+    this.state.favourites = [...next];
+    this.notify('view');
+    return added;
+  }
+
+  addToCart({ productId, sizeId, quantity, subscription }) {
+    const product = this.getProduct(productId);
+    const size = this.getSize(product, sizeId);
+    if (!product || !size) return false;
+    const qty = clamp(Number(quantity) || 1, 1, 99);
+    const isSub = Boolean(subscription);
+    const unitPrice = isSub ? size.price * (1 - SUBSCRIPTION_DISCOUNT) : size.price;
+
+    const existing = this.state.cart.find(
+      (i) => i.productId === product.id && i.sizeId === size.id && i.subscription === isSub
+    );
+    if (existing) {
+      existing.quantity = clamp(existing.quantity + qty, 1, 99);
+    } else {
+      this.state.cart.push({ productId: product.id, sizeId: size.id, quantity: qty, subscription: isSub, unitPrice });
+    }
+    this.notify('cart');
+    return true;
+  }
+
+  adjustCartQuantity(index, delta) {
+    const item = this.state.cart[index];
+    if (!item) return;
+    item.quantity += delta;
+    if (item.quantity < 1) this.state.cart.splice(index, 1);
+    this.notify('cart');
+  }
+
+  updateEstimator(patch) {
+    this.state.estimator = { ...this.state.estimator, ...patch };
+    this.persist();
+  }
+
+  registerSupplierLot({ supplier, county, harvestDate, materialId, weight }) {
+    const material = this.getMaterial(materialId);
+    const w = Number(weight);
+    const seq = String(100 + this.state.supplierLots.length + 1).padStart(3, '0');
+    const batchCode = `CNK-${new Date().getFullYear()}-${seq}`;
+    const { payout } = this.getEstimate({ material: material.id, weight: w });
+    const lot = {
+      batchCode,
+      supplier: supplier.trim(),
+      county: county.trim(),
+      harvestDate,
+      material: material.name,
+      weight: w,
+      payout,
+      saponinEstimate: `${(3 + Math.random() * 2).toFixed(1)}%`,
+      status: 'Intake booked',
+      stage: 1
+    };
+    this.state.supplierLots = [lot, ...this.state.supplierLots];
+    this.state.lastBatch = batchCode;
+    this.notify('lots');
+    return lot;
+  }
+
+  updateTrade(patch) {
+    this.state.trade = { ...this.state.trade, ...patch };
+    this.notify('trade');
+  }
+
+  placeOrder(customer) {
+    const totals = this.getCartTotals();
+    const order = {
+      id: `ORD-${Date.now()}`,
+      date: new Date().toISOString(),
+      customer,
+      items: structuredClone(this.state.cart),
+      total: totals.total
+    };
+    this.state.orders = [order, ...this.state.orders];
+    this.state.cart = [];
+    this.notify('cart');
+    return order;
+  }
+
+  resetAll() {
+    this.storage?.removeItem(STORAGE_KEY);
+    this.state = this._defaults();
+    this.notify('all');
+  }
+}
+
+/* =========================================================
+   VIEW — DOM Construction, Artwork, Templates & Chrome
+   ========================================================= */
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+
+function el(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (key === 'text') node.textContent = value;
+    else if (key === 'html') throw new Error('Unsafe HTML prop blocked');
+    else if (key.startsWith('on') && typeof value === 'function') node.addEventListener(key.slice(2), value);
+    else if (value !== false && value != null) node.setAttribute(key, value === true ? '' : String(value));
+  }
+  for (const child of [].concat(children)) {
+    if (child == null || child === false) continue;
+    node.append(child?.nodeType ? child : document.createTextNode(child));
+  }
+  return node;
+}
+
+function svgEl(tag, attrs = {}, text = null) {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v));
+  if (text != null) node.textContent = text;
+  return node;
+}
+
+class ConkersView {
+  constructor(model) {
+    this.model = model;
+    this.views = {
+      home: () => this.renderHome(),
+      store: () => this.renderStore(),
+      supply: () => this.renderSupply(),
+      manufacturing: () => this.renderManufacturing(),
+      trade: () => this.renderTrade(),
+      cart: () => this.renderCart(),
+      batch: (params) => this.renderBatch(params),
+      notfound: () => this.renderNotFound()
+    };
+  }
+
+  // --- Artwork ---
+  conkerArt() {
+    const svg = svgEl('svg', { viewBox: '0 0 520 380', role: 'img', 'aria-label': 'Illustration of horse chestnut leaves, conkers and a refillable amber bottle' });
+    const defs = svgEl('defs');
+    defs.innerHTML = `<linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4A6B53"/><stop offset="1" stop-color="#2C221E"/></linearGradient><filter id="texture"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2"/><feColorMatrix values="0 0 0 0 .43 0 0 0 0 .27 0 0 0 0 .16 0 0 0 .2 0"/></filter>`;
+    svg.append(
+      defs,
+      svgEl('rect', { width: 520, height: 380, fill: '#F7F4EE' }),
+      svgEl('path', { d: 'M0 300 Q130 230 260 300 T520 300 V380 H0Z', fill: 'url(#leaf)', opacity: .16 }),
+      svgEl('path', { d: 'M60 250 C110 150 170 120 240 150 C210 220 140 260 60 250Z', fill: 'url(#leaf)' }),
+      svgEl('path', { d: 'M75 245 C130 180 180 155 235 160', stroke: '#F7F4EE', 'stroke-width': 3, fill: 'none' }),
+      svgEl('circle', { cx: 330, cy: 220, r: 48, fill: '#6E3524' }),
+      svgEl('circle', { cx: 330, cy: 220, r: 48, fill: 'url(#texture)', opacity: .25 }),
+      svgEl('circle', { cx: 316, cy: 205, r: 12, fill: '#F7F4EE' }),
+      svgEl('path', { d: 'M300 250 q30 25 60 0', stroke: '#C88A36', 'stroke-width': 6, fill: 'none', 'stroke-linecap': 'round' }),
+      svgEl('rect', { x: 410, y: 150, width: 64, height: 150, rx: 14, fill: '#6E3524' }),
+      svgEl('rect', { x: 425, y: 125, width: 34, height: 32, rx: 7, fill: '#C88A36' }),
+      svgEl('rect', { x: 418, y: 195, width: 48, height: 55, rx: 8, fill: '#F7F4EE', opacity: .85 }),
+      svgEl('text', { x: 442, y: 228, 'text-anchor': 'middle', 'font-size': 11, fill: '#2C221E', 'font-family': 'monospace' }, '1L'),
+      svgEl('path', { d: 'M30 330 q80 -35 160 0 q80 35 160 0 q80 -35 130 0', stroke: '#4A6B53', 'stroke-width': 4, fill: 'none', 'stroke-linecap': 'round' })
+    );
+    return svg;
+  }
+
+  bottleArt(product) {
+    const svg = svgEl('svg', { viewBox: '0 0 220 180', role: 'img', 'aria-label': `${product.name} bottle artwork` });
+    svg.append(
+      svgEl('rect', { width: 220, height: 180, rx: 18, fill: '#F7F4EE' }),
+      svgEl('rect', { x: 80, y: 22, width: 60, height: 120, rx: 16, fill: '#6E3524' }),
+      svgEl('rect', { x: 92, y: 10, width: 36, height: 20, rx: 6, fill: '#C88A36' }),
+      svgEl('rect', { x: 88, y: 58, width: 44, height: 58, rx: 7, fill: '#F7F4EE', opacity: .9 }),
+      svgEl('text', { x: 110, y: 82, 'text-anchor': 'middle', 'font-size': 10, fill: '#2C221E', 'font-family': 'monospace' }, product.category.slice(0, 10)),
+      svgEl('path', { d: 'M40 150 q70 -30 140 0', stroke: '#4A6B53', 'stroke-width': 4, fill: 'none', 'stroke-linecap': 'round' }),
+      svgEl('circle', { cx: 172, cy: 45, r: 13, fill: '#4A6B53' })
+    );
+    return svg;
+  }
+
+  qrArt(code) {
+    const svg = svgEl('svg', { viewBox: '0 0 100 100', role: 'img', 'aria-label': `QR-style batch identifier for ${code}`, class: 'qr' });
+    let seed = [...String(code)].reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+    const nextRand = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+    for (let x = 0; x < 10; x++) {
+      for (let y = 0; y < 10; y++) {
+        if (nextRand() > 0.5) {
+          svg.append(svgEl('rect', { x: x * 8.4, y: y * 8.4, width: 7, height: 7, fill: '#2C221E' }));
+        }
+      }
+    }
+    return svg;
+  }
+
+  // --- Shared fragments ---
+  metric(value, label) {
+    return el('div', { class: 'metric' }, [el('strong', { text: value }), el('span', { class: 'small muted', text: label })]);
+  }
+
+  pipe(title, body, active = false) {
+    return el('article', { class: `pipe${active ? ' active' : ''}` }, [el('h3', { text: title }), el('p', { class: 'small', text: body })]);
+  }
+
+  detailRow(label, value) {
+    return el('p', { class: 'between' }, [el('span', { class: 'small muted', text: label }), el('strong', { class: 'mono', text: value })]);
+  }
+
+  productCard(product) {
+    const saved = this.model.state.favourites.includes(product.id);
+    return el('article', { class: 'card', 'data-product': product.id }, [
+      el('div', { class: 'card-art' }, [this.bottleArt(product)]),
+      el('div', { class: 'card-body' }, [
+        el('div', { class: 'row' }, [
+          el('span', { class: 'tag', text: product.category }),
+          ...product.tags.map((t) => el('span', { class: 'tag', text: t }))
+        ]),
+        el('h3', { text: product.name }),
+        el('p', { class: 'small muted', text: product.blurb }),
+        el('p', { class: 'price', text: `from ${money.format(product.basePrice)}` })
+      ]),
+      el('div', { class: 'card-foot' }, [
+        el('button', { class: 'btn btn-sm btn-primary', type: 'button', 'data-open-product': product.id }, 'View & add'),
+        el('button', {
+          class: 'btn btn-sm btn-ghost',
+          type: 'button',
+          'data-toggle-fav': product.id,
+          'aria-pressed': String(saved)
+        }, saved ? 'Saved' : 'Save')
+      ])
+    ]);
+  }
+
+  batchDetail(code) {
+    const batch = this.model.getBatch(code);
+    if (!batch) {
+      return el('div', { class: 'empty' }, [
+        el('h2', { style: 'font-size:1.3rem' }, 'Batch not found'),
+        el('p', {}, `No traceability record matches ${code}. Try CNK-2026-084.`)
+      ]);
+    }
+    return el('article', { class: 'panel stack' }, [
+      el('div', { class: 'between' }, [
+        el('div', {}, [
+          el('p', { class: 'eyebrow' }, 'Batch traceability'),
+          el('h2', { style: 'font-size:1.6rem', class: 'mono', text: batch.code })
+        ]),
+        el('span', { class: 'tag', text: `Stage ${batch.stage} of 4` })
+      ]),
+      el('div', { class: 'split' }, [
+        el('div', { class: 'stack-sm' }, [
+          this.detailRow('Origin county', batch.county),
+          this.detailRow('Harvest date', dateFmt.format(new Date(batch.harvestDate))),
+          this.detailRow('Raw material', batch.material),
+          this.detailRow('Supplier', batch.supplier),
+          this.detailRow('Saponin assay', `${batch.saponin.toFixed(1)}%`),
+          this.detailRow('pH level', batch.pH.toFixed(1)),
+          this.detailRow('Bottling date', dateFmt.format(new Date(batch.bottled))),
+          this.detailRow('Carbon avoided vs petrochemical surfactants', `${batch.carbon.toFixed(1)} kg CO₂e`)
+        ]),
+        el('div', { class: 'stack-sm' }, [
+          this.qrArt(batch.code),
+          el('p', { class: 'small muted' }, 'Illustrative QR-style identifier; scan-ready encoding is not included in this demonstration.'),
+          el('button', { class: 'btn btn-sm', type: 'button', id: 'copyBatch', 'data-code': batch.code }, 'Copy batch code')
+        ])
+      ])
+    ]);
+  }
+
+  // --- Route views ---
+  renderHome() {
+    return el('div', {}, [
+      el('section', { class: 'section split' }, [
+        el('div', { class: 'stack' }, [
+          el('p', { class: 'eyebrow' }, 'British botanical cleaning'),
+          el('h1', {}, 'Wild British Conkers. Zero Synthetics. Circular by Design.'),
+          el('p', { class: 'lede' }, 'We turn responsibly gathered horse chestnuts, ivy and soapwort into effective saponin-rich cleaners—then bring every refill pouch back into the loop.'),
+          el('div', { class: 'row' }, [
+            el('a', { class: 'btn btn-primary', href: '#/store' }, 'Shop Botanical Detergents'),
+            el('a', { class: 'btn btn-brass', href: '#/supply' }, 'Sell Your Foraged Harvest')
+          ]),
+          el('div', { class: 'metrics mt' }, [
+            this.metric('2.84 t', 'Conkers foraged this season'),
+            this.metric('146', 'Active UK suppliers'),
+            this.metric('18,420 L', 'Botanical cleaner bottled'),
+            this.metric('31,900', 'Plastic bottles saved')
+          ]),
+          el('p', { class: 'small muted' }, 'Figures are illustrative demonstration data for this platform.')
+        ]),
+        el('figure', { class: 'hero-art' }, [
+          this.conkerArt(),
+          el('figcaption', { class: 'small muted', style: 'padding:.8rem' }, 'Conker saponins create a natural, soap-like cleaning action when extracted with water.')
+        ])
+      ]),
+      el('section', { class: 'section' }, [
+        el('div', { class: 'between' }, [
+          el('h2', {}, 'From woodland floor to wash cycle'),
+          el('a', { class: 'btn btn-sm', href: '#/manufacturing' }, 'Open traceability hub')
+        ]),
+        el('div', { class: 'pipeline mt' }, [
+          this.pipe('Crushing & Grading', 'Conkers are dehusked, crushed and moisture-graded at intake.'),
+          this.pipe('Thermal Steam & Aqueous Extraction', 'Controlled steam and water release the saponins without petrochemical solvents.'),
+          this.pipe('Fine Filtration & Natural Stabilization', 'Plant fibres are removed; pH and saponin concentration are assayed.'),
+          this.pipe('Bottling & Closed-Loop Return', 'Concentrate is bottled; refill packaging returns for washing and reuse.')
+        ])
+      ]),
+      el('section', { class: 'section' }, [
+        el('h2', {}, 'Featured botanical cleaners'),
+        el('div', { class: 'grid mt' }, CATALOG.products.slice(0, 3).map((p) => this.productCard(p)))
+      ])
+    ]);
+  }
+
+  renderStore() {
+    const categories = ['All', 'Laundry Liquid', 'Dish & Surface', 'Refill Pouches & Bulk'];
+    const active = this.model.state.storeFilter || 'All';
+    const filtered = CATALOG.products.filter((p) => active === 'All' || p.category === active);
+
+    return el('div', { class: 'section' }, [
+      el('div', { class: 'between' }, [
+        el('div', {}, [
+          el('p', { class: 'eyebrow' }, 'Refill-first cleaning'),
+          el('h1', { style: 'font-size:clamp(2rem,4vw,3rem)' }, 'Botanical detergent, without the waste')
+        ]),
+        el('div', { class: 'row', role: 'group', 'aria-label': 'Product category filters' },
+          categories.map((cat) => el('button', {
+            class: 'chip',
+            type: 'button',
+            'data-store-filter': cat,
+            'aria-pressed': String(cat === active)
+          }, cat))
+        )
+      ]),
+      el('p', { class: 'muted mt', id: 'storeResult', text: `${filtered.length} product${filtered.length === 1 ? '' : 's'} available` }),
+      el('div', { class: 'grid mt' }, filtered.length
+        ? filtered.map((p) => this.productCard(p))
+        : [el('div', { class: 'empty' }, [el('p', {}, 'No products match this category yet. Try another filter.')])]),
+      el('section', { class: 'panel mt-lg' }, [
+        el('h2', { style: 'font-size:1.4rem' }, 'Subscribe & save 15%'),
+        el('p', {}, 'Choose Subscribe & Save on eligible refills to receive a recurring delivery and return the empty pouch with the next one.'),
+        el('p', { class: 'small muted' }, 'Illustrative subscription terms; cancel or pause before each scheduled dispatch.')
+      ])
+    ]);
+  }
+
+  renderSupply() {
+    const est = this.model.getEstimate();
+    const lots = this.model.state.supplierLots;
+
+    return el('div', { class: 'section' }, [
+      el('div', { class: 'between' }, [
+        el('div', {}, [
+          el('p', { class: 'eyebrow' }, 'Circular supply chain'),
+          el('h1', { style: 'font-size:clamp(2rem,4vw,3rem)' }, 'Forager & Supplier Intake Portal')
+        ]),
+        el('a', { class: 'btn btn-sm', href: '#/manufacturing' }, 'See where harvest goes')
+      ]),
+      el('div', { class: 'split mt' }, [
+        el('section', { class: 'stack' }, [
+          el('h2', {}, 'Live commodity price board'),
+          el('div', { class: 'table-wrap' }, [
+            el('table', {}, [
+              el('caption', { class: 'visually-hidden' }, 'Current raw material buyback rates'),
+              el('thead', {}, [el('tr', {}, ['Material', 'Buyback rate', 'Moisture adjustment', 'Saponin reference'].map((h) => el('th', { scope: 'col', text: h })))]),
+              el('tbody', {}, CATALOG.materials.map((m) => el('tr', {}, [
+                el('td', { text: m.name }),
+                el('td', { class: 'mono', text: `${money.format(m.rate)}/kg` }),
+                el('td', { class: 'mono', text: `−${(m.moistureDeduction * 100).toFixed(0)}%` }),
+                el('td', { class: 'mono', text: m.saponin })
+              ])))
+            ])
+          ]),
+          el('section', { class: 'panel' }, [
+            el('h3', {}, 'Harvest payout estimator'),
+            el('form', { id: 'estimatorForm', class: 'stack' }, [
+              el('div', { class: 'field' }, [
+                el('label', { for: 'material', text: 'Material type' }),
+                el('select', { id: 'material' }, CATALOG.materials.map((m) => el('option', { value: m.id, selected: m.id === est.cfg.material, text: m.name })))
+              ]),
+              el('div', { class: 'field' }, [
+                el('label', { for: 'weight', text: 'Estimated weight (kg)' }),
+                el('input', { id: 'weight', type: 'number', min: '0.5', max: '2000', step: '0.1', value: est.cfg.weight, inputmode: 'decimal' })
+              ]),
+              el('div', { class: 'field' }, [
+                el('label', { for: 'grade', text: 'Moisture / cleaning grade' }),
+                el('select', { id: 'grade' }, [
+                  ['A', 'Grade A — clean, dry, well sorted'],
+                  ['B', 'Grade B — minor leaf or soil'],
+                  ['C', 'Grade C — wet or mixed material']
+                ].map(([v, label]) => el('option', { value: v, selected: v === est.cfg.grade, text: label })))
+              ]),
+              el('fieldset', { class: 'stack-sm' }, [
+                el('legend', { class: 'small', text: 'Delivery method' }),
+                el('label', {}, [el('input', { type: 'radio', name: 'delivery', value: 'label', checked: est.cfg.delivery === 'label' }), ' Pre-paid Royal Mail / courier drop-off label']),
+                el('label', {}, [el('input', { type: 'radio', name: 'delivery', value: 'depot', checked: est.cfg.delivery === 'depot' }), ' Manchester depot drop-off'])
+              ]),
+              el('div', { class: 'notice', id: 'estimateSummary' }, [
+                el('p', { class: 'small' }, 'Estimated gross value'),
+                el('strong', { class: 'mono', id: 'grossValue', text: money.format(est.gross) }),
+                el('p', { class: 'small' }, 'Moisture / cleaning adjustment'),
+                el('strong', { class: 'mono', id: 'moistureValue', text: `−${money.format(est.moisture)}` }),
+                el('p', { class: 'small' }, 'Delivery handling'),
+                el('strong', { class: 'mono', id: 'deliveryValue', text: est.delivery ? `−${money.format(est.delivery)}` : 'Included' }),
+                el('p', { style: 'border-top:1px solid var(--line);padding-top:.5rem' }, 'Estimated payout'),
+                el('strong', { class: 'mono', id: 'payoutValue', style: 'font-size:1.7rem', text: money.format(est.payout) })
+              ]),
+              el('p', { class: 'small muted', text: 'Estimates are illustrative and confirmed after intake grading.' })
+            ])
+          ])
+        ]),
+        el('section', { class: 'panel stack', id: 'supplierPanel' }, [
+          el('h2', { style: 'font-size:1.4rem' }, 'Register a harvest lot'),
+          el('p', { class: 'small muted' }, 'For individuals, schools, community groups and estates. Your submission creates a traceable intake lot and waybill.'),
+          el('form', { id: 'supplierForm', class: 'stack', novalidate: true }, [
+            el('div', { class: 'field' }, [el('label', { for: 'supplierName', text: 'Supplier / group name' }), el('input', { id: 'supplierName', required: true })]),
+            el('div', { class: 'field' }, [el('label', { for: 'county', text: 'Harvest county' }), el('input', { id: 'county', required: true, placeholder: 'Derbyshire' })]),
+            el('div', { class: 'field' }, [el('label', { for: 'harvestDate', text: 'Harvest date' }), el('input', { id: 'harvestDate', type: 'date', required: true })]),
+            el('div', { class: 'field' }, [el('label', { for: 'lotMaterial', text: 'Material' }), el('select', { id: 'lotMaterial' }, CATALOG.materials.map((m) => el('option', { value: m.id, text: m.name })))]),
+            el('div', { class: 'field' }, [el('label', { for: 'lotWeight', text: 'Weight (kg)' }), el('input', { id: 'lotWeight', type: 'number', min: '0.5', step: '0.1', required: true, inputmode: 'decimal' })]),
+            el('p', { class: 'error', id: 'supplierError', 'aria-live': 'assertive' }),
+            el('button', { class: 'btn btn-primary', type: 'submit' }, 'Generate lot waybill')
+          ]),
+          el('div', { id: 'lotResult' })
+        ])
+      ]),
+      el('section', { class: 'section' }, [
+        el('h2', {}, 'Your submitted lots'),
+        lots.length
+          ? el('div', { class: 'table-wrap mt' }, [
+              el('table', {}, [
+                el('thead', {}, [el('tr', {}, ['Batch ID', 'Supplier', 'County', 'Material', 'Weight', 'Estimated payout', 'Status'].map((h) => el('th', { scope: 'col', text: h })))]),
+                el('tbody', {}, lots.map((l) => el('tr', {}, [
+                  el('td', { class: 'mono', text: l.batchCode }),
+                  el('td', { text: l.supplier }),
+                  el('td', { text: l.county }),
+                  el('td', { text: l.material }),
+                  el('td', { class: 'mono', text: `${l.weight.toFixed(1)} kg` }),
+                  el('td', { class: 'mono', text: money.format(l.payout) }),
+                  el('td', {}, [el('span', { class: 'tag', text: l.status })])
+                ])))
+              ])
+            ])
+          : el('div', { class: 'empty mt' }, [el('p', {}, 'No supplier lots submitted in this browser yet.')])
+      ])
+    ]);
+  }
+
+  renderLotWaybill(lot) {
+    return el('div', { class: 'notice success stack-sm mt' }, [
+      el('strong', { text: 'Supplier lot registered' }),
+      el('p', { class: 'small' }, `Batch ID ${lot.batchCode} has been added to the intake queue.`),
+      el('div', { class: 'row' }, [
+        this.qrArt(lot.batchCode),
+        el('div', { class: 'stack-sm' }, [
+          el('strong', { class: 'mono', text: lot.batchCode }),
+          el('p', { class: 'small', text: `${lot.supplier} · ${lot.county}` }),
+          el('p', { class: 'small', text: `${lot.material} · ${lot.weight.toFixed(1)} kg · estimated ${money.format(lot.payout)}` })
+        ])
+      ]),
+      el('button', { class: 'btn btn-sm', type: 'button', id: 'printWaybill' }, 'Print / view waybill')
+    ]);
+  }
+
+  renderManufacturing() {
+    const ops = this.model.getOpsMetrics();
+    const lots = this.model.state.supplierLots;
+
+    return el('div', { class: 'section' }, [
+      el('div', { class: 'between' }, [
+        el('div', {}, [
+          el('p', { class: 'eyebrow' }, 'Operations'),
+          el('h1', { style: 'font-size:clamp(2rem,4vw,3rem)' }, 'Manufacturing & Circular Traceability Hub')
+        ]),
+        el('button', { class: 'btn btn-sm btn-brass', type: 'button', id: 'runPipeline' }, 'Run extraction sequence')
+      ]),
+      el('div', { class: 'metrics mt' }, [
+        this.metric(`${ops.tonnes} t`, 'Total tonnes foraged'),
+        this.metric(numberFmt.format(ops.suppliers), 'Active UK suppliers'),
+        this.metric(`${numberFmt.format(ops.litres)} L`, 'Litres bottled'),
+        this.metric(numberFmt.format(ops.savedBottles), 'Plastic bottles saved')
+      ]),
+      el('section', { class: 'panel mt' }, [
+        el('h2', { style: 'font-size:1.4rem' }, 'Saponin extraction process visualiser'),
+        el('div', { class: 'pipeline', id: 'pipeline' }, [
+          this.pipe('1. Crushing & Grading', 'Incoming conkers are dehusked, crushed and sorted by moisture and kernel quality.', true),
+          this.pipe('2. Thermal Steam & Aqueous Extraction', 'Steam and heated water extract saponins; no petroleum-derived solvents are used.'),
+          this.pipe('3. Fine Filtration & Natural Stabilization', 'Fibre is removed, pH is corrected and the extract is assayed for saponin concentration.'),
+          this.pipe('4. Bottling & Closed-Loop Return', 'Concentrate is filled; refill pouches and glass bottles return for washing and reuse.')
+        ]),
+        el('p', { class: 'small muted mt', 'aria-live': 'polite', id: 'pipelineStatus' }, 'Ready. Select “Run extraction sequence” to advance the process.')
+      ]),
+      el('section', { class: 'panel mt' }, [
+        el('h2', { style: 'font-size:1.4rem' }, 'Live batch traceability lookup'),
+        el('form', { id: 'traceForm', class: 'row' }, [
+          el('div', { class: 'field', style: 'flex:1;min-width:220px' }, [
+            el('label', { for: 'traceCode', text: 'Batch code' }),
+            el('input', { id: 'traceCode', value: this.model.state.lastBatch, required: true })
+          ]),
+          el('button', { class: 'btn btn-primary', type: 'submit' }, 'Inspect batch')
+        ]),
+        el('div', { class: 'row mt' }, CATALOG.batches.slice(0, 3).map((b) => el('button', { class: 'chip', type: 'button', 'data-batch': b.code }, b.code))),
+        el('div', { id: 'traceResult', class: 'mt' }, [this.batchDetail(this.model.state.lastBatch)])
+      ]),
+      el('section', { class: 'panel mt' }, [
+        el('h2', { style: 'font-size:1.4rem' }, 'Recent intake lots'),
+        lots.length
+          ? el('div', { class: 'table-wrap mt' }, [
+              el('table', {}, [
+                el('thead', {}, [el('tr', {}, ['Batch ID', 'County', 'Material', 'Weight', 'Saponin estimate', 'Status'].map((h) => el('th', { scope: 'col', text: h })))]),
+                el('tbody', {}, lots.map((l) => el('tr', {}, [
+                  el('td', { class: 'mono', text: l.batchCode }),
+                  el('td', { text: l.county }),
+                  el('td', { text: l.material }),
+                  el('td', { class: 'mono', text: `${l.weight.toFixed(1)} kg` }),
+                  el('td', { class: 'mono', text: l.saponinEstimate }),
+                  el('td', { text: l.status })
+                ])))
+              ])
+            ])
+          : el('p', { class: 'small muted' }, 'No new intake lots yet. Submit one in the Forager Portal to see it appear here.')
+      ])
+    ]);
+  }
+
+  renderTrade() {
+    const quote = this.model.getTradeQuote();
+
+    return el('div', { class: 'section' }, [
+      el('div', { class: 'between' }, [
+        el('div', {}, [
+          el('p', { class: 'eyebrow' }, 'B2B'),
+          el('h1', { style: 'font-size:clamp(2rem,4vw,3rem)' }, 'Trade & Zero-Waste Refill Stockists')
+        ]),
+        el('button', { class: 'btn btn-sm btn-brass', type: 'button', id: 'sampleBtn' }, 'Request sample pack')
+      ]),
+      el('div', { class: 'grid mt trade-panel' }, CATALOG.tradeTiers.map((tier) => el('article', { class: 'card tier' }, [
+        el('div', { class: 'card-body' }, [
+          el('h3', { text: tier.name }),
+          el('p', { class: 'small muted', text: `Minimum order: ${tier.min} ${tier.unit}${tier.min > 1 ? 's' : ''}` }),
+          el('p', { class: 'price', text: `${money.format(tier.unitPrice)} / ${tier.unit}` }),
+          el('p', { class: 'small muted', text: `Estimated ${tier.co2} kg single-use plastic avoided per unit.` })
+        ]),
+        el('div', { class: 'card-foot' }, [
+          el('button', { class: 'btn btn-sm btn-primary', type: 'button', 'data-tier': tier.id }, 'Select format')
+        ])
+      ]))),
+      el('section', { class: 'panel mt' }, [
+        el('h2', { style: 'font-size:1.4rem' }, 'Wholesale quote calculator'),
+        el('form', { id: 'tradeForm', class: 'row' }, [
+          el('div', { class: 'field' }, [
+            el('label', { for: 'tradeProduct', text: 'Format' }),
+            el('select', { id: 'tradeProduct' }, CATALOG.tradeTiers.map((t) => el('option', { value: t.id, selected: t.id === quote.cfg.product, text: t.name })))
+          ]),
+          el('div', { class: 'field' }, [
+            el('label', { for: 'tradeQty', text: 'Quantity' }),
+            el('input', { id: 'tradeQty', type: 'number', min: '1', max: '200', value: quote.cfg.quantity, inputmode: 'numeric' })
+          ]),
+          el('div', { class: 'field' }, [
+            el('label', { for: 'tradePostcode', text: 'Delivery postcode' }),
+            el('input', { id: 'tradePostcode', value: quote.cfg.postcode, placeholder: 'M4 6DE' })
+          ]),
+          el('button', { class: 'btn btn-primary', type: 'submit' }, 'Calculate quote')
+        ]),
+        el('div', { class: 'notice mt' }, [
+          el('p', { class: 'small' }, 'Indicative trade quote'),
+          el('strong', { class: 'mono', id: 'tradeTotal', style: 'font-size:1.8rem', text: money.format(quote.total) }),
+          el('p', {
+            class: 'small muted',
+            id: 'tradeDetail',
+            text: `${quote.cfg.quantity} × ${quote.tier.name} · approximately ${money.format(quote.perLitre)} per litre · excludes VAT and delivery.`
+          })
+        ])
+      ])
+    ]);
+  }
+
+  renderCart() {
+    const totals = this.model.getCartTotals();
+    const hasItems = this.model.state.cart.length > 0;
+
+    return el('div', { class: 'section' }, [
+      el('h1', { style: 'font-size:clamp(2rem,4vw,3rem)' }, 'Cart & UK checkout'),
+      hasItems
+        ? el('div', { class: 'split mt' }, [
+            el('div', { class: 'stack' }, [
+              el('div', { class: 'table-wrap' }, [
+                el('table', {}, [
+                  el('caption', { class: 'visually-hidden' }, 'Items in your basket'),
+                  el('thead', {}, [el('tr', {}, ['Product', 'Format', 'Type', 'Qty', 'Line total'].map((h) => el('th', { scope: 'col', text: h })))]),
+                  el('tbody', {}, this.model.state.cart.map((item) => {
+                    const product = this.model.getProduct(item.productId);
+                    const size = this.model.getSize(product, item.sizeId);
+                    return el('tr', {}, [
+                      el('td', { text: product?.name || item.productId }),
+                      el('td', { text: size?.label || item.sizeId }),
+                      el('td', { text: item.subscription ? 'Subscribe & Save' : 'One-time' }),
+                      el('td', { class: 'mono', text: String(item.quantity) }),
+                      el('td', { class: 'mono', text: money.format(item.unitPrice * item.quantity) })
+                    ]);
+                  }))
+                ])
+              ]),
+              el('form', { class: 'panel stack', id: 'checkoutForm', novalidate: true }, [
+                el('h2', { style: 'font-size:1.3rem' }, 'Simulated UK checkout'),
+                el('div', { class: 'field' }, [el('label', { for: 'name', text: 'Full name' }), el('input', { id: 'name', required: true, autocomplete: 'name' })]),
+                el('div', { class: 'field' }, [el('label', { for: 'email', text: 'Email' }), el('input', { id: 'email', type: 'email', required: true, autocomplete: 'email' })]),
+                el('div', { class: 'field' }, [el('label', { for: 'address', text: 'Delivery address' }), el('input', { id: 'address', required: true, autocomplete: 'street-address' })]),
+                el('div', { class: 'field' }, [
+                  el('label', { for: 'checkoutPostcode', text: 'UK postcode' }),
+                  el('input', { id: 'checkoutPostcode', required: true, pattern: UK_POSTCODE_RE.source, autocomplete: 'postal-code' })
+                ]),
+                el('p', { class: 'error', id: 'checkoutError', 'aria-live': 'assertive' }),
+                el('button', { class: 'btn btn-primary', type: 'submit' }, 'Place demonstration order')
+              ])
+            ]),
+            el('aside', { class: 'panel stack' }, [
+              el('h2', { style: 'font-size:1.3rem' }, 'Order summary'),
+              el('p', { class: 'between' }, [el('span', { text: 'Subtotal' }), el('strong', { class: 'mono', text: money.format(totals.subtotal) })]),
+              el('p', { class: 'between' }, [el('span', { text: 'Subscription savings' }), el('strong', { class: 'mono', text: `−${money.format(totals.savings)}` })]),
+              el('p', { class: 'between' }, [el('span', { text: 'UK shipping' }), el('strong', { class: 'mono', text: totals.shipping ? money.format(totals.shipping) : 'Free' })]),
+              el('p', { class: 'between', style: 'border-top:1px solid var(--line);padding-top:.75rem' }, [
+                el('strong', { text: 'Total' }),
+                el('strong', { class: 'mono', text: money.format(totals.total) })
+              ]),
+              el('p', { class: 'small muted' }, 'This is a demonstration checkout. No payment is taken and no card details are collected.')
+            ])
+          ])
+        : el('div', { class: 'empty mt' }, [
+            el('h2', { style: 'font-size:1.3rem' }, 'Nothing in your basket yet'),
+            el('p', {}, 'Browse the storefront to find a refillable botanical cleaner.'),
+            el('a', { class: 'btn btn-primary mt', href: '#/store' }, 'Shop Botanical Detergents')
+          ])
+    ]);
+  }
+
+  renderBatch(params) {
+    const code = params.get('code') || this.model.state.lastBatch;
+    return el('div', { class: 'section' }, [
+      el('a', { class: 'btn btn-sm btn-ghost', href: '#/manufacturing' }, '← Back to manufacturing'),
+      el('div', { id: 'traceResult', class: 'mt' }, [this.batchDetail(code)])
+    ]);
+  }
+
+  renderNotFound() {
+    return el('div', { class: 'section center' }, [
+      el('p', { class: 'eyebrow' }, '404'),
+      el('h1', {}, 'This woodland path is unmarked'),
+      el('p', { class: 'lede', style: 'margin-inline:auto' }, 'The page you requested is not part of The Conkers platform.'),
+      el('a', { class: 'btn btn-primary mt', href: '#/home' }, 'Return to the woodland floor')
+    ]);
+  }
+
+  renderProductModal(product) {
+    const dialog = $('#productDialog');
+    const firstSize = this.model.getSize(product, null);
+    dialog.replaceChildren(
+      el('div', { class: 'dialog-inner' }, [
+        el('div', { class: 'dialog-head' }, [
+          el('div', {}, [el('p', { class: 'eyebrow', text: product.category }), el('h2', { id: 'productTitle', text: product.name })]),
+          el('button', { class: 'icon-btn', type: 'button', 'data-close': '', 'aria-label': 'Close product details' }, '✕')
+        ]),
+        el('div', { class: 'split' }, [
+          el('div', { class: 'stack' }, [
+            el('figure', { class: 'hero-art' }, [this.bottleArt(product)]),
+            el('p', { text: product.blurb }),
+            el('h3', {}, 'Ingredient transparency'),
+            el('ul', { class: 'stack-sm' }, product.ingredients.map(([name, percent]) =>
+              el('li', { class: 'between small' }, [el('span', { text: name }), el('strong', { class: 'mono', text: percent })])
+            )),
+            el('p', { class: 'small notice' }, 'External cleaning use only. Conker-derived saponins are toxic if swallowed; keep products away from children and pets.')
+          ]),
+          el('form', { class: 'panel stack', id: 'addToCartForm', 'data-product-id': product.id }, [
+            el('div', { class: 'field' }, [
+              el('label', { for: 'sizeSelect', text: 'Size / refill format' }),
+              el('select', { id: 'sizeSelect' }, product.sizes.map((s) => el('option', { value: s.id, text: `${s.label} — ${money.format(s.price)}` })))
+            ]),
+            el('fieldset', { class: 'stack-sm' }, [
+              el('legend', { class: 'small', text: 'Purchase type' }),
+              el('label', {}, [el('input', { type: 'radio', name: 'purchase', value: 'once', checked: true }), ' One-time purchase']),
+              el('label', {}, [el('input', { type: 'radio', name: 'purchase', value: 'subscription' }), ' Subscribe & Save — 15% off'])
+            ]),
+            el('div', { class: 'field' }, [
+              el('label', { for: 'quantity', text: 'Quantity' }),
+              el('input', { id: 'quantity', name: 'quantity', type: 'number', min: '1', max: '24', value: '1', inputmode: 'numeric' })
+            ]),
+            el('p', { class: 'price', id: 'modalPrice', text: money.format(firstSize.price) }),
+            el('button', { class: 'btn btn-primary', type: 'submit' }, 'Add to basket'),
+            el('p', { class: 'small muted', id: 'modalPlasticNote', text: `Estimated avoided single-use plastic: ${firstSize.co2.toFixed(2)} kg per format.` })
+          ])
+        ])
+      ])
+    );
+    dialog.showModal();
+  }
+
+  renderCartDrawer() {
+    const container = $('#cartItems');
+    container.replaceChildren();
+
+    if (!this.model.state.cart.length) {
+      container.append(el('div', { class: 'empty' }, [
+        el('p', {}, 'Your basket is empty.'),
+        el('p', { class: 'small' }, 'Choose a botanical cleaner or refill pouch to begin.')
+      ]));
+    } else {
+      this.model.state.cart.forEach((item, index) => {
+        const product = this.model.getProduct(item.productId);
+        const size = this.model.getSize(product, item.sizeId);
+        if (!product || !size) return;
+        container.append(el('div', { class: 'cart-item' }, [
+          el('div', { class: 'cart-thumb' }, [this.bottleArt(product)]),
+          el('div', {}, [
+            el('strong', { text: product.name }),
+            el('p', { class: 'small muted', text: `${size.label} · ${item.subscription ? 'Subscribe & Save' : 'One-time'}` }),
+            el('div', { class: 'qty' }, [
+              el('button', { type: 'button', 'data-cart-action': 'decrease', 'data-index': String(index), 'aria-label': `Decrease quantity of ${product.name}` }, '−'),
+              el('span', { class: 'mono', text: String(item.quantity) }),
+              el('button', { type: 'button', 'data-cart-action': 'increase', 'data-index': String(index), 'aria-label': `Increase quantity of ${product.name}` }, '+')
+            ])
+          ]),
+          el('strong', { class: 'mono', text: money.format(item.unitPrice * item.quantity) })
+        ]));
+      });
+    }
+
+    const totals = this.model.getCartTotals();
+    $('#cartSubtotal').textContent = money.format(totals.subtotal);
+    $('#cartSavings').textContent = money.format(totals.savings);
+    $('#shippingBar').style.width = `${totals.shippingPct}%`;
+    $('#shippingLabel').textContent = totals.remainingForFreeShipping
+      ? `Add ${money.format(totals.remainingForFreeShipping)} for free shipping`
+      : 'Free UK mainland shipping unlocked';
+    $('#cartDrawer .progress').setAttribute('aria-valuenow', String(clamp(totals.subtotal, 0, FREE_SHIPPING_THRESHOLD)));
+    $('#cartCount').textContent = String(totals.count);
+  }
+
+  renderCapabilities() {
+    const checks = [
+      ['View Transitions API', Boolean(document.startViewTransition), 'Smooth route and detail transitions'],
+      ['Scroll-driven animations', CSS.supports('animation-timeline', 'scroll()'), 'Progress bar tracks page scroll'],
+      ['Container queries', CSS.supports('container-type', 'inline-size'), 'Cards adapt to their own width'],
+      ['Container style queries', CSS.supports('container-style', 'inline-size'), 'Advanced component-state styling'],
+      ['CSS nesting', CSS.supports('selector(&)', '&'), 'Readable component-scoped styles'],
+      ['@scope', CSS.supports('selector(@scope)', '@scope'), 'Bounded trade-panel styling'],
+      ['Anchor positioning', CSS.supports('anchor-name', '--x'), 'Improved popover placement'],
+      ['Popover API', 'popover' in HTMLElement.prototype, 'Native lightweight overlays'],
+      ['<dialog>', typeof HTMLDialogElement !== 'undefined', 'Accessible product, settings and safety modals'],
+      [':has()', CSS.supports('selector(:has(a))'), 'Parent-state styling'],
+      ['field-sizing', CSS.supports('field-sizing', 'content'), 'Inputs can grow with content'],
+      ['Trusted Types', Boolean(window.trustedTypes), 'Safer HTML handling'],
+      ['Navigation API', Boolean(window.navigation), 'Native client-side navigation hooks'],
+      ['Web Animations API', Boolean(Element.prototype.animate), 'Interactive motion'],
+      ['Canvas 2D', Boolean(document.createElement('canvas').getContext('2d')), 'Resolution-aware visuals'],
+      ['Web Audio', Boolean(window.AudioContext), 'Optional sound'],
+      ['Clipboard API', Boolean(navigator.clipboard), 'Copy batch identifiers'],
+      ['Web Share API', Boolean(navigator.share), 'Share traceability records'],
+      ['localStorage', Boolean(this.model.storage), 'Persist basket and supplier lots']
+    ];
+
+    const list = $('#capabilityList');
+    list.replaceChildren(...checks.map(([label, active, benefit]) =>
+      el('div', { class: 'cap-row' }, [
+        el('div', {}, [el('strong', { text: label }), el('p', { class: 'small muted', text: benefit })]),
+        el('span', { class: `cap-state${active ? '' : ' off'}`, text: active ? 'Active' : 'Fallback' })
+      ])
+    ));
+  }
+
+  syncChrome() {
+    const { theme, reduceMotion, role, view } = this.model.state;
+    document.documentElement.dataset.theme = theme === 'system' ? '' : theme;
+    $('#motionToggle').checked = reduceMotion;
+    $$('[data-theme]').forEach((btn) => btn.setAttribute('aria-pressed', String(btn.dataset.theme === theme)));
+    $$('.primary-nav a').forEach((a) => {
+      const target = a.getAttribute('href').slice(2).split('?')[0];
+      a.setAttribute('aria-current', target === view ? 'page' : 'false');
+    });
+    $$('.role-pill').forEach((pill) => pill.setAttribute('aria-current', String(pill.dataset.role === role)));
+    this.renderCartDrawer();
+  }
+
+  mountView(route, params) {
+    const meta = ROUTE_META[route] || ROUTE_META.notfound;
+    document.title = meta.title;
+    const content = (this.views[route] || this.views.notfound)(params);
+    const app = $('#app');
+
+    const swap = () => {
+      app.replaceChildren(content);
+      app.classList.remove('view');
+      void app.offsetWidth;
+      app.classList.add('view');
+    };
+
+    if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches && !this.model.state.reduceMotion) {
+      document.startViewTransition(swap);
+    } else {
+      swap();
+    }
+    this.syncChrome();
+  }
+
+  toast(message) {
+    const node = $('#toast');
+    node.textContent = message;
+    node.hidden = false;
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => { node.hidden = true; }, 3200);
+  }
+}
+
+/* =========================================================
+   CONTROLLER — Routing, Events & User Workflows
+   ========================================================= */
+class ConkersController {
+  constructor(model, view) {
+    this.model = model;
+    this.view = view;
+    this._pipelineTimer = null;
+  }
+
+  init() {
+    $('#year').textContent = String(new Date().getFullYear());
+    this.view.renderCapabilities();
+
+    this.model.subscribe((state, reason) => {
+      if (reason === 'all') {
+        this.view.renderCapabilities();
+        this.handleRoute({ scroll: false });
+      } else if (reason === 'view' || reason === 'lots' || reason === 'trade') {
+        this.handleRoute({ scroll: false });
+      } else {
+        this.view.syncChrome();
+      }
+    });
+
+    this._bindEvents();
+    this.handleRoute({ scroll: false });
+  }
+
+  parseHash() {
+    const raw = location.hash.replace(/^#\/?/, '') || 'home';
+    const [route, query] = raw.split('?');
+    return {
+      route: Object.hasOwn(ROUTE_META, route) ? route : 'notfound',
+      params: new URLSearchParams(query || '')
+    };
+  }
+
+  navigate(hash, { replace = false } = {}) {
+    if (location.hash === hash) {
+      this.handleRoute();
+      return;
+    }
+    if (replace) history.replaceState(null, '', hash);
+    else history.pushState(null, '', hash);
+    this.handleRoute();
+  }
+
+  handleRoute({ scroll = true } = {}) {
+    const { route, params } = this.parseHash();
+    const meta = ROUTE_META[route] || ROUTE_META.notfound;
+    if (meta.role) this.model.state.role = meta.role;
+    this.model.setView(route, params.get('code'));
+    this.view.mountView(route, params);
+    if (scroll) {
+      window.scrollTo({ top: 0, behavior: this.model.state.reduceMotion ? 'auto' : 'smooth' });
+    }
+  }
+
+  openCartDrawer() {
+    const drawer = $('#cartDrawer');
+    drawer.hidden = false;
+    drawer.classList.add('open');
+    $('#cartBtn').setAttribute('aria-expanded', 'true');
+    this.view.renderCartDrawer();
+    $('.drawer-panel', drawer).focus();
+  }
+
+  closeCartDrawer() {
+    const drawer = $('#cartDrawer');
+    drawer.classList.remove('open');
+    drawer.hidden = true;
+    $('#cartBtn').setAttribute('aria-expanded', 'false');
+    $('#cartBtn').focus();
+  }
+
+  _bindEvents() {
+    window.addEventListener('hashchange', () => this.handleRoute());
+    window.addEventListener('popstate', () => this.handleRoute());
+
+    document.addEventListener('click', (e) => this._onClick(e));
+    document.addEventListener('submit', (e) => this._onSubmit(e));
+    document.addEventListener('change', (e) => this._onChange(e));
+    document.addEventListener('keydown', (e) => this._onKeydown(e));
+
+    $('#settingsDialog').addEventListener('close', () => $('#settingsBtn').setAttribute('aria-expanded', 'false'));
+    $('#productDialog').addEventListener('close', () => $('#productDialog').replaceChildren());
+    $('#sampleDialog').addEventListener('close', () => {
+      $('#sampleForm').reset();
+      $('#sampleError').textContent = '';
+    });
+  }
+
+  _onClick(e) {
+    const closeBtn = e.target.closest('[data-close]');
+    if (closeBtn) { closeBtn.closest('dialog')?.close(); return; }
+
+    if (e.target.closest('[data-close-drawer]')) { this.closeCartDrawer(); return; }
+    if (e.target.closest('#menuBtn')) { this._toggleMobileNav(); return; }
+    if (e.target.closest('#cartBtn')) { this.openCartDrawer(); return; }
+    if (e.target.closest('#checkoutBtn')) { this.closeCartDrawer(); this.navigate('#/cart'); return; }
+    if (e.target.closest('#sdsBtn')) { $('#sdsDialog').showModal(); return; }
+    if (e.target.closest('#sampleBtn')) { $('#sampleDialog').showModal(); return; }
+    if (e.target.closest('#runPipeline')) { this._runPipeline(); return; }
+    if (e.target.closest('#printWaybill')) { window.print(); return; }
+
+    if (e.target.closest('#settingsBtn')) {
+      $('#settingsDialog').showModal();
+      $('#settingsBtn').setAttribute('aria-expanded', 'true');
+      return;
+    }
+
+    const rolePill = e.target.closest('.role-pill');
+    if (rolePill) {
+      const roleRoutes = { consumer: 'store', supplier: 'supply', manufacturer: 'manufacturing', trade: 'trade' };
+      const role = rolePill.dataset.role;
+      this.model.setRole(role);
+      this.navigate(`#/${roleRoutes[role] || 'home'}`);
+      return;
+    }
+
+    const filterChip = e.target.closest('[data-store-filter]');
+    if (filterChip) {
+      this.model.setStoreFilter(filterChip.dataset.storeFilter);
+      return;
+    }
+
+    const openProd = e.target.closest('[data-open-product]');
+    if (openProd) {
+      const product = this.model.getProduct(openProd.dataset.openProduct);
+      if (product) this.view.renderProductModal(product);
+      return;
+    }
+
+    const favBtn = e.target.closest('[data-toggle-fav]');
+    if (favBtn) {
+      const added = this.model.toggleFavourite(favBtn.dataset.toggleFav);
+      this.view.toast(added ? 'Product saved to favourites.' : 'Product removed from favourites.');
+      return;
+    }
+
+    const cartAction = e.target.closest('[data-cart-action]');
+    if (cartAction) {
+      const idx = Number(cartAction.dataset.index);
+      const delta = cartAction.dataset.cartAction === 'increase' ? 1 : -1;
+      this.model.adjustCartQuantity(idx, delta);
+      return;
+    }
+
+    const tierBtn = e.target.closest('[data-tier]');
+    if (tierBtn) {
+      this.model.updateTrade({ product: tierBtn.dataset.tier });
+      this.view.toast('Trade format selected.');
+      return;
+    }
+
+    const batchChip = e.target.closest('[data-batch]');
+    if (batchChip) {
+      this.navigate(`#/batch?code=${encodeURIComponent(batchChip.dataset.batch)}`);
+      return;
+    }
+
+    const copyBatch = e.target.closest('#copyBatch');
+    if (copyBatch) {
+      const code = copyBatch.dataset.code;
+      navigator.clipboard?.writeText(code).catch(() => {});
+      this.view.toast(`Copied batch code ${code}.`);
+      return;
+    }
+
+    const themeChip = e.target.closest('[data-theme]');
+    if (themeChip) {
+      this.model.setTheme(themeChip.dataset.theme);
+      return;
+    }
+
+    if (e.target.closest('#exportBtn')) {
+      const blob = new Blob([JSON.stringify(this.model.state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = el('a', { href: url, download: 'the-conkers-data.json' });
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      this.view.toast('Data exported.');
+      return;
+    }
+
+    if (e.target.closest('#resetBtn')) {
+      if (!confirm('Clear locally saved basket, supplier lots, orders and preferences?')) return;
+      this.model.resetAll();
+      this.view.toast('Local data cleared.');
+    }
+  }
+
+  _onChange(e) {
+    if (e.target.id === 'motionToggle') {
+      this.model.setReduceMotion(e.target.checked);
+      return;
+    }
+
+    if (e.target.id === 'sizeSelect') {
+      const form = e.target.closest('#addToCartForm');
+      const product = this.model.getProduct(form?.dataset.productId);
+      const size = this.model.getSize(product, e.target.value);
+      if (size) {
+        $('#modalPrice').textContent = money.format(size.price);
+        $('#modalPlasticNote').textContent = `Estimated avoided single-use plastic: ${size.co2.toFixed(2)} kg per format.`;
+      }
+      return;
+    }
+
+    if (e.target.closest('#estimatorForm')) {
+      const form = $('#estimatorForm');
+      const est = this.model.getEstimate({
+        material: $('#material', form).value,
+        weight: $('#weight', form).value,
+        grade: $('#grade', form).value,
+        delivery: new FormData(form).get('delivery') || 'label'
+      });
+      this.model.updateEstimator(est.cfg);
+      this._paintEstimate(est);
+    }
+  }
+
+  _onSubmit(e) {
+    const form = e.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    e.preventDefault();
+
+    if (form.id === 'addToCartForm') {
+      const product = this.model.getProduct(form.dataset.productId);
+      const size = this.model.getSize(product, $('#sizeSelect', form).value);
+      const quantity = clamp(Number($('#quantity', form).value) || 1, 1, 24);
+      const subscription = form.querySelector('input[name="purchase"]:checked')?.value === 'subscription';
+      if (product && size) {
+        this.model.addToCart({ productId: product.id, sizeId: size.id, quantity, subscription });
+        $('#productDialog').close();
+        this.openCartDrawer();
+        this.view.toast('Item added to your refill basket.');
+      }
+      return;
+    }
+
+    if (form.id === 'batchSearchForm') {
+      const code = $('#batchSearch').value.trim().toUpperCase();
+      if (!code) return;
+      this.navigate(`#/batch?code=${encodeURIComponent(code)}`);
+      return;
+    }
+
+    if (form.id === 'traceForm') {
+      const code = $('#traceCode', form).value.trim().toUpperCase();
+      if (!code) return;
+      this.model.setView('manufacturing', code);
+      $('#traceResult').replaceChildren(this.view.batchDetail(code));
+      this.view.toast(`Loaded batch ${code}.`);
+      return;
+    }
+
+    if (form.id === 'estimatorForm') {
+      const est = this.model.getEstimate({
+        material: $('#material', form).value,
+        weight: $('#weight', form).value,
+        grade: $('#grade', form).value,
+        delivery: new FormData(form).get('delivery') || 'label'
+      });
+      this.model.updateEstimator(est.cfg);
+      this._paintEstimate(est);
+      this.view.toast('Payout estimate updated.');
+      return;
+    }
+
+    if (form.id === 'supplierForm') {
+      const supplier = $('#supplierName', form).value.trim();
+      const county = $('#county', form).value.trim();
+      const harvestDate = $('#harvestDate', form).value;
+      const materialId = $('#lotMaterial', form).value;
+      const weight = Number($('#lotWeight', form).value);
+      const error = $('#supplierError', form);
+
+      if (!supplier || !county || !harvestDate || !Number.isFinite(weight) || weight < 0.5) {
+        error.textContent = 'Please complete every required harvest field (minimum 0.5 kg).';
+        return;
+      }
+      error.textContent = '';
+      const lot = this.model.registerSupplierLot({ supplier, county, harvestDate, materialId, weight });
+      $('#lotResult').replaceChildren(this.view.renderLotWaybill(lot));
+      form.reset();
+      this.view.toast(`Supplier lot ${lot.batchCode} registered.`);
+      return;
+    }
+
+    if (form.id === 'tradeForm') {
+      const product = $('#tradeProduct', form).value;
+      const quantity = clamp(Number($('#tradeQty', form).value) || 1, 1, 200);
+      const postcode = $('#tradePostcode', form).value.trim();
+      this.model.updateTrade({ product, quantity, postcode });
+      this.view.toast('Wholesale quote updated.');
+      return;
+    }
+
+    if (form.id === 'checkoutForm') {
+      const error = $('#checkoutError', form);
+      const name = $('#name', form).value.trim();
+      const email = $('#email', form).value.trim();
+      const address = $('#address', form).value.trim();
+      const postcode = $('#checkoutPostcode', form).value.trim();
+
+      if (!name || !$('#email', form).checkValidity() || !address || !isValidPostcode(postcode)) {
+        error.textContent = 'Please complete the delivery details with a valid UK postcode.';
+        return;
+      }
+      error.textContent = '';
+      const order = this.model.placeOrder({ name, email, address, postcode });
+      this.closeCartDrawer();
+      this.navigate('#/home');
+      this.view.toast(`Demonstration order ${order.id} placed. Thank you.`);
+      return;
+    }
+
+    if (form.id === 'sampleForm') {
+      const error = $('#sampleError', form);
+      const business = $('#business', form).value.trim();
+      const emailInput = $('#email', form);
+      if (!business || !emailInput.checkValidity()) {
+        error.textContent = 'Add a business name and valid work email.';
+        return;
+      }
+      error.textContent = '';
+      $('#sampleDialog').close();
+      this.view.toast('Sample pack request received. Our trade team will be in touch.');
+      return;
+    }
+
+    if (form.id === 'postcodeForm') {
+      const input = $('#postcode', form);
+      const error = $('#postcodeError', form);
+      const result = $('#postcodeResult');
+      const value = input.value.trim();
+      if (!isValidPostcode(value)) {
+        error.textContent = 'Enter a valid UK postcode, for example M4 6DE.';
+        result.textContent = '';
+        return;
+      }
+      error.textContent = '';
+      const area = value.split(/\s+/)[0].toUpperCase();
+      result.textContent = `Refill collection is available across ${area} and surrounding postcode districts. Illustrative coverage result.`;
+    }
+  }
+
+  _onKeydown(e) {
+    if (e.key !== 'Escape') return;
+    if ($('#cartDrawer').classList.contains('open')) this.closeCartDrawer();
+    const nav = $('#mobileNav');
+    if (nav && !nav.hidden) {
+      nav.hidden = true;
+      $('#menuBtn').setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  _toggleMobileNav() {
+    const nav = $('#mobileNav');
+    const nextOpen = nav.hidden;
+    nav.hidden = !nextOpen;
+    $('#menuBtn').setAttribute('aria-expanded', String(nextOpen));
+  }
+
+  _paintEstimate(est) {
+    if (!$('#grossValue')) return;
+    $('#grossValue').textContent = money.format(est.gross);
+    $('#moistureValue').textContent = `−${money.format(est.moisture)}`;
+    $('#deliveryValue').textContent = est.delivery ? `−${money.format(est.delivery)}` : 'Included';
+    $('#payoutValue').textContent = money.format(est.payout);
+  }
+
+  _runPipeline() {
+    const steps = $$('#pipeline .pipe');
+    const status = $('#pipelineStatus');
+    if (!steps.length || !status) return;
+
+    clearInterval(this._pipelineTimer);
+    let idx = 0;
+    const stepDelay = this.model.state.reduceMotion ? 20 : 900;
+    status.textContent = 'Extraction sequence running…';
+
+    const tick = () => {
+      steps.forEach((step, i) => step.classList.toggle('active', i === idx));
+      status.textContent = `Stage ${idx + 1}: ${steps[idx].querySelector('h3').textContent}`;
+      idx++;
+      if (idx >= steps.length) {
+        clearInterval(this._pipelineTimer);
+        this._pipelineTimer = null;
+        status.textContent = 'Extraction sequence complete. Batch ready for assay and bottling.';
+      }
+    };
+
+    tick();
+    if (idx < steps.length) {
+      this._pipelineTimer = setInterval(tick, stepDelay);
+    }
+  }
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+const model = new ConkersModel();
+const view = new ConkersView(model);
+const controller = new ConkersController(model, view);
+controller.init();
+</script>
+</body>
+</html>
