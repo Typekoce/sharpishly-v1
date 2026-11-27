@@ -1,0 +1,1048 @@
+<!doctype html>
+<html lang="en-GB" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Penny Pincher: UK money-saving, tax optimisation, deal hunting and financial automation workbench.">
+<meta name="color-scheme" content="light dark">
+<title>Penny Pincher — Every Penny Accounted For</title>
+<style>
+@layer reset, tokens, base, layout, components, utilities, motion;
+
+@layer reset {
+  *,*::before,*::after{box-sizing:border-box}
+  *{margin:0}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  body{min-height:100svh;line-height:1.55}
+  img,svg,canvas{display:block;max-width:100%}
+  button,input,select,textarea{font:inherit;color:inherit}
+  button{cursor:pointer;background:none;border:0}
+  a{color:inherit}
+  ul,ol{padding:0;list-style:none}
+  table{border-collapse:collapse;width:100%}
+}
+
+@layer tokens {
+  :root{
+    --emerald:oklch(37% .09 165);
+    --mint:oklch(72% .17 162);
+    --copper:oklch(64% .16 60);
+    --amber:oklch(72% .16 75);
+    --ink:oklch(22% .03 255);
+    --paper:oklch(97.5% .005 250);
+    --surface:oklch(100% 0 0);
+    --muted:oklch(52% .02 255);
+    --line:oklch(90% .01 255);
+    --danger:oklch(58% .2 25);
+    --radius-s:.5rem; --radius:.875rem; --radius-l:1.25rem;
+    --shadow:0 1px 2px oklch(0% 0 0 / .06),0 12px 30px -18px oklch(0% 0 0 / .25);
+    --ring:0 0 0 3px color-mix(in oklab,var(--mint) 45%,transparent);
+    --space-1:.35rem; --space-2:.65rem; --space-3:1rem; --space-4:1.5rem; --space-5:2.25rem; --space-6:3.5rem;
+    --font-ui:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --font-display:var(--font-ui);
+    --font-mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Menlo,Consolas,monospace;
+    --max:1240px;
+  }
+  [data-theme="dark"]{
+    --emerald:oklch(72% .15 163);
+    --mint:oklch(80% .16 164);
+    --copper:oklch(76% .14 68);
+    --ink:oklch(94% .01 250);
+    --paper:oklch(17% .02 250);
+    --surface:oklch(22% .02 250);
+    --muted:oklch(70% .02 250);
+    --line:oklch(33% .02 250);
+    --shadow:0 1px 2px oklch(0% 0 0 / .4),0 18px 45px -20px oklch(0% 0 0 / .6);
+  }
+  @media (prefers-contrast:more){
+    :root{--line:oklch(45% .02 255);--muted:oklch(35% .02 255)}
+    [data-theme="dark"]{--line:oklch(65% .02 250);--muted:oklch(85% .01 250)}
+  }
+}
+
+@layer base {
+  body{
+    background:
+      radial-gradient(1000px 500px at 85% -10%,color-mix(in oklab,var(--mint) 16%,transparent),transparent),
+      radial-gradient(800px 420px at -5% 10%,color-mix(in oklab,var(--copper) 10%,transparent),transparent),
+      var(--paper);
+    color:var(--ink);font-family:var(--font-ui);font-size:clamp(.95rem,.9rem + .18vw,1.05rem);
+  }
+  h1,h2,h3,h4{text-wrap:balance;line-height:1.1;font-family:var(--font-display);letter-spacing:-.02em}
+  p{text-wrap:pretty}
+  :focus-visible{outline:2px solid var(--mint);outline-offset:3px;border-radius:4px}
+  .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+  .skip{position:absolute;left:-999px;top:0;z-index:100;background:var(--emerald);color:white;padding:.75rem 1rem;border-radius:0 0 var(--radius) 0}
+  .skip:focus{left:0}
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:var(--ring)}
+}
+
+@layer layout {
+  .shell{width:min(100% - 2rem,var(--max));margin-inline:auto}
+  .app-header{position:sticky;top:0;z-index:50;background:color-mix(in oklab,var(--paper) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .header-inner{display:flex;align-items:center;gap:var(--space-3);min-height:66px}
+  .brand{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.05rem;text-decoration:none}
+  .brand-mark{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--emerald),var(--mint));display:grid;place-items:center;color:white}
+  .primary-nav{display:none;margin-left:auto}
+  .primary-nav a{display:block;padding:.55rem .8rem;border-radius:999px;text-decoration:none;font-weight:650;font-size:.9rem;color:var(--muted)}
+  .primary-nav a[aria-current="page"]{background:color-mix(in oklab,var(--mint) 18%,transparent);color:var(--ink)}
+  @media (min-width:960px){.primary-nav{display:flex;gap:.15rem}}
+  .header-actions{margin-left:auto;display:flex;gap:.5rem;align-items:center}
+  @media (min-width:960px){.header-actions{margin-left:0}}
+  .icon-btn{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  .icon-btn:hover{border-color:color-mix(in oklab,var(--mint) 55%,var(--line))}
+  .main{padding-block:var(--space-4) var(--space-6);min-height:calc(100svh - 66px)}
+  .view{display:none}
+  .view.active{display:block}
+  .section{padding-block:var(--space-5)}
+  .grid{display:grid;gap:var(--space-3)}
+  .grid-2{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))}
+  .grid-3{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+  .hero-grid{display:grid;gap:var(--space-4);align-items:center}
+  @media (min-width:900px){.hero-grid{grid-template-columns:1.1fr .9fr}}
+  .footer{border-top:1px solid var(--line);padding-block:var(--space-5);background:color-mix(in oklab,var(--surface) 65%,var(--paper))}
+  .mobile-drawer{position:fixed;inset:0;z-index:80;display:none}
+  .mobile-drawer.open{display:block}
+  .mobile-drawer .panel{position:absolute;inset-block:0;left:0;width:min(86vw,340px);background:var(--surface);padding:var(--space-4);box-shadow:var(--shadow);overflow:auto}
+  .mobile-drawer .scrim{position:absolute;inset:0;background:oklch(0% 0 0 / .45)}
+  .drawer{position:fixed;inset:0;z-index:90;display:none}
+  .drawer.open{display:block}
+  .drawer .panel{position:absolute;inset-block:0;right:0;width:min(94vw,430px);background:var(--surface);border-left:1px solid var(--line);padding:var(--space-4);overflow:auto;box-shadow:var(--shadow)}
+  .drawer .scrim{position:absolute;inset:0;background:oklch(0% 0 0 / .45)}
+  @media (min-width:700px){.drawer .panel{border-radius:var(--radius-l) 0 0 var(--radius-l)}}
+}
+
+@layer components {
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-l);padding:var(--space-4);box-shadow:var(--shadow);container-type:inline-size}
+  .card.tight{padding:var(--space-3)}
+  .card h3{font-size:1.08rem}
+  .eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.11em;font-weight:800;color:var(--copper)}
+  .muted{color:var(--muted)}
+  .small{font-size:.82rem}
+  .display{font-size:clamp(2.15rem,5.5vw,4rem);font-weight:900}
+  .h2{font-size:clamp(1.6rem,3vw,2.35rem);font-weight:850}
+  .h3{font-size:clamp(1.15rem,2vw,1.45rem);font-weight:800}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:44px;padding:.65rem 1.05rem;border-radius:999px;border:1px solid transparent;font-weight:750;text-decoration:none;transition:transform .15s ease,background .15s ease}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:var(--emerald);color:white}
+  .btn-primary:hover{background:color-mix(in oklab,var(--emerald) 82%,black)}
+  .btn-ghost{border-color:var(--line);background:var(--surface);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--mint)}
+  .btn-copper{background:var(--copper);color:white}
+  .btn-sm{min-height:36px;padding:.35rem .7rem;font-size:.82rem}
+  .pill{display:inline-flex;align-items:center;gap:.4rem;padding:.42rem .75rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:.8rem;font-weight:650}
+  .pill[aria-pressed="true"]{background:var(--emerald);border-color:var(--emerald);color:white}
+  .chip{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .5rem;border-radius:999px;font-size:.72rem;font-weight:750;background:color-mix(in oklab,var(--mint) 18%,transparent);color:var(--ink)}
+  .chip.warn{background:color-mix(in oklab,var(--amber) 24%,transparent)}
+  .chip.risk{background:color-mix(in oklab,var(--danger) 18%,transparent)}
+  .field{display:grid;gap:.35rem}
+  .field label{font-size:.8rem;font-weight:750}
+  .input,select,textarea{width:100%;min-height:44px;padding:.6rem .75rem;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--paper)}
+  textarea{min-height:110px;resize:vertical}
+  .input:user-invalid,textarea:user-invalid{border-color:var(--danger)}
+  .error{color:var(--danger);font-size:.8rem}
+  .stat{display:grid;gap:.15rem}
+  .stat b{font-family:var(--font-mono);font-size:clamp(1.35rem,3vw,2rem);font-variant-numeric:tabular-nums}
+  .metric{display:grid;gap:.2rem;padding:.8rem;border:1px solid var(--line);border-radius:var(--radius)}
+  .ticker{overflow:hidden;border-block:1px solid var(--line);background:color-mix(in oklab,var(--surface) 75%,transparent)}
+  .ticker-track{display:flex;gap:var(--space-5);width:max-content;padding-block:.65rem;animation:ticker 38s linear infinite}
+  .ticker span{white-space:nowrap;font-size:.85rem;font-weight:650}
+  @keyframes ticker{to{transform:translateX(-50%)}}
+  .progress{height:10px;border-radius:999px;background:color-mix(in oklab,var(--mint) 18%,transparent);overflow:hidden}
+  .progress i{display:block;height:100%;background:linear-gradient(90deg,var(--emerald),var(--mint));transition:width .4s ease}
+  .switch{position:relative;width:52px;height:30px;border-radius:999px;background:var(--line);transition:background .2s}
+  .switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:white;transition:transform .2s}
+  .switch[aria-checked="true"]{background:var(--emerald)}
+  .switch[aria-checked="true"]::after{transform:translateX(22px)}
+  .toast-region{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:120;display:grid;gap:.5rem;width:min(94vw,430px)}
+  .toast{background:var(--ink);color:var(--paper);padding:.75rem .9rem;border-radius:var(--radius);box-shadow:var(--shadow);font-size:.88rem;display:flex;gap:.6rem;align-items:center}
+  .toast.success{background:var(--emerald);color:white}
+  .toast.warn{background:var(--copper);color:white}
+  .command{position:fixed;inset:0;z-index:110;display:none;padding-top:10vh}
+  .command.open{display:block}
+  .command .scrim{position:absolute;inset:0;background:oklch(0% 0 0 / .5)}
+  .command .panel{position:relative;width:min(94vw,640px);margin-inline:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-l);box-shadow:var(--shadow);overflow:hidden}
+  .command input{border:0;border-bottom:1px solid var(--line);border-radius:0;min-height:58px;padding:1rem}
+  .command-results{max-height:50vh;overflow:auto;padding:.4rem}
+  .command-results button{display:grid;width:100%;text-align:left;padding:.75rem;border-radius:var(--radius-s)}
+  .command-results button:hover,.command-results button:focus-visible{background:color-mix(in oklab,var(--mint) 15%,transparent)}
+  .tabs{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.35rem}
+  .tabs button{min-height:42px;padding:.5rem .85rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);white-space:nowrap;font-weight:700;font-size:.85rem}
+  .tabs button[aria-selected="true"]{background:var(--emerald);color:white;border-color:var(--emerald)}
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius)}
+  table{min-width:620px;font-size:.88rem}
+  th,td{padding:.7rem .75rem;border-bottom:1px solid var(--line);text-align:left}
+  th{background:color-mix(in oklab,var(--surface) 70%,var(--paper));font-size:.75rem;text-transform:uppercase;letter-spacing:.05em}
+  tr:last-child td{border-bottom:0}
+  .chat{display:grid;grid-template-rows:1fr auto;min-height:460px;border:1px solid var(--line);border-radius:var(--radius-l);overflow:hidden;background:var(--surface)}
+  .chat-log{padding:var(--space-3);overflow:auto;display:grid;gap:.8rem;align-content:start}
+  .bubble{max-width:88%;padding:.75rem .9rem;border-radius:var(--radius);font-size:.9rem}
+  .bubble.user{justify-self:end;background:var(--emerald);color:white}
+  .bubble.ai{justify-self:start;background:color-mix(in oklab,var(--mint) 13%,var(--surface));border:1px solid var(--line)}
+  .chat-form{display:flex;gap:.5rem;padding:var(--space-3);border-top:1px solid var(--line)}
+  .phone{width:min(100%,310px);margin-inline:auto;aspect-ratio:9/18.5;border:9px solid oklch(20% .02 255);border-radius:38px;background:var(--paper);overflow:hidden;position:relative}
+  .phone-screen{position:absolute;inset:0;padding:1rem;display:grid;gap:.7rem;align-content:start;overflow:auto}
+  .phone-notch{position:absolute;top:8px;left:50%;translate:-50% 0;width:90px;height:22px;border-radius:999px;background:oklch(20% .02 255)}
+  .browser{border:1px solid var(--line);border-radius:var(--radius-l);overflow:hidden;background:var(--surface)}
+  .browser-bar{display:flex;gap:.5rem;align-items:center;padding:.7rem;border-bottom:1px solid var(--line);background:color-mix(in oklab,var(--surface) 65%,var(--paper))}
+  .browser-url{flex:1;padding:.45rem .7rem;border-radius:999px;background:var(--paper);font-family:var(--font-mono);font-size:.78rem}
+  .browser-body{padding:var(--space-4);display:grid;gap:var(--space-3)}
+  .code{font-family:var(--font-mono);background:color-mix(in oklab,var(--mint) 12%,transparent);padding:.15rem .4rem;border-radius:.35rem}
+  .capability{display:grid;grid-template-columns:auto 1fr;gap:.5rem .7rem;align-items:start;font-size:.83rem}
+  .capability b{font-family:var(--font-mono)}
+  .yes{color:var(--emerald);font-weight:800}
+  .no{color:var(--danger);font-weight:800}
+  .degraded{color:var(--copper);font-weight:800}
+  .reveal{opacity:0;translate:0 18px}
+  .reveal.in{opacity:1;translate:0 0;transition:opacity .5s ease,translate .5s ease}
+  @supports (animation-timeline:view()){
+    .reveal{animation:reveal linear both;animation-timeline:view();animation-range:entry 10% cover 32%}
+    .reveal.in{animation:none;opacity:1;translate:0 0}
+    @keyframes reveal{from{opacity:0;translate:0 25px}to{opacity:1;translate:0 0}}
+  }
+  @scope (.insight-card) {
+    :scope{border-left:4px solid var(--mint)}
+    h3{color:var(--emerald)}
+  }
+}
+
+@layer utilities {
+  .flex{display:flex;gap:var(--space-2);align-items:center}
+  .between{display:flex;gap:var(--space-2);align-items:center;justify-content:space-between}
+  .wrap{flex-wrap:wrap}
+  .mt-1{margin-top:var(--space-1)}.mt-2{margin-top:var(--space-2)}.mt-3{margin-top:var(--space-3)}.mt-4{margin-top:var(--space-4)}
+  .mb-2{margin-bottom:var(--space-2)}.mb-3{margin-bottom:var(--space-3)}
+  .center{text-align:center}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+}
+
+@layer motion {
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+  }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="app-header">
+  <div class="shell header-inner">
+    <a class="brand" href="#home" data-nav>
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v20M17 6.5C17 4.6 14.8 4 12 4S7 4.6 7 6.5 9.2 9 12 9s5 .6 5 2.5S14.8 14 12 14s-5 .6-5 2.5S9.2 20 12 20s5-.6 5-2.5"/></svg>
+      </span>
+      Penny Pincher
+    </a>
+    <nav class="primary-nav" aria-label="Primary">
+      <a href="#home" data-nav>Home</a>
+      <a href="#categories" data-nav>Verticals</a>
+      <a href="#ai-agents" data-nav>Penny AI</a>
+      <a href="#calculators" data-nav>Calculators</a>
+      <a href="#apps-extensions" data-nav>Apps</a>
+      <a href="#group-buying" data-nav>Syndicates</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" id="search-open" aria-label="Open command palette" aria-haspopup="dialog">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
+      <button class="icon-btn" id="theme-toggle" aria-label="Toggle dark mode" aria-pressed="false">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      </button>
+      <button class="icon-btn" id="stash-open" aria-label="Open saved deals">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 3h12v18l-6-4-6 4Z"/></svg>
+        <span class="sr-only">Saved deals: <span id="stash-count">0</span></span>
+      </button>
+      <button class="icon-btn" id="menu-open" aria-label="Open menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="main">
+  <div class="shell">
+    <section id="view-home" class="view active" aria-labelledby="home-title">
+      <div class="hero-grid section">
+        <div>
+          <p class="eyebrow">UK money optimisation · 2026/27</p>
+          <h1 id="home-title" class="display">Every Penny Accounted For. Every Deal Automated.</h1>
+          <p class="muted mt-2">Find stackable vouchers, decode tax codes, compare switching offers, join bulk-buying syndicates and deploy autonomous agents that watch bills, baskets and surplus stock.</p>
+          <div class="flex wrap mt-3">
+            <a class="btn btn-primary" href="#ai-agents" data-nav>Launch Penny AI</a>
+            <a class="btn btn-ghost" href="#apps-extensions" data-nav>Browser extension</a>
+            <a class="btn btn-ghost" href="#apps-extensions" data-nav>Mobile app</a>
+          </div>
+          <div class="card mt-4">
+            <label class="field" for="home-search">
+              <span>Find a saving, provider, tax relief or tool</span>
+              <input id="home-search" class="input" type="search" placeholder="Try “broadband”, “Marriage Allowance”, “heat pump” or “ISA”">
+            </label>
+            <div id="home-search-results" class="mt-2" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="card">
+          <canvas id="savings-canvas" width="600" height="360" role="img" aria-label="Animated chart illustrating cumulative UK savings"></canvas>
+          <div class="between mt-3">
+            <div class="stat"><span class="small muted">Saved by UK Penny Pinchers</span><b id="savings-counter">£42,890,410</b></div>
+            <span class="chip">Illustrative live counter</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ticker" aria-label="Live savings flash feed">
+        <div class="ticker-track" id="ticker-track"></div>
+      </div>
+
+      <section class="section" aria-labelledby="quick-title">
+        <h2 id="quick-title" class="h2">5-minute financial health estimator</h2>
+        <p class="muted">Toggle realistic habits to estimate annual savings and the value of investing them at 7% a year. Figures are educational estimates, not personalised advice.</p>
+        <div class="grid grid-2 mt-3">
+          <form class="card" id="quick-form">
+            <fieldset>
+              <legend class="h3">Your current habits</legend>
+              <div class="grid mt-2" id="habit-controls"></div>
+            </fieldset>
+            <div class="flex wrap mt-3">
+              <button class="btn btn-primary" type="submit">Calculate savings</button>
+              <button class="btn btn-ghost" type="button" id="quick-reset">Reset</button>
+            </div>
+          </form>
+          <div class="card insight-card" aria-live="polite">
+            <p class="eyebrow">Projected outcome</p>
+            <h3 class="h3 mt-1" id="quick-annual">£0 a year</h3>
+            <p class="muted" id="quick-monthly">£0 a month</p>
+            <div class="grid mt-3">
+              <div class="metric"><span class="small muted">After 5 years at 7%</span><b class="mono" id="quick-5">£0</b></div>
+              <div class="metric"><span class="small muted">After 10 years at 7%</span><b class="mono" id="quick-10">£0</b></div>
+              <div class="metric"><span class="small muted">After 20 years at 7%</span><b class="mono" id="quick-20">£0</b></div>
+            </div>
+            <p class="small muted mt-3">Assumes monthly contributions, annual returns of 7% before charges and inflation, and no withdrawals. Investment values can fall as well as rise.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="featured-title">
+        <h2 id="featured-title" class="h2">Today’s highest-conviction moves</h2>
+        <div class="grid grid-3 mt-3" id="featured-deals"></div>
+      </section>
+    </section>
+
+    <section id="view-categories" class="view" aria-labelledby="categories-title">
+      <div class="section">
+        <p class="eyebrow">Money-saving verticals</p>
+        <h1 id="categories-title" class="h2">Sixteen ways to keep more of what you earn</h1>
+        <div class="flex wrap mt-3" id="category-filters" role="group" aria-label="Filter categories"></div>
+        <div class="grid grid-2 mt-4" id="category-grid"></div>
+      </div>
+    </section>
+
+    <section id="view-ai-agents" class="view" aria-labelledby="ai-title">
+      <div class="section">
+        <p class="eyebrow">Penny AI & autonomous agents</p>
+        <h1 id="ai-title" class="h2">Ask once. Act on the answer.</h1>
+        <div class="grid grid-2 mt-3">
+          <div class="chat">
+            <div class="chat-log" id="chat-log" aria-live="polite" aria-label="Penny AI conversation"></div>
+            <form class="chat-form" id="chat-form">
+              <label class="sr-only" for="chat-input">Ask Penny AI</label>
+              <input id="chat-input" class="input" placeholder="Ask about a bill, tax relief, deal or subscription">
+              <button class="btn btn-primary" type="submit">Ask</button>
+            </form>
+          </div>
+          <div class="card">
+            <h2 class="h3">Preset audits</h2>
+            <div class="grid mt-2" id="preset-prompts"></div>
+            <div class="mt-3">
+              <h3 class="h3">Agent fleet</h3>
+              <p class="small muted">Simulated local automations. No external accounts are accessed.</p>
+              <div class="grid mt-2" id="agent-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-calculators" class="view" aria-labelledby="calc-title">
+      <div class="section">
+        <p class="eyebrow">Interactive workbench</p>
+        <h1 id="calc-title" class="h2">Model the decision before you make it</h1>
+        <div class="tabs mt-3" role="tablist" aria-label="Calculators">
+          <button role="tab" id="tab-loan" aria-controls="panel-loan" aria-selected="true">Payday loan alternative</button>
+          <button role="tab" id="tab-pay" aria-controls="panel-pay" aria-selected="false">Take-home & rebate</button>
+          <button role="tab" id="tab-wealth" aria-controls="panel-wealth" aria-selected="false">Compound wealth</button>
+        </div>
+        <div id="panel-loan" role="tabpanel" aria-labelledby="tab-loan" class="mt-3"></div>
+        <div id="panel-pay" role="tabpanel" aria-labelledby="tab-pay" class="mt-3" hidden></div>
+        <div id="panel-wealth" role="tabpanel" aria-labelledby="tab-wealth" class="mt-3" hidden></div>
+      </div>
+    </section>
+
+    <section id="view-apps-extensions" class="view" aria-labelledby="apps-title">
+      <div class="section">
+        <p class="eyebrow">Apps & browser extension</p>
+        <h1 id="apps-title" class="h2">Savings that follow you to checkout</h1>
+        <div class="grid grid-2 mt-3">
+          <article class="card">
+            <h2 class="h3">Extension auto-apply demo</h2>
+            <p class="muted small">A simulated checkout for a £249.99 cordless vacuum. The extension tests codes, applies cashback and surfaces a surplus alternative.</p>
+            <div class="browser mt-3">
+              <div class="browser-bar"><span class="browser-url">https://shop.example.co.uk/checkout</span><span class="chip">Penny active</span></div>
+              <div class="browser-body">
+                <div class="between"><span>Vacuum Pro X15</span><b class="mono" id="ext-base">£249.99</b></div>
+                <div id="ext-lines" class="grid"></div>
+                <div class="between"><b>Estimated total</b><b class="mono" id="ext-total">£249.99</b></div>
+                <button class="btn btn-primary" id="extension-run">Simulate extension auto-apply</button>
+                <div id="extension-result" aria-live="polite"></div>
+              </div>
+            </div>
+          </article>
+          <article class="card">
+            <h2 class="h3">Mobile companion</h2>
+            <p class="muted small">Scan receipts, spot recurring direct debits and compare shelf prices before you reach the till.</p>
+            <div class="phone mt-3">
+              <div class="phone-notch" aria-hidden="true"></div>
+              <div class="phone-screen">
+                <p class="eyebrow">Penny Pincher</p>
+                <div class="card tight"><span class="small muted">October subscription alerts</span><b>£38.90 recoverable</b></div>
+                <div class="card tight"><span class="small muted">Receipt scanned</span><b>Tesco · £62.18</b></div>
+                <div class="card tight"><span class="small muted">Shelf compare</span><b>Own-brand saves £4.36</b></div>
+                <button class="btn btn-primary btn-sm" id="qr-open">Show QR download code</button>
+              </div>
+            </div>
+            <div class="flex wrap mt-3">
+              <button class="btn btn-ghost" id="ios-badge">Download for iOS</button>
+              <button class="btn btn-ghost" id="android-badge">Download for Android</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-group-buying" class="view" aria-labelledby="group-title">
+      <div class="section">
+        <p class="eyebrow">Group bargaining</p>
+        <h1 id="group-title" class="h2">Bulk power, without the group chat</h1>
+        <p class="muted">Syndicates pool demand to unlock supplier tiers. Counts and discounts below are illustrative demonstration data.</p>
+        <div class="grid grid-2 mt-3" id="syndicate-grid"></div>
+      </div>
+    </section>
+
+    <section id="view-not-found" class="view" aria-labelledby="nf-title">
+      <div class="section center">
+        <p class="eyebrow">Route unavailable</p>
+        <h1 id="nf-title" class="h2">That page slipped through the net</h1>
+        <p class="muted mt-2">The link may be outdated. Return to the dashboard or search the full savings index.</p>
+        <a class="btn btn-primary mt-3" href="#home" data-nav>Back to dashboard</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="shell grid grid-2">
+    <div>
+      <h2 class="h3">Penny Pincher</h2>
+      <p class="small muted mt-2">A demonstration financial-optimisation workspace. Deal availability, provider pricing, syndicate participation and tax outcomes vary.</p>
+      <p class="small muted mt-2"><strong>Financial disclaimer:</strong> Investment values can go down as well as up and you may get back less than you invest. Tax treatment depends on individual circumstances and may change. High-cost short-term credit is unsuitable for sustained borrowing; consider free debt advice before borrowing.</p>
+    </div>
+    <div class="card tight">
+      <h3 class="h3">Platform capabilities</h3>
+      <div id="capability-panel" class="grid mt-2" aria-live="polite"></div>
+    </div>
+  </div>
+</footer>
+
+<div class="mobile-drawer" id="mobile-drawer" role="dialog" aria-modal="true" aria-label="Navigation menu">
+  <div class="scrim" data-close="mobile-drawer"></div>
+  <div class="panel">
+    <div class="between"><h2 class="h3">Menu</h2><button class="icon-btn" data-close="mobile-drawer" aria-label="Close menu">✕</button></div>
+    <nav class="grid mt-3" aria-label="Mobile">
+      <a class="btn btn-ghost" href="#home" data-nav>Home</a>
+      <a class="btn btn-ghost" href="#categories" data-nav>Verticals</a>
+      <a class="btn btn-ghost" href="#ai-agents" data-nav>Penny AI</a>
+      <a class="btn btn-ghost" href="#calculators" data-nav>Calculators</a>
+      <a class="btn btn-ghost" href="#apps-extensions" data-nav>Apps & extension</a>
+      <a class="btn btn-ghost" href="#group-buying" data-nav>Group buying</a>
+    </nav>
+  </div>
+</div>
+
+<div class="drawer" id="stash-drawer" role="dialog" aria-modal="true" aria-label="My Stash saved deals">
+  <div class="scrim" data-close="stash-drawer"></div>
+  <div class="panel">
+    <div class="between"><h2 class="h3">My Stash</h2><button class="icon-btn" data-close="stash-drawer" aria-label="Close saved deals">✕</button></div>
+    <div class="mt-3" id="stash-content"></div>
+    <button class="btn btn-ghost mt-3" id="clear-stash">Clear stash</button>
+  </div>
+</div>
+
+<div class="command" id="command-palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="scrim" data-close="command-palette"></div>
+  <div class="panel">
+    <label class="sr-only" for="command-input">Search Penny Pincher</label>
+    <input id="command-input" class="input" placeholder="Search deals, calculators, categories and tools…">
+    <div class="command-results" id="command-results" aria-live="polite"></div>
+  </div>
+</div>
+
+<dialog id="detail-dialog" aria-labelledby="detail-title">
+  <form method="dialog">
+    <div class="between"><h2 id="detail-title" class="h3">Detail</h2><button class="icon-btn" aria-label="Close detail">✕</button></div>
+    <div id="detail-body" class="mt-3"></div>
+    <button class="btn btn-ghost mt-3">Close</button>
+  </form>
+</dialog>
+
+<div class="toast-region" id="toast-region" aria-live="polite"></div>
+
+<script type="module">
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const gbp=new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP',maximumFractionDigits:0});
+const gbp2=new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP',minimumFractionDigits:2,maximumFractionDigits:2});
+const pct=n=>`${n.toFixed(1)}%`;
+
+const safeStore={
+  get(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}},
+  remove(k){try{localStorage.removeItem(k)}catch{}}
+};
+
+const state={
+  theme:safeStore.get('pp:theme','light'),
+  stash:new Set(safeStore.get('pp:stash',[])),
+  joins:safeStore.get('pp:joins',{}),
+  agents:safeStore.get('pp:agents',{negotiator:true,sniper:true,watchdog:false,scout:true}),
+  route:'#home',
+  categoryFilter:'All'
+};
+
+const deals=[
+ {id:'marriage',title:'HMRC Marriage Allowance claim',group:'Tax & Finance',saving:1260,type:'Tax relief',detail:'A basic-rate taxpayer can transfer up to £1,260 of Personal Allowance to a partner where eligible. Claims can normally be backdated while both partners qualify.',action:'Check eligibility',cta:'https://www.gov.uk/apply-marriage-allowance'},
+ {id:'uniform',title:'Uniform tax rebate',group:'Tax & Finance',saving:60,type:'Tax relief',detail:'Employees who wash their own work uniform may claim tax relief on cleaning costs. The standard flat-rate amount depends on the occupation and HMRC list.',action:'Start claim',cta:'https://www.gov.uk/tax-relief-for-workers/uniform-work-clothing-tools'},
+ {id:'broadband',title:'Broadband retention audit',group:'Everyday & Retail',saving:180,type:'Switching',detail:'Out-of-contract broadband commonly rises sharply. A written cancellation request, a competing offer and a retention call can secure a lower monthly price.',action:'Audit bill',cta:'#ai-agents'},
+ {id:'energy',title:'Fixed energy tariff review',group:'Everyday & Retail',saving:210,type:'Switching',detail:'Compare unit rate, standing charge, exit fees and forecast annual consumption. A cheaper tariff is only better if your actual usage pattern fits it.',action:'Compare tariffs',cta:'#categories'},
+ {id:'sim',title:'SIM-only migration',group:'Everyday & Retail',saving:144,type:'Switching',detail:'Moving from a handset-inclusive contract to a SIM-only plan after the phone is paid off can cut a recurring bill without changing your number.',action:'Compare SIMs',cta:'#categories'},
+ {id:'bank',title:'Current-account switch bonus',group:'Everyday & Retail',saving:200,type:'Switching',detail:'Switch incentives can be worthwhile, but check eligibility rules, minimum deposits, direct debits and whether the account suits everyday banking.',action:'Review offer',cta:'#categories'},
+ {id:'nos-drill',title:'New Old Stock: industrial drill',group:'B2B & Industrial',saving:385,type:'Surplus',detail:'Previous-generation, boxed industrial drills can be substantially below current RRP when sellers clear warehouse inventory. Verify warranty, voltage and accessory compatibility.',action:'View stock',cta:'#categories'},
+ {id:'nos-vac',title:'NOS alternative to premium vacuum',group:'Tech & Auto',saving:130,type:'Surplus',detail:'A refurbished or previous-generation cordless vacuum can deliver comparable cleaning performance at a lower price. Check battery condition, filter availability and warranty.',action:'Find alternative',cta:'#categories'},
+ {id:'heat',title:'Heat-pump installation syndicate',group:'B2B & Industrial',saving:1870,type:'Syndicate',detail:'A coordinated neighbourhood order can unlock installer volume pricing. Eligibility, survey results, property type and grant rules still determine the final cost.',action:'Join syndicate',cta:'#group-buying'},
+ {id:'insurance',title:'Car insurance renewal timing',group:'Tech & Auto',saving:126,type:'Switching',detail:'Many drivers see more competitive quotes when renewing around 21–26 days before the policy start date. Never let a policy lapse; compare like-for-like cover.',action:'Set reminder',cta:'#calculators'},
+ {id:'isa',title:'Stocks & Shares ISA allowance',group:'Tax & Finance',saving:0,type:'Investing',detail:'UK residents aged 18+ have an annual ISA allowance. Investment growth and income within a Stocks & Shares ISA is generally free from UK income tax and capital gains tax, but investments can fall in value.',action:'Model growth',cta:'#calculators'},
+ {id:'sipp',title:'Pension relief check',group:'Tax & Finance',saving:480,type:'Investing',detail:'Personal pension contributions normally receive tax relief, subject to annual and lifetime allowances and individual circumstances. Higher-rate relief may require a Self Assessment claim.',action:'Estimate relief',cta:'#calculators'},
+ {id:'led',title:'LED lighting retrofit',group:'Science & Energy',saving:88,type:'Efficiency',detail:'Replacing frequently used halogen bulbs with LEDs reduces electricity demand. Savings depend on daily operating hours, wattage difference and local electricity price.',action:'Calculate ROI',cta:'#calculators'},
+ {id:'saas',title:'SaaS licence negotiation',group:'B2B & Industrial',saving:2400,type:'B2B',detail:'At renewal, consolidate seats, remove dormant users, request multi-year pricing and ask for a nonprofit, startup or education tier where applicable.',action:'Open script',cta:'#categories'},
+ {id:'offpeak',title:'Off-peak industrial scheduling',group:'Manufacturing',saving:3200,type:'B2B',detail:'Shifting compressors, ovens, charging or batch processes away from peak periods can reduce energy cost where the tariff and operational constraints allow.',action:'Model shift',cta:'#categories'},
+ {id:'gym',title:'Off-peak gym arbitrage',group:'Sports & Fitness',saving:228,type:'Everyday & Retail',detail:'Council leisure centres and off-peak memberships can cost materially less than premium 24-hour gyms. Check cancellation terms, peak access and joining fees.',action:'Compare passes',cta:'#categories'},
+ {id:'cinema',title:'Cinema two-for-one offer',group:'Events & Entertainment',saving:72,type:'Everyday & Retail',detail:'Some bank-account or railcard benefits include two-for-one cinema tickets on selected days. Check participating cinemas, exclusions and booking fees.',action:'Find screenings',cta:'#categories'},
+ {id:'open-source',title:'Open-source software swap',group:'Technology & Software',saving:312,type:'Software',detail:'LibreOffice, GIMP, Inkscape, Thunderbird and Joplin can replace several paid creative and productivity subscriptions for many everyday workflows.',action:'Browse alternatives',cta:'#categories'}
+];
+
+const categories=[
+ {id:'vouchers',name:'Shopping & vouchers',group:'Everyday & Retail',desc:'Stackable codes, cashback sequencing and price-history checks.',items:['Verified voucher codes','Cashback stacking guides','Price-drop alerts']},
+ {id:'group',name:'Group bargaining',group:'Everyday & Retail',desc:'Pool local demand for installations, energy and bulk purchases.',items:['Syndicate progress','Installer volume pricing','Bulk energy tariffs']},
+ {id:'switching',name:'Switching providers',group:'Everyday & Retail',desc:'Broadband, energy, mobile and current-account comparisons.',items:['Exit-fee checker','Like-for-like matrix','Switch-bonus tracker']},
+ {id:'tax',name:'HMRC & tax optimisation',group:'Tax & Finance',desc:'Tax-code decoding, uniform relief, Marriage Allowance and pensions.',items:['Tax-code decoder','Relief checker','ISA/SIPP breakdown']},
+ {id:'credit',name:'Financial alternatives',group:'Tax & Finance',desc:'Responsible comparison of credit unions, 0% cards and salary advance.',items:['APR shock calculator','Emergency budget','Credit-union finder']},
+ {id:'wealth',name:'Investments & wealth',group:'Tax & Finance',desc:'ISA wrappers, low-fee index funds and round-up simulations.',items:['ISA comparison','Fee drag analysis','Round-up simulator']},
+ {id:'motoring',name:'Buy any car & motoring',group:'Tech & Auto',desc:'Depreciation, finance structures, fuel and insurance timing.',items:['Depreciation curves','PCP vs HP vs cash','Renewal sweet spot']},
+ {id:'nos',name:'New Old Stock',group:'B2B & Industrial',desc:'New, previous-generation and surplus inventory at reduced prices.',items:['Warehouse clearance','Warranty checks','RRP comparison']},
+ {id:'b2b',name:'Enterprise procurement',group:'B2B & Industrial',desc:'SaaS negotiation, corporate cards and R&D relief preparation.',items:['Renewal scripts','Licence audit','R&D checklist']},
+ {id:'supply',name:'Manufacturing & supply',group:'B2B & Industrial',desc:'Surplus materials, off-peak scheduling and pallet auctions.',items:['Material exchange','Load shifting','Pallet auctions']},
+ {id:'science',name:'Science & efficiency',group:'Science & Energy',desc:'Insulation physics, appliance loads and water-saving measures.',items:['U-value ROI','Wattage cost','Thermodynamic checks']},
+ {id:'tech',name:'Technology & software',group:'Technology & Software',desc:'Open-source alternatives, regional pricing and refurbished hardware.',items:['OSS directory','VPN pricing','Enterprise refurb']},
+ {id:'events',name:'Events & entertainment',group:'Events & Entertainment',desc:'Presales, seat-filler networks and cultural discounts.',items:['Presale alerts','Seat-filler networks','Two-for-one offers']},
+ {id:'fitness',name:'Sports & fitness',group:'Sports & Fitness',desc:'Off-peak memberships, council facilities and seasonal gear.',items:['Off-peak arbitrage','Council leisure hacks','End-of-season clearance']}
+];
+
+const syndicates=[
+ {id:'heat',title:'Air-source heat pump installation',joined:412,target:500,discount:28,base:8900,area:'Greater Manchester',closes:'12 January'},
+ {id:'solar',title:'Rooftop solar & battery bundle',joined:287,target:350,discount:19,base:7400,area:'Bristol & Bath',closes:'28 January'},
+ {id:'ev',title:'Workplace EV charge-point cluster',joined:96,target:150,discount:22,base:1350,area:'Leeds',closes:'5 February'},
+ {id:'energy',title:'Community fixed energy tariff',joined:1180,target:1500,discount:11,base:1680,area:'Nationwide',closes:'20 January'}
+];
+
+const presets=[
+ 'Audit my £45/mo broadband bill',
+ 'Check if I’m owed an HMRC WFH tax rebate',
+ 'Find New Old Stock alternatives to a Dyson V15',
+ 'Should I use a payday loan for a £300 emergency?',
+ 'Compare a Stocks & Shares ISA with a Cash ISA',
+ 'Find an open-source alternative to Microsoft 365'
+];
+
+const capabilities=[
+ ['View Transitions API','document.startViewTransition' in document,'Animates route and panel changes.'],
+ ['Scroll-driven animations',CSS.supports('animation-timeline:scroll()'),'Links section reveals to scrolling.'],
+ ['Container queries',CSS.supports('container-type:inline-size'),'Lets cards adapt to their own width.'],
+ ['Container style queries',CSS.supports('container style(--mode:compact)'),'Enables density-aware component styling.'],
+ ['CSS nesting',CSS.supports('selector(&)','&'),'Keeps component styles local and readable.'],
+ ['@scope',CSS.supports('@scope (.x){:scope{}}'),'Bounds the insight-card visual style.'],
+ ['Anchor positioning',CSS.supports('anchor-name:--a'),'Can position tooltips relative to triggers.'],
+ ['Popover API','showPopover' in HTMLElement.prototype,'Supports lightweight non-modal overlays.'],
+ ['dialog element','typeof HTMLDialogElement!=="undefined"','Provides accessible modal semantics.'],
+ [':has()',CSS.supports('selector(:has(a))'),'Enables parent-state styling.'],
+ ['field-sizing',CSS.supports('field-sizing:content'),'Lets fields grow with content where supported.'],
+ ['Trusted Types','window.trustedTypes!==undefined','Adds an additional HTML-injection safeguard.'],
+ ['Navigation API','"navigation" in window','Enables native SPA navigation integration.'],
+ ['Web Animations API','element.animate!==undefined','Supports scripted interaction feedback.'],
+ ['Canvas 2D',!!document.createElement('canvas').getContext,'Renders the savings chart.'],
+ ['Web Audio',!!(window.AudioContext||window.webkitAudioContext),'Available for optional feedback sound.'],
+ ['Clipboard API',!!navigator.clipboard,'Enables one-tap voucher copying.'],
+ ['Web Share API',!!navigator.share,'Can share a deal through the device share sheet.'],
+ ['localStorage',(()=>{try{localStorage.setItem('__pp','1');localStorage.removeItem('__pp');return true}catch{return false}})(),'Persists theme, stash and agent settings.']
+];
+
+function toast(message,kind='success'){
+  const t=document.createElement('div');t.className=`toast ${kind}`;t.textContent=message;
+  $('#toast-region').append(t);setTimeout(()=>t.remove(),3600);
+}
+
+function saveStash(){
+  safeStore.set('pp:stash',[...state.stash]);
+  $('#stash-count').textContent=state.stash.size;
+  renderStash();
+}
+function toggleStash(id,title,amount){
+  if(state.stash.has(id)){state.stash.delete(id);toast(`Removed “${title}” from My Stash`,'warn')}
+  else{state.stash.add(id);toast(`Saved “${title}” — estimated £${amount.toLocaleString('en-GB')} a year`)}
+  saveStash();
+}
+function renderStash(){
+  const box=$('#stash-content');box.replaceChildren();
+  const saved=deals.filter(d=>state.stash.has(d.id));
+  const total=saved.reduce((s,d)=>s+d.saving,0);
+  const head=document.createElement('div');head.className='card tight';
+  const label=document.createElement('span');label.className='small muted';label.textContent='Potential annual savings';
+  const value=document.createElement('b');value.className='mono';value.textContent=gbp.format(total);
+  head.append(label,value);box.append(head);
+  if(!saved.length){const p=document.createElement('p');p.className='muted mt-2';p.textContent='No deals saved yet. Use Save on any deal to build your action plan.';box.append(p);return}
+  const list=document.createElement('ul');list.className='grid mt-2';
+  saved.forEach(d=>{
+    const li=document.createElement('li');li.className='card tight';
+    const row=document.createElement('div');row.className='between';
+    const t=document.createElement('strong');t.textContent=d.title;
+    const v=document.createElement('span');v.className='mono';v.textContent=gbp.format(d.saving);
+    row.append(t,v);li.append(row);
+    const p=document.createElement('p');p.className='small muted mt-1';p.textContent=d.detail;li.append(p);
+    list.append(li);
+  });
+  box.append(list);
+}
+
+function copyText(text){
+  if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(()=>toast(`Copied ${text}`)).catch(()=>fallbackCopy(text))}
+  else fallbackCopy(text);
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.append(ta);ta.select();
+  try{document.execCommand('copy');toast(`Copied ${text}`)}catch{toast('Copy unavailable in this browser','warn')}
+  ta.remove();
+}
+
+function route(){
+  const hash=location.hash||'#home';
+  state.route=hash;
+  const known=['#home','#categories','#ai-agents','#calculators','#apps-extensions','#group-buying'];
+  const target=known.includes(hash)?hash:'#view-not-found';
+  const id=known.includes(hash)?hash.replace('#','view-'):'view-not-found';
+  const update=()=>{
+    $$('.view').forEach(v=>v.classList.remove('active'));
+    const el=document.getElementById(id);if(el)el.classList.add('active');
+    $$('[data-nav]').forEach(a=>{const href=a.getAttribute('href');if(href===hash)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+    document.title=`Penny Pincher — ${hash==='#home'?'Every Penny Accounted For':hash.slice(1).replace(/-/g,' ')}`;
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+  if(document.startViewTransition&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.startViewTransition(update);
+  else update();
+}
+window.addEventListener('hashchange',route);
+
+function nav(e){
+  const a=e.target.closest('[data-nav]');if(!a)return;
+  closeOverlays();
+}
+document.addEventListener('click',nav);
+
+function closeOverlays(){
+  $('#mobile-drawer').classList.remove('open');$('#menu-open').setAttribute('aria-expanded','false');
+  $('#stash-drawer').classList.remove('open');$('#command-palette').classList.remove('open');
+}
+document.addEventListener('click',e=>{
+  const closer=e.target.closest('[data-close]');
+  if(closer){$('#'+closer.dataset.close).classList.remove('open');if(closer.dataset.close==='mobile-drawer')$('#menu-open').setAttribute('aria-expanded','false')}
+});
+$('#menu-open').addEventListener('click',()=>{const d=$('#mobile-drawer');d.classList.add('open');$('#menu-open').setAttribute('aria-expanded','true');d.querySelector('.btn')?.focus()});
+$('#stash-open').addEventListener('click',()=>{$('#stash-drawer').classList.add('open');renderStash();$('#stash-drawer').querySelector('.icon-btn').focus()});
+$('#clear-stash').addEventListener('click',()=>{if(confirm('Clear all saved deals from My Stash?')){state.stash.clear();saveStash();toast('My Stash cleared','warn')}});
+
+function theme(){
+  document.documentElement.dataset.theme=state.theme;
+  $('#theme-toggle').setAttribute('aria-pressed',state.theme==='dark');
+  safeStore.set('pp:theme',state.theme);
+}
+$('#theme-toggle').addEventListener('click',()=>{state.theme=state.theme==='light'?'dark':'light';theme();toast(`${state.theme==='dark'?'Dark':'Light'} mode enabled`)});
+
+function commandSearch(q){
+  const term=q.trim().toLowerCase();
+  const results=[];
+  deals.forEach(d=>{if(!term||`${d.title} ${d.group} ${d.type} ${d.detail}`.toLowerCase().includes(term))results.push({kind:'Deal',label:d.title,href:d.cta.startsWith('#')?d.cta:'#categories',meta:`${d.group} · up to £${d.saving.toLocaleString('en-GB')}`})});
+  categories.forEach(c=>{if(!term||`${c.name} ${c.group} ${c.desc}`.toLowerCase().includes(term))results.push({kind:'Vertical',label:c.name,href:'#categories',meta:c.group})});
+  [['Payday loan calculator','#calculators'],['Take-home pay estimator','#calculators'],['Compound wealth simulator','#calculators'],['Penny AI','#ai-agents'],['Group syndicates','#group-buying']].forEach(([label,href])=>{if(!term||label.toLowerCase().includes(term))results.push({kind:'Tool',label,href,meta:'Interactive tool'})});
+  return results.slice(0,12);
+}
+function renderCommand(q=''){
+  const box=$('#command-results');box.replaceChildren();
+  const results=commandSearch(q);
+  if(!results.length){const p=document.createElement('p');p.className='muted';p.style.padding='.8rem';p.textContent='No matching deal, vertical or tool. Try “energy”, “ISA” or “surplus”.';box.append(p);return}
+  results.forEach(r=>{
+    const b=document.createElement('button');b.type='button';
+    const k=document.createElement('span');k.className='chip';k.textContent=r.kind;
+    const l=document.createElement('strong');l.textContent=r.label;
+    const m=document.createElement('span');m.className='small muted';m.textContent=r.meta;
+    b.append(k,l,m);
+    b.addEventListener('click',()=>{location.hash=r.href;closeOverlays()});
+    box.append(b);
+  });
+}
+function openCommand(){$('#command-palette').classList.add('open');$('#command-input').value='';renderCommand();$('#command-input').focus()}
+$('#search-open').addEventListener('click',openCommand);
+$('#command-input').addEventListener('input',e=>renderCommand(e.target.value));
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openCommand()}
+  if(e.key==='Escape')closeOverlays();
+});
+$('#home-search').addEventListener('input',e=>{
+  const box=$('#home-search-results');box.replaceChildren();
+  const results=commandSearch(e.target.value).filter(r=>r.kind==='Deal').slice(0,4);
+  if(!e.target.value.trim()){return}
+  if(!results.length){const p=document.createElement('p');p.className='small muted';p.textContent='No direct deal match. Open the command palette for tools and verticals.';box.append(p);return}
+  results.forEach(r=>{const a=document.createElement('a');a.className='pill';a.href=r.href;a.dataset.nav='';a.textContent=`${r.label} →`;box.append(a)});
+});
+
+function dealCard(d){
+  const card=document.createElement('article');card.className='card reveal';
+  const eyebrow=document.createElement('p');eyebrow.className='eyebrow';eyebrow.textContent=d.group;
+  const h=document.createElement('h3');h.className='h3 mt-1';h.textContent=d.title;
+  const save=document.createElement('p');save.className='mono mt-2';save.style.fontSize='1.4rem';save.textContent=d.saving?`up to ${gbp.format(d.saving)}`:'Tax-efficient';
+  const p=document.createElement('p');p.className='small muted mt-2';p.textContent=d.detail;
+  const actions=document.createElement('div');actions.className='flex wrap mt-3';
+  const saveBtn=document.createElement('button');saveBtn.className='btn btn-ghost btn-sm';saveBtn.textContent=state.stash.has(d.id)?'Saved ✓':'Save to stash';
+  saveBtn.addEventListener('click',()=>{toggleStash(d.id,d.title,d.saving);saveBtn.textContent=state.stash.has(d.id)?'Saved ✓':'Save to stash'});
+  const open=document.createElement('a');open.className='btn btn-primary btn-sm';open.href=d.cta;open.dataset.nav='';open.textContent=d.action;
+  actions.append(saveBtn,open);
+  card.append(eyebrow,h,save,p,actions);
+  return card;
+}
+$('#featured-deals').append(...deals.slice(0,6).map(dealCard));
+
+const habits=[
+ {id:'coffee',label:'Shop-bought coffee',cost:3.4,unit:'5 per week'},
+ {id:'broadband',label:'Broadband renegotiation',cost:15,unit:'monthly'},
+ {id:'energy',label:'Energy tariff optimisation',cost:17.5,unit:'monthly'},
+ {id:'insurance',label:'Car insurance renewal',cost:10.5,unit:'monthly'},
+ {id:'tax',label:'Tax-code / relief check',cost:8,unit:'monthly'},
+ {id:'subs',label:'Unused subscriptions',cost:14,unit:'monthly'}
+];
+function renderHabits(){
+  const box=$('#habit-controls');box.replaceChildren();
+  habits.forEach(h=>{
+    const label=document.createElement('label');label.className='between';label.style.minHeight='44px';
+    const left=document.createElement('span');left.innerHTML='';const name=document.createElement('span');name.textContent=h.label;const unit=document.createElement('span');unit.className='small muted';unit.textContent=h.unit;left.append(name,document.createElement('br'),unit);
+    const input=document.createElement('input');input.type='checkbox';input.id=`habit-${h.id}`;input.dataset.cost=h.cost;input.className='switch';input.setAttribute('role','switch');input.setAttribute('aria-checked','false');
+    label.append(left,input);box.append(label);
+  });
+}
+renderHabits();
+function quickCalc(){
+  const monthly=[...$$('#habit-controls input')].filter(i=>i.checked).reduce((s,i)=>s+Number(i.dataset.cost),0);
+  const annual=monthly*12;
+  $('#quick-annual').textContent=gbp.format(annual)+' a year';
+  $('#quick-monthly').textContent=gbp2.format(monthly)+' a month';
+  const fv=y=>monthly?monthly*12*((Math.pow(1.07,y)-1)/.07):0;
+  $('#quick-5').textContent=gbp.format(Math.round(fv(5)));
+  $('#quick-10').textContent=gbp.format(Math.round(fv(10)));
+  $('#quick-20').textContent=gbp.format(Math.round(fv(20)));
+}
+$('#quick-form').addEventListener('submit',e=>{e.preventDefault();quickCalc();toast('Savings estimate updated')});
+$('#quick-reset').addEventListener('click',()=>{$$('#habit-controls input').forEach(i=>{i.checked=false;i.setAttribute('aria-checked','false')});quickCalc()});
+$('#habit-controls').addEventListener('change',e=>{if(e.target.matches('input'))e.target.setAttribute('aria-checked',e.target.checked);quickCalc()});
+
+const tickerItems=['HMRC Marriage Allowance claim: up to £1,260 back','Octopus Agile negative-pricing alert: charge overnight','New Old Stock: 62% off Bosch industrial drills','Broadband retention: £15/mo cut after out-of-contract rise','Syndicate: 412/500 joined for 28% off heat pumps','Energy: 11% community tariff nearing activation','Insurance: quote 21–26 days before renewal','Subscriptions: £38.90 of unused direct debits identified'];
+$('#ticker-track').append(...[...tickerItems,...tickerItems].map(t=>{const s=document.createElement('span');s.textContent=t;return s}));
+
+function canvasChart(){
+  const c=$('#savings-canvas'),ctx=c.getContext('2d');let raf,visible=true,t=0;
+  const fit=()=>{const r=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;ctx.setTransform(d,0,0,d,0,0)};
+  new ResizeObserver(fit).observe(c);
+  new IntersectionObserver(([e])=>visible=e.isIntersecting).observe(c);
+  const draw=()=>{
+    if(!visible){raf=requestAnimationFrame(draw);return}
+    const w=c.getBoundingClientRect().width,h=c.getBoundingClientRect().height;
+    ctx.clearRect(0,0,w,h);t+=.008;
+    const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduce)t=1;
+    const points=48;
+    ctx.beginPath();
+    for(let i=0;i<=points;i++){
+      const x=i/points*w,p=Math.pow(i/points,1.7),y=h-24-(h-70)*p*(.75+.25*Math.sin(t+i/6));
+      i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+    }
+    const grad=ctx.createLinearGradient(0,0,w,h);grad.addColorStop(0,getComputedStyle(document.documentElement).getPropertyValue('--emerald'));grad.addColorStop(1,getComputedStyle(document.documentElement).getPropertyValue('--mint'));
+    ctx.strokeStyle=grad;ctx.lineWidth=4;ctx.lineCap='round';ctx.stroke();
+    ctx.font='600 12px ui-monospace,monospace';ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted');
+    ctx.fillText('Cumulative savings',12,22);ctx.fillText('£42.89m',w-64,h-12);
+    if(!reduce)raf=requestAnimationFrame(draw);
+  };
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(raf);else raf=requestAnimationFrame(draw)});
+  fit();raf=requestAnimationFrame(draw);
+}
+canvasChart();
+
+let counter=42890410;
+setInterval(()=>{counter+=Math.floor(Math.random()*37)+7;$('#savings-counter').textContent=gbp.format(counter)},1200);
+
+function renderCategories(){
+  const box=$('#category-grid');box.replaceChildren();
+  const groups=['All','Everyday & Retail','Tax & Finance','B2B & Industrial','Tech & Auto','Science & Energy','Events & Entertainment','Sports & Fitness'];
+  const filters=$('#category-filters');filters.replaceChildren();
+  groups.forEach(g=>{
+    const b=document.createElement('button');b.className='pill';b.textContent=g;b.setAttribute('aria-pressed',state.categoryFilter===g);
+    b.addEventListener('click',()=>{state.categoryFilter=g;renderCategories()});
+    filters.append(b);
+  });
+  const shown=categories.filter(c=>state.categoryFilter==='All'||c.group===state.categoryFilter);
+  if(!shown.length){const p=document.createElement('p');p.className='muted';p.textContent='No verticals match this filter.';box.append(p);return}
+  shown.forEach(c=>{
+    const card=document.createElement('article');card.className='card reveal';
+    const e=document.createElement('p');e.className='eyebrow';e.textContent=c.group;
+    const h=document.createElement('h2');h.className='h3 mt-1';h.textContent=c.name;
+    const p=document.createElement('p');p.className='small muted mt-2';p.textContent=c.desc;
+    const ul=document.createElement('ul');ul.className='grid mt-2';
+    c.items.forEach(i=>{const li=document.createElement('li');li.className='small';li.textContent=`• ${i}`;ul.append(li)});
+    const btn=document.createElement('button');btn.className='btn btn-ghost btn-sm mt-3';btn.textContent='Open deep dive';
+    btn.addEventListener('click',()=>showDetail(c.name,`${c.desc}\n\nIncluded tools:\n• ${c.items.join('\n• ')}`));
+    card.append(e,h,p,ul,btn);box.append(card);
+  });
+}
+function showDetail(title,text){
+  $('#detail-title').textContent=title;const body=$('#detail-body');body.replaceChildren();
+  text.split('\n').forEach(line=>{const p=document.createElement('p');p.className=line.startsWith('•')?'small mono':'small muted';p.textContent=line;body.append(p)});
+  $('#detail-dialog').showModal();
+}
+renderCategories();
+
+function renderSyndicates(){
+  const box=$('#syndicate-grid');box.replaceChildren();
+  syndicates.forEach(s=>{
+    const joined=s.joined+(state.joins[s.id]?1:0);
+    const progress=Math.min(100,joined/s.target*100);
+    const card=document.createElement('article');card.className='card reveal';
+    const e=document.createElement('p');e.className='eyebrow';e.textContent=s.area;
+    const h=document.createElement('h2');h.className='h3 mt-1';h.textContent=s.title;
+    const d=document.createElement('p');d.className='mono mt-2';d.textContent=`${pct(s.discount)} off · ${gbp.format(Math.round(s.base*(1-s.discount/100)))} estimated`;
+    const bar=document.createElement('div');bar.className='progress mt-2';const fill=document.createElement('i');fill.style.width=`${progress}%`;bar.append(fill);
+    const count=document.createElement('p');count.className='small muted mt-2';count.textContent=`${joined.toLocaleString('en-GB')} / ${s.target.toLocaleString('en-GB')} joined · closes ${s.closes}`;
+    const btn=document.createElement('button');btn.className='btn btn-primary mt-3';btn.textContent=state.joins[s.id]?'Joined ✓':'Join syndicate';
+    btn.addEventListener('click',()=>{
+      if(state.joins[s.id])return;
+      state.joins[s.id]=true;safeStore.set('pp:joins',state.joins);renderSyndicates();toast(`Joined ${s.title}. ${s.target-joined-1} more members needed to unlock ${pct(s.discount)} off.`);
+    });
+    card.append(e,h,d,bar,count,btn);box.append(card);
+  });
+}
+renderSyndicates();
+
+function aiAnswer(q){
+  const lower=q.toLowerCase();
+  if(lower.includes('broadband'))return {title:'Broadband bill audit',steps:['Identify contract end date and current monthly price.','Request a written cancellation / retention quote from your provider.','Compare like-for-like download speed, data allowance, router and price after promotional period.','Send a cancellation notice if no competitive retention offer is made.'],saving:'Typical target: £10–£25 per month.',cta:'#categories',ctaLabel:'Open switching tools'};
+  if(lower.includes('wfh')||lower.includes('homeworking')||lower.includes('tax rebate'))return {title:'HMRC working-from-home relief',steps:['Check whether your employer requires you to work from home.','Confirm you have not received a home-working expense payment or allowance.','If eligible, claim tax relief on £6 a week for the relevant period.','Keep evidence of the requirement and claim through HMRC.'],saving:'Potential relief depends on your tax rate and claim period.',cta:'https://www.gov.uk/tax-relief-for-employees/working-at-home',ctaLabel:'Open HMRC guidance'};
+  if(lower.includes('dyson')||lower.includes('vacuum')||lower.includes('nos'))return {title:'NOS vacuum alternatives',steps:['Set a maximum acceptable price and required runtime.','Search previous-generation, refurbished and surplus stock rather than current flagship models.','Check battery replacement cost, filter availability and warranty length.','Compare price per useful year, not just headline discount.'],saving:'Typical target: £80–£180 versus a new flagship model.',cta:'#categories',ctaLabel:'Browse New Old Stock'};
+  if(lower.includes('payday')||lower.includes('emergency')||lower.includes('loan'))return {title:'High-cost credit alternative',steps:['Pause non-essential spending and list the exact shortfall.','Contact the lender, utility or landlord before missing a payment.','Consider a credit union, employer salary advance or 0% money-transfer option only after checking eligibility and fees.','Avoid rolling over high-cost short-term loans; the effective cost can escalate quickly.'],saving:'A £300 payday loan repaid in 30 days at 1,276% APR costs about £74.50 in interest; a 0% option could cost £0 if repaid within the promotional window.',cta:'#calculators',ctaLabel:'Open APR calculator'};
+  if(lower.includes('isa'))return {title:'ISA wrapper comparison',steps:['Use a Cash ISA for money needed within roughly five years.','Use a Stocks & Shares ISA only for long-term money you can leave invested.','Check platform fees, fund charges, dealing fees and interest rate.','Keep an emergency buffer outside invested assets.'],saving:'Tax-efficient growth, but investment values can fall as well as rise.',cta:'#calculators',ctaLabel:'Model compound growth'};
+  if(lower.includes('open source')||lower.includes('microsoft'))return {title:'Open-source software alternatives',steps:['Replace document, spreadsheet and presentation needs with LibreOffice.','Use GIMP and Inkscape for image and vector work.','Use Thunderbird for email and Joplin for notes.','Export files in open formats before cancelling a paid subscription.'],saving:'Typical target: £5–£25 per user per month.',cta:'#categories',ctaLabel:'Browse technology vertical'};
+  return {title:'Savings plan',steps:['Identify recurring bills and check contract end dates.','Check tax reliefs and allowances you may be eligible for.','Switch or renegotiate one provider at a time.','Automate the saving into a separate goal or investment account.'],saving:'Start with one recurring bill and one tax check this week.',cta:'#categories',ctaLabel:'Explore verticals'};
+}
+function addBubble(text,who){
+  const b=document.createElement('div');b.className=`bubble ${who}`;b.textContent=text;$('#chat-log').append(b);$('#chat-log').scrollTop=$('#chat-log').scrollHeight;
+}
+function askPenny(q){
+  addBubble(q,'user');
+  const a=aiAnswer(q);
+  setTimeout(()=>{
+    const b=document.createElement('div');b.className='bubble ai';
+    const h=document.createElement('strong');h.textContent=a.title;b.append(h);
+    const ol=document.createElement('ol');ol.className='mt-2';ol.style.paddingLeft='1.2rem';
+    a.steps.forEach(s=>{const li=document.createElement('li');li.className='small';li.textContent=s;ol.append(li)});
+    const save=document.createElement('p');save.className='small mt-2';save.textContent=a.saving;
+    const link=document.createElement('a');link.className='btn btn-primary btn-sm mt-2';link.href=a.cta;link.dataset.nav='';link.textContent=a.ctaLabel;
+    b.append(ol,save,link);$('#chat-log').append(b);$('#chat-log').scrollTop=$('#chat-log').scrollHeight;
+  },350);
+}
+$('#chat-form').addEventListener('submit',e=>{e.preventDefault();const q=$('#chat-input').value.trim();if(!q)return;askPenny(q);$('#chat-input').value=''});
+presets.forEach(p=>{const b=document.createElement('button');b.className='btn btn-ghost btn-sm';b.textContent=p;b.addEventListener('click',()=>askPenny(p));$('#preset-prompts').append(b)});
+addBubble('Hello. I can audit a bill, check a tax relief, compare a purchase or find a lower-cost alternative. What would you like to optimise?','ai');
+
+const agentData=[
+ {id:'negotiator',name:'Bill Negotiator Agent',desc:'Drafts retention cancellation scripts and tracks promised reductions.'},
+ {id:'sniper',name:'Voucher & Basket Sniper',desc:'Tests codes at checkout and ranks stackable cashback routes.'},
+ {id:'watchdog',name:'HMRC & Subscription Watchdog',desc:'Flags stealth price rises, unused direct debits and relief deadlines.'},
+ {id:'scout',name:'NOS & Liquidation Scout',desc:'Monitors surplus drops, wholesale listings and clearance feeds.'}
+];
+function renderAgents(){
+  const box=$('#agent-list');box.replaceChildren();
+  agentData.forEach(a=>{
+    const row=document.createElement('div');row.className='between';row.style.minHeight='58px';
+    const left=document.createElement('div');const n=document.createElement('strong');n.textContent=a.name;const d=document.createElement('p');d.className='small muted';d.textContent=a.desc;left.append(n,d);
+    const sw=document.createElement('button');sw.className='switch';sw.setAttribute('role','switch');sw.setAttribute('aria-checked',state.agents[a.id]);sw.setAttribute('aria-label',`${a.name} ${state.agents[a.id]?'enabled':'disabled'}`);
+    sw.addEventListener('click',()=>{state.agents[a.id]=!state.agents[a.id];safeStore.set('pp:agents',state.agents);renderAgents();toast(`${a.name} ${state.agents[a.id]?'enabled':'paused'}`,state.agents[a.id]?'success':'warn')});
+    row.append(left,sw);box.append(row);
+  });
+}
+renderAgents();
+
+let extApplied=false;
+$('#extension-run').addEventListener('click',()=>{
+  const box=$('#ext-lines');box.replaceChildren();extApplied=true;
+  const lines=[['PENNY10','−£25.00'],['WELCOME15','−£37.50'],['BASKET5','−£12.50'],['NOSALT','−£9.99'],['Cashback 6.5%','−£16.25']];
+  let total=249.99;
+  lines.forEach(([label,value])=>{
+    const row=document.createElement('div');row.className='between';const l=document.createElement('span');l.innerHTML='';const name=document.createElement('span');name.textContent=label;const code=document.createElement('span');code.className='code';code.textContent=label.includes('Cashback')?'AUTO':'CODE';l.append(name,document.createElement('br'),code);
+    const v=document.createElement('b');v.className='mono';v.textContent=value;row.append(l,v);box.append(row);total-=Number(value.replace(/[£−]/g,''));
+  });
+  $('#ext-total').textContent=gbp2.format(total);
+  const result=$('#extension-result');result.replaceChildren();
+  const p=document.createElement('p');p.className='small mt-2';p.textContent=`4 codes applied, 6.5% cashback activated and a New Old Stock alternative identified at £169.99 — a further £80 saving.`;
+  const alt=document.createElement('button');alt.className='btn btn-copper btn-sm mt-2';alt.textContent='View NOS alternative';
+  alt.addEventListener('click',()=>showDetail('New Old Stock alternative','Previous-generation cordless vacuum\n\nEstimated price: £169.99\nCurrent flagship: £249.99\nPotential saving: £80.00\n\nCheck battery health, filter availability, warranty and accessory compatibility before purchase.'));
+  result.append(p,alt);toast('Extension applied 4 codes and activated cashback');
+});
+
+$('#qr-open').addEventListener('click',()=>showDetail('Download QR','Scan this code with a phone camera to open the Penny Pincher mobile app listing.\n\nThis demonstration uses a locally generated QR-style pattern; no external service is contacted.'));
+$('#ios-badge').addEventListener('click',()=>toast('iOS App Store listing would open here','warn'));
+$('#android-badge').addEventListener('click',()=>toast('Google Play listing would open here','warn'));
+
+const tabs=[['tab-loan','panel-loan'],['tab-pay','panel-pay'],['tab-wealth','panel-wealth']];
+tabs.forEach(([tab,panel])=>$( '#'+tab).addEventListener('click',()=>{
+  tabs.forEach(([t,p])=>{$('#'+t).setAttribute('aria-selected',t===tab);$('#'+p).hidden=p!==panel});
+}));
+
+function loanPanel(){
+  const panel=$('#panel-loan');panel.replaceChildren();
+  const card=document.createElement('div');card.className='card';
+  card.innerHTML=`
+   <h2 class="h3">Payday loan vs smart alternative</h2>
+   <p class="small muted">Compare the total cost of a high-cost short-term loan with a lower-cost alternative. This is an educational comparison, not credit advice.</p>
+   <div class="grid grid-2 mt-3">
+    <label class="field"><span>Amount needed</span><input id="loan-amount" class="input mono" type="number" min="50" max="2000" step="10" value="300"></label>
+    <label class="field"><span>Repayment period</span><select id="loan-days" class="input"><option value="14">14 days</option><option value="30" selected>30 days</option><option value="60">60 days</option></select></label>
+   </div>
+   <div class="grid grid-3 mt-3" id="loan-results"></div>
+   <p class="small muted mt-3">A representative payday-loan APR is capped at 0.8% per day plus a £15 default cap in the UK. Missing payments can make matters worse; seek free debt advice if you cannot repay.</p>`;
+  panel.append(card);
+  const calc=()=>{
+    const amount=Math.max(0,Number($('#loan-amount').value)||0);
+    const days=Number($('#loan-days').value);
+    const paydayCost=Math.min(amount*.008*days,15);
+    const paydayTotal=amount+paydayCost;
+    const creditUnion=amount*0.012;
+    const results=[['Payday loan',gbp2.format(paydayTotal),`Interest/cost: ${gbp2.format(paydayCost)}`,'risk'],['Credit union',gbp2.format(amount+creditUnion),`Estimated interest: ${gbp2.format(creditUnion)}`,''],['0% money-transfer card',gbp2.format(amount),'If repaid within the promotional window','']];
+    const box=$('#loan-results');box.replaceChildren();
+    results.forEach(([n,v,m,cls])=>{const d=document.createElement('div');d.className='metric';const a=document.createElement('span');a.className='small muted';a.textContent=n;const b=document.createElement('b');b.className='mono';b.textContent=v;const c=document.createElement('span');c.className=`small ${cls}`;c.textContent=m;d.append(a,b,c);box.append(d)});
+  };
+  card.addEventListener('input',calc);calc();
+}
+
+function payPanel(){
+  const panel=$('#panel-pay');panel.replaceChildren();
+  const card=document.createElement('div');card.className='card';
+  card.innerHTML=`
+   <h2 class="h3">2026/27 take-home & rebate estimator</h2>
+   <p class="small muted">England, Wales and Northern Ireland employee estimate. Pension contributions are assumed to receive relief at source; tax rules and personal circumstances can change the result.</p>
+   <div class="grid grid-2 mt-3">
+    <label class="field"><span>Annual gross salary</span><input id="salary" class="input mono" type="number" min="0" step="100" value="34000"></label>
+    <label class="field"><span>Workplace pension contribution</span><input id="pension" class="input mono" type="number" min="0" max="100" step="1" value="5"></label>
+    <label class="field"><span>Tax code</span><input id="taxcode" class="input mono" value="1257L" pattern="[Kk]?[0-9]{1,4}[LMNT]?" title="Enter a UK tax code such as 1257L, BR or K475"></label>
+    <label class="field"><span>Uniform cleaning relief</span><select id="uniform" class="input"><option value="0">No</option><option value="60">Yes — £60 flat-rate</option></select></label>
+   </div>
+   <div class="grid grid-3 mt-3" id="pay-results"></div>
+   <p class="small muted mt-3">Uses the £12,570 Personal Allowance, 20% / 40% / 45% income-tax bands and an 8% employee main-rate NIC assumption. Student loans, Scotland, benefits-in-kind and other adjustments are excluded.</p>`;
+  panel.append(card);
+  const calc=()=>{
+    const salary=Math.max(0,Number($('#salary').value)||0);
+    const pensionPct=Math.min(100,Math.max(0,Number($('#pension').value)||0));
+    const code=($('#taxcode').value||'1257L').toUpperCase();
+    const uniform=Number($('#uniform').value);
+    let allowance=12570;
+    if(code.startsWith('K'))allowance-=Number(code.slice(1))*10;
+    else if(/^\d+/.test(code))allowance=Number(code.match(/^\d+/)[0])*10;
+    allowance=Math.max(0,allowance);
+    const pension=salary*pensionPct/100;
+    const taxable=Math.max(0,salary-pension-allowance);
+    const tax=taxable<=37700?taxable*.2:7540+Math.min(taxable-37700,87440)*.4+Math.max(0,taxable-125140)*.05;
+    const ni=Math.max(0,Math.min(salary,12570*4)-12570)*0;
+    const niMain=Math.max(0,Math.min(salary,50000)-12570)*.08;
+    const takeHome=salary-tax-niMain-pension;
+    const rebate=uniform*(tax>0?.2:0);
+    const box=$('#pay-results');box.replaceChildren();
+    [['Annual take-home',gbp.format(Math.max(0,takeHome))],['Income tax',gbp.format(tax)],['Employee NIC',gbp.format(niMain)],['Pension contribution',gbp.format(pension)],['Estimated rebate',gbp.format(rebate)],['Monthly take-home',gbp.format(Math.max(0,takeHome/12))]].forEach(([n,v])=>{const d=document.createElement('div');d.className='metric';const a=document.createElement('span');a.className='small muted';a.textContent=n;const b=document.createElement('b');b.className='mono';b.textContent=v;d.append(a,b);box.append(d)});
+  };
+  card.addEventListener('input',calc);calc();
+}
+
+function wealthPanel(){
+  const panel=$('#panel-wealth');panel.replaceChildren();
+  const card=document.createElement('div');card.className='card';
+  card.innerHTML=`
+   <h2 class="h3">Subscription & habit compound wealth</h2>
+   <p class="small muted">See what redirecting recurring spending into a Stocks & Shares ISA could become. This assumes a 7% annual return before charges, inflation and tax; investments can fall as well as rise.</p>
+   <div class="grid grid-2 mt-3">
+    <label class="field"><span>Monthly amount redirected</span><input id="wealth-monthly" class="input mono" type="number" min="0" step="5" value="85"></label>
+    <label class="field"><span>Annual return</span><input id="wealth-return" class="input mono" type="number" min="0" max="15" step=".5" value="7"></label>
+   </div>
+   <div class="grid grid-3 mt-3" id="wealth-results"></div>
+   <div class="mt-3"><canvas id="wealth-canvas" width="700" height="260" role="img" aria-label="Line chart projecting compound growth"></canvas></div>`;
+  panel.append(card);
+  const calc=()=>{
+    const monthly=Math.max(0,Number($('#wealth-monthly').value)||0);
+    const r=Math.max(0,Number($('#wealth-return').value)||0)/100;
+    const box=$('#wealth-results');box.replaceChildren();
+    [5,10,20].forEach(y=>{
+      const balance=monthly?monthly*12*((Math.pow(1+r,y)-1)/r):0;
+      const contributed=monthly*12*y;
+      const d=document.createElement('div');d.className='metric';const a=document.createElement('span');a.className='small muted';a.textContent=`After ${y} years`;const b=document.createElement('b');b.className='mono';b.textContent=gbp.format(Math.round(balance));const c=document.createElement('span');c.className='small muted';c.textContent=`Contributed ${gbp.format(contributed)}`;d.append(a,b,c);box.append(d);
+    });
+    drawWealth(monthly,r);
+  };
+  card.addEventListener('input',calc);calc();
+}
+function drawWealth(monthly,r){
+  const c=$('#wealth-canvas');if(!c)return;const ctx=c.getContext('2d');
+  const rect=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=rect.width*d;c.height=rect.height*d;ctx.setTransform(d,0,0,d,0,0);
+  const w=rect.width,h=rect.height;ctx.clearRect(0,0,w,h);
+  const years=20,values=[];for(let y=0;y<=years;y++)values.push(monthly?monthly*12*((Math.pow(1+r,y)-1)/r):0);
+  const max=Math.max(...values,1);
+  ctx.beginPath();values.forEach((v,i)=>{const x=i/years*w,y=h-20-(h-45)*(v/max);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--mint');ctx.lineWidth=3;ctx.stroke();
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted');ctx.font='11px ui-monospace,monospace';
+  ctx.fillText('Projected ISA value',10,16);ctx.fillText(gbp.format(Math.round(values.at(-1))),w-90,h-5);
+}
+loanPanel();payPanel();wealthPanel();
+
+function renderCapabilities(){
+  const box=$('#capability-panel');box.replaceChildren();
+  capabilities.forEach(([name,ok,why])=>{
+    const row=document.createElement('div');row.className='capability';
+    const status=document.createElement('b');status.className=ok?'yes':'no';status.textContent=ok?'Active':'Fallback';
+    const text=document.createElement('span');const strong=document.createElement('strong');strong.textContent=`${name}: `;const desc=document.createElement('span');desc.className='muted';desc.textContent=why;text.append(strong,desc);
+    row.append(status,text);box.append(row);
+  });
+}
+renderCapabilities();
+
+theme();saveStash();quickCalc();route();
+if('navigation' in window){
+  window.navigation.addEventListener('navigate',()=>setTimeout(route,0));
+}
+</script>
+</body>
+</html>
