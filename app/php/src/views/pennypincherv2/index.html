@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Penny Pincher — UK money-saving, tax optimisation, deal-hunting and autonomous agent platform." />
+  <title>Penny Pincher — Every Penny Accounted For</title>
+  <style>
+    @layer reset, tokens, base, layout, components, utilities, motion;
+
+    @layer reset {
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+      body { min-height: 100dvh; line-height: 1.5; }
+      img, svg { display: block; max-width: 100%; }
+      button, input, select, textarea { font: inherit; color: inherit; }
+      button { cursor: pointer; border: none; background: none; }
+      a { color: inherit; text-decoration: none; }
+      ul, ol { list-style: none; }
+      table { border-collapse: collapse; width: 100%; }
+      dialog { border: none; padding: 0; }
+      dialog::backdrop { background: color-mix(in oklch, canvas 40%, oklch(0 0 0 / 0.55)); }
+    }
+
+    @layer tokens {
+      :root {
+        color-scheme: light dark;
+        --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+
+        --emerald-deep: oklch(0.32 0.08 160);
+        --mint: oklch(0.72 0.17 160);
+        --mint-bright: oklch(0.78 0.16 160);
+        --copper: oklch(0.68 0.15 55);
+        --copper-deep: oklch(0.55 0.14 50);
+        --slate: oklch(0.22 0.02 260);
+        --surface: oklch(0.98 0.005 260);
+        --surface-2: oklch(0.96 0.008 260);
+        --surface-3: oklch(0.93 0.01 260);
+        --text: oklch(0.22 0.02 260);
+        --text-muted: oklch(0.45 0.02 260);
+        --border: oklch(0.88 0.01 260);
+        --success: oklch(0.65 0.17 150);
+        --warning: oklch(0.75 0.15 75);
+        --danger: oklch(0.6 0.2 25);
+        --focus: oklch(0.65 0.18 160);
+
+        --radius-sm: 6px;
+        --radius: 10px;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.06);
+        --shadow: 0 4px 12px oklch(0 0 0 / 0.08);
+        --shadow-lg: 0 12px 32px oklch(0 0 0 / 0.12);
+        --space-1: 0.25rem;
+        --space-2: 0.5rem;
+        --space-3: 0.75rem;
+        --space-4: 1rem;
+        --space-5: 1.25rem;
+        --space-6: 1.5rem;
+        --space-8: 2rem;
+        --space-10: 2.5rem;
+        --space-12: 3rem;
+        --header-h: 64px;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        --duration: 220ms;
+      }
+
+      [data-theme="dark"] {
+        --emerald-deep: oklch(0.78 0.14 160);
+        --mint: oklch(0.72 0.15 160);
+        --mint-bright: oklch(0.8 0.14 160);
+        --copper: oklch(0.78 0.14 60);
+        --copper-deep: oklch(0.7 0.13 55);
+        --slate: oklch(0.92 0.01 260);
+        --surface: oklch(0.18 0.015 260);
+        --surface-2: oklch(0.22 0.015 260);
+        --surface-3: oklch(0.26 0.015 260);
+        --text: oklch(0.93 0.01 260);
+        --text-muted: oklch(0.7 0.015 260);
+        --border: oklch(0.32 0.015 260);
+        --success: oklch(0.72 0.16 150);
+        --warning: oklch(0.8 0.14 80);
+        --danger: oklch(0.7 0.18 25);
+        --focus: oklch(0.75 0.16 160);
+        --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.3);
+        --shadow: 0 4px 16px oklch(0 0 0 / 0.35);
+        --shadow-lg: 0 16px 40px oklch(0 0 0 / 0.45);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --emerald-deep: oklch(0.78 0.14 160);
+          --mint: oklch(0.72 0.15 160);
+          --mint-bright: oklch(0.8 0.14 160);
+          --copper: oklch(0.78 0.14 60);
+          --copper-deep: oklch(0.7 0.13 55);
+          --slate: oklch(0.92 0.01 260);
+          --surface: oklch(0.18 0.015 260);
+          --surface-2: oklch(0.22 0.015 260);
+          --surface-3: oklch(0.26 0.015 260);
+          --text: oklch(0.93 0.01 260);
+          --text-muted: oklch(0.7 0.015 260);
+          --border: oklch(0.32 0.015 260);
+          --success: oklch(0.72 0.16 150);
+          --warning: oklch(0.8 0.14 80);
+          --danger: oklch(0.7 0.18 25);
+          --focus: oklch(0.75 0.16 160);
+          --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.3);
+          --shadow: 0 4px 16px oklch(0 0 0 / 0.35);
+          --shadow-lg: 0 16px 40px oklch(0 0 0 / 0.45);
+        }
+      }
+    }
+
+    @layer base {
+      body {
+        font-family: var(--font-sans);
+        background: var(--surface);
+        color: var(--text);
+        overflow-x: hidden;
+      }
+      h1, h2, h3, h4 {
+        font-weight: 700;
+        line-height: 1.2;
+        text-wrap: balance;
+      }
+      h1 { font-size: clamp(1.75rem, 4vw, 2.75rem); }
+      h2 { font-size: clamp(1.35rem, 3vw, 1.85rem); }
+      h3 { font-size: clamp(1.1rem, 2.2vw, 1.35rem); }
+      p { text-wrap: pretty; max-width: 70ch; }
+      :focus-visible {
+        outline: 3px solid var(--focus);
+        outline-offset: 2px;
+      }
+      .sr-only {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+      }
+      .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+      .skip-link {
+        position: absolute; top: -100%; left: var(--space-4); z-index: 1000;
+        background: var(--mint); color: var(--slate); padding: var(--space-2) var(--space-4);
+        border-radius: var(--radius-sm); font-weight: 600;
+      }
+      .skip-link:focus { top: var(--space-2); }
+    }
+
+    @layer layout {
+      .app-shell {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        min-height: 100dvh;
+      }
+      .header {
+        position: sticky; top: 0; z-index: 50;
+        height: var(--header-h);
+        background: color-mix(in oklch, var(--surface) 92%, transparent);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; gap: var(--space-4);
+        padding: 0 var(--space-4);
+      }
+      .logo {
+        display: flex; align-items: center; gap: var(--space-2);
+        font-weight: 800; font-size: 1.15rem; color: var(--emerald-deep);
+        flex-shrink: 0;
+      }
+      .logo svg { width: 28px; height: 28px; }
+      .nav-desktop {
+        display: none; gap: var(--space-1); margin-left: var(--space-4); flex: 1;
+      }
+      @media (min-width: 900px) {
+        .nav-desktop { display: flex; }
+        .nav-toggle { display: none !important; }
+      }
+      .nav-link {
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        font-size: 0.9rem; font-weight: 500; color: var(--text-muted);
+        transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
+      }
+      .nav-link:hover { background: var(--surface-3); color: var(--text); }
+      .nav-link[aria-current="page"] {
+        background: color-mix(in oklch, var(--mint) 18%, transparent);
+        color: var(--emerald-deep); font-weight: 600;
+      }
+      .header-actions {
+        display: flex; align-items: center; gap: var(--space-2); margin-left: auto;
+      }
+      .icon-btn {
+        width: 40px; height: 40px; border-radius: var(--radius);
+        display: grid; place-items: center;
+        color: var(--text-muted); transition: background var(--duration), color var(--duration);
+      }
+      .icon-btn:hover { background: var(--surface-3); color: var(--text); }
+      .icon-btn svg { width: 20px; height: 20px; }
+      main {
+        padding: var(--space-6) var(--space-4) var(--space-12);
+        max-width: 1280px; margin: 0 auto; width: 100%;
+      }
+      .view { display: none; animation: fadeIn 280ms var(--ease); }
+      .view.active { display: block; }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .view { animation: none; }
+      }
+      .footer {
+        border-top: 1px solid var(--border);
+        padding: var(--space-8) var(--space-4);
+        background: var(--surface-2);
+        font-size: 0.85rem; color: var(--text-muted);
+      }
+      .footer-inner {
+        max-width: 1280px; margin: 0 auto;
+        display: grid; gap: var(--space-6);
+      }
+      @media (min-width: 700px) {
+        .footer-inner { grid-template-columns: 2fr 1fr 1fr; }
+      }
+    }
+
+    @layer components {
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+        padding: 0.65rem 1.15rem; border-radius: var(--radius);
+        font-weight: 600; font-size: 0.925rem;
+        transition: transform 120ms, background var(--duration), box-shadow var(--duration);
+      }
+      .btn:active { transform: scale(0.97); }
+      .btn-primary {
+        background: var(--emerald-deep); color: oklch(0.98 0.01 160);
+      }
+      .btn-primary:hover { filter: brightness(1.08); box-shadow: var(--shadow); }
+      .btn-secondary {
+        background: var(--surface-3); color: var(--text); border: 1px solid var(--border);
+      }
+      .btn-secondary:hover { background: var(--border); }
+      .btn-copper {
+        background: var(--copper); color: oklch(0.2 0.02 50);
+      }
+      .btn-copper:hover { filter: brightness(1.06); }
+      .btn-ghost { color: var(--emerald-deep); }
+      .btn-ghost:hover { background: color-mix(in oklch, var(--mint) 15%, transparent); }
+      .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.825rem; }
+      .card {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-5);
+        box-shadow: var(--shadow-sm);
+      }
+      .card-elevated { box-shadow: var(--shadow); }
+      .badge {
+        display: inline-flex; align-items: center; gap: 0.3rem;
+        padding: 0.2rem 0.55rem; border-radius: 999px;
+        font-size: 0.75rem; font-weight: 600;
+        background: color-mix(in oklch, var(--mint) 20%, transparent);
+        color: var(--emerald-deep);
+      }
+      .badge-copper {
+        background: color-mix(in oklch, var(--copper) 22%, transparent);
+        color: var(--copper-deep);
+      }
+      .badge-warn {
+        background: color-mix(in oklch, var(--warning) 25%, transparent);
+        color: oklch(0.4 0.1 70);
+      }
+      .input, .select, .textarea {
+        width: 100%;
+        padding: 0.6rem 0.85rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface);
+        transition: border-color var(--duration), box-shadow var(--duration);
+      }
+      .input:focus, .select:focus, .textarea:focus {
+        border-color: var(--mint);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--mint) 30%, transparent);
+        outline: none;
+      }
+      .label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: var(--space-1); color: var(--text-muted); }
+      .grid-2 { display: grid; gap: var(--space-4); }
+      .grid-3 { display: grid; gap: var(--space-4); }
+      @media (min-width: 640px) {
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+      }
+      @media (min-width: 960px) {
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+      }
+      .hero {
+        display: grid; gap: var(--space-8);
+        padding: var(--space-8) 0 var(--space-10);
+      }
+      @media (min-width: 900px) {
+        .hero { grid-template-columns: 1.2fr 1fr; align-items: center; }
+      }
+      .hero-title { letter-spacing: -0.02em; }
+      .hero-title span { color: var(--mint); }
+      .savings-counter {
+        font-family: var(--font-mono);
+        font-size: clamp(1.5rem, 4vw, 2.25rem);
+        font-weight: 700;
+        color: var(--emerald-deep);
+        letter-spacing: -0.03em;
+      }
+      .ticker-wrap {
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface-2);
+        margin-bottom: var(--space-8);
+      }
+      .ticker {
+        display: flex; gap: var(--space-8);
+        padding: var(--space-3) 0;
+        width: max-content;
+        animation: ticker 40s linear infinite;
+      }
+      .ticker:hover { animation-play-state: paused; }
+      @keyframes ticker {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .ticker { animation: none; flex-wrap: wrap; width: auto; }
+      }
+      .ticker-item {
+        display: flex; align-items: center; gap: var(--space-2);
+        white-space: nowrap; font-size: 0.875rem;
+      }
+      .ticker-item strong { color: var(--emerald-deep); }
+      .pill-row {
+        display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-5);
+      }
+      .pill {
+        padding: 0.4rem 0.9rem; border-radius: 999px;
+        border: 1px solid var(--border); font-size: 0.85rem; font-weight: 500;
+        background: var(--surface); color: var(--text-muted);
+        transition: all var(--duration);
+      }
+      .pill:hover, .pill[aria-pressed="true"] {
+        background: color-mix(in oklch, var(--mint) 18%, transparent);
+        border-color: var(--mint); color: var(--emerald-deep);
+      }
+      .cat-grid {
+        display: grid; gap: var(--space-4);
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 560px) { .cat-grid { grid-template-columns: repeat(2, 1fr); } }
+      @media (min-width: 900px) { .cat-grid { grid-template-columns: repeat(3, 1fr); } }
+      .cat-card {
+        display: flex; flex-direction: column; gap: var(--space-3);
+        transition: transform var(--duration), box-shadow var(--duration);
+        cursor: pointer; text-align: left;
+      }
+      .cat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+      .cat-card .icon-wrap {
+        width: 42px; height: 42px; border-radius: var(--radius);
+        background: color-mix(in oklch, var(--mint) 15%, transparent);
+        display: grid; place-items: center; color: var(--emerald-deep);
+      }
+      .cat-card .icon-wrap svg { width: 22px; height: 22px; }
+      .progress-bar {
+        height: 8px; border-radius: 999px; background: var(--surface-3); overflow: hidden;
+      }
+      .progress-bar > span {
+        display: block; height: 100%; border-radius: 999px;
+        background: linear-gradient(90deg, var(--mint), var(--emerald-deep));
+        transition: width 400ms var(--ease);
+      }
+      .chat-layout {
+        display: grid; gap: var(--space-4);
+      }
+      @media (min-width: 800px) {
+        .chat-layout { grid-template-columns: 280px 1fr; min-height: 480px; }
+      }
+      .chat-presets { display: flex; flex-direction: column; gap: var(--space-2); }
+      .chat-messages {
+        display: flex; flex-direction: column; gap: var(--space-3);
+        max-height: 420px; overflow-y: auto; padding: var(--space-3);
+        background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border);
+      }
+      .msg {
+        max-width: 90%; padding: var(--space-3) var(--space-4);
+        border-radius: var(--radius-lg); font-size: 0.925rem;
+      }
+      .msg-user {
+        align-self: flex-end;
+        background: var(--emerald-deep); color: oklch(0.98 0.01 160);
+        border-bottom-right-radius: 4px;
+      }
+      .msg-ai {
+        align-self: flex-start;
+        background: var(--surface-3); border-bottom-left-radius: 4px;
+      }
+      .agent-grid {
+        display: grid; gap: var(--space-4);
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 640px) { .agent-grid { grid-template-columns: repeat(2, 1fr); } }
+      .agent-card {
+        display: flex; flex-direction: column; gap: var(--space-3);
+      }
+      .toggle {
+        position: relative; width: 48px; height: 28px; border-radius: 999px;
+        background: var(--surface-3); border: 1px solid var(--border);
+        transition: background var(--duration);
+      }
+      .toggle::after {
+        content: ""; position: absolute; top: 2px; left: 2px;
+        width: 22px; height: 22px; border-radius: 50%;
+        background: white; box-shadow: var(--shadow-sm);
+        transition: transform var(--duration) var(--ease);
+      }
+      .toggle[aria-checked="true"] {
+        background: var(--mint); border-color: var(--mint);
+      }
+      .toggle[aria-checked="true"]::after { transform: translateX(20px); }
+      .calc-tabs {
+        display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-5);
+      }
+      .calc-panel { display: none; }
+      .calc-panel.active { display: block; }
+      .result-box {
+        background: color-mix(in oklch, var(--mint) 12%, var(--surface-2));
+        border: 1px solid color-mix(in oklch, var(--mint) 35%, var(--border));
+        border-radius: var(--radius-lg);
+        padding: var(--space-5);
+        margin-top: var(--space-5);
+      }
+      .result-box .big {
+        font-family: var(--font-mono);
+        font-size: clamp(1.5rem, 3vw, 2rem);
+        font-weight: 700; color: var(--emerald-deep);
+      }
+      .toast-container {
+        position: fixed; bottom: var(--space-6); right: var(--space-4);
+        z-index: 200; display: flex; flex-direction: column; gap: var(--space-2);
+        pointer-events: none;
+      }
+      .toast {
+        pointer-events: auto;
+        background: var(--slate); color: oklch(0.98 0.01 260);
+        padding: var(--space-3) var(--space-5);
+        border-radius: var(--radius); box-shadow: var(--shadow-lg);
+        font-size: 0.9rem; font-weight: 500;
+        animation: toastIn 280ms var(--ease);
+        max-width: 320px;
+      }
+      [data-theme="dark"] .toast, :root:not([data-theme="light"]) .toast {
+        background: var(--surface-3); color: var(--text); border: 1px solid var(--border);
+      }
+      @keyframes toastIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .toast { animation: none; }
+      }
+      .drawer {
+        position: fixed; top: 0; right: 0; bottom: 0; width: min(380px, 100%);
+        background: var(--surface); border-left: 1px solid var(--border);
+        box-shadow: var(--shadow-lg); z-index: 100;
+        transform: translateX(100%); transition: transform 280ms var(--ease);
+        display: flex; flex-direction: column;
+      }
+      .drawer.open { transform: none; }
+      .drawer-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: var(--space-4); border-bottom: 1px solid var(--border);
+      }
+      .drawer-body { flex: 1; overflow-y: auto; padding: var(--space-4); }
+      .drawer-backdrop {
+        position: fixed; inset: 0; background: oklch(0 0 0 / 0.4); z-index: 90;
+        opacity: 0; pointer-events: none; transition: opacity 280ms;
+      }
+      .drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+      .mobile-nav {
+        position: fixed; inset: 0; z-index: 80;
+        background: var(--surface); padding: var(--space-6) var(--space-4);
+        display: none; flex-direction: column; gap: var(--space-2);
+      }
+      .mobile-nav.open { display: flex; }
+      .mobile-nav a {
+        padding: var(--space-3) var(--space-4); border-radius: var(--radius);
+        font-weight: 600; font-size: 1.1rem;
+      }
+      .mobile-nav a[aria-current="page"] {
+        background: color-mix(in oklch, var(--mint) 18%, transparent);
+        color: var(--emerald-deep);
+      }
+      .phone-mock {
+        width: 260px; max-width: 100%;
+        border: 8px solid var(--slate);
+        border-radius: 28px;
+        background: var(--surface);
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+        margin: 0 auto;
+      }
+      [data-theme="dark"] .phone-mock { border-color: var(--border); }
+      .phone-screen {
+        aspect-ratio: 9/16; background: linear-gradient(160deg, var(--surface-2), var(--surface-3));
+        padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3);
+        font-size: 0.8rem;
+      }
+      .ext-demo {
+        border: 1px solid var(--border); border-radius: var(--radius-lg);
+        overflow: hidden; background: var(--surface);
+      }
+      .ext-bar {
+        display: flex; align-items: center; gap: var(--space-2);
+        padding: var(--space-2) var(--space-3);
+        background: var(--surface-3); border-bottom: 1px solid var(--border);
+        font-size: 0.8rem;
+      }
+      .ext-url {
+        flex: 1; background: var(--surface); border-radius: 999px;
+        padding: 0.3rem 0.75rem; color: var(--text-muted);
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .cap-grid {
+        display: grid; gap: var(--space-2);
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 500px) { .cap-grid { grid-template-columns: 1fr 1fr; } }
+      .cap-item {
+        display: flex; align-items: flex-start; gap: var(--space-2);
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius); background: var(--surface);
+        border: 1px solid var(--border); font-size: 0.85rem;
+      }
+      .cap-dot {
+        width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0;
+      }
+      .cap-dot.on { background: var(--success); }
+      .cap-dot.off { background: var(--text-muted); opacity: 0.5; }
+      .section-title {
+        display: flex; align-items: center; justify-content: space-between;
+        flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-5);
+      }
+      .stat-row {
+        display: grid; gap: var(--space-3);
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        margin: var(--space-5) 0;
+      }
+      .stat {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius); padding: var(--space-4); text-align: center;
+      }
+      .stat .val {
+        font-family: var(--font-mono); font-size: 1.35rem; font-weight: 700;
+        color: var(--emerald-deep);
+      }
+      .stat .lbl { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+      .habit-toggle {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: var(--space-3); border-radius: var(--radius);
+        border: 1px solid var(--border); background: var(--surface);
+        cursor: pointer; transition: border-color var(--duration);
+      }
+      .habit-toggle:hover, .habit-toggle[aria-pressed="true"] {
+        border-color: var(--mint);
+      }
+      .habit-toggle[aria-pressed="true"] {
+        background: color-mix(in oklch, var(--mint) 10%, var(--surface));
+      }
+    }
+
+    @layer utilities {
+      .mt-2 { margin-top: var(--space-2); }
+      .mt-3 { margin-top: var(--space-3); }
+      .mt-4 { margin-top: var(--space-4); }
+      .mt-6 { margin-top: var(--space-6); }
+      .mb-2 { margin-bottom: var(--space-2); }
+      .mb-4 { margin-bottom: var(--space-4); }
+      .mb-6 { margin-bottom: var(--space-6); }
+      .gap-2 { gap: var(--space-2); }
+      .gap-3 { gap: var(--space-3); }
+      .flex { display: flex; }
+      .flex-wrap { flex-wrap: wrap; }
+      .items-center { align-items: center; }
+      .justify-between { justify-content: space-between; }
+      .text-muted { color: var(--text-muted); }
+      .text-sm { font-size: 0.875rem; }
+      .text-xs { font-size: 0.75rem; }
+      .font-bold { font-weight: 700; }
+      .hidden { display: none !important; }
+    }
+
+    @layer motion {
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="app-shell">
+    <header class="header" role="banner">
+      <a href="#home" class="logo" data-nav>
+        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2.5"/>
+          <path d="M11 16.5c0-2.5 2-4.5 4.5-4.5S20 14 20 16.5 18 21 15.5 21 11 19 11 16.5z" fill="currentColor" opacity="0.3"/>
+          <text x="16" y="20" text-anchor="middle" font-size="11" font-weight="800" fill="currentColor" font-family="system-ui">£</text>
+        </svg>
+        Penny Pincher
+      </a>
+      <nav class="nav-desktop" aria-label="Primary">
+        <a href="#home" class="nav-link" data-nav data-route="home">Home</a>
+        <a href="#categories" class="nav-link" data-nav data-route="categories">Categories</a>
+        <a href="#ai-agents" class="nav-link" data-nav data-route="ai-agents">AI Agents</a>
+        <a href="#calculators" class="nav-link" data-nav data-route="calculators">Calculators</a>
+        <a href="#apps-extensions" class="nav-link" data-nav data-route="apps-extensions">Apps</a>
+        <a href="#group-buying" class="nav-link" data-nav data-route="group-buying">Group Buying</a>
+      </nav>
+      <div class="header-actions">
+        <button type="button" class="icon-btn" id="btn-search" aria-label="Open search" title="Search (Ctrl+K)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </button>
+        <button type="button" class="icon-btn" id="btn-stash" aria-label="Open saved deals" title="My Stash">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+        </button>
+        <button type="button" class="icon-btn" id="btn-theme" aria-label="Toggle colour theme" title="Theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </button>
+        <button type="button" class="icon-btn nav-toggle" id="btn-menu" aria-label="Open menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="mobile-nav" id="mobile-nav" hidden>
+      <button type="button" class="icon-btn" id="btn-menu-close" aria-label="Close menu" style="align-self:flex-end">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <a href="#home" data-nav data-route="home">Home</a>
+      <a href="#categories" data-nav data-route="categories">Categories</a>
+      <a href="#ai-agents" data-nav data-route="ai-agents">AI Agents</a>
+      <a href="#calculators" data-nav data-route="calculators">Calculators</a>
+      <a href="#apps-extensions" data-nav data-route="apps-extensions">Apps &amp; Extension</a>
+      <a href="#group-buying" data-nav data-route="group-buying">Group Buying</a>
+      <a href="#capabilities" data-nav data-route="capabilities">Platform Capabilities</a>
+    </div>
+
+    <main id="main">
+      <!-- HOME -->
+      <section class="view active" id="view-home" data-view="home" aria-labelledby="home-title">
+        <div class="hero">
+          <div>
+            <p class="badge mb-4">UK-first · Tax-aware · Agent-powered</p>
+            <h1 class="hero-title" id="home-title">Every Penny Accounted For.<br><span>Every Deal Automated.</span></h1>
+            <p class="mt-4 text-muted" style="font-size:1.05rem">Penny Pincher is the all-in-one money-saving ecosystem for UK households and SMEs — HMRC optimisation, provider switching, New Old Stock, group bargaining and autonomous deal agents in one place.</p>
+            <div class="flex flex-wrap gap-3 mt-6">
+              <a href="#calculators" class="btn btn-primary" data-nav>Run a calculator</a>
+              <a href="#ai-agents" class="btn btn-secondary" data-nav>Talk to Penny AI</a>
+              <a href="#apps-extensions" class="btn btn-ghost" data-nav>Get the extension</a>
+            </div>
+            <p class="mt-6 text-sm text-muted">Live community impact</p>
+            <p class="savings-counter" id="savings-counter" aria-live="polite">£0</p>
+            <p class="text-xs text-muted">estimated total saved by UK Penny Pinchers (illustrative)</p>
+          </div>
+          <div class="card card-elevated">
+            <h3 class="mb-4">5-Minute Savings Estimator</h3>
+            <p class="text-sm text-muted mb-4">Toggle the habits that apply. Instant annual projection.</p>
+            <div class="grid-2" id="habit-toggles" style="gap:var(--space-2)">
+              <button type="button" class="habit-toggle" data-habit="coffee" data-save="780" aria-pressed="false">
+                <span>Daily coffee £3</span><span class="mono text-sm">+£780</span>
+              </button>
+              <button type="button" class="habit-toggle" data-habit="broadband" data-save="180" aria-pressed="false">
+                <span>Broadband overpay</span><span class="mono text-sm">+£180</span>
+              </button>
+              <button type="button" class="habit-toggle" data-habit="energy" data-save="320" aria-pressed="false">
+                <span>Energy switch</span><span class="mono text-sm">+£320</span>
+              </button>
+              <button type="button" class="habit-toggle" data-habit="insurance" data-save="210" aria-pressed="false">
+                <span>Car insurance</span><span class="mono text-sm">+£210</span>
+              </button>
+              <button type="button" class="habit-toggle" data-habit="taxcode" data-save="450" aria-pressed="false">
+                <span>Tax code check</span><span class="mono text-sm">+£450</span>
+              </button>
+              <button type="button" class="habit-toggle" data-habit="subs" data-save="240" aria-pressed="false">
+                <span>Unused subs</span><span class="mono text-sm">+£240</span>
+              </button>
+            </div>
+            <div class="result-box mt-4">
+              <p class="text-sm text-muted">Projected annual savings</p>
+              <p class="big mono" id="habit-annual">£0</p>
+              <p class="text-sm mt-2">If invested at 7% for 10 years: <strong class="mono" id="habit-compound">£0</strong></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticker-wrap" aria-label="Live savings alerts">
+          <div class="ticker" id="ticker">
+            <div class="ticker-item"><strong>HMRC Marriage Allowance</strong> — up to £1,260 back</div>
+            <div class="ticker-item"><strong>Octopus Agile</strong> — negative pricing window open</div>
+            <div class="ticker-item"><strong>NOS Drop</strong> — 62% off Bosch industrial drills</div>
+            <div class="ticker-item"><strong>Virgin Media</strong> — retention offer £28/mo fibre</div>
+            <div class="ticker-item"><strong>Credit Union</strong> — APR 12.9% vs payday 1,500%</div>
+            <div class="ticker-item"><strong>Council Tax</strong> — single person discount reminder</div>
+            <div class="ticker-item"><strong>HMRC Marriage Allowance</strong> — up to £1,260 back</div>
+            <div class="ticker-item"><strong>Octopus Agile</strong> — negative pricing window open</div>
+            <div class="ticker-item"><strong>NOS Drop</strong> — 62% off Bosch industrial drills</div>
+            <div class="ticker-item"><strong>Virgin Media</strong> — retention offer £28/mo fibre</div>
+            <div class="ticker-item"><strong>Credit Union</strong> — APR 12.9% vs payday 1,500%</div>
+            <div class="ticker-item"><strong>Council Tax</strong> — single person discount reminder</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h2>Quick wins today</h2>
+          <a href="#categories" class="btn btn-sm btn-ghost" data-nav>Browse all categories →</a>
+        </div>
+        <div class="grid-3" id="quick-wins"></div>
+      </section>
+
+      <!-- CATEGORIES -->
+      <section class="view" id="view-categories" data-view="categories" aria-labelledby="cat-title">
+        <div class="section-title">
+          <div>
+            <h2 id="cat-title">Money-Saving Verticals</h2>
+            <p class="text-muted text-sm mt-1">16+ UK-focused pillars. Filter and dive in.</p>
+          </div>
+        </div>
+        <div class="pill-row" id="cat-filters" role="group" aria-label="Category filters"></div>
+        <div class="cat-grid" id="cat-grid"></div>
+      </section>
+
+      <!-- AI AGENTS -->
+      <section class="view" id="view-ai-agents" data-view="ai-agents" aria-labelledby="ai-title">
+        <div class="section-title">
+          <div>
+            <h2 id="ai-title">Penny AI &amp; Autonomous Agents</h2>
+            <p class="text-muted text-sm mt-1">Ask questions or deploy background agents that watch bills, vouchers and HMRC.</p>
+          </div>
+        </div>
+        <div class="card mb-6">
+          <h3 class="mb-3">Penny AI Chat</h3>
+          <div class="chat-layout">
+            <div class="chat-presets">
+              <p class="text-xs text-muted mb-2">Try a prompt</p>
+              <button type="button" class="btn btn-secondary btn-sm" data-prompt="Audit my £45/mo broadband bill">Audit broadband bill</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-prompt="Check if I'm owed an HMRC WFH tax rebate">HMRC WFH rebate</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-prompt="Find New Old Stock alternatives to a Dyson V15">NOS vs Dyson V15</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-prompt="Compare payday loan APR to Credit Union">Payday vs Credit Union</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-prompt="Best time to renew car insurance">Insurance renewal timing</button>
+            </div>
+            <div>
+              <div class="chat-messages" id="chat-messages" aria-live="polite"></div>
+              <form id="chat-form" class="flex gap-2 mt-3">
+                <input type="text" class="input" id="chat-input" placeholder="Ask Penny AI…" autocomplete="off" />
+                <button type="submit" class="btn btn-primary">Send</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <h3 class="mb-4">Agent Fleet</h3>
+        <div class="agent-grid" id="agent-grid"></div>
+      </section>
+
+      <!-- CALCULATORS -->
+      <section class="view" id="view-calculators" data-view="calculators" aria-labelledby="calc-title">
+        <div class="section-title">
+          <div>
+            <h2 id="calc-title">Financial &amp; Tax Calculators</h2>
+            <p class="text-muted text-sm mt-1">2026/27 UK bands. Instant results. Educational only.</p>
+          </div>
+        </div>
+        <div class="calc-tabs" role="tablist">
+          <button type="button" class="pill" role="tab" aria-selected="true" data-calc="payday">Payday vs Smart</button>
+          <button type="button" class="pill" role="tab" aria-selected="false" data-calc="tax">Take-home &amp; Rebate</button>
+          <button type="button" class="pill" role="tab" aria-selected="false" data-calc="compound">Habit Compound</button>
+        </div>
+
+        <div class="calc-panel active" id="calc-payday" role="tabpanel">
+          <div class="card">
+            <h3 class="mb-4">Payday Loan vs Smart Alternative</h3>
+            <div class="grid-2">
+              <div>
+                <label class="label" for="pd-amount">Amount borrowed (£)</label>
+                <input type="number" class="input mono" id="pd-amount" value="300" min="50" max="2000" step="50" />
+              </div>
+              <div>
+                <label class="label" for="pd-days">Term (days)</label>
+                <input type="number" class="input mono" id="pd-days" value="30" min="7" max="365" />
+              </div>
+              <div>
+                <label class="label" for="pd-apr">Payday APR (%)</label>
+                <input type="number" class="input mono" id="pd-apr" value="1500" min="100" max="3000" />
+              </div>
+              <div>
+                <label class="label" for="pd-cu">Credit Union APR (%)</label>
+                <input type="number" class="input mono" id="pd-cu" value="12.9" min="0" max="50" step="0.1" />
+              </div>
+            </div>
+            <div class="result-box">
+              <div class="grid-2">
+                <div>
+                  <p class="text-sm text-muted">Payday total repayable</p>
+                  <p class="big mono" id="pd-total-high">£0</p>
+                  <p class="text-xs text-muted" id="pd-interest-high"></p>
+                </div>
+                <div>
+                  <p class="text-sm text-muted">Credit Union total repayable</p>
+                  <p class="big mono" id="pd-total-low">£0</p>
+                  <p class="text-xs text-muted" id="pd-interest-low"></p>
+                </div>
+              </div>
+              <p class="mt-4 font-bold" id="pd-save">You could avoid £0 in interest</p>
+              <p class="text-xs text-muted mt-2">High-cost short-term credit is expensive. Consider Credit Unions, 0% money-transfer cards or employer salary advances first. This is illustrative only.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="calc-panel" id="calc-tax" role="tabpanel">
+          <div class="card">
+            <h3 class="mb-4">HMRC Take-Home Pay Estimator (2026/27 illustrative)</h3>
+            <div class="grid-2">
+              <div>
+                <label class="label" for="tax-salary">Gross annual salary (£)</label>
+                <input type="number" class="input mono" id="tax-salary" value="38000" min="0" step="500" />
+              </div>
+              <div>
+                <label class="label" for="tax-pension">Pension contribution (%)</label>
+                <input type="number" class="input mono" id="tax-pension" value="5" min="0" max="40" step="0.5" />
+              </div>
+              <div>
+                <label class="label" for="tax-code">Tax code</label>
+                <select class="select" id="tax-code">
+                  <option value="1257L">1257L (standard PA)</option>
+                  <option value="BR">BR (basic rate)</option>
+                  <option value="0T">0T (no allowance)</option>
+                  <option value="K">K (negative allowance)</option>
+                </select>
+              </div>
+              <div>
+                <label class="label" for="tax-student">Student loan</label>
+                <select class="select" id="tax-student">
+                  <option value="none">None</option>
+                  <option value="plan2">Plan 2</option>
+                  <option value="plan5">Plan 5</option>
+                </select>
+              </div>
+            </div>
+            <div class="result-box">
+              <div class="stat-row">
+                <div class="stat"><div class="val mono" id="tax-net">£0</div><div class="lbl">Est. take-home / yr</div></div>
+                <div class="stat"><div class="val mono" id="tax-income">£0</div><div class="lbl">Income Tax</div></div>
+                <div class="stat"><div class="val mono" id="tax-ni">£0</div><div class="lbl">Employee NI</div></div>
+                <div class="stat"><div class="val mono" id="tax-monthly">£0</div><div class="lbl">Monthly net</div></div>
+              </div>
+              <p class="text-xs text-muted">Uses simplified 2026/27 England/NI/Wales bands for illustration. Scotland differs. Personal Allowance tapered above £100k. Not formal tax advice.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="calc-panel" id="calc-compound" role="tabpanel">
+          <div class="card">
+            <h3 class="mb-4">Subscription &amp; Habit Compound Wealth Simulator</h3>
+            <div class="grid-2">
+              <div>
+                <label class="label" for="cp-monthly">Monthly amount cut (£)</label>
+                <input type="number" class="input mono" id="cp-monthly" value="85" min="5" step="5" />
+              </div>
+              <div>
+                <label class="label" for="cp-return">Expected annual return (%)</label>
+                <input type="number" class="input mono" id="cp-return" value="7" min="0" max="15" step="0.5" />
+              </div>
+            </div>
+            <div class="result-box">
+              <div class="stat-row">
+                <div class="stat"><div class="val mono" id="cp-5">£0</div><div class="lbl">After 5 years</div></div>
+                <div class="stat"><div class="val mono" id="cp-10">£0</div><div class="lbl">After 10 years</div></div>
+                <div class="stat"><div class="val mono" id="cp-20">£0</div><div class="lbl">After 20 years</div></div>
+              </div>
+              <p class="text-xs text-muted">Assumes monthly contributions at end of each month, constant return, no fees or tax. Investment values can go down as well as up.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- APPS & EXTENSIONS -->
+      <section class="view" id="view-apps-extensions" data-view="apps-extensions" aria-labelledby="apps-title">
+        <div class="section-title">
+          <div>
+            <h2 id="apps-title">Browser Extension &amp; Mobile App</h2>
+            <p class="text-muted text-sm mt-1">Stack codes, cashback and NOS alternatives at checkout. Scan receipts on the go.</p>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3 class="mb-3">Extension Demo</h3>
+            <div class="ext-demo" id="ext-demo">
+              <div class="ext-bar">
+                <span style="opacity:0.6">🔒</span>
+                <div class="ext-url">checkout.retailer.co.uk/basket</div>
+              </div>
+              <div style="padding:var(--space-4)">
+                <p class="text-sm mb-2">Basket total: <strong class="mono">£187.40</strong></p>
+                <div id="ext-status" class="text-sm text-muted mb-3">Ready to simulate auto-apply…</div>
+                <ul class="text-sm" id="ext-steps" style="display:flex;flex-direction:column;gap:6px"></ul>
+                <button type="button" class="btn btn-primary btn-sm mt-4" id="btn-sim-ext">Simulate Extension Auto-Apply</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="mb-3">Mobile App Preview</h3>
+            <div class="phone-mock" aria-hidden="true">
+              <div class="phone-screen">
+                <div class="flex justify-between items-center">
+                  <strong>Penny Pincher</strong>
+                  <span class="badge">Live</span>
+                </div>
+                <div class="card" style="padding:var(--space-3);font-size:0.75rem">
+                  <p class="text-muted">Open Banking alert</p>
+                  <p class="font-bold">Netflix + Disney+ + Gym = £47.97/mo unused?</p>
+                </div>
+                <div class="card" style="padding:var(--space-3);font-size:0.75rem">
+                  <p class="text-muted">Receipt scan</p>
+                  <p>Tesco Clubcard price matched · saved £4.20</p>
+                </div>
+                <div class="card" style="padding:var(--space-3);font-size:0.75rem">
+                  <p class="text-muted">QR compare</p>
+                  <p>Same SKU £2.40 cheaper at Lidl 0.8 mi</p>
+                </div>
+                <div style="margin-top:auto;text-align:center;font-size:0.7rem;color:var(--text-muted)">iOS &amp; Android · Coming soon</div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-4 justify-center">
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-notify-ios">Notify me (iOS)</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-notify-android">Notify me (Android)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GROUP BUYING -->
+      <section class="view" id="view-group-buying" data-view="group-buying" aria-labelledby="gb-title">
+        <div class="section-title">
+          <div>
+            <h2 id="gb-title">Group Bargaining · Syndicate Deals</h2>
+            <p class="text-muted text-sm mt-1">Unlock bulk discounts by joining force with other UK households and SMEs.</p>
+          </div>
+        </div>
+        <div class="cat-grid" id="syndicate-grid"></div>
+      </section>
+
+      <!-- CAPABILITIES -->
+      <section class="view" id="view-capabilities" data-view="capabilities" aria-labelledby="cap-title">
+        <div class="section-title">
+          <div>
+            <h2 id="cap-title">Platform Capabilities</h2>
+            <p class="text-muted text-sm mt-1">Feature detection for modern browser APIs used by this SPA.</p>
+          </div>
+        </div>
+        <div class="cap-grid" id="cap-grid"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div>
+          <strong style="color:var(--text)">Penny Pincher</strong>
+          <p class="mt-2">Educational money-saving tools for the UK. Not a bank, lender, or regulated financial adviser.</p>
+          <p class="mt-2 text-xs">Investment values can go down as well as up. Tax treatment depends on individual circumstances and may change. High-cost short-term credit is expensive — only borrow what you can afford to repay. Always verify rates and eligibility with providers and HMRC.</p>
+        </div>
+        <div>
+          <p class="font-bold mb-2" style="color:var(--text)">Explore</p>
+          <a href="#categories" data-nav class="text-sm">Categories</a><br>
+          <a href="#calculators" data-nav class="text-sm">Calculators</a><br>
+          <a href="#ai-agents" data-nav class="text-sm">AI Agents</a><br>
+          <a href="#capabilities" data-nav class="text-sm">Capabilities</a>
+        </div>
+        <div>
+          <p class="font-bold mb-2" style="color:var(--text)">Disclaimer</p>
+          <p class="text-xs">Illustrative data only. 2026/27 tax figures are simplified estimates. No warranty of accuracy. © 2026 Penny Pincher (demo).</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Saved deals drawer -->
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  <aside class="drawer" id="stash-drawer" aria-label="Saved deals" aria-hidden="true">
+    <div class="drawer-header">
+      <h3>My Stash</h3>
+      <button type="button" class="icon-btn" id="btn-stash-close" aria-label="Close stash">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="drawer-body" id="stash-body"></div>
+  </aside>
+
+  <!-- Search dialog -->
+  <dialog id="search-dialog" aria-label="Search">
+    <div class="card" style="min-width:min(480px,92vw);max-height:80vh;display:flex;flex-direction:column">
+      <div class="flex items-center gap-2 mb-3">
+        <input type="search" class="input" id="search-input" placeholder="Search deals, tax tools, categories…" autofocus />
+        <button type="button" class="btn btn-secondary btn-sm" id="search-close">Esc</button>
+      </div>
+      <div id="search-results" style="overflow-y:auto;max-height:50vh"></div>
+    </div>
+  </dialog>
+
+  <!-- Category detail dialog -->
+  <dialog id="cat-dialog">
+    <div class="card" style="min-width:min(520px,92vw);max-width:560px;max-height:85vh;overflow-y:auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="cat-dialog-title"></h3>
+        <button type="button" class="icon-btn" id="cat-dialog-close" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div id="cat-dialog-body"></div>
+    </div>
+  </dialog>
+
+  <div class="toast-container" id="toasts" aria-live="polite"></div>
+
+  <script type="module">
+    /* ========== STATE ========== */
+    const STORAGE_KEY = "pennypincher-v1";
+    const defaultState = {
+      theme: "system",
+      stash: [],
+      agents: {
+        negotiator: false,
+        sniper: false,
+        watchdog: false,
+        scout: false
+      },
+      syndicates: {}
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(defaultState);
+        const parsed = JSON.parse(raw);
+        return { ...structuredClone(defaultState), ...parsed };
+      } catch {
+        return structuredClone(defaultState);
+      }
+    }
+
+    function saveState(state) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          theme: state.theme,
+          stash: state.stash,
+          agents: state.agents,
+          syndicates: state.syndicates
+        }));
+      } catch { /* quota / private mode */ }
+    }
+
+    const state = loadState();
+    const listeners = new Set();
+    function subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); }
+    function notify() { listeners.forEach(fn => fn(state)); saveState(state); }
+
+    /* ========== DATA ========== */
+    const CATEGORIES = [
+      { id: "vouchers", name: "Shopping & Discount Vouchers", group: "Everyday & Retail", blurb: "Verified stackable codes, cashback stacking and price-history trackers.", save: "£180–£600/yr", tags: ["vouchers", "cashback", "retail"] },
+      { id: "group", name: "Group Bargaining (Bulk Power)", group: "Everyday & Retail", blurb: "Syndicate deals for heat pumps, energy tariffs and bulk goods.", save: "15–28% off", tags: ["syndicate", "bulk"] },
+      { id: "switching", name: "Switching Providers", group: "Everyday & Retail", blurb: "Broadband, energy, mobile SIM and current account switching bonuses.", save: "£200–£450/yr", tags: ["broadband", "energy", "mobile"] },
+      { id: "hmrc", name: "HMRC & Tax Optimisation", group: "Tax & Finance", blurb: "Tax code decoder, Marriage Allowance, WFH rebate, ISA/SIPP relief.", save: "Up to £1,260+", tags: ["tax", "hmrc", "isa"] },
+      { id: "loans", name: "Payday Loan Alternatives", group: "Tax & Finance", blurb: "APR shock calculator vs Credit Unions, 0% cards and salary advances.", save: "Avoid 4-digit APR", tags: ["credit", "apr"] },
+      { id: "invest", name: "Investments & Wealth", group: "Tax & Finance", blurb: "S&S ISA vs Cash ISA, low-fee index funds, round-up micro-investing.", save: "Fee drag ↓", tags: ["isa", "invest"] },
+      { id: "motoring", name: "Buy Any Car & Motoring", group: "Tech & Auto", blurb: "Depreciation curves, PCP vs HP, fuel finder, insurance renewal sweet-spot.", save: "£150–£400/yr", tags: ["car", "insurance", "fuel"] },
+      { id: "nos", name: "New Old Stock & Liquidation", group: "Tech & Auto", blurb: "Brand-new previous-gen electronics and surplus at 40–75% off RRP.", save: "40–75% off", tags: ["nos", "surplus"] },
+      { id: "b2b", name: "Enterprise & B2B Procurement", group: "B2B & Industrial", blurb: "SaaS negotiation scripts, corporate card cashback, R&D tax credits.", save: "10–30% SaaS", tags: ["saas", "b2b"] },
+      { id: "supply", name: "Manufacturing & Supply Chain", group: "B2B & Industrial", blurb: "Surplus raw materials, off-peak industrial energy, pallet auctions.", save: "Variable", tags: ["industrial"] },
+      { id: "science", name: "Science & Energy Efficiency", group: "B2B & Industrial", blurb: "Insulation ROI (U-values), LED wattage cost, water thermodynamics.", save: "£120–£800/yr", tags: ["energy", "insulation"] },
+      { id: "tech", name: "Technology & Software", group: "Tech & Auto", blurb: "Open-source alternatives, VPN regional pricing, refurbished enterprise hardware.", save: "£100–£500/yr", tags: ["software", "vpn"] },
+      { id: "events", name: "Events & Entertainment", group: "Everyday & Retail", blurb: "Presale alerts, seat-filler networks, National Trust / cinema 2-for-1.", save: "£50–£200/yr", tags: ["tickets"] },
+      { id: "sports", name: "Sports & Fitness", group: "Everyday & Retail", blurb: "Off-peak gym arbitrage, council leisure hacks, end-of-season gear.", save: "£80–£300/yr", tags: ["gym", "fitness"] }
+    ];
+
+    const SYNDICATES = [
+      { id: "heatpump", title: "Heat Pump Installation Bulk", target: 500, joined: 412, discount: "28% off labour + kit", region: "England & Wales" },
+      { id: "agile", title: "Octopus Agile Collective Tariff", target: 2000, joined: 1540, discount: "Collective standing charge cut", region: "GB" },
+      { id: "sim", title: "Business SIM Pool (50GB)", target: 300, joined: 187, discount: "£6.50/mo unlocked", region: "UK" },
+      { id: "insulation", title: "Loft Insulation Collective", target: 800, joined: 623, discount: "22% off materials + fit", region: "Scotland & N. England" }
+    ];
+
+    const QUICK_WINS = [
+      { title: "Marriage Allowance", desc: "Transfer £1,260 of PA if eligible. Up to £252 tax saved.", action: "Check eligibility", route: "calculators" },
+      { title: "Tax code 1257L?", desc: "Wrong code can cost hundreds. Decode yours in seconds.", action: "Decode tax code", route: "calculators" },
+      { title: "Insurance renewal window", desc: "Best rates typically 21–26 days before renewal.", action: "Set reminder", route: "categories" }
+    ];
+
+    const AI_RESPONSES = {
+      "Audit my £45/mo broadband bill": `**Broadband audit (£45/mo)**\n\n1. Check contract end date — most UK deals drop to standard variable after 12–24 months.\n2. Typical retention offers right now: Virgin/EE/Vodafone fibre from ~£28–£35/mo.\n3. Action: Call retention, state competitor price, ask for loyalty discount or early exit if OOC.\n4. Estimated annual saving if you land £32/mo: **£156**.\n\nWant a script? Toggle the Bill Negotiator Agent.`,
+      "Check if I'm owed an HMRC WFH tax rebate": `**Working From Home rebate**\n\n- Flat rate: £6/week (£312/year) without receipts if you work from home (employer doesn’t already pay).\n- Claim via personal tax account or P87.\n- If you have higher actual costs (utilities, equipment), keep records and claim actuals instead.\n- Marriage Allowance / high-income PA taper are separate — check those too.\n\nThis is general information, not personalised tax advice.`,
+      "Find New Old Stock alternatives to a Dyson V15": `**NOS / previous-gen alternatives to Dyson V15**\n\n- Look for sealed V11 / V12 Absolute or Gen5detect open-box from authorised liquidators.\n- Typical street: 40–55% below current V15 RRP when available.\n- Also consider: Shark Detect Pro, Samsung Bespoke Jet (frequent NOS/refurb).\n- Check: battery cycles, seal integrity, full accessories.\n\nEnable the NOS & Liquidation Scout agent to watch drops.`,
+      "Compare payday loan APR to Credit Union": `**APR reality check**\n\n- Many payday products advertise ~1,000–1,500% APR.\n- Credit Unions often 12–26% APR for small short-term loans (subject to membership).\n- 0% money-transfer credit cards (if you have good credit) can bridge short gaps with a fee but no interest for the promo period.\n- Employer salary-advance schemes (where available) are usually cheaper still.\n\nUse the Payday vs Smart calculator on this site for exact numbers on your amount and term.`,
+      "Best time to renew car insurance": `**Insurance renewal sweet-spot**\n\nResearch consistently shows the lowest premiums for many UK drivers appear when comparing **21–26 days before** the renewal date. Booking on the day of renewal or very early (60+ days) is often more expensive.\n\nTips:\n- Set a calendar alert at day 26.\n- Compare at least 3 aggregators + direct.\n- Check excess, optional extras, and NCB protection carefully.`
+    };
+
+    const DEFAULT_AI = `I can help with UK tax codes, provider switching, NOS alternatives, group deals and APR comparisons. Try one of the preset prompts or ask about a specific bill or rebate.`;
+
+    /* ========== UTILS ========== */
+    const gbp = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 });
+    const gbp2 = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 2 });
+
+    function $(sel, root = document) { return root.querySelector(sel); }
+    function $$(sel, root = document) { return [...root.querySelectorAll(sel)]; }
+
+    function toast(msg) {
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.textContent = msg;
+      $("#toasts").append(el);
+      setTimeout(() => el.remove(), 3200);
+    }
+
+    function applyTheme() {
+      const root = document.documentElement;
+      if (state.theme === "system") root.removeAttribute("data-theme");
+      else root.setAttribute("data-theme", state.theme);
+    }
+
+    /* ========== ROUTER ========== */
+    const routes = ["home", "categories", "ai-agents", "calculators", "apps-extensions", "group-buying", "capabilities"];
+
+    function currentRoute() {
+      const hash = (location.hash || "#home").slice(1).split("?")[0];
+      return routes.includes(hash) ? hash : "home";
+    }
+
+    function navigate(route, replace = false) {
+      const url = "#" + route;
+      if (replace) history.replaceState(null, "", url);
+      else history.pushState(null, "", url);
+      renderRoute();
+    }
+
+    function renderRoute() {
+      const route = currentRoute();
+      $$(".view").forEach(v => {
+        const on = v.dataset.view === route;
+        v.classList.toggle("active", on);
+        v.hidden = !on;
+      });
+      $$("[data-route]").forEach(a => {
+        a.setAttribute("aria-current", a.dataset.route === route ? "page" : "false");
+      });
+      document.title = `Penny Pincher — ${route.replace(/-/g, " ")}`;
+      closeMobile();
+      if (route === "calculators") updateAllCalcs();
+      if (route === "group-buying") renderSyndicates();
+      if (route === "ai-agents") renderAgents();
+      if (route === "capabilities") renderCaps();
+    }
+
+    /* ========== RENDER HELPERS ========== */
+    function iconSvg(name) {
+      const icons = {
+        tag: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/>',
+        users: '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>',
+        refresh: '<path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>',
+        file: '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>',
+        alert: '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/>',
+        trend: '<path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/>',
+        car: '<path d="M5 17h14v2a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H8v1a1 1 0 01-1 1H6a1 1 0 01-1-1v-2z"/><path d="M5 17l-1-7h16l-1 7M7 10V7a1 1 0 011-1h8a1 1 0 011 1v3"/>',
+        package: '<path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/>',
+        briefcase: '<path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>',
+        factory: '<path d="M2 20h20M5 20V10l5 4V10l5 4V4h5v16"/>',
+        zap: '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>',
+        cpu: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/>',
+        ticket: '<path d="M3 9V7a2 2 0 012-2h14a2 2 0 012 2v2a2 2 0 000 4v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2a2 2 0 000-4z"/>',
+        activity: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'
+      };
+      const path = icons[name] || icons.tag;
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+    }
+
+    const catIcons = {
+      vouchers: "tag", group: "users", switching: "refresh", hmrc: "file", loans: "alert",
+      invest: "trend", motoring: "car", nos: "package", b2b: "briefcase", supply: "factory",
+      science: "zap", tech: "cpu", events: "ticket", sports: "activity"
+    };
+
+    function renderQuickWins() {
+      const root = $("#quick-wins");
+      root.replaceChildren();
+      QUICK_WINS.forEach(w => {
+        const card = document.createElement("article");
+        card.className = "card";
+        card.innerHTML = `
+          <h3 class="text-sm">${w.title}</h3>
+          <p class="text-sm text-muted mt-2">${w.desc}</p>
+          <a href="#${w.route}" class="btn btn-sm btn-ghost mt-3" data-nav>${w.action} →</a>`;
+        root.append(card);
+      });
+    }
+
+    function renderCategories(filter = "All") {
+      const grid = $("#cat-grid");
+      grid.replaceChildren();
+      const list = filter === "All" ? CATEGORIES : CATEGORIES.filter(c => c.group === filter);
+      list.forEach(c => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "card cat-card";
+        btn.innerHTML = `
+          <div class="icon-wrap">${iconSvg(catIcons[c.id] || "tag")}</div>
+          <div>
+            <h3 class="text-sm">${c.name}</h3>
+            <p class="text-xs text-muted mt-1">${c.blurb}</p>
+          </div>
+          <div class="flex justify-between items-center mt-auto">
+            <span class="badge">${c.save}</span>
+            <span class="text-xs text-muted">${c.group}</span>
+          </div>`;
+        btn.addEventListener("click", () => openCategory(c));
+        grid.append(btn);
+      });
+    }
+
+    function openCategory(c) {
+      $("#cat-dialog-title").textContent = c.name;
+      const body = $("#cat-dialog-body");
+      body.replaceChildren();
+      const p = document.createElement("p");
+      p.className = "text-sm mb-4";
+      p.textContent = c.blurb;
+      body.append(p);
+      const tips = document.createElement("ul");
+      tips.className = "text-sm";
+      tips.style.display = "flex";
+      tips.style.flexDirection = "column";
+      tips.style.gap = "8px";
+      const sampleTips = {
+        vouchers: ["Stack manufacturer + retailer + cashback where T&Cs allow.", "Copy codes with one click — we never auto-submit without confirmation.", "Track price history before claiming ‘deal’."],
+        hmrc: ["1257L ≈ £12,570 Personal Allowance (2026/27 illustrative).", "BR = basic rate on all income (no PA).", "Marriage Allowance can transfer £1,260 of PA."],
+        nos: ["Prefer sealed units with full accessory kits.", "Cross-check serial / model against current RRP.", "Liquidation stock can be previous season but brand new."],
+        switching: ["Broadband: threaten to leave in last 4–6 weeks of contract.", "Energy: compare fixed vs tracker; check exit fees.", "Current accounts: switching service protects payments."]
+      };
+      (sampleTips[c.id] || ["Explore related calculators and AI prompts for step-by-step actions.", "Save this vertical to My Stash for later.", "Enable relevant agents for ongoing monitoring."]).forEach(t => {
+        const li = document.createElement("li");
+        li.textContent = "• " + t;
+        tips.append(li);
+      });
+      body.append(tips);
+      const actions = document.createElement("div");
+      actions.className = "flex flex-wrap gap-2 mt-4";
+      const saveBtn = document.createElement("button");
+      saveBtn.type = "button";
+      saveBtn.className = "btn btn-primary btn-sm";
+      saveBtn.textContent = "Save to Stash";
+      saveBtn.addEventListener("click", () => {
+        if (!state.stash.find(s => s.id === c.id)) {
+          state.stash.push({ id: c.id, title: c.name, save: c.save, ts: Date.now() });
+          notify();
+          toast("Saved to My Stash");
+          renderStash();
+        } else toast("Already in Stash");
+      });
+      const closeBtn = document.createElement("button");
+      closeBtn.type = "button";
+      closeBtn.className = "btn btn-secondary btn-sm";
+      closeBtn.textContent = "Close";
+      closeBtn.addEventListener("click", () => $("#cat-dialog").close());
+      actions.append(saveBtn, closeBtn);
+      body.append(actions);
+      $("#cat-dialog").showModal();
+    }
+
+    function renderCatFilters() {
+      const groups = ["All", "Everyday & Retail", "Tax & Finance", "B2B & Industrial", "Tech & Auto"];
+      const row = $("#cat-filters");
+      row.replaceChildren();
+      groups.forEach((g, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "pill";
+        b.textContent = g;
+        b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+        b.addEventListener("click", () => {
+          $$(".pill", row).forEach(p => p.setAttribute("aria-pressed", "false"));
+          b.setAttribute("aria-pressed", "true");
+          renderCategories(g);
+        });
+        row.append(b);
+      });
+    }
+
+    function renderSyndicates() {
+      const grid = $("#syndicate-grid");
+      grid.replaceChildren();
+      SYNDICATES.forEach(s => {
+        const joined = state.syndicates[s.id] ?? s.joined;
+        const pct = Math.min(100, Math.round((joined / s.target) * 100));
+        const card = document.createElement("article");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="flex justify-between items-start gap-2">
+            <h3 class="text-sm">${s.title}</h3>
+            <span class="badge badge-copper">${s.discount}</span>
+          </div>
+          <p class="text-xs text-muted mt-2">${s.region}</p>
+          <div class="mt-3">
+            <div class="flex justify-between text-xs mb-1">
+              <span class="mono">${joined} / ${s.target}</span>
+              <span>${pct}%</span>
+            </div>
+            <div class="progress-bar"><span style="width:${pct}%"></span></div>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm mt-4 join-btn">Join Syndicate</button>`;
+        card.querySelector(".join-btn").addEventListener("click", () => {
+          const next = (state.syndicates[s.id] ?? s.joined) + 1;
+          state.syndicates[s.id] = next;
+          notify();
+          toast(`Joined “${s.title}” — ${next}/${s.target}`);
+          renderSyndicates();
+        });
+        grid.append(card);
+      });
+    }
+
+    function renderAgents() {
+      const defs = [
+        { key: "negotiator", title: "Bill Negotiator Agent", desc: "Drafts retention and cancellation scripts for broadband, mobile and energy." },
+        { key: "sniper", title: "Voucher & Basket Sniper", desc: "Tests codes at checkout and stacks cashback where rules allow." },
+        { key: "watchdog", title: "HMRC & Subscription Watchdog", desc: "Flags stealth price hikes and unused direct debits." },
+        { key: "scout", title: "NOS & Liquidation Scout", desc: "Monitors wholesale and surplus drops for target SKUs." }
+      ];
+      const grid = $("#agent-grid");
+      grid.replaceChildren();
+      defs.forEach(d => {
+        const card = document.createElement("article");
+        card.className = "card agent-card";
+        const on = !!state.agents[d.key];
+        card.innerHTML = `
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm">${d.title}</h3>
+            <button type="button" class="toggle" role="switch" aria-checked="${on}" data-agent="${d.key}" aria-label="Toggle ${d.title}"></button>
+          </div>
+          <p class="text-sm text-muted">${d.desc}</p>
+          <p class="text-xs ${on ? "" : "text-muted"}">${on ? "● Active — scanning in background (simulated)" : "○ Inactive"}</p>`;
+        card.querySelector(".toggle").addEventListener("click", (e) => {
+          const btn = e.currentTarget;
+          const key = btn.dataset.agent;
+          state.agents[key] = !state.agents[key];
+          notify();
+          toast(`${d.title} ${state.agents[key] ? "enabled" : "disabled"}`);
+          renderAgents();
+        });
+        grid.append(card);
+      });
+    }
+
+    function renderStash() {
+      const body = $("#stash-body");
+      body.replaceChildren();
+      if (!state.stash.length) {
+        const p = document.createElement("p");
+        p.className = "text-sm text-muted";
+        p.textContent = "No saved deals yet. Browse categories and hit “Save to Stash”.";
+        body.append(p);
+        return;
+      }
+      const total = document.createElement("p");
+      total.className = "text-sm mb-4";
+      total.innerHTML = `<strong>${state.stash.length}</strong> items saved`;
+      body.append(total);
+      state.stash.forEach((item, idx) => {
+        const row = document.createElement("div");
+        row.className = "card mb-2";
+        row.style.padding = "var(--space-3)";
+        row.innerHTML = `
+          <div class="flex justify-between items-start gap-2">
+            <div>
+              <p class="text-sm font-bold">${item.title}</p>
+              <p class="text-xs text-muted">${item.save || ""}</p>
+            </div>
+            <button type="button" class="btn btn-sm btn-ghost" data-idx="${idx}">Remove</button>
+          </div>`;
+        row.querySelector("button").addEventListener("click", () => {
+          state.stash.splice(idx, 1);
+          notify();
+          toast("Removed from Stash");
+          renderStash();
+        });
+        body.append(row);
+      });
+      const clear = document.createElement("button");
+      clear.type = "button";
+      clear.className = "btn btn-secondary btn-sm mt-4";
+      clear.textContent = "Clear Stash";
+      clear.addEventListener("click", () => {
+        state.stash = [];
+        notify();
+        toast("Stash cleared");
+        renderStash();
+      });
+      body.append(clear);
+    }
+
+    /* ========== CALCULATORS ========== */
+    function paydayCalc() {
+      const amount = +$("#pd-amount").value || 0;
+      const days = +$("#pd-days").value || 30;
+      const aprHigh = +$("#pd-apr").value || 1500;
+      const aprLow = +$("#pd-cu").value || 12.9;
+      const interest = (principal, apr, d) => principal * (apr / 100) * (d / 365);
+      const iHigh = interest(amount, aprHigh, days);
+      const iLow = interest(amount, aprLow, days);
+      $("#pd-total-high").textContent = gbp2.format(amount + iHigh);
+      $("#pd-interest-high").textContent = `Interest: ${gbp2.format(iHigh)}`;
+      $("#pd-total-low").textContent = gbp2.format(amount + iLow);
+      $("#pd-interest-low").textContent = `Interest: ${gbp2.format(iLow)}`;
+      $("#pd-save").textContent = `You could avoid ${gbp2.format(Math.max(0, iHigh - iLow))} in interest`;
+    }
+
+    function taxCalc() {
+      // Simplified 2026/27 England-style bands (illustrative)
+      const gross = +$("#tax-salary").value || 0;
+      const penPct = +$("#tax-pension").value || 0;
+      const code = $("#tax-code").value;
+      const student = $("#tax-student").value;
+      const pension = gross * (penPct / 100);
+      let taxableIncome = Math.max(0, gross - pension);
+      let pa = 12570;
+      if (code === "BR" || code === "0T") pa = 0;
+      if (code === "K") pa = -2000;
+      if (gross > 100000) pa = Math.max(0, pa - Math.floor((gross - 100000) / 2));
+      const taxable = Math.max(0, taxableIncome - pa);
+      let incomeTax = 0;
+      if (taxable > 0) {
+        const basic = Math.min(taxable, 37700);
+        incomeTax += basic * 0.2;
+        if (taxable > 37700) {
+          const higher = Math.min(taxable - 37700, 87440);
+          incomeTax += higher * 0.4;
+          if (taxable > 37700 + 87440) incomeTax += (taxable - 37700 - 87440) * 0.45;
+        }
+      }
+      // Employee NI simplified (class 1)
+      const niThreshold = 12570;
+      const niUpper = 50270;
+      let ni = 0;
+      if (gross > niThreshold) {
+        const band = Math.min(gross, niUpper) - niThreshold;
+        ni += band * 0.08;
+        if (gross > niUpper) ni += (gross - niUpper) * 0.02;
+      }
+      let studentLoan = 0;
+      if (student === "plan2" && gross > 27295) studentLoan = (gross - 27295) * 0.09;
+      if (student === "plan5" && gross > 25000) studentLoan = (gross - 25000) * 0.09;
+      const net = gross - incomeTax - ni - studentLoan - pension;
+      $("#tax-net").textContent = gbp.format(net);
+      $("#tax-income").textContent = gbp.format(incomeTax);
+      $("#tax-ni").textContent = gbp.format(ni);
+      $("#tax-monthly").textContent = gbp.format(net / 12);
+    }
+
+    function compoundCalc() {
+      const monthly = +$("#cp-monthly").value || 0;
+      const r = (+$("#cp-return").value || 0) / 100 / 12;
+      function fv(months) {
+        if (r === 0) return monthly * months;
+        return monthly * ((Math.pow(1 + r, months) - 1) / r);
+      }
+      $("#cp-5").textContent = gbp.format(fv(60));
+      $("#cp-10").textContent = gbp.format(fv(120));
+      $("#cp-20").textContent = gbp.format(fv(240));
+    }
+
+    function updateAllCalcs() {
+      paydayCalc();
+      taxCalc();
+      compoundCalc();
+    }
+
+    /* ========== HABIT ESTIMATOR ========== */
+    function updateHabits() {
+      let annual = 0;
+      $$("#habit-toggles .habit-toggle").forEach(b => {
+        if (b.getAttribute("aria-pressed") === "true") annual += +b.dataset.save;
+      });
+      $("#habit-annual").textContent = gbp.format(annual);
+      // Future value of annual savings invested monthly at 7% for 10y
+      const monthly = annual / 12;
+      const r = 0.07 / 12;
+      const fv = monthly === 0 ? 0 : monthly * ((Math.pow(1 + r, 120) - 1) / r);
+      $("#habit-compound").textContent = gbp.format(fv);
+    }
+
+    /* ========== CHAT ========== */
+    function addMsg(text, who) {
+      const box = $("#chat-messages");
+      const div = document.createElement("div");
+      div.className = `msg msg-${who}`;
+      // Simple markdown-ish: **bold** and newlines
+      const html = text
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\n/g, "<br>");
+      div.innerHTML = html;
+      box.append(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function handlePrompt(q) {
+      addMsg(q, "user");
+      const answer = AI_RESPONSES[q] || DEFAULT_AI;
+      setTimeout(() => addMsg(answer, "ai"), 400);
+    }
+
+    /* ========== EXTENSION SIM ========== */
+    function simExtension() {
+      const steps = [
+        "Applied code SAVE15 (−£28.11)",
+        "Applied code FREESHIP (−£4.99)",
+        "Cashback activated 6.5% (+£10.03 tracked)",
+        "NOS alternative found: same SKU −£41.00",
+        "Final payable ≈ £113.30 (was £187.40)"
+      ];
+      const ul = $("#ext-steps");
+      ul.replaceChildren();
+      $("#ext-status").textContent = "Running auto-apply…";
+      steps.forEach((s, i) => {
+        setTimeout(() => {
+          const li = document.createElement("li");
+          li.textContent = "✓ " + s;
+          li.style.color = "var(--emerald-deep)";
+          ul.append(li);
+          if (i === steps.length - 1) {
+            $("#ext-status").textContent = "Simulation complete — £74.10 potential saving";
+            toast("Extension simulation finished");
+          }
+        }, 500 * (i + 1));
+      });
+    }
+
+    /* ========== CAPABILITIES ========== */
+    function renderCaps() {
+      const checks = [
+        { label: "View Transitions API", on: !!document.startViewTransition, note: "Smooth route morphing" },
+        { label: "Scroll-driven animations", on: CSS.supports("animation-timeline: scroll()"), note: "Ticker / progress effects" },
+        { label: "Container queries", on: CSS.supports("container-type: inline-size"), note: "Component-level responsive" },
+        { label: "CSS nesting", on: CSS.supports("selector(&)"), note: "Cleaner component CSS" },
+        { label: "@scope", on: CSS.supports("at-rule(@scope)"), note: "Scoped component styles" },
+        { label: "Anchor positioning", on: CSS.supports("anchor-name: --a"), note: "Popover placement" },
+        { label: "Popover API", on: HTMLElement.prototype.hasOwnProperty("popover"), note: "Light-dismiss menus" },
+        { label: "<dialog>", on: typeof HTMLDialogElement === "function", note: "Modals & search" },
+        { label: ":has()", on: CSS.supports("selector(:has(*))"), note: "Parent-state styling" },
+        { label: "Navigation API", on: !!window.navigation, note: "Modern SPA routing" },
+        { label: "Web Animations API", on: !!Element.prototype.animate, note: "JS-driven motion" },
+        { label: "Canvas 2D", on: !!document.createElement("canvas").getContext, note: "Charts / visuals" },
+        { label: "Clipboard API", on: !!navigator.clipboard, note: "Copy voucher codes" },
+        { label: "localStorage", on: (() => { try { localStorage.setItem("_t", "1"); localStorage.removeItem("_t"); return true; } catch { return false; } })(), note: "Stash & agent prefs" }
+      ];
+      const grid = $("#cap-grid");
+      grid.replaceChildren();
+      checks.forEach(c => {
+        const el = document.createElement("div");
+        el.className = "cap-item";
+        el.innerHTML = `
+          <span class="cap-dot ${c.on ? "on" : "off"}" aria-hidden="true"></span>
+          <div>
+            <strong>${c.label}</strong>
+            <span class="text-muted"> — ${c.on ? "available" : "unavailable"}</span>
+            <p class="text-xs text-muted">${c.note}</p>
+          </div>`;
+        grid.append(el);
+      });
+    }
+
+    /* ========== SEARCH ========== */
+    function runSearch(q) {
+      const results = $("#search-results");
+      results.replaceChildren();
+      if (!q.trim()) {
+        results.textContent = "Type to search categories, tools and deals…";
+        return;
+      }
+      const ql = q.toLowerCase();
+      const hits = [
+        ...CATEGORIES.filter(c => c.name.toLowerCase().includes(ql) || c.blurb.toLowerCase().includes(ql) || c.tags.some(t => t.includes(ql))),
+        ...QUICK_WINS.filter(w => w.title.toLowerCase().includes(ql) || w.desc.toLowerCase().includes(ql))
+      ];
+      if (!hits.length) {
+        results.textContent = "No matches.";
+        return;
+      }
+      hits.slice(0, 12).forEach(h => {
+        const a = document.createElement("button");
+        a.type = "button";
+        a.className = "btn btn-ghost";
+        a.style.width = "100%";
+        a.style.justifyContent = "flex-start";
+        a.textContent = h.name || h.title;
+        a.addEventListener("click", () => {
+          $("#search-dialog").close();
+          if (h.id) {
+            navigate("categories");
+            openCategory(h);
+          } else navigate(h.route || "home");
+        });
+        results.append(a);
+      });
+    }
+
+    /* ========== SAVINGS COUNTER ========== */
+    function animateCounter() {
+      const el = $("#savings-counter");
+      const target = 42890410;
+      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduced) {
+        el.textContent = gbp.format(target);
+        return;
+      }
+      const start = performance.now();
+      const dur = 2200;
+      function frame(t) {
+        const p = Math.min(1, (t - start) / dur);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = gbp.format(Math.round(target * eased));
+        if (p < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    /* ========== MOBILE NAV ========== */
+    function openMobile() {
+      const m = $("#mobile-nav");
+      m.hidden = false;
+      m.classList.add("open");
+      $("#btn-menu").setAttribute("aria-expanded", "true");
+    }
+    function closeMobile() {
+      const m = $("#mobile-nav");
+      m.classList.remove("open");
+      m.hidden = true;
+      $("#btn-menu").setAttribute("aria-expanded", "false");
+    }
+
+    /* ========== INIT ========== */
+    function init() {
+      applyTheme();
+      renderQuickWins();
+      renderCatFilters();
+      renderCategories();
+      renderStash();
+      renderRoute();
+      animateCounter();
+
+      // Seed chat
+      addMsg("Hi — I’m Penny AI. Ask about bills, tax codes, NOS or APR comparisons.", "ai");
+
+      // Events
+      document.addEventListener("click", (e) => {
+        const a = e.target.closest("[data-nav]");
+        if (a && a.getAttribute("href")?.startsWith("#")) {
+          e.preventDefault();
+          navigate(a.getAttribute("href").slice(1));
+        }
+      });
+
+      window.addEventListener("hashchange", renderRoute);
+      window.addEventListener("popstate", renderRoute);
+
+      $("#btn-theme").addEventListener("click", () => {
+        const order = ["system", "light", "dark"];
+        const i = order.indexOf(state.theme);
+        state.theme = order[(i + 1) % order.length];
+        applyTheme();
+        notify();
+        toast(`Theme: ${state.theme}`);
+      });
+
+      $("#btn-menu").addEventListener("click", openMobile);
+      $("#btn-menu-close").addEventListener("click", closeMobile);
+
+      $("#btn-stash").addEventListener("click", () => {
+        renderStash();
+        $("#stash-drawer").classList.add("open");
+        $("#drawer-backdrop").classList.add("open");
+        $("#stash-drawer").setAttribute("aria-hidden", "false");
+      });
+      $("#btn-stash-close").addEventListener("click", closeDrawer);
+      $("#drawer-backdrop").addEventListener("click", closeDrawer);
+      function closeDrawer() {
+        $("#stash-drawer").classList.remove("open");
+        $("#drawer-backdrop").classList.remove("open");
+        $("#stash-drawer").setAttribute("aria-hidden", "true");
+      }
+
+      $("#btn-search").addEventListener("click", () => {
+        $("#search-dialog").showModal();
+        $("#search-input").value = "";
+        $("#search-results").textContent = "";
+        $("#search-input").focus();
+      });
+      $("#search-close").addEventListener("click", () => $("#search-dialog").close());
+      $("#search-input").addEventListener("input", (e) => runSearch(e.target.value));
+      document.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+          e.preventDefault();
+          $("#btn-search").click();
+        }
+        if (e.key === "Escape") {
+          closeMobile();
+          closeDrawer();
+        }
+      });
+
+      $$("#habit-toggles .habit-toggle").forEach(b => {
+        b.addEventListener("click", () => {
+          const on = b.getAttribute("aria-pressed") === "true";
+          b.setAttribute("aria-pressed", on ? "false" : "true");
+          updateHabits();
+        });
+      });
+      updateHabits();
+
+      // Calc tabs
+      $$("[data-calc]").forEach(tab => {
+        tab.addEventListener("click", () => {
+          $$("[data-calc]").forEach(t => t.setAttribute("aria-selected", "false"));
+          tab.setAttribute("aria-selected", "true");
+          $$(".calc-panel").forEach(p => p.classList.remove("active"));
+          $(`#calc-${tab.dataset.calc}`).classList.add("active");
+          updateAllCalcs();
+        });
+      });
+      ["pd-amount", "pd-days", "pd-apr", "pd-cu"].forEach(id => $(`#${id}`)?.addEventListener("input", paydayCalc));
+      ["tax-salary", "tax-pension", "tax-code", "tax-student"].forEach(id => $(`#${id}`)?.addEventListener("input", taxCalc));
+      ["cp-monthly", "cp-return"].forEach(id => $(`#${id}`)?.addEventListener("input", compoundCalc));
+
+      // Chat
+      $$("[data-prompt]").forEach(b => {
+        b.addEventListener("click", () => handlePrompt(b.dataset.prompt));
+      });
+      $("#chat-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const q = $("#chat-input").value.trim();
+        if (!q) return;
+        $("#chat-input").value = "";
+        handlePrompt(q);
+      });
+
+      $("#btn-sim-ext").addEventListener("click", simExtension);
+      $("#btn-notify-ios").addEventListener("click", () => toast("We’ll notify you when the iOS app ships"));
+      $("#btn-notify-android").addEventListener("click", () => toast("We’ll notify you when the Android app ships"));
+
+      $("#cat-dialog-close").addEventListener("click", () => $("#cat-dialog").close());
+      $("#cat-dialog").addEventListener("click", (e) => {
+        if (e.target === $("#cat-dialog")) $("#cat-dialog").close();
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
